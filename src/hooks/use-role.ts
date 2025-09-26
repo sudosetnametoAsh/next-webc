@@ -21,6 +21,8 @@ export default function useToken() {
           account: accounts[0],
         });
 
+        console.log(result.accessToken)
+
         const res = await fetch("/api/token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -36,6 +38,7 @@ export default function useToken() {
 
         const data = await res.json();
         if (data.success) {
+
           const idToken = result.idTokenClaims as Msal;
           const role = idToken.roles;
 
@@ -50,7 +53,7 @@ export default function useToken() {
           }
         }
       } catch (err) {
-        console.error("Silent token acquisition failed:", err);
+        console.error("Token acquisition failed:", err);
       }
     };
 

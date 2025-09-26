@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase-config";
+// import { supabase } from "@/lib/supabase-config";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,10 +11,12 @@ export async function GET(req: NextRequest) {
   const user = JSON.parse(userHeader);
   const role = user.role;
   const name = user.name;
+  const email = user.email
 
   return NextResponse.json({
     role: role,
     name: name,
+    email,
     message: "Data passed",
   });
 }

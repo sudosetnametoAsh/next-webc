@@ -1,7 +1,7 @@
 "use client";
 
 import SignOutButton from "@/components/sign-out-button";
-import StudentTable from "@/components/student-table";
+import StudentTable from "@/components/student/student-table";
 import { useEffect } from "react";
 
 
