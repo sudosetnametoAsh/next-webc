@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
+import { supabase } from "@/lib/supabase-config";
 
 const tenantId = process.env.AZURE_AD_TENANT_ID!;
 const clientId = process.env.AZURE_AD_CLIENT_ID!;
@@ -28,7 +29,18 @@ export async function POST(req: NextRequest) {
 
     const email = payload.preferred_username as string;
     const role = payload.roles || [];
-    const name = payload.name
+    const name = payload.name;
+
+    const { error } = await supabase
+      .from("users")
+      .upsert({ email }, { onConflict: "email" })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase upsert error:", error);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
 
     const sessionToken = await new SignJWT({ email, role, name })
       .setProtectedHeader({ alg: "HS256" })
