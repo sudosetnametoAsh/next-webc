@@ -13,7 +13,7 @@ export default function useToken() {
 
   useEffect(() => {
     const postToken = async () => {
-      if (!accounts || accounts.length === 0) return;
+      if (accounts.length === 0) return;
 
       try {
         const result = await instance.acquireTokenSilent({

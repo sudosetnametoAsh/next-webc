@@ -6,9 +6,3 @@
 *better invalid redirect :>
 *fix useRole
 *consider useToken ---
-
-dino.gerald@clearancedemo.onmicrosoft.com
-Gerald2134
-
-canzana.benh@clearancedemo.onmicrosoft.com
-Bench2132
