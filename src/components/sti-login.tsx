@@ -15,25 +15,25 @@ export default function STILoginPageCSS() {
         instance.loginRedirect(loginRequest).catch((error: any) => console.log(error));
     };
 
-    if (inProgress !== InteractionStatus.None) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.loginCard}>
-                    <p>Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    // if (inProgress !== InteractionStatus.None) {
+    //     return (
+    //         <div className={styles.container}>
+    //             <div className={styles.loginCard}>
+    //                 <p>Loading...</p>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
-    if (accounts.length > 0) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.loginCard}>
-                    <p>Fetching Data...</p>
-                </div>
-            </div>
-        );
-    }
+    // if (accounts.length > 0) {
+    //     return (
+    //         <div className={styles.container}>
+    //             <div className={styles.loginCard}>
+    //                 <p>Fetching Data...</p>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className={styles.container}>
