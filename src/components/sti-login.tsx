@@ -2,11 +2,10 @@
 
 import { loginRequest } from "@/lib/msal/msal-config";
 import { useMsal } from "@azure/msal-react";
-import { InteractionStatus } from "@azure/msal-browser";
 import useRoleRedirect from "@/hooks/use-role";
 import styles from "@/styles/sti-login.module.css";
 
-export default function STILoginPageCSS() {
+export default function STILogin() {
     const { instance, accounts, inProgress } = useMsal();
 
     useRoleRedirect();
