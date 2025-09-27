@@ -1,10 +1,5 @@
-import SignInButton from "@/components/signin-button";
+import STILogin from "@/components/sti-login";
 
 export default function Home() {
-
-  return (
-    <>
-      <SignInButton />
-    </>
-  );
+  return <STILogin />;
 }
