@@ -1,0 +1,123 @@
+.container {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url(/sti.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.logoTopLeft {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  /* background-color: #fbbf24; */
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #1e3a8a;
+  font-size: 18px;
+  z-index: 10;
+}
+
+.logoTopLeft img {
+  height: 60px;
+  width: auto;
+}
+
+.loginCard {
+  position: relative;
+  z-index: 10;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 32px;
+  width: 100%;
+  max-width: 448px;
+  margin: 0 16px;
+}
+
+.logoCenter {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logoBox {
+  display: inline-block;
+  /* background-color: #fbbf24; */
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+
+.logoBox img {
+  height: 80px;
+  width: auto;
+  display: block;
+}
+
+.logoText {
+  color: #1e3a8a;
+  font-weight: bold;
+  font-size: 32px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.loginButton {
+  width: 100%;
+  background-color: #EB4626;
+  color: white;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background-color: #dc2626;
+}
+
+/* .helpLink {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.helpLink a {
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.helpLink a:hover {
+  text-decoration: underline;
+} */
+
+.footer {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 12px;
+  color: #6b7280;
+}
