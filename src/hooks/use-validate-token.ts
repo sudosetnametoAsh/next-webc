@@ -7,7 +7,7 @@ interface Msal {
   roles: string;
 }
 
-export default function useToken() {
+export default function useValidateToken() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
 
@@ -21,9 +21,7 @@ export default function useToken() {
           account: accounts[0],
         });
 
-        console.log(result.accessToken)
-
-        const res = await fetch("/api/token", {
+        const res = await fetch("/api/validate-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

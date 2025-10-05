@@ -12,31 +12,53 @@ export async function GET(req: NextRequest) {
   const name = user.name;
   const email = user.email;
 
-  const { data, error } = await supabase
-  .from("studentclearances")
-  .select(`
+  const { data: studentData, error: studentError } = await supabase
+    .from("student_clearances")
+    .select(
+      `
     status,
     students!inner (
-      student_name,
-      users!inner (
-        email
-      )
+      users!inner ()
     ),
-    clearancetemplates (
+    clearance_templates (
       departments ( dept_name ),
       staffs ( staff_name )
+    ),
+    requirements_status (
+      status,
+      clearance_requirements ( description )
     )
-  `)
-  .eq("students.users.email", email);
+  `
+    )
+    .eq("students.users.email", email);
 
-  if (error) {
-    console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (studentError) {
+    console.error(studentError);
+    return NextResponse.json({ error: studentError.message }, { status: 500 });
   }
 
+  const { data: studentBalance, error: studentBalanceError } = await supabase
+    .from("student_balances")
+    .select(
+      `
+        amount,
+        students!inner (
+          users!inner ()
+        )
+      `
+    )
+    .eq("students.users.email", email);
+
+  if (studentBalanceError) {
+    console.error(studentBalanceError);
+    return NextResponse.json(
+      { error: studentBalanceError.message },
+      { status: 500 }
+    );
+  }
   return NextResponse.json({
     name,
-    data,
+    data: studentData,
+    balance: studentBalance,
   });
-
 }

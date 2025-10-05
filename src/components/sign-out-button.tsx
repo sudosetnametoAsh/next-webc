@@ -6,7 +6,7 @@ export default function SignOutButton() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/logout", { method: "POST" });
+      await fetch("/api/clear-session", { method: "DELETE" });
       await instance.logoutRedirect();
     } catch (err) {
       console.error(err);

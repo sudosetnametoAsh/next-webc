@@ -5,7 +5,9 @@ import { jwtVerify } from "jose";
 const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 export async function middleware(req: NextRequest) {
-   if (req.nextUrl.pathname === "/api/token") {
+  const { pathname } = req.nextUrl;
+
+  if (pathname === "/api/validate-token") {
     return NextResponse.next();
   }
   const token = req.cookies.get("session_token")?.value;
@@ -16,8 +18,6 @@ export async function middleware(req: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, SESSION_SECRET);
-
-    const pathname = req.nextUrl.pathname;
     const role = payload.role as string;
 
     if (pathname.startsWith("/student") && !role.includes("Student")) {
@@ -49,5 +49,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/student/:path*", "/department/:path*", "/admin/:path*"],
+  matcher: [
+    "/api/:path*",
+    "/student/:path*",
+    "/department/:path*",
+    "/admin/:path*",
+  ],
 };

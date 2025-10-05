@@ -1,6 +1,6 @@
 import QueryProvider from "@/lib/query/query-provider";
 import MSALProvider from "@/lib/msal/msal-provider";
-import "../styles/layout.css"
+import "@/styles/layout.css"
 
 export const metadata = {
   title: "Next Js App",
