@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { supabase } from "@/lib/supabase-config";
+import { createClient } from "@/lib/supabase-config";
 
 const tenantId = process.env.AZURE_AD_TENANT_ID!;
 const clientId = process.env.AZURE_AD_CLIENT_ID!;
+const supabase = createClient();
 
 const jwks = createRemoteJWKSet(
   new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`)

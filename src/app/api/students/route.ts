@@ -1,6 +1,7 @@
-import { supabase } from "@/lib/supabase-config";
+import { createClient } from "@/lib/supabase-config";
 import { NextRequest, NextResponse } from "next/server";
 
+const supabase = createClient();
 export async function GET(req: NextRequest) {
   const userHeader = req.headers.get("x-user");
 
