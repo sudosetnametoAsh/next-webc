@@ -1,10 +1,13 @@
+"use client";
 import styles from "@/styles/sti-login.module.css";
 // import "@/styles/sti-login.module.css"
 import SignInButton from "@/components/signin-button";
 import Image from "next/image";
 
 export default function Home() {
-  return (
+
+
+    return (
         <div className={styles.container}>
 
             <div className={styles.logoTopLeft}>
@@ -27,6 +30,7 @@ export default function Home() {
                             width={120}
                             height={120}
                             unoptimized
+                            priority
                         />
                     </div>
                 </div>
@@ -37,14 +41,6 @@ export default function Home() {
                 </div>
 
                 <SignInButton />
-
-
-                {/* 
-                <div className={styles.helpLink}>
-                    <a href="#">
-                        Having trouble logging in? Click here
-                    </a>
-                </div> */}
 
                 <div className={styles.footer}>
                     © WebC, Inc. All Rights Reserved.
