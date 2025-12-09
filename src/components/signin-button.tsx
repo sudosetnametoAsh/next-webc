@@ -1,15 +1,11 @@
 "use client";
 
 import { loginRequest } from "@/lib/msal/msal-config";
-import { useMsal, useIsAuthenticated } from "@azure/msal-react";
-import UseValidateToken from "@/hooks/use-validate-token";
+import { useMsal } from "@azure/msal-react";
 import styles from "@/styles/sti-login.module.css";
 
 export default function SignInButton() {
     const { instance } = useMsal();
-    const isAuthenticated = useIsAuthenticated();
-
-    UseValidateToken(isAuthenticated);
 
     const handleLogin = () => {
         instance.loginRedirect(loginRequest).catch((error) => console.error("Login failed:", error));

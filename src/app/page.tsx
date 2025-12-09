@@ -1,52 +1,22 @@
 "use client";
-import styles from "@/styles/sti-login.module.css";
-// import "@/styles/sti-login.module.css"
-import SignInButton from "@/components/signin-button";
-import Image from "next/image";
+
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
+import Draft from "@/components/token-validator";
+import Login from "@/components/login";
 
 export default function Home() {
+    const { inProgress } = useMsal()
+    const isAuthenticated = useIsAuthenticated()
 
+    if (inProgress !== "none") {
+        return null
+    }
+
+    console.log(inProgress, isAuthenticated)
 
     return (
-        <div className={styles.container}>
-
-            <div className={styles.logoTopLeft}>
-                <Image
-                    src="/stilogo.png"
-                    alt="STI Logo"
-                    width={120}
-                    height={120}
-                    unoptimized />
-            </div>
-
-
-            <div className={styles.loginCard}>
-
-                <div className={styles.logoCenter}>
-                    <div className={styles.logoBox}>
-                        <Image
-                            src="/stilogo.png"
-                            alt="STI Logo"
-                            width={120}
-                            height={120}
-                            unoptimized
-                            priority
-                        />
-                    </div>
-                </div>
-
-
-                <div className={styles.title}>
-                    <h1>Login Now</h1>
-                </div>
-
-                <SignInButton />
-
-                <div className={styles.footer}>
-                    © WebC, Inc. All Rights Reserved.
-                </div>
-            </div>
-
-        </div>
+        <>
+            {isAuthenticated ? <Draft /> : <Login />}
+        </>
     );
 }

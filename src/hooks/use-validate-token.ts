@@ -2,18 +2,15 @@ import { useMsal } from "@azure/msal-react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function useValidateToken(isAuthenticated: boolean) {
+export default function useValidateToken() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated || accounts.length === 0) {
-      return;  // Don't do anything if the user is not authenticated
-    }
 
     const postToken = async () => {
       console.log("Validating token...");
-      
+
       try {
         // Attempt to acquire the token silently
         const result = await instance.acquireTokenSilent({
@@ -31,13 +28,13 @@ export default function useValidateToken(isAuthenticated: boolean) {
 
         if (!res.ok) {
           console.error("Failed to exchange token:", await res.json());
-          instance.logoutRedirect();  // Logout if token validation fails
+          instance.logoutRedirect(); // Logout if token validation fails
           return;
         }
 
         // Token is valid, now determine the user role and redirect accordingly
-        const {role} = await res.json();
-        console.log(result.accessToken)
+        const { role } = await res.json();
+        console.log(result.accessToken);
 
         if (role.includes("Admin")) {
           router.replace("/admin");
@@ -54,5 +51,5 @@ export default function useValidateToken(isAuthenticated: boolean) {
     };
 
     postToken();
-  }, [isAuthenticated, accounts, instance, router]);  
+  }, [accounts, instance, router]);
 }
