@@ -14,6 +14,7 @@ const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 export async function POST(req: NextRequest) {
   try {
+    // Extract the access token from the request body
     const { accessToken } = await req.json();
 
     if (!accessToken) {
@@ -23,15 +24,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Verify the access token with Azure AD
     const { payload } = await jwtVerify(accessToken, jwks, {
       issuer: `https://login.microsoftonline.com/${tenantId}/v2.0`,
       audience: clientId,
     });
 
+    // Extract user information from the token payload
     const email = payload.preferred_username as string;
     const role = payload.roles || [];
     const name = payload.name;
 
+    // Insert email into Supabase if non-existent
     const { error } = await supabase
       .from("users")
       .upsert({ email }, { onConflict: "email" })
@@ -42,14 +46,17 @@ export async function POST(req: NextRequest) {
       console.error("Supabase upsert error:", error);
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
-
+    
+    // Create token
+    // Mint email, role, and name into token
     const sessionToken = await new SignJWT({ email, role, name })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("1h")
       .sign(SESSION_SECRET);
 
-    const res = NextResponse.json({ success: true });
+    // Set the session token in cookies
+    const res = NextResponse.json({ success: true, role });
     res.cookies.set("session_token", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -62,28 +69,5 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("Failed to process token:", err);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const token = req.cookies.get("session_token")?.value;
-    if (!token) {
-      return NextResponse.json(
-        { error: "Missing session token" },
-        { status: 401 }
-      );
-    }
-
-    const { payload } = await jwtVerify(token, SESSION_SECRET);
-
-    return NextResponse.json({
-      email: payload.email,
-      role: payload.role,
-      message: "Session is valid",
-    });
-  } catch (err) {
-    console.error("Session validation failed:", err);
-    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
   }
 }
