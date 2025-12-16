@@ -7,9 +7,8 @@ export default function useValidateToken() {
   const router = useRouter();
 
   useEffect(() => {
-
     const postToken = async () => {
-      console.log("Validating token...");
+      // console.log("Validating token...");
 
       try {
         // Attempt to acquire the token silently
@@ -34,7 +33,7 @@ export default function useValidateToken() {
 
         // Token is valid, now determine the user role and redirect accordingly
         const { role } = await res.json();
-        console.log(result.accessToken);
+        // console.log(result.accessToken);
 
         if (role.includes("Admin")) {
           router.replace("/admin");

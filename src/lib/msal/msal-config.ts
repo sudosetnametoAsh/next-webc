@@ -12,10 +12,14 @@ export const msalConfig = {
   cache: {
     cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
-  },  
+  },
   system: {
     loggerOptions: {
-      loggerCallback: (level : LogLevel, message : string, containsPii : boolean) => {
+      loggerCallback: (
+        level: LogLevel,
+        message: string,
+        containsPii: boolean
+      ) => {
         if (containsPii) {
           return;
         }
@@ -47,7 +51,11 @@ export const msalConfig = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-  scopes: [],
+  scopes: ["User.Read"],
+};
+
+export const logoutRequest = {
+  // postLogoutRedirectUri: "http://localhost:3000",
 };
 
 /**

@@ -1,11 +1,29 @@
-*middleware ---
-*backend validation ---
-*loading
-*azure v2 ---
-*invalid token redirect ---
-*better invalid redirect :>
-*fix useRole
-*consider useToken ---
-*providers
-*dynamic routing
-*type safety
+*main {
+    - display data [
+        students **
+        course **
+        preset
+        tasks **
+    ]
+}
+
+*sub {
+    response numbers **
+    pagination
+    lazy loading
+    indexing advice for this query
+    types **
+    promise **
+    draft
+}
+
+*fallback {
+    revalidate after login
+    dynamic routing
+    providers
+    type safety
+    useEffect
+    login redirect
+    student fetch logic
+    restructure student
+}

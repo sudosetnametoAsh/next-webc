@@ -1,13 +1,15 @@
-import SignOutButton from '@/components/sign-out-button'
-import React from 'react'
+"use client";
+// import StaffTable from "@/components/department/staff-table";
+import SignOutButton from "@/components/sign-out-button";
+import Draft from "@/components/department/draft";
 
-const page = () => {
+export default function Department() {
   return (
     <>
-      <div>Department</div>
+      {/* <StaffTable /> */}
+      <Draft />
+
       <SignOutButton />
     </>
   )
 }
-
-export default page

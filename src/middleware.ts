@@ -35,13 +35,13 @@ export async function middleware(req: NextRequest) {
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set("x-user", JSON.stringify(payload));
 
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
+    // return NextResponse.next({
+    //   request: {
+    //     headers: requestHeaders,
+    //   },
+    // });
 
-    // return NextResponse.next();
+    return NextResponse.next();
   } catch (err) {
     console.error("Invalid session token:", err);
     return NextResponse.redirect(new URL("/", req.url));

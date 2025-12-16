@@ -1,12 +1,13 @@
 "use client";
-import { useFecthRecords } from "@/hooks/use-fetch-records";
+import { useFecthRecords } from "@/hooks/fetch-student-data";
 
 export default function StudentTable() {
     const { data, isLoading } = useFecthRecords();
+    console.log(data)
 
     if (isLoading) return <p>One more sec...</p>;
 
-    if (data?.students.length === 0) {
+    if (data?.students?.length === 0) {
         return (
             <div>
                 <div>
@@ -71,7 +72,7 @@ export default function StudentTable() {
                                             {row.requirements_status
                                                 .map(
                                                     (req) =>
-                                                        `• ${req.clearance_requirements?.description ?? ""}`
+                                                        `• ${req.clearance_tasks_preset?.description ?? ""}`
                                                 )
                                                 .join("\n")}
                                         </div>
