@@ -1,64 +1,43 @@
-"use client";
-import { useFetchStaffData } from "@/hooks/fetch-staff-data";
-import { useFetchStudentTasks } from "@/hooks/fetch-student-tasks";
+import { useFethStudents } from "@/hooks/department/fetch-student-list";
+import { useFetchStudentTasks } from "@/hooks/department/fetch-student-tasks";
 import { useState } from "react";
 
-export default function Page() {
+type Props = {
+    courseId: string
+}
+
+export default function StudentList({ courseId }: Props) {
     const [openId, setOpenId] = useState<string>("");
-    const { data: tasks = [] } = useFetchStudentTasks(openId, "02000183861");
-    const { data: courses = [], isLoading, error } = useFetchStaffData(); // Fetch data from endpoint
-    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null); // State to store course id
+    const { data } = useFethStudents(courseId)
+    const { data: tasks = [] } = useFetchStudentTasks(openId, "02000183861")
+
 
     const toggle = (id: string) => {
         setOpenId(openId === id ? "" : id);
     };
 
-    console.log("data is: ", tasks[0]);
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-    if (courses.length === 0) return <div>No courses assigned to you.</div>;
-
-    const selectedCourse =
-        courses.find((item) => item.course_id === selectedCourseId) ?? courses[0]; // fallback to first course
-
     return (
         <>
-            <h3>Courses Assigned to You</h3>
-
-            <div className="course-nav">
-                {courses.map((item) => (
-                    <button
-                        key={item.course_id}
-                        className={`course-btn ${selectedCourse.course_id === item.course_id ? "active" : ""
-                            }`}
-                        onClick={() => setSelectedCourseId(item.course_id)}
-                    >
-                        {item.course_name}
-                    </button>
-                ))}
-            </div>
-
             <div className="students-container">
-                <h4>{selectedCourse.course_name} Students</h4>
 
-                {selectedCourse.students.map((student) => (
+                {data?.map((student) => (
                     <div className="student-container" key={student.student_id}>
-                        <div
-                            className="student-header"
-                            onClick={() => toggle(student.student_id)}
-                        >
+                        <div className="student-header" onClick={() => toggle(student.student_id)}>
                             {student.student_name} ({student.student_id})
                         </div>
 
                         {openId === student.student_id && (
                             <div className="student-body">
-                                <p> Tasks: </p>
+                                <p>Details:</p>
                                 {tasks.map((task, index) => (
-                                    <p key={index}>{task.description}</p>
+                                    <p key={index}> {task.description} </p>
                                 ))}
                             </div>
                         )}
                     </div>
+
+
+
                 ))}
             </div>
 
@@ -122,6 +101,7 @@ export default function Page() {
                 }
                 }
             `}</style>
+
         </>
-    );
+    )
 }

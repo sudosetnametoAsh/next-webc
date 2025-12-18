@@ -1,5 +1,5 @@
 "use client";
-import { useFecthRecords } from "@/hooks/fetch-student-data";
+import { useFecthRecords } from "@/hooks/student/fetch-student-data";
 
 export default function StudentTable() {
     const { data, isLoading } = useFecthRecords();

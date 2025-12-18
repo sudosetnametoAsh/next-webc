@@ -11,11 +11,11 @@ type StudentData = {
   student_name: string;
 }
 
-export function useFetchStaffData() {
+export function useFetchCourses() {
   return useQuery({
     queryKey: ["courses"],
     queryFn: async (): Promise<FetchedData[]> => {
-      const response = await fetch("/api/department");
+      const response = await fetch("/api/department/fetch-courses");
       const data = await response.json();
       return data.data;
     },

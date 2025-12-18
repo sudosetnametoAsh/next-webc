@@ -1,20 +1,14 @@
 *main {
-    - display data [
-        students **
-        course **
-        preset
-        tasks **
-    ]
+    SRP
+    id param
+    organize api --
 }
 
 *sub {
-    response numbers **
     pagination
     lazy loading
     indexing advice for this query
-    types **
-    promise **
-    draft
+    types 
 }
 
 *fallback {
@@ -26,4 +20,5 @@
     login redirect
     student fetch logic
     restructure student
+    minimal state
 }

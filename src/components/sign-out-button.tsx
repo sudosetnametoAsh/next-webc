@@ -12,13 +12,12 @@ export default function SignOutButton() {
     // }
 
     try {
-      await fetch("/api/clear-session", { method: "DELETE" });
+      await fetch("/api/validate-token", { method: "DELETE" });
       await instance.logoutRedirect();
     } catch (err) {
       console.error(err);
     }
   };
 
-
   return <button onClick={handleLogout}>Sign Out</button>;
-};
+}

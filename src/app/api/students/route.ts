@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
           departments ( dept_name ),
           staffs ( staff_name )
         ),
-        requirements_status (
+        student_tasks_status (
           status,
           clearance_tasks_preset ( description )
         )

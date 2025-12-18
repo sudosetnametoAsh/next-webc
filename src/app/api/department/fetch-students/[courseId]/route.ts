@@ -1,15 +1,11 @@
 import { createClient } from "@/lib/supabase-config";
-// import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
-const supabase = createClient();
-// const secret = new TextEncoder().encode(process.env.SESSION_SECRET!);
-
 type Params = {
-  studentId: string;
-  staffId: string;
+  courseId: string;
 };
 
+const supabase = createClient();
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<Params> }
@@ -20,24 +16,19 @@ export async function GET(
     return NextResponse.json({ error: "No token found" }, { status: 401 });
   }
 
-  // const { payload } = await jwtVerify(cookie, secret);
-  // const email = payload.email;
-
-  const { studentId, staffId } = await params;
+  const { courseId } = await params;
 
   const { data, error } = await supabase
-    .from("clearance_tasks_preset")
+    .from("courses")
     .select(
       `
-      description,
-      student_tasks_status!inner(
-        student_clearances!inner()
-      )
-      
+        students(
+            student_id,
+            student_name
+        )
     `
     )
-    .eq("student_tasks_status.student_clearances.student_id", studentId)
-    .eq("staff_id", staffId);
+    .eq("course_id", courseId);
 
   if (error) {
     console.error(error);

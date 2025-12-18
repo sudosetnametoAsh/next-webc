@@ -23,10 +23,6 @@ export async function GET(req: NextRequest) {
       `
         course_id,
         course_name,
-        students(
-          student_id, 
-          student_name
-        ),
         clearance_templates!inner(
           staffs!inner(
             users!inner()
