@@ -7,7 +7,7 @@ const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/api/validate-token") {
+  if (pathname === "/api/session") {
     return NextResponse.next();
   }
   const token = req.cookies.get("session_token")?.value;

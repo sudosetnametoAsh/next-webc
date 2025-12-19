@@ -3,8 +3,7 @@ import { useFecthRecords } from "@/hooks/student/fetch-student-data";
 
 export default function StudentTable() {
     const { data, isLoading } = useFecthRecords();
-    console.log(data)
-
+    
     if (isLoading) return <p>One more sec...</p>;
 
     if (data?.students?.length === 0) {
