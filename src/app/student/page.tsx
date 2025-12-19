@@ -1,4 +1,4 @@
-import SignOutButton from "@/components/sign-out-button";
+import SignOutButton from "@/components/button/sign-out-button";
 import StudentTable from "@/components/student/student-table";
 import "@/styles/temp.css";
 

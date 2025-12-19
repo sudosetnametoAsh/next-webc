@@ -1,13 +1,13 @@
-import SignOutButton from '@/components/sign-out-button'
-import React from 'react'
+"use client";
+import SignOutButton from "@/components/button/sign-out-button";
+import Courses from "@/components/department/courses";
 
-const page = () => {
+export default function Department() {
   return (
     <>
-      <div>Department</div>
+      <Courses />
+
       <SignOutButton />
     </>
   )
 }
-
-export default page
