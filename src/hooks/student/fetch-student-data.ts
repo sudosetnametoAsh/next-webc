@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-type Requirement = {
+type Tasks = {
   status: string;
   clearance_tasks_preset: {
     description: string;
@@ -16,7 +16,7 @@ type FetchedData = {
 type StudentData = {
   clearance_templates: Templates
   status: string;
-  requirements_status: Requirement[];
+  student_tasks_status: Tasks[];
 };
 
 type Templates = {

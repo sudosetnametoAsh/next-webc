@@ -9,14 +9,17 @@ type Props = {
 
 export default function AuthGate({ children }: Props) {
   const router = useRouter();
-  const { instance, inProgress } = useMsal();
+  const { inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
 
   const { data, isLoading } = useValidateToken({
     enabled: isAuthenticated && inProgress === "none",
   });
 
+  console.log(data)
+
   useEffect(() => {
+    console.log("in-use-effect")
 
     if (!data) return;
 
@@ -31,7 +34,7 @@ export default function AuthGate({ children }: Props) {
     } else {
       router.replace("/");
     }
-  }, [data, instance, router]);
+  }, [data, router]);
 
   // While MSAL or validation is running, render nothing
   if (inProgress !== "none" || isLoading) {
@@ -42,6 +45,9 @@ export default function AuthGate({ children }: Props) {
   if (!isAuthenticated) {
     return <>{children}</>;
   }
+
+  console.log("in-auth-gate")
+
 
   // Authenticated → redirect handled above
   return null;

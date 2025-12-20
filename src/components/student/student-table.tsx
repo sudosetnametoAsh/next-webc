@@ -3,6 +3,8 @@ import { useFecthRecords } from "@/hooks/student/fetch-student-data";
 
 export default function StudentTable() {
     const { data, isLoading } = useFecthRecords();
+
+    console.log(data)
     
     if (isLoading) return <p>One more sec...</p>;
 
@@ -52,7 +54,7 @@ export default function StudentTable() {
                             </td>
                             {/* requirement column */}
                             <td style={{ border: "none", padding: "0", textAlign: "center" }}>
-                                {row.requirements_status && row.requirements_status.length > 0 && (
+                                {row.student_tasks_status && row.student_tasks_status.length > 0 && (
                                     <div
                                         className="tooltip-wrapper"
                                         style={{ display: "inline-block", position: "relative" }}
@@ -68,7 +70,7 @@ export default function StudentTable() {
                                         </span>
 
                                         <div className="tooltip-content">
-                                            {row.requirements_status
+                                            {row.student_tasks_status
                                                 .map(
                                                     (req) =>
                                                         `• ${req.clearance_tasks_preset?.description ?? ""}`
