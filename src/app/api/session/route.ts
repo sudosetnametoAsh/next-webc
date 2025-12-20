@@ -14,7 +14,7 @@ const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 export async function POST(req: NextRequest) {
   try {
-    // Extract the access token from the request body
+    // Extract the token from request body
     const { accessToken } = await req.json();
 
     if (!accessToken) {
@@ -56,8 +56,9 @@ export async function POST(req: NextRequest) {
       .sign(SESSION_SECRET);
 
     // Set the session token in cookies
-    const res = NextResponse.json({ success: true, role });
-    res.cookies.set("session_token", sessionToken, {
+    const response = NextResponse.json({ success: true, role });
+    
+    response.cookies.set("session_token", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60,
     });
 
-    return res;
+    return response;
   } catch (err) {
     console.error("Failed to process token:", err);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
