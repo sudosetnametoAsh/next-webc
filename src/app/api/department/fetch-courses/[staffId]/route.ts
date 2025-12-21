@@ -26,12 +26,17 @@ export async function GET(
       `
         course_id,
         course_name,
+        course_sections(
+          section_id,
+          year,
+          semester,
+          section_number
+        ),
         clearance_templates!inner(
           staffs!inner()
         )
       `
     )
-    // .eq("clearance_templates.staffs.users.email", email);
     .eq("clearance_templates.staffs.staff_id", staffId)
 
   // Error handler

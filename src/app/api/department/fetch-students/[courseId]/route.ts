@@ -19,7 +19,7 @@ export async function GET(
   const { courseId } = await params;
 
   const { data, error } = await supabase
-    .from("courses")
+    .from("enrollments")
     .select(
       `
         students(
@@ -28,7 +28,7 @@ export async function GET(
         )
     `
     )
-    .eq("course_id", courseId);
+    .eq("section_id", courseId);
 
   if (error) {
     console.error(error);

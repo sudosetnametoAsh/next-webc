@@ -1,11 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 
-type Student = {
-  student_id: string;
-  student_name: string;
+// type Data = {
+//   students: Student[]
+// }
+// type Student = {
+//   student_id: string;
+//   student_name: string;
+// };
+
+type ApiResponse = {
+  data: Array<{
+    students: {
+      student_id: string;
+      student_name: string;
+    };
+  }>;
 };
+
 export function useFethStudents(courseId: string) {
-  return useQuery<Student[]>({
+  return useQuery<ApiResponse["data"]>({
     queryKey: ["students", courseId],
     queryFn: async () => {
       const response = await fetch(
@@ -15,7 +28,7 @@ export function useFethStudents(courseId: string) {
         }
       );
       const json = await response.json();
-      return json.data[0].students;
+      return json.data;
     },
     enabled: !!courseId,
   });

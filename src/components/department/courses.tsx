@@ -8,6 +8,9 @@ export default function Courses() {
     const { data: courses = [], isPending, error } = useFetchCourses(preset?.staff_id); // Fetch course
     const [courseId, setCourseId] = useState<string | null>(null);
     const [openPresetModal, setOpenPresetModal] = useState(false);
+    const [sectionId, setSectionId] = useState<string | null>(null)
+
+    // console.log(courseId)
 
     if (isPending || !preset) {
         return <div> Loading... </div>;
@@ -16,10 +19,12 @@ export default function Courses() {
     if (error) {
         return <div> {error.message} </div>;
     }
+    const activeCourseId = courseId ?? String(courses[0]?.course_id); // Keeps track of courses clicked
+    const selectedCourse = courses.find((course) => String(course.course_id) === activeCourseId) ?? courses[0] // Holds the array value of selected course
+    const activeSectionId = sectionId ?? String(selectedCourse.course_sections[0].section_id)
 
-    const activeCourseId = courseId ?? String(courses[0]?.course_id);
+    console.log(sectionId)
 
-    console.log(preset);
 
     return (
         <>
@@ -29,9 +34,18 @@ export default function Courses() {
                 {courses.map((course) => (
                     <button
                         key={course.course_id}
-                        onClick={() => setCourseId(String(course.course_id))}
+                        onClick={() => {setCourseId(String(course.course_id)); setSectionId(null)}}
                     >
                         {course.course_name}
+                    </button>
+                ))}
+            </div>
+
+            {/* Sections */}
+            <div>
+                {selectedCourse.course_sections.map((section) => (
+                    <button key={section.section_id} onClick={() => setSectionId(String(section.section_id))}>
+                        {selectedCourse.course_name}{section.year}/{section.semester}{section.section_number}
                     </button>
                 ))}
             </div>
@@ -52,7 +66,7 @@ export default function Courses() {
                 </div>
             )}
 
-            {activeCourseId && <StudentList courseId={activeCourseId}/>}
+            {activeSectionId && <StudentList courseId={activeSectionId} />}
 
             <style jsx>
                 {`

@@ -10,23 +10,26 @@ export default function StudentList({ courseId }: Props) {
     const [openId, setOpenId] = useState<string>("");
     const { data } = useFethStudents(courseId)
     const { data: tasks = [] } = useFetchStudentTasks(openId, "02000183861")
+    // console.log(data)
 
 
     const toggle = (id: string) => {
         setOpenId(openId === id ? "" : id);
     };
 
+    if (!data) return
+
     return (
         <>
             <div className="students-container">
 
                 {data?.map((student) => (
-                    <div className="student-container" key={student.student_id}>
-                        <div className="student-header" onClick={() => toggle(student.student_id)}>
-                            {student.student_name} ({student.student_id})
+                    <div className="student-container" key={student.students.student_id}>
+                        <div className="student-header" onClick={() => toggle(student.students.student_id)}>
+                            {student.students.student_name} ({student.students.student_id})
                         </div>
 
-                        {openId === student.student_id && (
+                        {openId === student.students.student_id && (
                             <div className="student-body">
                                 <p>Details:</p>
                                 {tasks.map((task, index) => (
@@ -35,9 +38,6 @@ export default function StudentList({ courseId }: Props) {
                             </div>
                         )}
                     </div>
-
-
-
                 ))}
             </div>
 

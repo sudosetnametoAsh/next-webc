@@ -1,6 +1,8 @@
 *main {
     SRP
     useQueries
+    course-sections ---
+    refresh-upon-course-switch
 }
 
 *sub {

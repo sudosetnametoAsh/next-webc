@@ -3,15 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 type FetchedData = {
   course_id: number;
   course_name: string;
-  students: StudentData[];
+  course_sections: Sections[];
 };
 
-type StudentData = {
-  student_id: string;
-  student_name: string;
+type Sections = {
+  section_number: number;
+  year: number;
+  semester: number;
+  section_id: number;
 };
 
-export function useFetchCourses(staffId : string | undefined) {
+export function useFetchCourses(staffId: string | undefined) {
   return useQuery({
     queryKey: ["courses", staffId],
     queryFn: async (): Promise<FetchedData[]> => {
@@ -20,6 +22,6 @@ export function useFetchCourses(staffId : string | undefined) {
       return data.data;
     },
     staleTime: 1000 * 60 * 5,
-    enabled: !!staffId
+    enabled: !!staffId,
   });
 }
