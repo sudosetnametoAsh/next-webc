@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useFetchPreset } from "@/hooks/department/fetch-preset";
 
 export default function Courses() {
-    const { data: courses = [], isPending, error } = useFetchCourses(); // Fetch course
-    const { data: preset } = useFetchPreset(); //
+    const { data: preset } = useFetchPreset(); // Fetch preset
+    const { data: courses = [], isPending, error } = useFetchCourses(preset?.staff_id); // Fetch course
     const [courseId, setCourseId] = useState<string | null>(null);
     const [openPresetModal, setOpenPresetModal] = useState(false);
 
@@ -23,7 +23,7 @@ export default function Courses() {
 
     return (
         <>
-            
+
 
             <div className="course-container">
                 {courses.map((course) => (
@@ -52,7 +52,7 @@ export default function Courses() {
                 </div>
             )}
 
-            {activeCourseId && <StudentList courseId={activeCourseId} />}
+            {activeCourseId && <StudentList courseId={activeCourseId}/>}
 
             <style jsx>
                 {`

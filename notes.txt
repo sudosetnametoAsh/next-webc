@@ -1,7 +1,6 @@
 *main {
-    server-side validation
     SRP
-    id param
+    useQueries
 }
 
 *sub {

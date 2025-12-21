@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase-config";
-// import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 const supabase = createClient();
-// const secret = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 type Params = {
   studentId: string;
@@ -19,9 +17,6 @@ export async function GET(
   if (!cookie) {
     return NextResponse.json({ error: "No token found" }, { status: 401 });
   }
-
-  // const { payload } = await jwtVerify(cookie, secret);
-  // const email = payload.email;
 
   const { studentId, staffId } = await params;
 

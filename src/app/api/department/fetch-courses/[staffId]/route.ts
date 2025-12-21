@@ -1,11 +1,15 @@
 import { createClient } from "@/lib/supabase-config";
-import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 const supabase = createClient(); // SUpabase init
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!); // Signature
 
-export async function GET(req: NextRequest) {
+type Params = {
+  staffId: string;
+};
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<Params> }
+) {
   const cookie = req.cookies.get("session_token")?.value; // Get cookie
 
   // Check if cookie present
@@ -13,10 +17,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No token found" }, { status: 401 });
   }
 
-  const { payload } = await jwtVerify(cookie, secret); // Verify token and extract payload
-  const email = payload.email; // Extract email from payload
+  const { staffId } = await params;
 
-  // Fetch courses, students, and task preset
+  // Fetch courses
   const { data, error } = await supabase
     .from("courses")
     .select(
@@ -24,14 +27,13 @@ export async function GET(req: NextRequest) {
         course_id,
         course_name,
         clearance_templates!inner(
-          staffs!inner(
-            users!inner()
-          )
+          staffs!inner()
         )
       `
     )
-    .eq("clearance_templates.staffs.users.email", email);
-  
+    // .eq("clearance_templates.staffs.users.email", email);
+    .eq("clearance_templates.staffs.staff_id", staffId)
+
   // Error handler
   if (error) {
     console.error(error);
