@@ -1,7 +1,7 @@
 *main {
+    server-side validation
     SRP
     id param
-    
 }
 
 *sub {
@@ -12,13 +12,12 @@
 }
 
 *fallback {
-    revalidate after login
     dynamic routing
     providers
     type safety
     useEffect
     login redirect
-    student fetch logic
     restructure student
     minimal state
+    tanstack router
 }
