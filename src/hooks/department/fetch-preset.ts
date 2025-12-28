@@ -5,6 +5,7 @@ type FetchedData = {
 };
 
 type Preset = {
+  task_id: string
   description: string;
 };
 
@@ -19,6 +20,7 @@ export function useFetchPreset() {
         staff_id: json.data[0].staff_id,
         clearance_tasks_preset: json.data[0].clearance_tasks_preset.map(
           (item: Preset) => ({
+            task_id: item.task_id,
             description: item.description,
           })
         ),

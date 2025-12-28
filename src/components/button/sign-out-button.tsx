@@ -1,5 +1,6 @@
 "use client";
 import { useMsal } from "@azure/msal-react";
+import { Button } from "../ui/button";
 // import { logoutRequest } from "@/lib/msal/msal-config";
 
 export default function SignOutButton() {
@@ -19,5 +20,5 @@ export default function SignOutButton() {
     }
   };
 
-  return <button onClick={handleLogout}>Sign Out</button>;
+  return <Button onClick={handleLogout}>Sign Out</Button>;
 }

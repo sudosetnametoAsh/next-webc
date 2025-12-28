@@ -1,24 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 
-// type Data = {
-//   students: Student[]
-// }
-// type Student = {
-//   student_id: string;
-//   student_name: string;
-// };
-
-type ApiResponse = {
-  data: Array<{
-    students: {
-      student_id: string;
-      student_name: string;
-    };
-  }>;
+type Student = {
+  student_id: string;
+  student_name: string;
 };
 
+type Clearance = {
+  clearance_id: string;
+  students: Student;
+};
+
+type FechedData = Clearance[];
+
+
 export function useFethStudents(courseId: string) {
-  return useQuery<ApiResponse["data"]>({
+  return useQuery<FechedData>({
     queryKey: ["students", courseId],
     queryFn: async () => {
       const response = await fetch(

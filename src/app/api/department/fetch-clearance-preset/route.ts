@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     .select(
       `
         staff_id,
-        clearance_tasks_preset(description),
+        clearance_tasks_preset(task_id, description),
         users!inner()
         `
     )

@@ -1,8 +1,9 @@
 *main {
     SRP
     useQueries
-    course-sections ---
-    refresh-upon-course-switch
+    useMutation
+    tanstack-query-key
+    recap
 }
 
 *sub {

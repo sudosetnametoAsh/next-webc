@@ -1,107 +1,121 @@
+// student-list.tsx
 import { useFethStudents } from "@/hooks/department/fetch-student-list";
-import { useFetchStudentTasks } from "@/hooks/department/fetch-student-tasks";
+import { useFetchPreset } from "@/hooks/department/fetch-preset"; // 1. Import hook
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
+import { StudentTaskList } from "./student-task";
+import "@/styles/accordion.css";
+import { Checkbox } from "../ui/checkbox";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Input } from "../ui/input";
+import { useAddStudentTasks } from "@/hooks/department/fetch-student-tasks";
+import SelectAll from "./button/select-all";
+import AddPreset from "./button/add-preset";
 
 type Props = {
-    courseId: string
+  courseId: string
 }
 
+type CheckedState = boolean | "indeterminate";
+
 export default function StudentList({ courseId }: Props) {
-    const [openId, setOpenId] = useState<string>("");
-    const { data } = useFethStudents(courseId)
-    const { data: tasks = [] } = useFetchStudentTasks(openId, "02000183861")
-    // console.log(data)
+  const { data: students = [], isLoading } = useFethStudents(courseId);
+  const { data: preset } = useFetchPreset(); // 2. Fetch preset data here
+  
+  const [selectedStudents, setSelectedStudent] = useState<string[]>([]);
+  const [taskId, setTaskId] = useState<string[]>([]); 
+  const [description, setDescription] = useState<string>("");
+  const { mutate } = useAddStudentTasks("02000000006", "02000183861")
 
+  const handleStudentChange = (studentId: string, checked: CheckedState) => {
+    setSelectedStudent((prev) => checked === true
+      ? [...prev, studentId]
+      : prev.filter((id) => id !== studentId)
+    );
+  };
 
-    const toggle = (id: string) => {
-        setOpenId(openId === id ? "" : id);
-    };
+  const addTask = () => {
+    if (selectedStudents.length === 0) {
+      alert("Select at least one student");
+      return
+    }
 
-    if (!data) return
+    // Determine if we are using presets or custom task
+    const targetTaskIds = (taskId && taskId.length > 0) ? taskId : [null];
 
-    return (
-        <>
-            <div className="students-container">
+    const payload = selectedStudents.flatMap((student) =>
+      targetTaskIds.map((tId) => {
+        // 3. Logic to find the correct description
+        let finalDescription = description;
 
-                {data?.map((student) => (
-                    <div className="student-container" key={student.students.student_id}>
-                        <div className="student-header" onClick={() => toggle(student.students.student_id)}>
-                            {student.students.student_name} ({student.students.student_id})
-                        </div>
+        if (tId) {
+          // If tId is not null, find the matching preset description
+          const taskItem = preset?.clearance_tasks_preset.find(item => item.task_id === tId);
+          finalDescription = taskItem ? taskItem.description : description;
+        }
 
-                        {openId === student.students.student_id && (
-                            <div className="student-body">
-                                <p>Details:</p>
-                                {tasks.map((task, index) => (
-                                    <p key={index}> {task.description} </p>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+        return {
+          clearance_id: student,
+          task_id: tId, 
+          description: finalDescription
+        };
+      })
+    );
 
-            <style jsx>{`
-                .students-container {
-                margin-top: 20px;
-                }
+    mutate(payload);
+    console.log("Submitted payload: ", payload)
+  };
 
-                .student-container {
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                margin-bottom: 10px;
-                overflow: hidden;
-                background: #fff;
-                }
+  if (isLoading) return <div> Loading Students... </div>
+  if (students.length === 0) return <div> Clearance template not found for this section </div>
 
-                .student-header {
-                padding: 12px 16px;
-                cursor: pointer;
-                background: #f7f7f7;
-                font-weight: 600;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: background 0.2s ease;
-                }
+  return (
+    <div className="container">
+      <div className="flex items-center gap-4">
+        <SelectAll students={students} selectedClearanceId={selectedStudents} setSelectedClearanceId={setSelectedStudent} />
 
-                .student-header:hover {
-                background: #ececec;
-                }
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button>Add Task</Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <Input
+              className="col-span-2 h-8"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g., Submit paperworks"
+            />
+            <Button onClick={addTask}>Assign Task</Button>
+          </PopoverContent>
+        </Popover>
 
-                .student-header::after {
-                content: "▸";
-                transition: transform 0.2s ease;
-                }
+        {/* 4. Pass preset data and state setters to AddPreset */}
+        <AddPreset 
+          preset={preset} 
+          taskId={taskId} 
+          setTaskId={setTaskId} 
+          addTask={addTask} 
+        />
+      </div>
 
-                .student-container:has(.student-body) .student-header::after {
-                transform: rotate(90deg);
-                }
-
-                .student-body {
-                padding: 12px 16px;
-                border-top: 1px solid #eee;
-                background: #fafafa;
-                animation: slideDown 0.2s ease;
-                }
-
-                .student-body p {
-                margin: 6px 0;
-                font-size: 14px;
-                }
-
-                @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-4px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                }
-            `}</style>
-
-        </>
-    )
+      <Accordion type="multiple" className="AccordionRoot">
+        {students.map((student) => (
+          <AccordionItem key={student.students.student_id} value={student.students.student_id} className="AccordionItem">
+            <Checkbox
+              className="cursor-pointer"
+              checked={selectedStudents.includes(student.clearance_id)}
+              onCheckedChange={(checked) => handleStudentChange(student.clearance_id, checked)}
+            />
+            <AccordionTrigger className="AccordionTrigger">
+              {student.students.student_name} ({student.students.student_id})
+            </AccordionTrigger>
+            <AccordionContent className="AccordionContent">
+              <StudentTaskList studentId={student.students.student_id} />
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
 }
