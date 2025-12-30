@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useFetchPreset } from "@/hooks/department/fetch-preset";
 
 export default function Courses() {
-    const { data: preset } = useFetchPreset(); // Fetch preset
-    const { data: courses = [], isPending, error } = useFetchCourses(preset?.staff_id); // Fetch course
+    const { data: preset =[] } = useFetchPreset(); // Fetch preset
+    const { data: courses = [], isPending, error } = useFetchCourses(); // Fetch course
     const [courseId, setCourseId] = useState<string | null>(null);
     const [openPresetModal, setOpenPresetModal] = useState(false);
     const [sectionId, setSectionId] = useState<string | null>(null)
 
-    if (isPending || !preset) {
+    if (isPending) {
         // Styled loading state
         return (
             <div className="status-container">
@@ -86,8 +86,8 @@ export default function Courses() {
                             <button className="close-button" onClick={() => setOpenPresetModal(false)}>X</button>
                         </div>
                         <div className="modal-body">
-                            {preset.clearance_tasks_preset.map((item, index) => (
-                                <p key={index}>{item.description}</p>
+                            {preset.map((item) => (
+                                <p key={item.task_id}>{item.description}</p>
                             ))}
                         </div>
                     </div>

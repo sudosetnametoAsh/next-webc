@@ -1,10 +1,10 @@
 import { useFetchStudentTasks } from "@/hooks/department/fetch-student-tasks";
 
 type Params = {
-    studentId: string
+    clearanceId : string
 }
-export function StudentTaskList({ studentId }: Params) {
-    const { data: tasks = [], isLoading, error } = useFetchStudentTasks(studentId, "02000183861");
+export function StudentTaskList({ clearanceId }: Params) {
+    const { data: tasks = [], isLoading, error } = useFetchStudentTasks(clearanceId);
 
     if (isLoading) {
         return <p style={{ padding: '0 20px 20px' }}>Loading tasks...</p>;

@@ -10,13 +10,17 @@ type Params = {
 }
 
 type Student = {
+    student_clearances: Clearance[]
+}
+
+type Clearance = {
     clearance_id: string
 }
 
 export default function SelectAll({ students, selectedClearanceId, setSelectedClearanceId }: Params) {
     const handleSelectAll = (checked: CheckedState) => {
         const newSelectedStudents = checked === true
-            ? students.map(student => student.clearance_id)
+            ? students.map(student => student.student_clearances?.[0].clearance_id)
             : []
         setSelectedClearanceId(newSelectedStudents)
     }

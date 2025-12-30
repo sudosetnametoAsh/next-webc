@@ -23,20 +23,23 @@ export default function StudentList({ courseId }: Props) {
   const { data: students = [], isLoading } = useFethStudents(courseId);
   const { data: preset } = useFetchPreset(); // 2. Fetch preset data here
   
-  const [selectedStudents, setSelectedStudent] = useState<string[]>([]);
+  const [clearanceId, setClearanceId] = useState<string[]>([]);
   const [taskId, setTaskId] = useState<string[]>([]); 
   const [description, setDescription] = useState<string>("");
-  const { mutate } = useAddStudentTasks("02000000006", "02000183861")
+  const { mutate } = useAddStudentTasks("243")
+
+  if (!preset) return null
+
 
   const handleStudentChange = (studentId: string, checked: CheckedState) => {
-    setSelectedStudent((prev) => checked === true
+    setClearanceId((prev) => checked === true
       ? [...prev, studentId]
       : prev.filter((id) => id !== studentId)
     );
   };
 
   const addTask = () => {
-    if (selectedStudents.length === 0) {
+    if (clearanceId.length === 0) {
       alert("Select at least one student");
       return
     }
@@ -44,21 +47,22 @@ export default function StudentList({ courseId }: Props) {
     // Determine if we are using presets or custom task
     const targetTaskIds = (taskId && taskId.length > 0) ? taskId : [null];
 
-    const payload = selectedStudents.flatMap((student) =>
+    const payload = clearanceId.flatMap((student) =>
       targetTaskIds.map((tId) => {
         // 3. Logic to find the correct description
         let finalDescription = description;
 
         if (tId) {
           // If tId is not null, find the matching preset description
-          const taskItem = preset?.clearance_tasks_preset.find(item => item.task_id === tId);
+          const taskItem = preset.data.find(item => item.task_id === tId);
           finalDescription = taskItem ? taskItem.description : description;
         }
-
+        
         return {
           clearance_id: student,
           task_id: tId, 
-          description: finalDescription
+          description: finalDescription,
+          staff_id: preset.id
         };
       })
     );
@@ -73,7 +77,7 @@ export default function StudentList({ courseId }: Props) {
   return (
     <div className="container">
       <div className="flex items-center gap-4">
-        <SelectAll students={students} selectedClearanceId={selectedStudents} setSelectedClearanceId={setSelectedStudent} />
+        <SelectAll students={students} selectedClearanceId={clearanceId} setSelectedClearanceId={setClearanceId} />
 
         <Popover>
           <PopoverTrigger asChild>
@@ -101,17 +105,17 @@ export default function StudentList({ courseId }: Props) {
 
       <Accordion type="multiple" className="AccordionRoot">
         {students.map((student) => (
-          <AccordionItem key={student.students.student_id} value={student.students.student_id} className="AccordionItem">
+          <AccordionItem key={student.student_id} value={student.student_id} className="AccordionItem">
             <Checkbox
               className="cursor-pointer"
-              checked={selectedStudents.includes(student.clearance_id)}
-              onCheckedChange={(checked) => handleStudentChange(student.clearance_id, checked)}
+              checked={clearanceId.includes(student.student_clearances?.[0].clearance_id)}
+              onCheckedChange={(checked) => handleStudentChange(student.student_clearances?.[0].clearance_id, checked)}
             />
             <AccordionTrigger className="AccordionTrigger">
-              {student.students.student_name} ({student.students.student_id})
+              {student.student_name} ({student.student_id})
             </AccordionTrigger>
             <AccordionContent className="AccordionContent">
-              <StudentTaskList studentId={student.students.student_id} />
+              <StudentTaskList clearanceId={student.student_clearances?.[0].clearance_id} />
             </AccordionContent>
           </AccordionItem>
         ))}
