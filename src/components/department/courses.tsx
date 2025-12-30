@@ -1,14 +1,19 @@
 import { useFetchCourses } from "@/hooks/department/fetch-courses";
 import StudentList from "./student-list";
 import { useState } from "react";
-import { useFetchPreset } from "@/hooks/department/fetch-preset";
+import { useFetchPreset } from "@/hooks/department/fetch-presets";
+import CourseList from "./course-list";
+import SectionList from "./section-list";
 
 export default function Courses() {
-    const { data: preset =[] } = useFetchPreset(); // Fetch preset
-    const { data: courses = [], isPending, error } = useFetchCourses(); // Fetch course
+    const { data: preset } = useFetchPreset(); // Fetch preset
+    const { data: courses, isPending, error } = useFetchCourses(); // Fetch course
     const [courseId, setCourseId] = useState<string | null>(null);
     const [openPresetModal, setOpenPresetModal] = useState(false);
     const [sectionId, setSectionId] = useState<string | null>(null)
+    console.log(courses)
+
+    if (!preset) return null
 
     if (isPending) {
         // Styled loading state
@@ -35,42 +40,22 @@ export default function Courses() {
 
     return (
         <div className="courses-page-layout">
+
             {/* Sidebar for Navigation */}
             <aside className="sidebar">
                 <h2>Courses</h2>
-                <div className="course-list">
-                    {courses.map((course) => (
-                        <button
-                            key={course.course_id}
-                            onClick={() => { setCourseId(String(course.course_id)); setSectionId(null) }}
-                            className={`sidebar-button ${String(course.course_id) === activeCourseId ? 'active' : ''}`}
-                        >
-                            {course.course_name}
-                        </button>
-                    ))}
-                </div>
+
+                <CourseList courses={courses} activeCourseId={activeCourseId} onSelect={(id) => { setCourseId(id); setSectionId(null) }} />
 
                 {/* Sections for the selected course */}
-                {selectedCourse && (
-                    <div className="section-list">
-                        <h3>Sections</h3>
-                        {selectedCourse.course_sections.map((section) => (
-                            <button
-                                key={section.section_id}
-                                onClick={() => setSectionId(String(section.section_id))}
-                                className={`sidebar-button section-button ${String(section.section_id) === activeSectionId ? 'active' : ''}`}
-                            >
-                                {section.year}/{section.semester} - Sec {section.section_number}
-                            </button>
-                        ))}
-                    </div>
-                )}
+                {selectedCourse && <SectionList sections={selectedCourse.course_sections} setSectionId={setSectionId} activeSectionId={activeSectionId}/>}
 
                 {/* Button to open the modal */}
                 <button className="preset-button" onClick={() => setOpenPresetModal(true)}>
                     View Clearance Presets
                 </button>
             </aside>
+
 
             {/* Main content area */}
             <main className="main-content">
@@ -86,7 +71,7 @@ export default function Courses() {
                             <button className="close-button" onClick={() => setOpenPresetModal(false)}>X</button>
                         </div>
                         <div className="modal-body">
-                            {preset.map((item) => (
+                            {preset.data.map((item) => (
                                 <p key={item.task_id}>{item.description}</p>
                             ))}
                         </div>

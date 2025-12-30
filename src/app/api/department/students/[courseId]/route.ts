@@ -18,7 +18,9 @@ export async function GET(
       student_id,
       student_name,
       enrollments!inner(),
-      student_clearances!inner(clearance_id)
+      student_clearances!inner(
+        clearance_id
+      )
     `
     )
     .eq("enrollments.section_id", courseId);

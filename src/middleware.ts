@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { JWTExpired } from "jose/errors";
 
 const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
@@ -36,9 +37,15 @@ export async function middleware(req: NextRequest) {
     requestHeaders.set("x-session", JSON.stringify(payload));
 
     return NextResponse.next({request: {headers: requestHeaders}});
-  } catch (err) {
-    console.error("Invalid session token:", err);
-    return NextResponse.redirect(new URL("/", req.url));
+  } catch (error) {
+    if (error instanceof JWTExpired) {
+      const loginUrl = new URL('/', req.url);
+      loginUrl.searchParams.set('error', 'session_expired');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    console.error("Middleware Auth Error:", error);
+    return NextResponse.redirect(new URL('/', req.url));
   }
 }
 

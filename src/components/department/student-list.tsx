@@ -1,6 +1,5 @@
-// student-list.tsx
-import { useFethStudents } from "@/hooks/department/fetch-student-list";
-import { useFetchPreset } from "@/hooks/department/fetch-preset"; // 1. Import hook
+import { useFethStudents } from "@/hooks/department/fetch-students";
+import { useFetchPreset } from "@/hooks/department/fetch-presets";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { StudentTaskList } from "./student-task";
 import "@/styles/accordion.css";
@@ -9,7 +8,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Input } from "../ui/input";
-import { useAddStudentTasks } from "@/hooks/department/fetch-student-tasks";
+import { useAddStudentTasks } from "@/hooks/department/add-student-tasks";
 import SelectAll from "./button/select-all";
 import AddPreset from "./button/add-preset";
 

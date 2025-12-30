@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { useRouter } from "next/navigation";
-import { useValidateToken } from "@/hooks/vaildate-token";
+import { useValidateToken } from "@/hooks/auth/vaildate-token";
 
 type Props = {
   children: ReactNode;
