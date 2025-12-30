@@ -1,30 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
 
-type Student = {
-  student_id: string;
-  student_name: string;
-};
-
 type Clearance = {
   clearance_id: string;
-  students: Student;
 };
 
-type FechedData = Clearance[];
+type FechedData = {
+  student_id: string;
+  student_name: string
+  student_clearances: Clearance[]
+};
 
 
 export function useFethStudents(courseId: string) {
-  return useQuery<FechedData>({
+  return useQuery<FechedData[]>({
     queryKey: ["students", courseId],
     queryFn: async () => {
       const response = await fetch(
-        `/api/department/fetch-students/${courseId}`,
+        `/api/department/students/${courseId}`,
         {
           credentials: "include",
         }
       );
       const json = await response.json();
-      return json.data;
+      
+      return json.data
     },
     enabled: !!courseId,
   });

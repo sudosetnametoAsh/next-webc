@@ -7,18 +7,14 @@ import {
 
 type FetchedData = {
   description: string;
-  student_tasks_status: { status_id: number };
 };
 
-export function useFetchStudentTasks(
-  studentId: string | null,
-  staffId: string | null
-) {
+export function useFetchStudentTasks(clearanceId: string | null) {
   return useQuery({
-    queryKey: ["student-tasks", studentId, staffId],
+    queryKey: ["student-tasks", clearanceId],
     queryFn: async (): Promise<FetchedData[]> => {
       const response = await fetch(
-        `/api/department/student-tasks/${studentId}/${staffId}`,
+        `/api/department/students/tasks/${clearanceId}`,
         {
           credentials: "include",
         }
@@ -31,7 +27,7 @@ export function useFetchStudentTasks(
       const data = await response.json();
       return data.data;
     },
-    enabled: !!studentId && !!staffId,
+    enabled: !!clearanceId,
   });
 }
 
@@ -39,6 +35,7 @@ type NewTaskPayload = {
   clearance_id: string;
   task_id: string | null;
   description: string;
+  staff_id: string
 };
 
 type Data = {
@@ -48,8 +45,7 @@ type Data = {
 };
 
 export function useAddStudentTasks(
-  studentId: string | null,
-  staffId: string | null
+  clearanceId: string | null,
 ): UseMutationResult<
   { data: Data }, // Response type (adjust based on your actual API return)
   Error,
@@ -59,17 +55,14 @@ export function useAddStudentTasks(
 
   return useMutation({
     mutationFn: async (tasks: NewTaskPayload[]) => {
-      const response = await fetch(
-        `/api/department/student-tasks`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(tasks),
-        }
-      );
+      const response = await fetch(`/api/department/students/tasks/${clearanceId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(tasks),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -80,7 +73,7 @@ export function useAddStudentTasks(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["student-tasks", studentId, staffId],
+        queryKey: ["student-tasks", clearanceId],
       });
     },
   });

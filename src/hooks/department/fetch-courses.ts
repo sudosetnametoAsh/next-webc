@@ -13,15 +13,14 @@ type Sections = {
   section_id: number;
 };
 
-export function useFetchCourses(staffId: string | undefined) {
+export function useFetchCourses() {
   return useQuery({
-    queryKey: ["courses", staffId],
+    queryKey: ["courses"],
     queryFn: async (): Promise<FetchedData[]> => {
-      const response = await fetch(`/api/department/fetch-courses/${staffId}`);
+      const response = await fetch(`/api/department/courses`);
       const data = await response.json();
       return data.data;
     },
     staleTime: 1000 * 60 * 5,
-    enabled: !!staffId,
   });
 }

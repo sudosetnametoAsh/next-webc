@@ -33,9 +33,9 @@ export async function middleware(req: NextRequest) {
     }
 
     const requestHeaders = new Headers(req.headers);
-    requestHeaders.set("x-user", JSON.stringify(payload));
+    requestHeaders.set("x-session", JSON.stringify(payload));
 
-    return NextResponse.next();
+    return NextResponse.next({request: {headers: requestHeaders}});
   } catch (err) {
     console.error("Invalid session token:", err);
     return NextResponse.redirect(new URL("/", req.url));
