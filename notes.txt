@@ -1,9 +1,11 @@
 *main {
-    SRP
-    useQueries
-    useMutation
-    tanstack-query-key
-    recap
+    preset-modal
+    undo-feature
+    post-task-param
+    post-task-logic
+    sign
+    task-dropbox
+    patch-sign-invalidate
 }
 
 *sub {
@@ -11,6 +13,10 @@
     lazy loading
     indexing advice for this query
     types 
+    useQueries
+    useMutation 
+    tanstack-query-key
+    file structure
 }
 
 *fallback {
@@ -19,7 +25,7 @@
     type safety
     useEffect
     login redirect
-    restructure student
+    student-sys-design
     minimal state
     tanstack router
 }
