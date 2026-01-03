@@ -1,6 +1,3 @@
-/* src/Accordion.css */
-
-/* A simple container for centering the demo */
 .container {
     max-width: 600px;
     margin: 40px auto;
@@ -128,3 +125,4 @@ h1 {
         height: 0;
     }
 }
+

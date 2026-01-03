@@ -19,7 +19,8 @@ export async function GET(
       student_name,
       enrollments!inner(),
       student_clearances!inner(
-        clearance_id
+        clearance_id,
+        status
       )
     `
     )

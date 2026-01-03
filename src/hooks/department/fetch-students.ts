@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 type Clearance = {
   clearance_id: string;
+  status: string;
 };
 
 type FechedData = {

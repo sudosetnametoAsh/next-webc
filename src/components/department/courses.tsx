@@ -11,7 +11,6 @@ export default function Courses() {
     const [courseId, setCourseId] = useState<string | null>(null);
     const [openPresetModal, setOpenPresetModal] = useState(false);
     const [sectionId, setSectionId] = useState<string | null>(null)
-    console.log(courses)
 
     if (!preset) return null
 
@@ -45,10 +44,16 @@ export default function Courses() {
             <aside className="sidebar">
                 <h2>Courses</h2>
 
-                <CourseList courses={courses} activeCourseId={activeCourseId} onSelect={(id) => { setCourseId(id); setSectionId(null) }} />
+                <CourseList 
+                    courses={courses} 
+                    activeCourseId={activeCourseId} 
+                    onSelect={(id) => { setCourseId(id); setSectionId(null) }} />
 
                 {/* Sections for the selected course */}
-                {selectedCourse && <SectionList sections={selectedCourse.course_sections} setSectionId={setSectionId} activeSectionId={activeSectionId}/>}
+                {selectedCourse && <SectionList 
+                    sections={selectedCourse.course_sections} 
+                    setSectionId={setSectionId} 
+                    activeSectionId={activeSectionId}/>}
 
                 {/* Button to open the modal */}
                 <button className="preset-button" onClick={() => setOpenPresetModal(true)}>

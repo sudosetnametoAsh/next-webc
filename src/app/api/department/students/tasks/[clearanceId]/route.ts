@@ -35,7 +35,9 @@ export async function GET(
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { data: assigned_tasks, error } = await supabase.from("assigned_tasks").insert(body)
+  const { data: assigned_tasks, error } = await supabase
+    .from("assigned_tasks")
+    .insert(body)
     .select(`
       assigned_task_id,
       description,
