@@ -1,10 +1,9 @@
 import { useSignStudent } from "@/hooks/department/sign-student"
 import { Button } from "../ui/button"
-import "@/styles/sign-button.css"
 
 type Props = {
     clearanceId: string[]
-    currentStatus: string // "Pending", "Signed", etc.
+    currentStatus: string
 }
 
 export default function SignToggleButton({ clearanceId, currentStatus }: Props) {
@@ -12,13 +11,13 @@ export default function SignToggleButton({ clearanceId, currentStatus }: Props) 
 
     const isSigned = currentStatus === "Signed"
     const targetStatus = isSigned ? "Pending" : "Signed"
-    
-    const btnText = isPending 
-        ? (isSigned ? "Reverting..." : "Signing...") 
+
+    const btnText = isPending
+        ? (isSigned ? "Reverting..." : "Signing...")
         : (isSigned ? "Undo" : "Sign")
 
-    const btnStyle = isSigned 
-        ? "bg-yellow-600 hover:bg-yellow-700 text-white" 
+    const btnStyle = isSigned
+        ? "bg-yellow-600 hover:bg-yellow-700 text-white"
         : "bg-blue-600 hover:bg-blue-700 text-white"
 
     const handleToggle = () => {
@@ -26,12 +25,15 @@ export default function SignToggleButton({ clearanceId, currentStatus }: Props) 
     }
 
     return (
-        <Button
-            onClick={handleToggle}
-            disabled={isPending || clearanceId.length === 0}
-            className={`sign-btn px-4 py-2 rounded disabled:opacity-50 ${btnStyle}`}
-        >
-            {btnText}
-        </Button>
+        <div>
+            <Button
+                onClick={handleToggle}
+                disabled={isPending || clearanceId.length === 0}
+                className={` p-2.5! sign-btn px-4 py-2 rounded-[10px] disabled:opacity-50 ${btnStyle}`}
+            >
+                {btnText}
+            </Button>
+        </div>
+
     )
 }

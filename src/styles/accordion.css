@@ -82,7 +82,7 @@ h1 {
 }
 
 /* Radix adds data-state="open" to the trigger when open. We use it to rotate the icon. */
-.AccordionTrigger[data-state="open"] > .AccordionChevron {
+.AccordionTrigger[data-state="open"]>.AccordionChevron {
     transform: rotate(225deg);
 }
 
@@ -103,7 +103,7 @@ h1 {
     animation: slideUp 300ms ease-out;
 }
 
-.AccordionContent > div {
+.AccordionContent>div {
     padding: 0 20px 20px;
 }
 
@@ -112,6 +112,7 @@ h1 {
     from {
         height: 0;
     }
+
     to {
         height: var(--radix-accordion-content-height);
     }
@@ -121,8 +122,8 @@ h1 {
     from {
         height: var(--radix-accordion-content-height);
     }
+
     to {
         height: 0;
     }
 }
-

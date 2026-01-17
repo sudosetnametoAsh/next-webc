@@ -14,14 +14,17 @@ type Preset = {
 export function useFetchPreset() {
   return useQuery<FetchedData>({
     queryKey: ["preset"],
-    queryFn: async () => {
-      const response = await fetch("/api/department/presets");
-      const json = await response.json();
-
-      return {
-        data: json.data,
-        id: json.id
-      };
-    },
+    queryFn: fetchPreset,
+    staleTime: 1000 * 60 * 5
   });
+}
+
+export async function fetchPreset(): Promise<FetchedData> {
+  const response = await fetch("/api/department/presets");
+  const json = await response.json();
+
+  return {
+    data: json.data,
+    id: json.id
+  };
 }

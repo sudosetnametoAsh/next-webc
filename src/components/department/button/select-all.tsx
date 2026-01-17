@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useMemo, useState } from "react";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import "@/styles/select-all.css"
 
 type CheckedState = boolean | "indeterminate";
 
