@@ -13,6 +13,10 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
    const [sectionId, setSectionId] = useState<string | null>(null); // Keeps trck of selected section
    const [clearanceId, setClearanceId] = useState<string[]>([]); // Manages the selected student (stored via clearance id)
 
+   // filter-button states
+   const [statusFilter, setStatusFilter] = useState<string>('All');
+   const [orderFilter, setOrderFilter] = useState<string>('A-Z');
+
    const activeCourseId = courseId ?? String(courses[0]?.course_id);
    const selectedCourse = useMemo(
       () =>
@@ -26,7 +30,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
       sectionId ?? String(selectedCourse.course_sections[0].section_id);
 
    const { data: students = [], isFetching: fetchingStudents } =
-      useFethStudents(activeSectionId); // Hook to fetch
+      useFethStudents(activeSectionId); // Hook to fetch students
 
    const selectedIds = useMemo(() => new Set(clearanceId), [clearanceId]);
 
@@ -48,9 +52,37 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
          : 'Pending';
    }, [selectedStudents]);
 
+   const filteredStudents = useMemo(() => {
+      const sortViaStatus = students.filter((student) => {
+         const studentStatus = student.student_clearances[0].status;
+         const matchesStatus =
+            statusFilter === 'All' || studentStatus === statusFilter;
+
+         return matchesStatus;
+      });
+
+      const sortViaOrder = [...sortViaStatus].sort((a, b) => {
+         const nameA = a.student_name;
+         const nameB = b.student_name;
+         if (orderFilter === 'A-Z') {
+            return nameA.localeCompare(nameB, undefined, {
+               sensitivity: 'base',
+               numeric: true,
+            });
+         }
+         return nameB.localeCompare(nameA, undefined, {
+            sensitivity: 'base',
+            numeric: true,
+         });
+      });
+
+      return sortViaOrder;
+   }, [students, statusFilter, orderFilter]);
+
    const value = {
       courses,
       students,
+      filteredStudents,
       fetchingStudents,
       courseId,
       setCourseId,
@@ -63,6 +95,10 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
       setClearanceId,
       selectedStudents,
       effectiveStatus,
+      statusFilter,
+      setStatusFilter,
+      orderFilter,
+      setOrderFilter,
    };
    return (
       <DepartmentContext.Provider value={value}>

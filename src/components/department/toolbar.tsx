@@ -8,6 +8,7 @@ import SignButton from './sign-button';
 import { useFetchPreset } from '@/hooks/department/fetch-presets';
 import { useDepartmentContext } from '@/context/deparment';
 import { useState } from 'react';
+import FilterButton from './button/filter-button';
 
 export default function Toolbar() {
    const {
@@ -72,6 +73,8 @@ export default function Toolbar() {
                clearanceId={clearanceId}
                currentStatus={effectiveStatus}
             />
+
+            <FilterButton />
          </div>
       </section>
    );

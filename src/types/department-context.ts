@@ -5,6 +5,7 @@ import { Students } from './students';
 export type DepartmentContextType = {
    courses: Courses[];
    students: Students[];
+   filteredStudents: Students[];
    fetchingStudents: boolean;
    courseId: string | null;
    setCourseId: Dispatch<SetStateAction<string | null>>;
@@ -17,4 +18,8 @@ export type DepartmentContextType = {
    setClearanceId: Dispatch<SetStateAction<string[]>>;
    selectedStudents: Students[];
    effectiveStatus: string;
+   statusFilter: string;
+   setStatusFilter: Dispatch<SetStateAction<string>>;
+   orderFilter: string;
+   setOrderFilter: Dispatch<SetStateAction<string>>;
 };

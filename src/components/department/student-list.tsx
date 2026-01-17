@@ -14,7 +14,7 @@ export default function StudentList() {
    const {
       fetchingStudents,
       setClearanceId,
-      students,
+      filteredStudents,
       effectiveStatus,
       selectedStudents,
       clearanceId,
@@ -29,13 +29,13 @@ export default function StudentList() {
    };
 
    if (fetchingStudents) return <div> Loading Students... </div>;
-   if (students.length === 0)
+   if (filteredStudents.length === 0)
       return <div> No students found for this section </div>;
 
    return (
       <div className="flex justify-center w-250 m-2.5! p-2.5!">
          <Accordion type="multiple" className="w-full">
-            {students.map((student) => {
+            {filteredStudents.map((student) => {
                const isDisabled =
                   student.student_clearances[0].status !== effectiveStatus &&
                   selectedStudents.length !== 0;
