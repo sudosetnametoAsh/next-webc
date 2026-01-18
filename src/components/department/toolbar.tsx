@@ -9,6 +9,7 @@ import { useFetchPreset } from '@/hooks/department/fetch-presets';
 import { useDepartmentContext } from '@/context/deparment';
 import { useState } from 'react';
 import FilterButton from './button/filter-button';
+import ManagePresetButton from './button/manage-preset-button';
 
 export default function Toolbar() {
    const {
@@ -18,7 +19,7 @@ export default function Toolbar() {
       setSectionId,
       selectedCourse,
       activeSectionId,
-      students,
+      filteredStudents,
       clearanceId,
       setClearanceId,
       effectiveStatus,
@@ -45,9 +46,11 @@ export default function Toolbar() {
             setSectionId={setSectionId}
             activeSectionId={activeSectionId}
          />
+
+         <ManagePresetButton preset={preset} />
          <div className="flex flex-row gap-2">
             <SelectAll
-               students={students}
+               students={filteredStudents}
                clearanceId={clearanceId}
                setClearanceId={setClearanceId}
                effectiveStatus={effectiveStatus}
