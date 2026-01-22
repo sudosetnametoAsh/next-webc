@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student Clearance System
+
+A modern web student clearance system built with Next.js 15, TypeScript, and Supabase.
 
 ## Getting Started
 
@@ -19,6 +21,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Authentication:** Azure MSAL (Microsoft Authentication Library)
+- **Database:** Supabase
+- **UI:** Radix UI
+- **Styling:** TailwindCSS
+- **State Management:** TanStack Query
 
 ## Learn More
 
