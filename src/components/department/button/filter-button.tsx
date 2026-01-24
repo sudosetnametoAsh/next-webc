@@ -24,12 +24,13 @@ export default function FilterButton() {
             </Button>
          </DropdownMenuTrigger>
 
-         <DropdownMenuContent>
+         <DropdownMenuContent className="p-2.5!">
             {/* <DropdownMenuLabel> Status</DropdownMenuLabel> */}
             <DropdownMenuCheckboxItem
                checked={statusFilter === 'All'}
                onCheckedChange={() => setStatusFilter('All')}
                onSelect={preventDefault}
+               className="pl-8!"
             >
                All
             </DropdownMenuCheckboxItem>
@@ -37,6 +38,7 @@ export default function FilterButton() {
                checked={statusFilter === 'Signed'}
                onCheckedChange={() => setStatusFilter('Signed')}
                onSelect={preventDefault}
+               className="pl-8!"
             >
                Signed
             </DropdownMenuCheckboxItem>
@@ -46,15 +48,17 @@ export default function FilterButton() {
                   setStatusFilter('Pending');
                }}
                onSelect={preventDefault}
+               className="pl-8!"
             >
                Pending
             </DropdownMenuCheckboxItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="m-1.5!" />
             {/* <DropdownMenuLabel> Order </DropdownMenuLabel> */}
             <DropdownMenuCheckboxItem
                checked={orderFilter === 'A-Z'}
                onCheckedChange={() => setOrderFilter('A-Z')}
                onSelect={preventDefault}
+               className="pl-8!"
             >
                A-Z
             </DropdownMenuCheckboxItem>
@@ -62,6 +66,7 @@ export default function FilterButton() {
                checked={orderFilter === 'Z-A'}
                onCheckedChange={() => setOrderFilter('Z-A')}
                onSelect={preventDefault}
+               className="pl-8!"
             >
                Z-A
             </DropdownMenuCheckboxItem>

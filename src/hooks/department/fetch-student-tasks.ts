@@ -12,7 +12,7 @@ export function useFetchStudentTasks(clearanceId: string | null) {
         `/api/department/students/tasks/${clearanceId}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -23,5 +23,6 @@ export function useFetchStudentTasks(clearanceId: string | null) {
       return data.data;
     },
     enabled: !!clearanceId,
+    staleTime: 1000 * 60 * 5,
   });
 }
