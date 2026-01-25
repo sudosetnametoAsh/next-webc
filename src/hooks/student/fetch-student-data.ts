@@ -9,6 +9,7 @@ type Tasks = {
 
 type FetchedData = {
   name: string;
+  student_id: string;
   students: StudentData[];
   balance: Balance[];
 };
@@ -38,6 +39,7 @@ export function useFecthRecords() {
         name: json.name,
         students: json.data,
         balance: json.balance,
+        student_id: json.student_id,
       };
     },
   });

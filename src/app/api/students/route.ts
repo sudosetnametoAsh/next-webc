@@ -13,10 +13,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No token found" }, { status: 401 });
   }
 
-  
   const { payload } = await jwtVerify(cookie, secret); // Verify token and extract payload
   const email = payload.email; // Extract email from payload
-  const name = payload.name // Extract name from payload
+  const name = payload.name; // Extract name from payload
 
   // Fetch clearance status and tasks
   const { data: studentData, error: studentError } = await supabase
@@ -24,6 +23,7 @@ export async function GET(req: NextRequest) {
   .select(`
     status,
     students!inner (
+      student_id,
       users!inner ()
     ),
     clearance_templates (
@@ -36,9 +36,9 @@ export async function GET(req: NextRequest) {
         description
       )
     )
-  `)
+  `) 
   .eq("students.users.email", email);
-  
+
   // Error handler
   if (studentError) {
     console.error(studentError);
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
       `
     )
     .eq("students.users.email", email);
-  
+
   // Error handler
   if (studentBalanceError) {
     console.error(studentBalanceError);
@@ -67,10 +67,15 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  
+  const firstRecord = studentData?.[0] as any;
+  const studentId = firstRecord?.students?.student_id || "N/A";
+
   // Response data
   return NextResponse.json({
     name,
-    data: studentData,
+    student_id: studentId, 
+    data: studentData,     
     balance: studentBalance,
   });
 }
