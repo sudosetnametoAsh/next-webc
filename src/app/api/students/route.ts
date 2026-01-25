@@ -20,25 +20,25 @@ export async function GET(req: NextRequest) {
 
   // Fetch clearance status and tasks
   const { data: studentData, error: studentError } = await supabase
-    .from("student_clearances")
-    .select(
-      `
-        status,
-        students!inner (
-          users!inner ()
-        ),
-        clearance_templates (
-          departments ( dept_name ),
-          staffs ( staff_name )
-        ),
-        student_tasks_status (
-          status,
-          clearance_tasks_preset ( description )
-        )
-      `
+  .from("student_clearances")
+  .select(`
+    status,
+    students!inner (
+      users!inner ()
+    ),
+    clearance_templates (
+      departments ( dept_name ),
+      staffs ( staff_name )
+    ),
+    assigned_tasks (
+      status,
+      clearance_tasks_preset (
+        description
+      )
     )
-    .eq("students.users.email", email);
-
+  `)
+  .eq("students.users.email", email);
+  
   // Error handler
   if (studentError) {
     console.error(studentError);

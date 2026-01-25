@@ -1,13 +1,14 @@
-import SignOutButton from "@/components/auth/sign-out-button";
-import StudentTable from "@/components/student/student-table";
-import "@/styles/temp.css";
-
-export default function Students() {
+import StudentDashboard from "@/components/student/student-table";
+export default function StudentsPage() {
   return (
-    <>
-      <StudentTable />
+   
+    <main className="min-h-screen bg-gray-50 flex justify-center py-12 px-4">
+      
+      
+      <div className="w-full max-w-7xl">
+        <StudentDashboard />
+      </div>
 
-      <SignOutButton />
-    </>
+    </main>
   );
 }
