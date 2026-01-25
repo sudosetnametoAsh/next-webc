@@ -18,46 +18,57 @@ export default function StudentDashboard() {
 
     // Safety checks for data
     const studentName = data?.name || "Student";
+    const studentId = data?.student_id || "Loading..."; // Matches the ID from your API
     const records = data?.students || [];
 
     // Calculate overall status
     const isClearanceComplete = records.length > 0 && records.every((r: any) => r.status === 'Complete');
 
     return (
-        // UPDATE: Changed max-w-6xl to max-w-7xl and added responsive padding
         <div className="w-full max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8">
             
             {/* --- SECTION 1: Header Profile Card --- */}
-<div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
-    
-    {/* Left: Student Info */}
-    <div className="min-w-0"> {/* Added min-w-0 to prevent text overflow */}
-        <h1 className="text-2xl font-bold text-gray-800 truncate">{studentName}</h1>
-        <div className="flex items-center gap-3 mt-1 flex-wrap">
-            <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                STUDENT
-            </span>
-        </div>
-    </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+                
+                {/* Left: Student Info */}
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold text-gray-800 truncate">{studentName}</h1>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        {/* Student ID Display */}
+                        <span className="text-gray-500 text-sm font-medium">
+                            ID: {studentId}
+                        </span>
 
-    {/* Right: Status Badge & Actions */}
-    {/* CHANGE: Added 'flex-wrap' and 'justify-end' */}
-    <div className="flex flex-wrap items-center gap-3 md:justify-end"> 
-        {/* Status Badge */}
-        <div className={`px-4 py-2 rounded-lg font-bold text-white flex items-center gap-2 shadow-sm whitespace-nowrap ${isClearanceComplete ? 'bg-green-500' : 'bg-orange-500'}`}>
-            {isClearanceComplete ? (
-                <><span>✓</span> <span>Clearance Complete</span></>
-            ) : (
-                <> <span>Clearance Incomplete</span></>
-            )}
-        </div>
-        
-        {/* Sign Out Button */}
-        <div className="shrink-0">
-             <SignOutButton />
-        </div>
-    </div>
-</div>
+                        {/* Student Badge */}
+                        <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                            STUDENT
+                        </span>
+                    </div>
+                </div>
+
+                {/* Right: Status Badge & Actions */}
+                <div className="flex flex-wrap items-center gap-3 md:justify-end"> 
+                    {/* Status Badge */}
+                    <div className={`px-4 py-2 rounded-lg font-bold text-white flex items-center gap-2 shadow-sm whitespace-nowrap ${isClearanceComplete ? 'bg-green-500' : 'bg-orange-500'}`}>
+                        {isClearanceComplete ? (
+                            <>
+                                <span>✓</span>
+                                <span>Clearance Complete</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>🕒</span>
+                                <span>Clearance Incomplete</span>
+                            </>
+                        )}
+                    </div>
+                    
+                    {/* Sign Out Button */}
+                    <div className="shrink-0">
+                        <SignOutButton />
+                    </div>
+                </div>
+            </div>
 
             {/* --- SECTION 2: Statistics --- */}
             <DashboardStats records={records} />
