@@ -22,7 +22,7 @@ export default function StudentDashboard() {
     const records = data?.students || [];
 
     // Calculate overall status
-    const isClearanceComplete = records.length > 0 && records.every((r: any) => r.status === 'Complete');
+    const isClearanceComplete = records.length > 0 && records.every((r: any) => r.status === 'Signed');
 
     return (
         <div className="w-full max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8">
@@ -52,12 +52,12 @@ export default function StudentDashboard() {
                     <div className={`px-4 py-2 rounded-lg font-bold text-white flex items-center gap-2 shadow-sm whitespace-nowrap ${isClearanceComplete ? 'bg-green-500' : 'bg-orange-500'}`}>
                         {isClearanceComplete ? (
                             <>
-                                <span>✓</span>
+                                
                                 <span>Clearance Complete</span>
                             </>
                         ) : (
                             <>
-                                <span>🕒</span>
+                                
                                 <span>Clearance Incomplete</span>
                             </>
                         )}
