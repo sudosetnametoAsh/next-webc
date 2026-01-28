@@ -1,4 +1,4 @@
-"use client"; // Required for interactivity (useState)
+"use client"; 
 
 import React, { useState } from 'react';
 
@@ -27,7 +27,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
   return (
     <div className={`w-full border rounded-xl shadow-sm transition-all overflow-hidden ${containerStyle}`}>
       
-      {/* --- HEADER (Always Visible) --- */}
+      
       <div 
         onClick={() => setIsOpen(!isOpen)}
         className="relative flex items-center justify-between p-4 cursor-pointer hover:bg-opacity-80 transition-colors gap-4"
@@ -35,8 +35,8 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
         {/* Left Side: Dept Name & Staff */}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-800 break-words">{department}</span>
-            {/* Show a small indicator if there are tasks inside */}
+            <span className="font-bold text-gray-800 wrap-break-word">{department}</span>
+            
             {hasTasks && (
                <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full font-bold">
                  {tasks.length}
@@ -67,7 +67,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
       </div>
 
       {/* --- DROPDOWN CONTENT (Visible when Open) --- */}
-      {/* We use a transition wrapper for smooth height animation effect */}
+      
       <div 
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
@@ -82,7 +82,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
                 <ul className="space-y-2">
                     {tasks.map((task, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                            {/* Checkbox Icon (Visual only) */}
+                            
                             <span className={`mt-0.5 w-4 h-4 flex items-center justify-center rounded border ${isPending ? 'border-orange-300 bg-orange-50' : 'border-green-300 bg-green-50'}`}>
                                 {isPending ? (
                                     <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
