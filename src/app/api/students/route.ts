@@ -33,9 +33,56 @@ export async function GET() {
     );
   // .eq("students.users.email", email);
 
-  if (studentError) {
-    console.error(studentError);
-    return NextResponse.json({ error: studentError.message }, { status: 500 });
+      supabase
+        .from("student_balances")
+        .select(`
+            amount,
+            students!inner (
+              users!inner ()
+            )
+        `)
+        .eq("students.users.email", email)
+        .returns<BalanceRecord[]>() // Apply type
+    ]);
+
+    
+    if (clearanceResult.error) throw new Error(clearanceResult.error.message);
+    if (balanceResult.error) throw new Error(balanceResult.error.message);
+
+    const studentData = clearanceResult.data || [];
+    const studentBalance = balanceResult.data || [];
+
+    
+    const firstRecord = studentData[0];
+    const studentId = firstRecord?.students?.student_id || "N/A";
+
+    
+    const formattedData = studentData.map((c) => ({
+      status: c.status,
+      clearance_templates: c.clearance_templates,
+      student_tasks_status: c.assigned_tasks.map((t) => ({
+        status: t.status,
+        clearance_tasks_preset: {
+          
+          description: t.description ?? t.clearance_tasks_preset?.description ?? "Unnamed Task"
+        }
+      }))
+    }));
+
+    return NextResponse.json({
+      name,
+      student_id: studentId,
+      data: formattedData,
+      balance: studentBalance, 
+    });
+
+  } catch (err: any) {
+    console.error("API Error:", err);
+    
+    return NextResponse.json(
+      { error: err.message || "Internal Server Error" }, 
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({
