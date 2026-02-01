@@ -21,7 +21,7 @@ const StatsCards = () => {
       </Card>
 
       {/* Signed */}
-      <Card className="border-emerald-200 bg-emerald-50">
+      <Card className="border-emerald-200 bg-amber-900">
         <p className="text-sm text-emerald-700">Signed</p>
         <p className="mt-1 text-3xl font-semibold text-emerald-700">
           {/* {stats.signed.toLocaleString()} */}
