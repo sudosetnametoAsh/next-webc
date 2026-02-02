@@ -8,11 +8,6 @@ export default function SignOutButton() {
   const { instance } = useMsal();
 
   const handleLogout = async () => {
-    // const logoutRequest = {
-    //   account: instance.getActiveAccount(),
-    //   postLogoutRedirectUri: "http://localhost:3000"
-    // }
-
     try {
       await fetch("/api/session", { method: "DELETE" });
       await instance.logoutRedirect();
