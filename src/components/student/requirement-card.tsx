@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronDown, CheckCircle2 } from "lucide-react"; // Or use SVG if preferred
 
 interface RequirementCardProps {
   department: string;
@@ -11,13 +10,11 @@ interface RequirementCardProps {
 }
 
 export const RequirementCard = ({ department, staff, status, tasks }: RequirementCardProps) => {
-  // 1. LOCAL STATE: Each card controls its own dropdown
   const [isOpen, setIsOpen] = useState(false);
   
   const isPending = status === 'Pending';
   const hasTasks = tasks.length > 0;
 
-  // Dynamic Styles based on status
   const containerStyle = isPending 
     ? "bg-yellow-50 border-yellow-200" 
     : "bg-green-50 border-green-200";
@@ -26,24 +23,23 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
     ? "bg-orange-500 text-white"
     : "bg-green-500 text-white";
 
-  // Toggle Function
   const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Stops click from affecting parent containers
+    e.stopPropagation(); 
     setIsOpen(!isOpen);
   };
 
   return (
     <div className={`w-full border rounded-xl shadow-sm transition-all overflow-hidden ${containerStyle}`}>
       
-      {/* HEADER ROW (Clickable) */}
+      {/* HEADER ROW */}
       <div 
-        onClick={handleToggle} 
+        onClick={handleToggle}
         className="relative flex items-center justify-between p-4 cursor-pointer hover:bg-white/50 transition-colors gap-4 select-none"
       >
-        {/* Left: Department Info */}
+        {/* Left Side */}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-800 truncate">{department}</span>
+            <span className="font-bold text-gray-800 break-words line-clamp-1">{department}</span>
             {hasTasks && (
                <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full font-bold">
                  {tasks.length}
@@ -53,17 +49,36 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
           <span className="text-sm text-gray-500 truncate">{staff}</span>
         </div>
 
-        {/* Right: Status Badge & Icon */}
+        {/* Right Side */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className={`px-3 py-1 text-xs font-bold rounded-full ${badgeStyle}`}>
+          
+          {/* --- FIX IS HERE --- */}
+          {/* 1. min-w-[85px]: Forces the badge to be wide enough no matter what */}
+          {/* 2. justify-center: Centers the text inside that wide badge */}
+          {/* 3. text-[11px]: Slightly smaller text to prevent edge touching */}
+          <div className={`
+            min-w-[85px] flex items-center justify-center 
+            px-3 py-1.5 rounded-full shadow-sm 
+            text-[11px] font-bold uppercase tracking-wide whitespace-nowrap
+            ${badgeStyle}
+          `}>
             {status}
           </div>
-          <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            strokeWidth={2} 
+            stroke="currentColor" 
+            className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
       </div>
 
       {/* DROPDOWN CONTENT */}
-      {/* Uses CSS max-height for smooth slide animation */}
       <div 
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
@@ -78,8 +93,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
                 <ul className="space-y-2">
                     {tasks.map((task, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                            {/* Simple Bullet Point */}
-                            <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${isPending ? 'bg-orange-400' : 'bg-green-500'}`} />
+                            <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${isPending ? 'bg-orange-400' : 'bg-green-500'}`} />
                             <span className={isPending ? "" : "line-through text-gray-400"}>
                                 {task}
                             </span>
@@ -87,10 +101,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
                     ))}
                 </ul>
             ) : (
-                <p className="text-sm text-gray-400 italic flex items-center gap-2">
-                   <CheckCircle2 className="w-4 h-4" />
-                   No specific requirements listed.
-                </p>
+                <p className="text-sm text-gray-400 italic">No specific requirements listed.</p>
             )}
         </div>
       </div>
