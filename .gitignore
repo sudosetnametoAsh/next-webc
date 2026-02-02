@@ -1,9 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 src/api-test.http
 <<<<<<< HEAD
+<<<<<<< HEAD
 notes.txt
 =======
 >>>>>>> cd9a25f (removed p-doc)
+=======
+notes.txt
+>>>>>>> bf0eb18 (removed p-doc)
 
 # dependencies
 /node_modules
