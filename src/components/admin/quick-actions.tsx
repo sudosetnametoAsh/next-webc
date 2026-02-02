@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, Building2, Search, Filter } from 'lucide-react'
+import CreateTemplateModal from './create-template-modal'
 
 export default function QuickActions() {
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
@@ -47,10 +48,12 @@ export default function QuickActions() {
               className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             />
           </div>
-          <div className='p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'>
+          <button onClick={() => console.log('Filter button clicked!')} className='p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'>
             <Filter className='w-4 h-4 text-gray-500' />
-          </div>
+          </button>
         </div>
+
+        <CreateTemplateModal />
       </div>
     </>
   )

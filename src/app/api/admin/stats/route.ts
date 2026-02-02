@@ -37,9 +37,7 @@ export async function GET() {
       studentStatusMap.set(clearance.student_id, existing)
     }
 
-    let signed = 0
-    let pending = 0
-    let incomplete = 0
+    let signed = 0, incomplete = 0, pending = 0
 
     for (const [, statuses] of studentStatusMap) {
       const allSigned = statuses.every(status => status === 'Signed')
