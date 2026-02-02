@@ -3,6 +3,7 @@ import { ComponentProps } from "react";
 type ProgressBarProps = {
   value: number; // 0-100
   showLabel?: boolean;
+  label?: string; // Added optional label prop
   size?: "sm" | "md" | "lg";
 } & Omit<ComponentProps<"div">, "children">;
 
@@ -15,6 +16,7 @@ const sizeClasses = {
 const ProgressBar = ({
   value,
   showLabel = true,
+  label = "Completion Rate",
   size = "md",
   className = "",
   ...props
@@ -24,15 +26,22 @@ const ProgressBar = ({
 
   return (
     <div className={`w-full ${className}`} {...props}>
+      {/* Label Section */}
       {showLabel && (
-        <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-sm text-gray-500">Completion Rate</span>
-          <span className="text-sm font-medium text-gray-900">{clampedValue}%</span>
+        <div className="mb-2 flex items-end justify-between">
+          {/* Matches the 'text-xs font-medium text-gray-400' from your design */}
+          <span className="text-xs font-medium text-gray-400">{label}</span>
+          
+          {/* Matches the bold percentage text */}
+          <span className="text-sm font-bold text-slate-900">{clampedValue}%</span>
         </div>
       )}
+
+      {/* Bar Background */}
       <div className={`w-full overflow-hidden rounded-full bg-gray-100 ${sizeClasses[size]}`}>
+        {/* Fill Bar: Changed from emerald-500 to slate-900 (Black) */}
         <div
-          className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+          className="h-full rounded-full bg-slate-900 transition-all duration-300"
           style={{ width: `${clampedValue}%` }}
         />
       </div>

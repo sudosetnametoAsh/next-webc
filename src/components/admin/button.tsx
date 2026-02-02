@@ -12,15 +12,22 @@ type ButtonProps = {
 } & ComponentProps<"button">;
 
 const variantClasses = {
-  primary: "bg-gray-900 text-white hover:bg-gray-800",
-  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-  outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-  ghost: "text-gray-700 hover:bg-gray-100",
+  
+  primary: "bg-slate-900 text-white hover:bg-slate-800 focus:ring-slate-900",
+  
+  
+  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500",
+  
+  
+  outline: "border border-gray-200 bg-white text-slate-700 hover:bg-gray-50 focus:ring-slate-900",
+  
+  
+  ghost: "text-slate-700 hover:bg-gray-100 focus:ring-slate-900",
 };
 
 const sizeClasses = {
-  sm: "h-8 px-3 text-sm",
-  md: "h-10 px-4 text-sm",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-4 text-sm", 
   lg: "h-12 px-6 text-base",
 };
 
@@ -35,7 +42,15 @@ const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`
+        inline-flex items-center justify-center gap-2 rounded-lg 
+        font-bold transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-offset-2 
+        disabled:cursor-not-allowed disabled:opacity-50 
+        ${variantClasses[variant]} 
+        ${sizeClasses[size]} 
+        ${className}
+      `}
       {...props}
     >
       {leftIcon && <span className="shrink-0">{leftIcon}</span>}
