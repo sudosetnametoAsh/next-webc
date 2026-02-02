@@ -23,7 +23,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Project Structure
+<<<<<<< HEAD
 
+=======
+>>>>>>> cfcaf5e (Add admin statistics overview and refactor layout)
 ```
 src/
 ├── app/
@@ -37,12 +40,20 @@ src/
 │		├── student/			# Student portal
 │	└── api/				# API routes
 ├── components/			# React components
+<<<<<<< HEAD
+=======
+│		├── admin/			# Admin-specific components
+>>>>>>> cfcaf5e (Add admin statistics overview and refactor layout)
 │		├── auth/			# Authentication components
 │		├── department/		# Department-specific components
 │		├── student/		# Student-specific components
 │		└── ui/				# Custom components
 ├── context/			# React contexts
 ├── hooks/				# Custom react hooks
+<<<<<<< HEAD
+=======
+│		├── admin/			  # Admin data fetching
+>>>>>>> cfcaf5e (Add admin statistics overview and refactor layout)
 │		├── auth/			  # Authentication hooks
 │		├── department/	# Department data fetching
 │		└── student/		# Student data fetching
