@@ -22,6 +22,41 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Project Structure
+```
+src/
+├── app/
+│	├── globals.css			# Global styles
+│	├── layout.tsx			# Root layout
+│	├── page.tsx			# Login/Landing page
+│	├── (pages)/				# App Router
+│		├── layout.tsx			# Auth-protected layout
+│		├── admin/				# Admin dashboard
+│		├── department/			# Department interface
+│		├── student/			# Student portal
+│	└── api/				# API routes
+├── components/			# React components
+│		├── admin/			# Admin-specific components
+│		├── auth/			# Authentication components
+│		├── department/		# Department-specific components
+│		├── student/		# Student-specific components
+│		└── ui/				# Custom components
+├── context/			# React contexts
+├── hooks/				# Custom react hooks
+│		├── admin/			  # Admin data fetching
+│		├── auth/			  # Authentication hooks
+│		├── department/	# Department data fetching
+│		└── student/		# Student data fetching
+├── lib/				# Utilities & configs
+│		├── api/
+│		├── auth/			# Authentication utils
+│		├── msal/			# MSAL setup & configs
+│		└── query/		# TanStack Query setup 
+├── styles/				# Component styles
+├── types/				# TypeScript type definitions
+└── middleware.ts		# Route protection
+```
+
 ## Tech Stack
 
 - **Framework:** Next.js 15 (App Router)
