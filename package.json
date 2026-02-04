@@ -40,6 +40,7 @@
     "react-hook-form": "^7.69.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
+    "update": "^0.7.4",
     "zod": "^4.2.1"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@ export default function QuickActions() {
           <div className="flex items-center gap-2">
             {/* Create Template button */}
             <button
-              onClick={() => console.log('Create template button clicked!')}
+              onClick={() => setTemplateModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -29,7 +29,7 @@ export default function QuickActions() {
 
             {/* Manage Departments button */}
             <button
-              onClick={() => console.log('Manage departments button clicked!')}
+              onClick={() => setDepartmentsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Building2 className="h-4 w-4" />
@@ -53,7 +53,7 @@ export default function QuickActions() {
           </button>
         </div>
 
-        <CreateTemplateModal />
+        <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} />
       </div>
     </>
   )
