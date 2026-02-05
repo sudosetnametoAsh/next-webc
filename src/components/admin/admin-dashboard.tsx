@@ -1,6 +1,7 @@
 import Header from '@/components/admin/header'
 import AdminStats from '@/components/admin/admin-stats'
 import QuickActions from '@/components/admin/quick-actions'
+import CourseTemplatesSection from './course-template'
 
 export default function AdminDashboard({ email }: { email: string }) {
   return (
@@ -12,7 +13,7 @@ export default function AdminDashboard({ email }: { email: string }) {
 
         <QuickActions />
 
-        {/* Course Templates Section */}
+        <CourseTemplatesSection />
       </main>
     </div>
   )
