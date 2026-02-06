@@ -2,17 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 
 type FetchedData = {
   description: string;
-  student_tasks_status: { status_id: number };
 };
-export function useFetchStudentTasks(
-  studentId: string | null,
-  staffId: string | null
-) {
+
+export function useFetchStudentTasks(clearanceId: string | null) {
   return useQuery({
-    queryKey: ["student-tasks", studentId, staffId],
+    queryKey: ["student-tasks", clearanceId],
     queryFn: async (): Promise<FetchedData[]> => {
       const response = await fetch(
-        `/api/department/student-tasks/${studentId}/${staffId}`,
+        `/api/department/students/tasks/${clearanceId}`,
         {
           credentials: "include",
         }
@@ -25,6 +22,6 @@ export function useFetchStudentTasks(
       const data = await response.json();
       return data.data;
     },
-    enabled: !!studentId && !!staffId,
+    enabled: !!clearanceId,
   });
 }

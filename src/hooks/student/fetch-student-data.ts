@@ -1,44 +1,61 @@
 import { useQuery } from "@tanstack/react-query";
 
-type Tasks = {
+
+export type Tasks = {
   status: string;
   clearance_tasks_preset: {
     description: string;
   };
 };
 
-type FetchedData = {
-  name: string;
-  students: StudentData[];
-  balance: Balance[];
+export type Templates = {
+  departments: { dept_name: string };
+  staffs: { staff_name: string };
 };
 
-type StudentData = {
-  clearance_templates: Templates
+export type StudentData = {
+  clearance_templates: Templates;
   status: string;
   student_tasks_status: Tasks[];
 };
 
-type Templates = {
-  departments: { dept_name: string}
-  staffs: { staff_name: string}
-}
-
-type Balance = {
-  amount: string;
+export type Balance = {
+  amount: string; 
 };
+
+export type FetchedData = {
+  name: string;
+  student_id: string;
+  students: StudentData[];
+  balance: Balance[];
+};
+
 
 export function useFecthRecords() {
   return useQuery({
-    queryKey: ["students"],
-    queryFn: async (): Promise<FetchedData>=> {
-      const result = await fetch("/api/students");
-      const json = await result.json();
+    queryKey: ["student-records"], 
+    
+    queryFn: async (): Promise<FetchedData> => {
+      const res = await fetch("/api/students");
+      
+      
+      if (!res.ok) {
+        throw new Error(`Failed to fetch records: ${res.statusText}`);
+      }
+
+      const json = await res.json();
+
       return {
         name: json.name,
-        students: json.data,
+        students: json.data, 
         balance: json.balance,
+        student_id: json.student_id,
       };
     },
+
+    // --- Performance Settings ---
+    staleTime: 1000 * 60 * 5, 
+    refetchOnWindowFocus: false, 
+    retry: 1, 
   });
 }

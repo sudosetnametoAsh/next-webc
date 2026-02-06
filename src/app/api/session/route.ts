@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
 import { createClient } from "@/lib/supabase-config";
 
+declare module 'jose' {
+  interface JWTPayload {
+    roles?: string[];
+    preferred_username?: string;
+    name: string
+  }
+}
+
 const tenantId = process.env.AZURE_AD_TENANT_ID!;
 const clientId = process.env.AZURE_AD_CLIENT_ID!;
 const supabase = createClient();
@@ -31,25 +39,30 @@ export async function POST(req: NextRequest) {
     });
 
     // Extract user information from the token payload
-    const email = payload.preferred_username as string;
-    const role = payload.roles || [];
+    const email = payload.preferred_username;
+    const role = payload.roles?.[0]
     const name = payload.name;
 
     // Insert email into Supabase if non-existent
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("users")
       .upsert({ email }, { onConflict: "email" })
-      .select()
+      .select("user_id")
       .single();
 
     if (error) {
       console.error("Supabase upsert error:", error);
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
-    
+
     // Create token
     // Mint email, role, and name into token
-    const sessionToken = await new SignJWT({ email, role, name })
+    const sessionToken = await new SignJWT({
+      email,
+      role: role,
+      name,
+      id: data.user_id,
+    })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("1h")
@@ -57,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     // Set the session token in cookies
     const response = NextResponse.json({ success: true, role });
-    
+
     response.cookies.set("session_token", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

@@ -1,107 +1,89 @@
-import { useFethStudents } from "@/hooks/department/fetch-student-list";
-import { useFetchStudentTasks } from "@/hooks/department/fetch-student-tasks";
-import { useState } from "react";
+import {
+   Accordion,
+   AccordionContent,
+   AccordionItem,
+   AccordionTrigger,
+} from '@radix-ui/react-accordion';
+import { StudentTaskList } from './student-task';
+import { Checkbox } from '../ui/checkbox';
+import { useDepartmentContext } from '@/context/deparment';
 
-type Props = {
-    courseId: string
-}
+type CheckedState = boolean | 'indeterminate';
 
-export default function StudentList({ courseId }: Props) {
-    const [openId, setOpenId] = useState<string>("");
-    const { data } = useFethStudents(courseId)
-    const { data: tasks = [] } = useFetchStudentTasks(openId, "02000183861")
+export default function StudentList() {
+   const {
+      fetchingStudents,
+      setClearanceId,
+      filteredStudents,
+      effectiveStatus,
+      selectedStudents,
+      clearanceId,
+   } = useDepartmentContext();
 
+   const handleStudentChange = (clearanceId: string, checked: CheckedState) => {
+      setClearanceId((prev) =>
+         checked === true
+            ? [...prev, clearanceId]
+            : prev.filter((id) => id !== clearanceId),
+      );
+   };
 
-    const toggle = (id: string) => {
-        setOpenId(openId === id ? "" : id);
-    };
+   if (fetchingStudents) return <div> Loading Students... </div>;
+   if (filteredStudents.length === 0)
+      return <div> No students found for this section </div>;
 
-    return (
-        <>
-            <div className="students-container">
+   return (
+      <div className="flex justify-center w-250 m-2.5! p-2.5!">
+         <Accordion type="multiple" className="w-full">
+            {filteredStudents.map((student) => {
+               const isDisabled =
+                  student.student_clearances[0].status !== effectiveStatus &&
+                  selectedStudents.length !== 0;
 
-                {data?.map((student) => (
-                    <div className="student-container" key={student.student_id}>
-                        <div className="student-header" onClick={() => toggle(student.student_id)}>
-                            {student.student_name} ({student.student_id})
-                        </div>
-
-                        {openId === student.student_id && (
-                            <div className="student-body">
-                                <p>Details:</p>
-                                {tasks.map((task, index) => (
-                                    <p key={index}> {task.description} </p>
-                                ))}
-                            </div>
+               return (
+                  <AccordionItem
+                     key={student.student_id}
+                     value={student.student_id}
+                     className={`border-2 p-2.5! m-2! data-[state=closed]:h-20 data-[state=closed]:overflow-hidden data-[state=open]:h-auto rounded-sm ${isDisabled ? 'opacity-50 grayscale' : ''}`}
+                  >
+                     {/* Checkbox */}
+                     <Checkbox
+                        className={
+                           isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'
+                        }
+                        disabled={isDisabled}
+                        checked={clearanceId.includes(
+                           student.student_clearances?.[0].clearance_id,
                         )}
-                    </div>
+                        onCheckedChange={(checked) =>
+                           handleStudentChange(
+                              student.student_clearances?.[0].clearance_id,
+                              checked,
+                           )
+                        }
+                     />
 
+                     {/* Trigger */}
+                     <AccordionTrigger className="cursor-pointer">
+                        {student.student_name} ({student.student_id}){' '}
+                        <strong>
+                           {' '}
+                           {student.student_clearances[0].status}{' '}
+                        </strong>
+                     </AccordionTrigger>
 
-
-                ))}
-            </div>
-
-            <style jsx>{`
-                .students-container {
-                margin-top: 20px;
-                }
-
-                .student-container {
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                margin-bottom: 10px;
-                overflow: hidden;
-                background: #fff;
-                }
-
-                .student-header {
-                padding: 12px 16px;
-                cursor: pointer;
-                background: #f7f7f7;
-                font-weight: 600;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: background 0.2s ease;
-                }
-
-                .student-header:hover {
-                background: #ececec;
-                }
-
-                .student-header::after {
-                content: "▸";
-                transition: transform 0.2s ease;
-                }
-
-                .student-container:has(.student-body) .student-header::after {
-                transform: rotate(90deg);
-                }
-
-                .student-body {
-                padding: 12px 16px;
-                border-top: 1px solid #eee;
-                background: #fafafa;
-                animation: slideDown 0.2s ease;
-                }
-
-                .student-body p {
-                margin: 6px 0;
-                font-size: 14px;
-                }
-
-                @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-4px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                }
-            `}</style>
-
-        </>
-    )
+                     {/* Content */}
+                     <AccordionContent className="">
+                        <StudentTaskList
+                           clearanceId={
+                              student.student_clearances?.[0].clearance_id
+                           }
+                        />
+                     </AccordionContent>
+                  </AccordionItem>
+               );
+            })}
+         </Accordion>
+      </div>
+   );
 }

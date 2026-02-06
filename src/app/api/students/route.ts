@@ -2,75 +2,122 @@ import { createClient } from "@/lib/supabase-config";
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
-const supabase = createClient(); // Supabase initialization
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!); // Signature
+
+interface ClearanceTask {
+  status: string;
+  description: string | null;
+  clearance_tasks_preset: {
+    description: string;
+  } | null;
+}
+
+interface ClearanceRecord {
+  status: string;
+  students: {
+    student_id: string;
+  };
+  clearance_templates: {
+    departments: { dept_name: string } | null;
+    staffs: { staff_name: string } | null;
+  } | null;
+  assigned_tasks: ClearanceTask[];
+}
+
+interface BalanceRecord {
+  amount: number;
+}
+
+const secret = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 export async function GET(req: NextRequest) {
-  const cookie = req.cookies.get("session_token")?.value; // Get cookie
+  
+  const supabase = createClient();
 
-  // Check if cookie is present
+  const cookie = req.cookies.get("session_token")?.value;
+
   if (!cookie) {
     return NextResponse.json({ error: "No token found" }, { status: 401 });
   }
 
-  
-  const { payload } = await jwtVerify(cookie, secret); // Verify token and extract payload
-  const email = payload.email; // Extract email from payload
-  const name = payload.name // Extract name from payload
+  try {
+    const { payload } = await jwtVerify(cookie, secret);
+    const email = payload.email as string;
+    const name = payload.name;
 
-  // Fetch clearance status and tasks
-  const { data: studentData, error: studentError } = await supabase
-    .from("student_clearances")
-    .select(
-      `
-        status,
-        students!inner (
-          users!inner ()
-        ),
-        clearance_templates (
-          departments ( dept_name ),
-          staffs ( staff_name )
-        ),
-        student_tasks_status (
+    
+    const [clearanceResult, balanceResult] = await Promise.all([
+      supabase
+        .from("student_clearances")
+        .select(`
           status,
-          clearance_tasks_preset ( description )
-        )
-      `
-    )
-    .eq("students.users.email", email);
+          students!inner (
+            student_id,
+            users!inner ()
+          ),
+          clearance_templates (
+            departments ( dept_name ),
+            staffs ( staff_name )
+          ),
+          assigned_tasks (
+            status,
+            description,  
+            clearance_tasks_preset (
+              description
+            )
+          )
+        `)
+        .eq("students.users.email", email)
+        .returns<ClearanceRecord[]>(), // Apply type
 
-  // Error handler
-  if (studentError) {
-    console.error(studentError);
-    return NextResponse.json({ error: studentError.message }, { status: 500 });
-  }
+      supabase
+        .from("student_balances")
+        .select(`
+            amount,
+            students!inner (
+              users!inner ()
+            )
+        `)
+        .eq("students.users.email", email)
+        .returns<BalanceRecord[]>() // Apply type
+    ]);
 
-  // Fetch student balance
-  const { data: studentBalance, error: studentBalanceError } = await supabase
-    .from("student_balances")
-    .select(
-      `
-        amount,
-        students!inner (
-          users!inner ()
-        )
-      `
-    )
-    .eq("students.users.email", email);
-  
-  // Error handler
-  if (studentBalanceError) {
-    console.error(studentBalanceError);
+    
+    if (clearanceResult.error) throw new Error(clearanceResult.error.message);
+    if (balanceResult.error) throw new Error(balanceResult.error.message);
+
+    const studentData = clearanceResult.data || [];
+    const studentBalance = balanceResult.data || [];
+
+    
+    const firstRecord = studentData[0];
+    const studentId = firstRecord?.students?.student_id || "N/A";
+
+    
+    const formattedData = studentData.map((c) => ({
+      status: c.status,
+      clearance_templates: c.clearance_templates,
+      student_tasks_status: c.assigned_tasks.map((t) => ({
+        status: t.status,
+        clearance_tasks_preset: {
+          
+          description: t.description ?? t.clearance_tasks_preset?.description ?? "Unnamed Task"
+        }
+      }))
+    }));
+
+    return NextResponse.json({
+      name,
+      student_id: studentId,
+      data: formattedData,
+      balance: studentBalance, 
+    });
+
+  } catch (err: any) {
+    console.error("API Error:", err);
+    
     return NextResponse.json(
-      { error: studentBalanceError.message },
+      { error: err.message || "Internal Server Error" }, 
       { status: 500 }
     );
   }
-
-  // Response data
-  return NextResponse.json({
-    name,
-    data: studentData,
-    balance: studentBalance,
-  });
 }

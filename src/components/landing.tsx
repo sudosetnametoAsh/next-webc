@@ -1,6 +1,6 @@
 import styles from "@/styles/sti-login.module.css";
 import Image from "next/image";
-import SignInButton from "./button/signin-button";
+import SignInButton from "./auth/signin-button";
 
 export default function Login() {
     return (

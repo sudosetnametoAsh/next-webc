@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student Clearance System
+
+A modern web student clearance system built with Next.js 15, TypeScript, and Supabase.
 
 ## Getting Started
 
@@ -19,6 +21,50 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Project Structure
+```
+src/
+├── app/
+│	├── globals.css			# Global styles
+│	├── layout.tsx			# Root layout
+│	├── page.tsx			# Login/Landing page
+│	├── (pages)/				# App Router
+│		├── layout.tsx			# Auth-protected layout
+│		├── admin/				# Admin dashboard
+│		├── department/			# Department interface
+│		├── student/			# Student portal
+│	└── api/				# API routes
+├── components/			# React components
+│		├── admin/			# Admin-specific components
+│		├── auth/			# Authentication components
+│		├── department/		# Department-specific components
+│		├── student/		# Student-specific components
+│		└── ui/				# Custom components
+├── context/			# React contexts
+├── hooks/				# Custom react hooks
+│		├── admin/			  # Admin data fetching
+│		├── auth/			  # Authentication hooks
+│		├── department/	# Department data fetching
+│		└── student/		# Student data fetching
+├── lib/				# Utilities & configs
+│		├── api/
+│		├── auth/			# Authentication utils
+│		├── msal/			# MSAL setup & configs
+│		└── query/		# TanStack Query setup 
+├── styles/				# Component styles
+├── types/				# TypeScript type definitions
+└── middleware.ts		# Route protection
+```
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Authentication:** Azure MSAL (Microsoft Authentication Library)
+- **Database:** Supabase
+- **UI:** Radix UI
+- **Styling:** TailwindCSS
+- **State Management:** TanStack Query
 
 ## Learn More
 

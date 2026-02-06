@@ -1,13 +1,31 @@
-"use client";
-import SignOutButton from "@/components/button/sign-out-button";
-import Courses from "@/components/department/courses";
+import DepartmentContainer from '@/components/department/department-container';
+import {
+   dehydrate,
+   HydrationBoundary,
+   QueryClient,
+} from '@tanstack/react-query';
+import { fetchCourseServer } from '@/lib/api/courses';
+import { fetchStudentsServer } from '@/lib/api/students';
 
-export default function Department() {
-  return (
-    <>
-      <Courses />
+export default async function Department() {
+   const queryClient = new QueryClient();
 
-      <SignOutButton />
-    </>
-  )
+   const courses = await fetchCourseServer();
+   const initialSectionId = String(courses[0].course_sections[0].section_id);
+
+   await queryClient.prefetchQuery({
+      queryKey: ['courses'],
+      queryFn: fetchCourseServer,
+   });
+
+   await queryClient.prefetchQuery({
+      queryKey: ['students', initialSectionId],
+      queryFn: () => fetchStudentsServer(initialSectionId),
+   });
+
+   return (
+      <HydrationBoundary state={dehydrate(queryClient)}>
+         <DepartmentContainer />
+      </HydrationBoundary>
+   );
 }

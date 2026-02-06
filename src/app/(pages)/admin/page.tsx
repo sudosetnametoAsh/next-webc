@@ -1,14 +1,8 @@
-import SignOutButton from '@/components/button/sign-out-button'
-import React from 'react'
+import AdminDashboard from '@/components/admin/admin-dashboard'
+import { getSession } from '@/lib/auth/get-session'
 
-const page = () => {
-  return (
-    <>
-      <div>admin</div>
-      <SignOutButton />
-    </>
+export default async function AdminPage() {
+  const session = await getSession()
 
-  )
+  return <AdminDashboard email={session?.email || ""} />
 }
-
-export default page
