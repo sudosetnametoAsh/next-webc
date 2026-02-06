@@ -7,7 +7,8 @@ const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/api/session") {
+  // Allow public routes
+  if (pathname === "/api/session" || pathname.startsWith("/preview")) {
     return NextResponse.next();
   }
   const token = req.cookies.get("session_token")?.value;
