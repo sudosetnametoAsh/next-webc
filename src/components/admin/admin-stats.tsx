@@ -11,24 +11,24 @@ export default function AdminStats() {
   
   return (
     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-      <div className='flex flex-col gap-4 bg-white border-gray-200 rounded-xl border p-5'>
-        <div className='text-sm text-gray-500 font-bold'>Total Students:</div>
-        <p className='text-3xl font-bold text-gray-900'>{stats?.totalStudents}</p>
+      <div className='flex flex-col gap-12 justify-between bg-white border-gray-200 rounded-xl border-2 p-6'>
+        <div className='text-sm text-gray-900 font-bold'>Total Students:</div>
+        <p className='text-4xl font-bold text-gray-900'>{stats?.totalStudents}</p>
       </div>
 
-      <div className='flex flex-col gap-4 bg-green-50 border-gray-200 rounded-xl border p-5'>
-        <div className='text-sm text-gray-500 font-bold'>Signed:</div>
-        <p className='text-3xl font-bold text-green-700'>{stats?.signed}</p>
+      <div className='flex flex-col gap-12 justify-between bg-emerald-50 border-emerald-200 rounded-xl border-2 p-6'>
+        <div className='text-sm text-emerald-500 font-medium'>Signed:</div>
+        <p className='text-4xl font-bold text-emerald-500'>{stats?.signed}</p>
       </div>
 
-      <div className='flex flex-col gap-4 bg-amber-50 border-gray-200 rounded-xl border p-5'>
-        <div className='text-sm text-gray-500 font-bold'>Incomplete:</div>
-        <p className='text-3xl font-bold text-amber-700'>{stats?.incomplete}</p>
+      <div className='flex flex-col gap-12 justify-between bg-amber-50 border-amber-200 rounded-xl border-2 p-6'>
+        <div className='text-sm text-amber-500 font-bold'>Incomplete:</div>
+        <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
       </div>
 
-      <div className='flex flex-col gap-4 bg-white border-gray-200 rounded-xl border p-5'>
-        <div className='text-sm text-gray-500 font-bold'>Pending:</div>
-        <p className='text-3xl font-bold text-gray-900'>{stats?.pending}</p>
+      <div className='flex flex-col gap-12 justify-between bg-white border-gray-200 rounded-xl border-2 p-6'>
+        <div className='text-sm text-gray-900 font-bold'>Pending:</div>
+        <p className='text-4xl font-bold text-gray-900'>{stats?.pending}</p>
       </div>
     </div>
   )

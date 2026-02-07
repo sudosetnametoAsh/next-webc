@@ -10,10 +10,10 @@ export default function QuickActions() {
 
   return (
     <>
-      <div className="bg-xl rounded-xl border border-gray-200 p-5">
+      <div className="bg-white bg-xl rounded-xl border-2 border-gray-200 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h2 className="font-semibold text-gray-900">Quick Actions</h2>
+            <h2 className="font-bold text-gray-900 mb-1">Quick Actions</h2>
             <p className="text-sm text-gray-500">Manage templates, reports, and departments</p>
           </div>
 
