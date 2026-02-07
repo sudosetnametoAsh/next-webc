@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -6,9 +7,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAddStudentTasks } from "@/hooks/department/add-student-tasks";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 type Props = {
   preset: Data;
@@ -37,6 +39,8 @@ export default function AddTask({
 }: Props) {
   const { mutate } = useAddStudentTasks("243");
 
+  const [hasDropBox, setHasDropBox] = useState<boolean>(false);
+
   const addTask = () => {
     if (clearanceId.length === 0) {
       alert("Select at least one student");
@@ -58,11 +62,13 @@ export default function AddTask({
           finalDescription = taskItem ? taskItem.description : description;
         }
 
+        const dropbox = hasDropBox ? "pending" : "NULL";
         return {
           clearance_id: student,
           task_id: tId,
           description: finalDescription,
           staff_id: preset.id,
+          dropbox: dropbox,
         };
       }),
     );
@@ -73,21 +79,6 @@ export default function AddTask({
 
   return (
     <div className="">
-      {/* <Popover>
-                <PopoverTrigger asChild>
-                    <Button className="p-2.5!">Add Task</Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                    <Input
-                        className="col-span-2 h-8"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="e.g., Submit paperworks"
-                    />
-                    <Button onClick={addTask}>Assign Task</Button>
-                </PopoverContent>
-            </Popover> */}
-
       <Dialog>
         <DialogTrigger asChild>
           <Button className="p-2.5!">Add Task</Button>
@@ -107,6 +98,14 @@ export default function AddTask({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., Submit paperworks"
           />
+          <div className="flex cursor-pointer flex-row gap-2">
+            <Checkbox
+              id="dropbox"
+              checked={hasDropBox}
+              onCheckedChange={(checked) => setHasDropBox(!!checked)}
+            />
+            <Label htmlFor="dropbox">Dropbox</Label>
+          </div>
           <Button onClick={addTask}>Assign Task</Button>
         </DialogContent>
       </Dialog>

@@ -7,8 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useAddStudentTasks } from "@/hooks/department/add-student-tasks";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 type CheckedState = boolean | "indeterminate";
 
@@ -38,6 +39,7 @@ export default function AddPreset({
   description,
 }: Props) {
   const { mutate } = useAddStudentTasks("243");
+  const [hasDropBox, setHasDropBox] = useState<boolean>(false);
 
   if (!preset) return <div>No preset available</div>;
 
@@ -57,12 +59,14 @@ export default function AddPreset({
           const taskItem = preset.data.find((item) => item.task_id === tId);
           finalDescription = taskItem ? taskItem.description : description;
         }
+        const dropbox = hasDropBox ? "pending" : "NULL";
 
         return {
           clearance_id: student,
           task_id: tId,
           description: finalDescription,
           staff_id: preset.id,
+          dropbox: dropbox,
         };
       }),
     );
@@ -109,6 +113,14 @@ export default function AddPreset({
               </label>
             </section>
           ))}
+          <div className="flex cursor-pointer flex-row gap-2">
+            <Checkbox
+              id="dropbox"
+              checked={hasDropBox}
+              onCheckedChange={(checked) => setHasDropBox(!!checked)}
+            />
+            <Label htmlFor="dropbox">Dropbox</Label>
+          </div>
 
           <Button className="cursor-pointer" onClick={addTask}>
             Submit

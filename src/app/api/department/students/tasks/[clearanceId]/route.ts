@@ -9,7 +9,7 @@ type Params = {
 const supabase = createClient();
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Promise<Params> },
 ) {
   const payload = await getSession();
   const { clearanceId } = await params;
@@ -18,8 +18,10 @@ export async function GET(
     .from("assigned_tasks")
     .select(
       `
+        status,
+        dropbox,
         description
-      `
+      `,
     )
     .eq("clearance_id", clearanceId)
     .eq("staff_id", payload.id);
@@ -37,8 +39,7 @@ export async function POST(req: NextRequest) {
 
   const { data: assigned_tasks, error } = await supabase
     .from("assigned_tasks")
-    .insert(body)
-    .select(`
+    .insert(body).select(`
       assigned_task_id,
       description,
       status

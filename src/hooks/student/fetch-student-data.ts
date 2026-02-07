@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 type Tasks = {
+  assigned_task_id: string;
   status: string;
+  dropbox: string;
   clearance_tasks_preset: {
     description: string;
   };
@@ -14,15 +16,17 @@ type FetchedData = {
 };
 
 type StudentData = {
-  clearance_templates: Templates
+  clearance_id: string;
+  student_id: string;
   status: string;
-  student_tasks_status: Tasks[];
+  clearance_templates: Templates;
+  assigned_tasks: Tasks[];
 };
 
 type Templates = {
-  departments: { dept_name: string}
-  staffs: { staff_name: string}
-}
+  departments: { dept_name: string };
+  staffs: { staff_name: string };
+};
 
 type Balance = {
   amount: string;
@@ -31,8 +35,8 @@ type Balance = {
 export function useFecthRecords() {
   return useQuery({
     queryKey: ["students"],
-    queryFn: async (): Promise<FetchedData>=> {
-      const result = await fetch("/api/students");
+    queryFn: async (): Promise<FetchedData> => {
+      const result = await fetch("/api/student");
       const json = await result.json();
       return {
         name: json.name,
