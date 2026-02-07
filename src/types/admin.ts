@@ -26,3 +26,18 @@ export type StaffAssignment = {
   staff_id: string | null;
   staff_name: string | null;
 }
+
+export type DepartmentTag = {
+  dept_id: number;
+  dept_name: string;
+  staff_name: string | null;
+}
+
+export type CourseTemplateStats = {
+  course_id: number;
+  course_name: string;
+  completion_rate: number;
+  students_enrolled: number;
+  departments: DepartmentTag[];
+  updated_at: string | null;
+}

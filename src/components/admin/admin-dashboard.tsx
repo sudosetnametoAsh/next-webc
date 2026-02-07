@@ -1,7 +1,7 @@
 import Header from '@/components/admin/header'
 import AdminStats from '@/components/admin/admin-stats'
 import QuickActions from '@/components/admin/quick-actions'
-import CourseTemplatesSection from './course-template'
+import CourseTemplatesList from '@/components/admin/course-templates-list'
 
 export default function AdminDashboard({ email }: { email: string }) {
   return (
@@ -13,7 +13,14 @@ export default function AdminDashboard({ email }: { email: string }) {
 
         <QuickActions />
 
-        <CourseTemplatesSection />
+        {/* Course Templates Section */}
+        <section>
+          <div className='mb-4'>
+            <h2 className='text-lg font-semibold text-gray-900'>Course Templates</h2>
+            <p className='text-sm text-gray-500'>Manage clearance templates for each course</p>
+          </div>
+          <CourseTemplatesList />
+        </section>
       </main>
     </div>
   )

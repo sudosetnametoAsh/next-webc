@@ -7,7 +7,7 @@ export default function Header({ email }: { email: string}) {
   const initial = email?.charAt(0).toUpperCase() || "A";
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 py-2">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
