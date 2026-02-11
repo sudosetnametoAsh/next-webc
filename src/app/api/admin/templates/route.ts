@@ -1,107 +1,162 @@
-import { createClient } from '@/lib/supabase-config'
-import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js' // <--- Changed this import
+import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient()
 
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+// Initialize Admin Client
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  SERVICE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+)
+
+// --- GET: Fetch Course Templates & Stats ---
 export async function GET() {
   try {
-    // Get all courses with their templates and related data
-    const { data: courses, error: coursesError } = await supabase
-      .from('courses').
-      select(`
+    // 1. Get all courses
+    const { data: courses, error: coursesError } = await supabaseAdmin
+      .from('courses')
+      .select(`
         course_id, 
         course_name,
         clearance_templates (
           template_id,
           dept_id,
-          departments (
-            dept_id,
-            dept_name
-          ),
-          staffs (
-            staff_name
-          )
+          departments ( dept_name ),
+          staffs ( staff_name )
         )
       `)
       .order('course_name')
     
-    if (coursesError) {
-      console.error('Error fetching courses:', coursesError)
-      return NextResponse.json({ error: coursesError.message }, { status: 500 })
-    }
+    if (coursesError) throw coursesError
 
-    // For each course, calculate enrollment and completion stats
+    // 2. Calculate stats
     const courseTemplates = await Promise.all(
-      (courses ?? []).map(async (course) => {
-        // Get total students enrolled in the course
-        const { count: studentsEnrolled } = await supabase
-          .from('enrollments')
-          .select('student_id', { count: 'exact', head: true } )
-          .in(
-            'section_id', 
-            (
-              await supabase
-                .from('course_sections')
-                .select('section_id')
-                .eq('course_id', course.course_id)
-            ).data?.map(section => section.section_id) ?? []
-          )
+      (courses || []).map(async (course: any) => {
+        // A. Get Sections
+        const { data: sections } = await supabaseAdmin
+           .from('course_sections')
+           .select('section_id')
+           .eq('course_id', course.course_id)
         
-        // Get completion rate (students will clearances signed for this course)
-        const templateIds = course.clearance_templates.map(t => t.template_id) ?? []
+        const sectionIds = sections?.map(s => s.section_id) || []
 
+        // B. Get Enrollment Count
+        let studentsEnrolled = 0
+        if (sectionIds.length > 0) {
+            const { count } = await supabaseAdmin
+            .from('enrollments')
+            .select('*', { count: 'exact', head: true })
+            .in('section_id', sectionIds)
+            studentsEnrolled = count || 0
+        }
+
+        // C. Completion Rate Logic
+        const templateIds = course.clearance_templates?.map((t: any) => t.template_id) || []
         let completionRate = 0
-        if (templateIds.length > 0 && (studentsEnrolled ?? 0) > 0 ) {
-          // Get clearances data for these templates
-          const { data: clearances } = await supabase
+
+        if (templateIds.length > 0 && studentsEnrolled > 0) {
+          const { data: clearances } = await supabaseAdmin
             .from('student_clearances')
             .select('student_id, status')
             .in('template_id', templateIds)
-
-            
+          
           if (clearances && clearances.length > 0) {
-            // Group by student
-            const studentClearances = new Map<string, string[]>()
-            for (const clearance of clearances) {
-              const existing = studentClearances.get(clearance.student_id) ?? []
-              existing.push(clearance.status)
-              studentClearances.set(clearance.student_id, existing)
+            const studentStatusMap = new Map<string, string[]>()
+            clearances.forEach((c: any) => {
+                const list = studentStatusMap.get(c.student_id) || []
+                list.push(c.status)
+                studentStatusMap.set(c.student_id, list)
+            })
+            let fullyClearedCount = 0
+            for (const [, statuses] of studentStatusMap) {
+               if (statuses.length === templateIds.length && statuses.every(s => s === 'Signed')) {
+                   fullyClearedCount++
+               }
             }
-
-            // Count how many students have all clearances signed
-            let signedCount = 0
-            for (const [, statuses] of studentClearances) {
-              if (statuses.length === templateIds.length && statuses.every(status => status === 'Signed')) {
-                signedCount++
-              }
-
-              completionRate = Math.round((signedCount / (studentsEnrolled ?? 1)) * 100)
-            }
+            completionRate = Math.round((fullyClearedCount / studentsEnrolled) * 100)
           }
         }
-
-        // Format departments with staff info
-        const departments = course.clearance_templates.map(template => ({
-          dept_id: template.dept_id,
-          dept_name: template.departments?.dept_name ?? 'Unknown',
-          staff_name: template.staffs?.staff_name ?? null,
-        })) ?? []
 
         return {
           course_id: course.course_id,
           course_name: course.course_name,
           completion_rate: completionRate,
-          students_enrolled: studentsEnrolled ?? 0,
-          departments: departments,
-          updated_at: null, // add later when we have a timestamp for template updates
+          students_enrolled: studentsEnrolled,
+          departments: course.clearance_templates?.map((t: any) => ({
+            dept_id: t.dept_id,
+            dept_name: t.departments?.dept_name || 'Unknown',
+            staff_name: t.staffs?.staff_name || null
+          })) || [],
+          updated_at: new Date().toISOString()
         }
       })
     )
 
     return NextResponse.json({ data: courseTemplates }, { status: 200 })
 
-  } catch (error) {
-    console.error('Error fetching templates per course:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('GET Error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
+}
+
+// --- POST: Create/Assign Templates ---
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json()
+        const { course_id, dept_ids } = body
+
+        if (!course_id) return NextResponse.json({ error: 'Course ID missing' }, { status: 400 })
+        if (!dept_ids || dept_ids.length === 0) return NextResponse.json({ error: 'Departments missing' }, { status: 400 })
+
+        // 1. Fetch Department Names to find matching Staff
+        const { data: departments } = await supabaseAdmin
+            .from('departments')
+            .select('dept_id, dept_name')
+            .in('dept_id', dept_ids)
+
+        // 2. Fetch All Staff
+        const { data: staffs } = await supabaseAdmin
+            .from('staffs')
+            .select('staff_id, staff_name')
+
+        // 3. Match Dept to Staff
+        const rowsToInsert = dept_ids.map((deptId: number) => {
+            const dept = departments?.find(d => d.dept_id === deptId)
+            // We assume the Staff Name is roughly the same as Dept Name
+            const staff = staffs?.find(s => s.staff_name === dept?.dept_name)
+
+            return {
+                course_id: course_id,
+                dept_id: deptId,
+                // Assuming 'staff_id' is required by your DB. If no match, we send NULL.
+                // If your DB requires NOT NULL, this will error unless we find a match.
+                staff_id: staff?.staff_id || null 
+            }
+        })
+
+        // 4. Insert
+        const { data, error } = await supabaseAdmin
+            .from('clearance_templates')
+            .insert(rowsToInsert)
+            .select()
+
+        if (error) {
+            console.error('Insert Error:', error)
+            return NextResponse.json({ error: error.message }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, data }, { status: 201 })
+
+    } catch (error: any) {
+        console.error('POST Error:', error)
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
 }
