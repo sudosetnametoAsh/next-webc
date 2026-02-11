@@ -1,16 +1,7 @@
-/**
- * NEED TO REFACTOR THIS COMPONENT IN ORDER TO WORK PROPERLY :)
- * 
- * Warning: 
- *  - DO NOT MODIFY quick-actions.tsx unless neccessary (it might break the open/close state modal)
- *  - DO NOT MODIFY ALL THE ADMIN API ROUTES unless neccessary (it might break the system)
- *      - If desired to add a new API route, please create a new file and do not modify the existing ones
- */
-
 'use client'
 
 import { useState } from 'react'
-import { Building2, MoreVertical, Plus, X } from 'lucide-react'
+import { Building2, Pencil, Plus, Trash2, X, Check, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useFetchDepartments, useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from '@/hooks/admin/departments'
 
@@ -19,138 +10,163 @@ type Props = {
   onOpenChange: (open: boolean) => void
 }
 
-export default function ManageDepartmentsModal({ open, onOpenChange }: Props ) {
-  const { data: departments = [], isLoading } = useFetchDepartments() 
+export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
+  // Hooks
+  const { data: departments = [], isLoading } = useFetchDepartments()
   const createDepartment = useCreateDepartment()
   const updateDepartment = useUpdateDepartment()
   const deleteDepartment = useDeleteDepartment()
 
+  // State
   const [newDepartmentName, setNewDepartmentName] = useState('')
-  const [editingDepartmentId, setEditingDepartmentId] = useState<number | null>(null)
-  const [editingDepartmentName, setEditingDepartmentName] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingName, setEditingName] = useState('')
 
-  const handleCreateDepartment = () => {
-    if (!newDepartmentName.trim()) { return }
+  // --- Handlers ---
+
+  const handleCreate = async () => {
+    if (!newDepartmentName.trim()) return
 
     try {
-      createDepartment.mutateAsync(newDepartmentName)
+      await createDepartment.mutateAsync(newDepartmentName)
       setNewDepartmentName('')
     } catch (error) {
-      console.error('Failed to create department:', error)
+      console.error('Failed to create:', error)
     }
   }
 
-  const handleUpdateDepartment = (id: number) => {
-    if (!editingDepartmentName.trim()) { return }
+  const handleUpdate = async (id: number) => {
+    if (!editingName.trim()) return
 
     try {
-      updateDepartment.mutateAsync({ dept_id: id, dept_name: editingDepartmentName })
-      setEditingDepartmentId(null)
-      setEditingDepartmentName('')
+      await updateDepartment.mutateAsync({ dept_id: id, dept_name: editingName })
+      setEditingId(null)
+      setEditingName('')
     } catch (error) {
-      console.error('Failed to update department:', error)
+      console.error('Failed to update:', error)
     }
   }
 
-  const handleDeleteDepartment = (id: number) => {
-    if (!confirm('Are you sure you want to delete this department?')) { return }
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this department? Linked staff accounts will also be removed.')) return
 
     try {
-      deleteDepartment.mutateAsync(id)
-
+      await deleteDepartment.mutateAsync(id)
     } catch (error) {
-      console.error('Failed to delete department:', error)
+      console.error('Failed to delete:', error)
     }
   }
 
   const startEditing = (id: number, currentName: string) => {
-    setEditingDepartmentId(id)
-    setEditingDepartmentName(currentName)
-  }
-
-  const handleClose = () => {
-    onOpenChange(false)
+    setEditingId(id)
+    setEditingName(currentName)
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Departments</DialogTitle>
-          <p className='text-sm text-gray-500'>Manage and add department</p>
+          <p className="text-sm text-gray-500">Add or manage departments and staff.</p>
         </DialogHeader>
 
-        {/* Add Department Input */}
-        <div className='flex items-center gap-2 mb-4'>
+        {/* 1. Add Department Input */}
+        <div className="flex gap-2 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
           <input 
-            type='text'
+            type="text"
             value={newDepartmentName}
             onChange={(e) => setNewDepartmentName(e.target.value)}
-            placeholder='New department name'
-            className='flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-            onKeyDown={(e) => e.key === 'Enter' && handleCreateDepartment}
+            placeholder="New department name..."
+            className="flex-1 px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
           />
           <button
-            onClick={handleCreateDepartment}
-            className='flex items-center gap-1 px-3 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            onClick={handleCreate}
+            disabled={!newDepartmentName.trim() || createDepartment.isPending}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors"
           >
-            <Plus className='w-4 h-4' /> Add Department
+            {createDepartment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            Add
           </button>
         </div>
 
-        {/* Departments list */}
-        <div className='space-y-2 max-h-80 overflow-y-auto'>
+        {/* 2. Department List */}
+        <div className="flex-1 overflow-y-auto min-h-75 pr-1">
           {isLoading ? (
-            <p>Loading...</p>
+            <div className="flex justify-center items-center py-10 text-gray-400 gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+            </div>
+          ) : departments.length === 0 ? (
+            <p className="text-center text-gray-400 py-10 text-sm">No departments found.</p>
           ) : (
-            <div className='grid grid-cols-2'>
-              {departments.map((department) => (
-                <div
-                  key={department.dept_id}
-                  className='flex items-center justify-between p-3 bg-gray-50 rounded-lg group'
+            <div className="space-y-2">
+              {departments.map((dept: any) => (
+                <div 
+                  key={dept.dept_id} 
+                  className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg hover:border-gray-300 transition-all group shadow-sm"
                 >
-                  {editingDepartmentId === department.dept_id ? (
-                    <div className=''>
+                  {editingId === dept.dept_id ? (
+                    // --- EDIT MODE ---
+                    <div className="flex items-center gap-2 w-full animate-in fade-in zoom-in-95 duration-200">
                       <input 
-                        type='text'
-                        value={editingDepartmentName}
-                        onChange={(e) => setEditingDepartmentName(e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        className="flex-1 px-2 py-1.5 border border-blue-400 rounded text-sm focus:outline-none bg-blue-50/50"
                         autoFocus
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') { handleUpdateDepartment(department.dept_id) }
-                          if (e.key === 'Escape') { setEditingDepartmentId(null) }
+                          if (e.key === 'Enter') handleUpdate(dept.dept_id)
+                          if (e.key === 'Escape') setEditingId(null)
                         }}
                       />
-                      
-                      <button
-                        onClick={() => handleUpdateDepartment(department.dept_id)}
-                        className="text-green-600 hover:text-green-700"
+                      <button 
+                        onClick={() => handleUpdate(dept.dept_id)}
+                        className="p-1.5 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                        title="Save"
                       >
-                        √
+                        <Check className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => setEditingDepartmentId(null)}
-                        className='text-gray-400 hover:text-gray-500'
+                      <button 
+                        onClick={() => setEditingId(null)}
+                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors"
+                        title="Cancel"
                       >
-                        <X className='w-4 h-4' />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
-                  ): (
-                    <div className=''>
-                      <div className='flex items-center gap-2'>
-                        <Building2 className='w-4 h-4 text-gray-400' />
-                        <p className='text-sm font-medium text-gray-700'>{department.dept_name}</p>
+                  ) : (
+                    // --- VIEW MODE ---
+                    <>
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="bg-slate-100 p-2 rounded-full text-slate-600 shrink-0">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-900 truncate">{dept.dept_name}</p>
+                          {/* Optional: Show email if your hook returns it */}
+                          {dept.email && (
+                            <p className="text-xs text-gray-400 truncate font-mono">{dept.email}</p>
+                          )}
+                        </div>
                       </div>
-                      <div className='relative'>
+
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          onClick={() => startEditing(department.dept_id, department.dept_name)}
-                          className='p-1 hover:bg-gray-200 rounded group-hover:opacity-100 transition-opacity'
+                          onClick={() => startEditing(dept.dept_id, dept.dept_name)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title="Edit"
                         >
-                          <MoreVertical className='w-4 h-4 text-gray-500' />
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(dept.dept_id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               ))}

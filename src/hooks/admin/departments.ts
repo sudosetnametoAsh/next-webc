@@ -1,6 +1,8 @@
 import { Departments } from '@/types/admin'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+// --- Hooks ---
+
 export function useFetchDepartments() {
   return useQuery({
     queryKey: ['admin', 'departments'],
@@ -15,8 +17,12 @@ export function useCreateDepartment() {
   return useMutation({
     mutationFn: createDepartment,
     onSuccess: () => {
-      // Invalidate the departments query to refetch the updated list
+      // Invalidate to refetch the list immediately
       queryClient.invalidateQueries({ queryKey: ['admin', 'departments'] })
+    },
+    onError: (error) => {
+      console.error("Mutation failed:", error)
+      alert(error.message) // Optional: show alert to user
     }
   })
 }
@@ -27,8 +33,11 @@ export function useUpdateDepartment() {
   return useMutation({
     mutationFn: updateDepartment,
     onSuccess: () => {
-      // Invalidate the departments query to refetch the updated list
       queryClient.invalidateQueries({ queryKey: ['admin', 'departments'] })
+    },
+    onError: (error) => {
+      console.error("Update failed:", error)
+      alert(error.message)
     }
   })
 }
@@ -39,21 +48,28 @@ export function useDeleteDepartment() {
   return useMutation({
     mutationFn: deleteDepartment,
     onSuccess: () => {
-      // Invalidate the departments query to refetch the updated list
       queryClient.invalidateQueries({ queryKey: ['admin', 'departments'] })
+    },
+    onError: (error) => {
+      console.error("Delete failed:", error)
+      alert(error.message)
     }
   })
 }
 
+// --- Fetch Functions (Refactored for Safety) ---
+
 async function fetchDepartments(): Promise<Departments[]> {
   const response = await fetch('/api/admin/departments')
-  const json = await response.json()
-
+  
+  // 1. Check status BEFORE parsing
   if (!response.ok) {
-    throw new Error('Failed to fetch departments')
+    const text = await response.text() // Get raw error text
+    throw new Error(text || 'Failed to fetch departments')
   }
 
-  return json.data
+  const json = await response.json()
+  return json.data || []
 }
 
 async function createDepartment(dept_name: string): Promise<void> {
@@ -63,12 +79,21 @@ async function createDepartment(dept_name: string): Promise<void> {
     body: JSON.stringify({ dept_name })
   })
 
-  const json = await response.json()
-
+  // 1. Check status first
   if (!response.ok) {
-    throw new Error('Failed to create department')
+    const errorText = await response.text()
+    console.error("API Error:", errorText) // Log the real error (e.g. Supabase key missing)
+    
+    // Try to parse it as JSON error if possible, otherwise use text
+    try {
+        const errorJson = JSON.parse(errorText)
+        throw new Error(errorJson.error || 'Failed to create department')
+    } catch {
+        throw new Error(errorText || 'Failed to create department')
+    }
   }
 
+  const json = await response.json()
   return json.data
 }
 
@@ -79,12 +104,13 @@ async function updateDepartment({ dept_id, dept_name }: { dept_id: number, dept_
     body: JSON.stringify({ dept_id, dept_name })
   })
 
-  const json = await response.json()
-
   if (!response.ok) {
+    const errorText = await response.text()
+    console.error("API Error:", errorText)
     throw new Error('Failed to update department')
   }
 
+  const json = await response.json()
   return json.data
 }
 
@@ -95,11 +121,12 @@ async function deleteDepartment(dept_id: number): Promise<void> {
     body: JSON.stringify({ dept_id })
   })
 
-  const json = await response.json()
-
   if (!response.ok) {
+    const errorText = await response.text()
+    console.error("API Error:", errorText)
     throw new Error('Failed to delete department')
   }
 
+  const json = await response.json()
   return json.data
 }
