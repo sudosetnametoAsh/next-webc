@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, Building2, Search, Filter } from 'lucide-react'
 import CreateTemplateModal from './create-template-modal'
-import ManageStudentsModal from './manage-students-modal'
+import ManageDepartmentsModal from './handle-department-modal'
 
 export default function QuickActions() {
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
@@ -55,7 +55,7 @@ export default function QuickActions() {
         </div>
 
         <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} />
-        <ManageStudentsModal open={isDepartmentsModalOpen} onOpenChange={setDepartmentsModalOpen} />
+        <ManageDepartmentsModal open={isDepartmentsModalOpen} onOpenChange={setDepartmentsModalOpen} />
       </div>
     </>
   )

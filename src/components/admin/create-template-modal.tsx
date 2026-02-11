@@ -5,7 +5,7 @@ import { ChevronRight, GripVertical, X, User } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useFetchCourses } from '@/hooks/admin/fetch-courses'
-import { useFetchDepartments } from '@/hooks/admin/fetch-departments'
+import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
 import { StaffAssignment } from '@/types/admin'
 

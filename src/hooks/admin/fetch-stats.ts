@@ -9,7 +9,7 @@ export function useFetchAdminStats() {
   })
 }
 
-export async function fetchAdminStats(): Promise<AdminStats> {
+async function fetchAdminStats(): Promise<AdminStats> {
   const response = await fetch('/api/admin/stats')
   const json = await response.json()
 

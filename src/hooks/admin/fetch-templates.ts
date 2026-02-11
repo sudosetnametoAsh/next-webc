@@ -9,7 +9,7 @@ export function useFetchCourseTemplates() {
   })
 }
 
-export async function fetchCourseTemplates(): Promise<CourseTemplateStats[]> {
+async function fetchCourseTemplates(): Promise<CourseTemplateStats[]> {
   const response = await fetch('/api/admin/templates')
   const json = await response.json()
 

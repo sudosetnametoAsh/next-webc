@@ -9,7 +9,7 @@ export function useFetchStaff() {
   })
 }
 
-export async function fetchStaff(): Promise<Staff[]> {
+async function fetchStaff(): Promise<Staff[]> {
   const response = await fetch('/api/admin/staff')
   const json = await response.json()
 
