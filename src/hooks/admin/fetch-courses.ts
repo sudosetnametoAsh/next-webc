@@ -9,7 +9,7 @@ export function useFetchCourses() {
   })
 }
 
-export async function fetchCourses(): Promise<Courses[]> {
+async function fetchCourses(): Promise<Courses[]> {
   const response = await fetch('/api/admin/courses')
   const json = await response.json()
 
