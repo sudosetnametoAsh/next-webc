@@ -223,7 +223,7 @@ function SelectionStep({
               className='flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer'
             >
               <Checkbox 
-                className='w-6 h-6 border-gray-300 rounded-sm' 
+                className='w-6 h-6 border-gray-500 rounded-sm' 
                 checked={selectedCourses.includes(course.course_id)}
                 onCheckedChange={() => toggleCourse(course.course_id)}
               />
@@ -243,7 +243,7 @@ function SelectionStep({
               className='flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer'
             >
               <Checkbox 
-                className='w-6 h-6 border-gray-300 rounded-sm' 
+                className='w-6 h-6 border-gray-500 rounded-sm' 
                 checked={selectedDepartments.includes(department.dept_id)}
                 onCheckedChange={() => toggleDepartment(department.dept_id)}
               />
