@@ -4,8 +4,19 @@ import { useFetchCourseTemplates } from '@/hooks/admin/fetch-templates'
 import { CourseTemplateStats } from '@/types/admin'
 // import { ArrowRight } from 'lucide-react'
 
-export default function CourseTemplatesList() {
+export default function CourseTemplatesList({ searchQuery }: { searchQuery: string }) {
   const { data: templates = [], isLoading } = useFetchCourseTemplates()
+
+  const filteredTemplates = templates.filter(template => {
+    if (!searchQuery.trim()) { return templates }
+
+    const query = searchQuery.trim().toLowerCase()
+
+    // Filter by course abbreviation (e.g., BSCS, BSIT)
+    if (template.course_name.toLowerCase().includes(query)) { return true }
+    // Filter by full course name
+    if (expandCourseAbbreviation(template.course_name).toLowerCase().includes(query)) { return true }
+  })
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -14,10 +25,18 @@ export default function CourseTemplatesList() {
   if (templates.length === 0) {
     return <div>No course templates found. Create one to get started.</div>
   }
+
+  if (filteredTemplates.length === 0) {
+    return (
+      <div className='p-8 text-center'>
+        <p className='text-gray-700'>No results found for "{searchQuery}"</p>
+      </div>
+    )
+  }
   
   return (
     <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-      {templates.map(template => (
+      {filteredTemplates.map(template => (
         <CourseTemplateCard key={template.course_id} template={template} />
       ))}
     </div>
@@ -26,7 +45,7 @@ export default function CourseTemplatesList() {
 
 function CourseTemplateCard({ template }:  { template: CourseTemplateStats }) {
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
       {/* Header */}
       <div className='mb-6'>
         <h3 className='text-lg font-bold text-gray-900 mb-1'>{template.course_name}</h3>

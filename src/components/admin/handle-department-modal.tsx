@@ -83,7 +83,7 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
           <button
             onClick={handleCreate}
             disabled={!newDepartmentName.trim() || createDepartment.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors cursor-pointer"
           >
             {createDepartment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Add
