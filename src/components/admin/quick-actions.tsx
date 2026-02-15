@@ -5,13 +5,18 @@ import { Plus, Building2, Search, Filter } from 'lucide-react'
 import CreateTemplateModal from './create-template-modal'
 import ManageDepartmentsModal from './handle-department-modal'
 
-export default function QuickActions() {
+type Props = {
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+}
+
+export default function QuickActions({ searchQuery, setSearchQuery }: Props) {
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
 
   return (
     <>
-      <div className="bg-white bg-xl rounded-xl border-2 border-gray-200 p-5">
+      <div className="bg-white bg-xl rounded-xl border-2 border-gray-200 p-5  shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h2 className="font-bold text-gray-900 mb-1">Quick Actions</h2>
@@ -22,7 +27,7 @@ export default function QuickActions() {
             {/* Create Template button */}
             <button
               onClick={() => setTemplateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Create Template
@@ -31,7 +36,7 @@ export default function QuickActions() {
             {/* Manage Departments button */}
             <button
               onClick={() => setDepartmentsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <Building2 className="h-4 w-4" />
               Manage Departments
@@ -45,13 +50,15 @@ export default function QuickActions() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
               type='text'
-              placeholder='Search'
+              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchQuery}
+              placeholder='Search courses...'
               className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             />
           </div>
-          <button onClick={() => console.log('Filter button clicked!')} className='p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'>
+          {/* <button onClick={() => console.log('Filter button clicked!')} className='p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'>
             <Filter className='w-4 h-4 text-gray-500' />
-          </button>
+          </button> */}
         </div>
 
         <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} />
