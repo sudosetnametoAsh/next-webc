@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-config'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const supabase = createClient()
 
@@ -94,56 +94,51 @@ export async function GET() {
   }
 }
 
-// --- POST: Create/Assign Templates ---
-// export async function POST(req: NextRequest) {
-//     try {
-//         const body = await req.json()
-//         const { course_id, dept_ids } = body
+// POST: Create templates
+export async function POST(req: NextRequest) {
+  try {
+    const { courses, assignments } = await req.json()
 
-//         if (!course_id) return NextResponse.json({ error: 'Course ID missing' }, { status: 400 })
-//         if (!dept_ids || dept_ids.length === 0) return NextResponse.json({ error: 'Departments missing' }, { status: 400 })
+    if (!Array.isArray(courses) || courses.length === 0) {
+      return NextResponse.json({ error: 'At least one course is required' }, { status: 400 })
+    }
 
-//         // 1. Fetch Department Names to find matching Staff
-//         const { data: departments } = await supabase
-//             .from('departments')
-//             .select('dept_id, dept_name')
-//             .in('dept_id', dept_ids)
+    if (!Array.isArray(assignments) || assignments.length === 0) {
+      return NextResponse.json({ error: 'At least one department is required' }, { status: 400 })
+    }
 
-//         // 2. Fetch All Staff
-//         const { data: staffs } = await supabase
-//             .from('staffs')
-//             .select('staff_id, staff_name')
+    // Validate all assignments have staff
+    const missingStaff = assignments.filter(a => !a.staff_id)
+    if (missingStaff.length > 0) {
+      return NextResponse.json({ error: 'All departments must have assigned staff' }, { status: 400 })
+    }
 
-//         // 3. Match Dept to Staff
-//         const rowsToInsert = dept_ids.map((deptId: number) => {
-//             const dept = departments?.find(d => d.dept_id === deptId)
-//             // We assume the Staff Name is roughly the same as Dept Name
-//             const staff = staffs?.find(s => s.staff_name === dept?.dept_name)
+    // Create templates for each course with departments
+    const templatesToInsert = courses.flatMap((courseId) => (
+      assignments.map((a) => ({
+        course_id: courseId,
+        dept_id: a.dept_id,
+        staff_id: a.staff_id,
+      }))
+    ))
 
-//             return {
-//                 course_id: course_id,
-//                 dept_id: deptId,
-//                 // Assuming 'staff_id' is required by your DB. If no match, we send NULL.
-//                 // If your DB requires NOT NULL, this will error unless we find a match.
-//                 staff_id: staff?.staff_id || null 
-//             }
-//         })
+    const { data, error } = await supabase
+      .from('clearance_templates')
+      .upsert(templatesToInsert, {
+        onConflict: 'course_id, dept_id',
+        ignoreDuplicates: false
+      })
+      .select()
 
-//         // 4. Insert
-//         const { data, error } = await supabase
-//             .from('clearance_templates')
-//             .insert(rowsToInsert)
-//             .select()
+    if (error) {
+      console.error('Error creating templates', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-//         if (error) {
-//             console.error('Insert Error:', error)
-//             return NextResponse.json({ error: error.message }, { status: 500 })
-//         }
+    return NextResponse.json({ data, message: `Successfully created ${data.length} clearance templates` }, { status: 201 })
 
-//         return NextResponse.json({ success: true, data }, { status: 201 })
-
-//     } catch (error: any) {
-//         console.error('POST Error:', error)
-//         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-//     }
-// }
+  } catch (error) {
+    console.error('Create templates error', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

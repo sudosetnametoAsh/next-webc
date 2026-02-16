@@ -121,14 +121,14 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
                       />
                       <button 
                         onClick={() => handleUpdate(dept.dept_id)}
-                        className="p-1.5 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                        className="p-1.5 text-green-600 hover:bg-green-50 rounded-md transition-colors cursor-pointer"
                         title="Save"
                       >
                         <Check className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => setEditingId(null)}
-                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors"
+                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
                         title="Cancel"
                       >
                         <X className="w-4 h-4" />
@@ -153,14 +153,14 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEditing(dept.dept_id, dept.dept_name)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
                           title="Edit"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(dept.dept_id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
