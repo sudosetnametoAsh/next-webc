@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useFetchCourses } from '@/hooks/admin/fetch-courses'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
+import { useCreateTemplates } from '@/hooks/admin/fetch-templates'
 import { StaffAssignment } from '@/types/admin'
 
 type Props = {
@@ -15,17 +16,21 @@ type Props = {
 }
 
 export default function CreateTemplateModal({ open, onOpenChange }: Props) {
+  // Hooks
+  const { data: courses = [] } = useFetchCourses()
+  const { data: departments = [] } = useFetchDepartments()
+  const { data: staff = [] } = useFetchStaff()
+  const createTemplates = useCreateTemplates()
+  
+  // State
   const [step, setStep] = useState<'select' | 'assign'>('select')
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
   const [staffAssignments, setStaffAssignments] = useState<StaffAssignment[]>([])
   const [activeDeptId, setActiveDeptId] = useState<number | null>(null)
-
-  const { data: courses = [] } = useFetchCourses()
-  const { data: departments = [] } = useFetchDepartments()
-  const { data: staff = [] } = useFetchStaff()
-
   
+  // --- Handlers ---
+
   const handleClose = () => {
     onOpenChange(false)
 
@@ -91,20 +96,21 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
     setActiveDeptId(null)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const allAssigned = staffAssignments.every((assignment) => assignment.staff_id !== null)
     if (!allAssigned) {
       alert('Please assign staff to all selected departments.')
       return
     }
 
-    // Implement API to create templates
-    console.log('Create templates', {
-      courses: selectedCourses,
-      staffAssignments: staffAssignments
-    })
+    try {
+      await createTemplates.mutateAsync({ courses: selectedCourses, assignments: staffAssignments })
+      handleClose()
 
-    handleClose()
+    } catch (error) {
+      console.error('Failed to create templates', error)
+    }
+
   }
 
   return (
@@ -152,7 +158,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
           { step === 'assign' && activeDeptId === null && (
             <button 
               onClick={handleBack}
-              className='px-4 py-2 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors'
+              className='px-4 py-2 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors cursor-pointer'
             >
               Back
             </button>
@@ -162,7 +168,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
           {/* Cancel Button */}
           <button
             onClick={handleClose}
-            className='px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors'
+            className='px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer'
           >
             Cancel
           </button>
@@ -172,7 +178,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
             <button
               onClick={handleNext}
               disabled={selectedCourses.length === 0 || selectedDepartments.length === 0}
-              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer'
             >
               Next
             </button>
@@ -180,9 +186,10 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
             // Save Button
             <button
               onClick={handleSave}
-              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors' 
+              disabled={createTemplates.isPending}
+              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer' 
             >
-              Save
+              {createTemplates.isPending ? 'Saving...' : 'Save'}
             </button>
           ) : null
 
@@ -270,7 +277,7 @@ function AssignmentStep({
         <button
           key={assignment.dept_id}
           onClick={() => onSelectDepartment(assignment.dept_id)}
-          className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left'
+          className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left cursor-pointer'
         >
           <div className='flex items-center gap-3'>
             <GripVertical className='w-8 h-8 text-gray-400' />
@@ -304,7 +311,7 @@ function StaffSelectionStep({
     <div className='space-y-2'>
       <button
         onClick={onCancel}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4 cursor-pointer"
       >
         <X className="w-4 h-4" />
         Back to departments
@@ -316,7 +323,7 @@ function StaffSelectionStep({
         <button
           key={staff.staff_id}
           onClick={() => onSelect(staff.staff_id, staff.staff_name)}
-          className='w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-blue-50 hover:text-blue-700 transition-colors text-left'
+          className='w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-blue-50 hover:text-blue-700 transition-colors text-left cursor-pointer'
         >
           <div className="flex items-center justify-center gap-3">
             <User className='w-8 h-8' />
