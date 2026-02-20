@@ -21,6 +21,18 @@ export function useCreateTemplates() {
   })
 }
 
+export function useDeleteTemplates() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteTemplates,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'course-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
+    }
+  })
+}
+
 async function fetchCourseTemplates(): Promise<CourseTemplateStats[]> {
   const response = await fetch('/api/admin/templates')
   const json = await response.json()
@@ -48,6 +60,22 @@ async function createTemplates(clearanceTemplates: ClearanceTemplates): Promise<
 
   if (!response.ok) {
     throw new Error('Failed to create templates')
+  }
+
+  return json
+}
+
+async function deleteTemplates(template_id: number): Promise<void> {
+  const response = await fetch('/api/admin/templates', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ template_id })
+  })
+
+  const json = response.json()
+
+  if (!response.ok) {
+    throw new Error('Failed to delete a template')
   }
 
   return json
