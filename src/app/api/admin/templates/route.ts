@@ -144,23 +144,49 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE: Remove templates per course per department
+// export async function DELETE(req: NextRequest) {
+//   try {
+//     const { template_id } = await req.json()
+  
+//     if (!template_id) {
+//       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 })
+//     }
+  
+//     const { error } = await supabase
+//       .from('clearance_templates')
+//       .delete()
+//       .eq('template_id', template_id)
+  
+//     if (error) {
+//       return NextResponse.json({ error: 'Error deleting a template' }, { status: 500 })
+//     }
+  
+//     return NextResponse.json({ success: true }, { status: 200 })
+
+  // } catch (error) {
+  //   console.error('Delete template error', error)
+  //   return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  // }
+// }
+
+// DELETE: Remove templates based on course
 export async function DELETE(req: NextRequest) {
   try {
-    const { template_id } = await req.json()
-  
-    if (!template_id) {
-      return NextResponse.json({ error: 'Template ID is required' }, { status: 400 })
+    const { course_id } = await req.json()
+
+    if (!course_id) {
+      return NextResponse.json({ error: 'Course ID is required' }, { status: 400 })
     }
-  
+
     const { error } = await supabase
       .from('clearance_templates')
       .delete()
-      .eq('template_id', template_id)
-  
+      .eq('course_id', course_id)
+    
     if (error) {
       return NextResponse.json({ error: 'Error deleting a template' }, { status: 500 })
     }
-  
+
     return NextResponse.json({ success: true }, { status: 200 })
 
   } catch (error) {
