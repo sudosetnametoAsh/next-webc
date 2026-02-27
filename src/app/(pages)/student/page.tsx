@@ -1,13 +1,9 @@
-import SignOutButton from "@/components/auth/sign-out-button";
-import StudentTable from "@/components/student/student-table";
-import "@/styles/temp.css";
+import StudentInterface from "@/components/student/interface";
 
 export default function Students() {
   return (
     <>
-      <StudentTable />
-
-      <SignOutButton />
+      <StudentInterface />
     </>
   );
 }

@@ -1,21 +1,15 @@
+import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/supabase-config";
-import { jwtVerify } from "jose";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const supabase = createClient(); // Supabase initialization
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!); // Signature
 
-export async function GET(req: NextRequest) {
-  const cookie = req.cookies.get("session_token")?.value; // Get cookie
+export async function GET() {
+  const payload = await getSession();
 
-  // Check if cookie is present
-  if (!cookie) {
-    return NextResponse.json({ error: "No token found" }, { status: 401 });
-  }
-
-  const { payload } = await jwtVerify(cookie, secret); // Verify token and extract payload
   const email = payload.email; // Extract email from payload
   const name = payload.name; // Extract name from payload
+  const id = payload.id;
 
   // Fetch clearance status and tasks
   const { data: studentData, error: studentError } = await supabase
@@ -23,11 +17,7 @@ export async function GET(req: NextRequest) {
     .select(
       `
         clearance_id,
-        student_id,
         status,
-        students!inner (
-          users!inner ()
-        ),
         clearance_templates (
           departments ( dept_name ),
           staffs ( staff_name )
@@ -36,7 +26,11 @@ export async function GET(req: NextRequest) {
           assigned_task_id,
           status,
           dropbox,
-          clearance_tasks_preset ( description )
+          description,
+          uploaded_at
+        ),
+        students!inner (
+          users!inner ()
         )
       `,
     )
@@ -72,8 +66,12 @@ export async function GET(req: NextRequest) {
 
   // Response data
   return NextResponse.json({
-    name,
+    user_data: {
+      name: name,
+      email: email,
+      id: id,
+      balance: studentBalance,
+    },
     data: studentData,
-    balance: studentBalance,
   });
 }

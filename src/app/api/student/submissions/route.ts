@@ -5,10 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const supabase = createClient();
+
 const FormSchema = z.object({
   file: z.instanceof(File),
   task: z.string(),
-  taskId: z.string(),
+  taskId: z.coerce.number(),
   studentId: z.string(),
   department: z.string(),
 });
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     .update({
       status: document_result,
       dropbox: publicUrl,
+      uploaded_at: new Date().toISOString(),
     })
     .eq("assigned_task_id", taskId);
 
@@ -61,5 +63,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: statusError.message, status: 500 });
   }
 
-  return NextResponse.json({ status: 200 });
+  return NextResponse.json({ url: publicUrl });
 }

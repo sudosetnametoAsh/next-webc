@@ -1,48 +1,31 @@
+import { FetchedData, FetchedDataSchema } from "@/types/student/student-data";
 import { useQuery } from "@tanstack/react-query";
 
-type Tasks = {
-  assigned_task_id: string;
-  status: string;
-  dropbox: string;
-  clearance_tasks_preset: {
-    description: string;
-  };
-};
-
-type FetchedData = {
-  name: string;
-  students: StudentData[];
-  balance: Balance[];
-};
-
-type StudentData = {
-  clearance_id: string;
-  student_id: string;
-  status: string;
-  clearance_templates: Templates;
-  assigned_tasks: Tasks[];
-};
-
-type Templates = {
-  departments: { dept_name: string };
-  staffs: { staff_name: string };
-};
-
-type Balance = {
-  amount: string;
-};
-
-export function useFecthRecords() {
-  return useQuery({
+export function useFetchRecords() {
+  return useQuery<FetchedData>({
     queryKey: ["students"],
-    queryFn: async (): Promise<FetchedData> => {
-      const result = await fetch("/api/student");
-      const json = await result.json();
+    queryFn: async () => {
+      const res = await fetch("/api/student");
+      if (!res.ok) throw new Error("Failed to fetch students");
+
+      const json = await res.json();
+      const parsed = FetchedDataSchema.parse(json);
+
       return {
-        name: json.name,
-        students: json.data,
-        balance: json.balance,
+        userData: parsed.user_data,
+        students: parsed.data,
       };
     },
+    // select: (data) => {
+    //   return {
+    //     userData: {
+    //       name: data.name,
+    //       id: data.id,
+    //       balance: data.balance,
+    //     },
+    //     students: data.students,
+    //   };
+    // },
+    staleTime: 1000 * 60 * 5,
   });
 }

@@ -28,6 +28,8 @@ export default function StudentList() {
     );
   };
 
+  console.log(clearanceId);
+
   if (fetchingStudents) return <div> Loading Students... </div>;
   if (filteredStudents.length === 0)
     return <div> No students found for this section </div>;

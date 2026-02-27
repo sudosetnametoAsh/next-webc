@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
 import { createClient } from "@/lib/supabase-config";
 
-declare module 'jose' {
+declare module "jose" {
   interface JWTPayload {
     roles?: string[];
     preferred_username?: string;
-    name: string
+    name: string;
   }
 }
 
@@ -15,7 +15,7 @@ const clientId = process.env.AZURE_AD_CLIENT_ID!;
 const supabase = createClient();
 
 const jwks = createRemoteJWKSet(
-  new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`)
+  new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`),
 );
 
 const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!accessToken) {
       return NextResponse.json(
         { error: "Missing access token" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Extract user information from the token payload
     const email = payload.preferred_username;
-    const role = payload.roles?.[0]
+    const role = payload.roles?.[0];
     const name = payload.name;
 
     // Insert email into Supabase if non-existent
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Create token
     // Mint email, role, and name into token
-    const sessionToken = await new SignJWT({
+    const session_token = await new SignJWT({
       email,
       role: role,
       name,
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     // Set the session token in cookies
     const response = NextResponse.json({ success: true, role });
 
-    response.cookies.set("session_token", sessionToken, {
+    response.cookies.set("session_token", session_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

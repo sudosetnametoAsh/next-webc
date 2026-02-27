@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 type FetchedData = {
   description: string;
+  dropbox: string;
+  status: string;
 };
 
 export function useFetchStudentTasks(clearanceId: string | null) {
