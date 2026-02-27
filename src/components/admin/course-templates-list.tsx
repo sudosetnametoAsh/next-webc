@@ -35,7 +35,11 @@ export default function CourseTemplatesList({ searchQuery }: { searchQuery: stri
   }
 
   if (templates.length === 0) {
-    return <div>No course templates found. Create one to get started.</div>
+    return (
+      <div className='p-8 text-center'>
+        <p className='text-gray-700'>No clearance templates found. Create a new one.</p>
+      </div>
+    )
   }
 
   if (filteredTemplates.length === 0) {
