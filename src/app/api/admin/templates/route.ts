@@ -7,7 +7,7 @@ const supabase = createClient()
 export async function GET() {
   try {
     // 1. Get all courses
-    const { data: courses, error: coursesError } = await supabase
+    const { data, error: coursesError } = await supabase
       .from('courses')
       .select(`
         course_id, 
@@ -22,6 +22,8 @@ export async function GET() {
       .order('course_name')
     
     if (coursesError) throw coursesError
+
+    const courses = data.filter(d => d.clearance_templates.length > 0)
 
     // 2. Calculate stats
     const courseTemplates = await Promise.all(
