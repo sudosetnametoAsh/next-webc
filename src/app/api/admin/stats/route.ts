@@ -37,7 +37,7 @@ export async function GET() {
       studentStatusMap.set(clearance.student_id, existing)
     }
 
-    let signed = 0, incomplete = 0, pending = 0
+    let signed = 0, incomplete = 0, pending = 0, totalNonCleared = 0, averageCompletion = 0
 
     for (const [, statuses] of studentStatusMap) {
       const allSigned = statuses.every(status => status === 'Signed')
@@ -54,12 +54,17 @@ export async function GET() {
       }
     }
 
+    totalNonCleared = incomplete + pending
+    averageCompletion = Math.round((signed / totalStudents) * 100)
+
     return NextResponse.json({
       data: {
         totalStudents,
         signed,
         incomplete,
         pending,
+        totalNonCleared,
+        averageCompletion
       }
     }, { status: 200 })
 
