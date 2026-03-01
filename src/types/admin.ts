@@ -3,6 +3,8 @@ export type AdminStats = {
   signed: number;
   incomplete: number;
   pending: number;
+  totalNonCleared: number;
+  averageCompletion: number;
 }
 
 export type Courses = {

@@ -69,13 +69,13 @@ function CourseTemplateCard({ template, handleDelete }:
         {/* Header */}
         <div className='mb-6'>
           <h3 className='text-lg font-bold text-gray-900 mb-1'>{template.course_name}</h3>
-          <p className='text-sm text-gray-500'>{expandCourseAbbreviation(template.course_name)}</p>
+          <p className='text-sm text-gray-600'>{expandCourseAbbreviation(template.course_name)}</p>
         </div>
 
         {/* Completion Rate */}
         <div className='mb-4'>
           <div className='flex item-center justify-between mb-1'>
-            <span className='text-sm text-gray-500 mb-1'>Completion Rate</span>
+            <span className='text-sm text-gray-600 mb-1'>Completion Rate</span>
             <span className='text-base font-bold text-gray-900'>{template.completion_rate}%</span>
           </div>
           <div className='h-2 bg-gray-100 rounded-full overflow-hidden'>
@@ -88,7 +88,7 @@ function CourseTemplateCard({ template, handleDelete }:
 
         {/* Total Students */}
         <div className='flex items-center justify-between mb-6'>
-          <span className='text-sm text-gray-500'>Students Enrolled: </span>
+          <span className='text-sm text-gray-600'>Students Enrolled: </span>
           <span className='text-base font-bold text-gray-900'>{template.students_enrolled}</span>
         </div>
 
