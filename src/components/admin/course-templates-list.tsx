@@ -1,7 +1,7 @@
 'use client'
 
-import { useFetchCourseTemplates } from '@/hooks/admin/fetch-templates'
-import { useDeleteTemplates } from '@/hooks/admin/fetch-templates'
+import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
+import { useDeleteTemplates } from '@/hooks/admin/course-templates'
 import { CourseTemplateStats } from '@/types/admin'
 import { ArrowRight, Trash } from 'lucide-react'
 
@@ -15,7 +15,9 @@ export default function CourseTemplatesList({ searchQuery }: { searchQuery: stri
     const query = searchQuery.trim().toLowerCase()
 
     // Filter by course abbreviation (e.g., BSCS, BSIT)
-    if (template.course_name.toLowerCase().includes(query)) { return true }
+    if (
+      template.course_name.toLowerCase().includes(query) || shrinkCourseName(template.course_name).toLowerCase().includes(query)
+    ) { return true }
     // Filter by full course name
     if (expandCourseAbbreviation(template.course_name).toLowerCase().includes(query)) { return true }
   })
@@ -68,8 +70,8 @@ function CourseTemplateCard({ template, handleDelete }:
       <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
         {/* Header */}
         <div className='mb-6'>
-          <h3 className='text-lg font-bold text-gray-900 mb-1'>{template.course_name}</h3>
-          <p className='text-sm text-gray-600'>{expandCourseAbbreviation(template.course_name)}</p>
+          <h3 className='text-lg font-bold text-gray-900 mb-1'>{shrinkCourseName(template.course_name) || template.course_name}</h3>
+          <p className='text-sm text-gray-600'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
         </div>
 
         {/* Completion Rate */}
@@ -139,7 +141,24 @@ function expandCourseAbbreviation(abbreviation: string): string {
     'BSTM': 'Bachelor of Science in Tourism Management',
     'BSCPE': 'Bachelor of Science in Computer Engineering',
     'BMMA': 'Bachelor of Multimedia Arts',
+    'BSCM': 'Bachelor of Science of Culinary Management',
+    'BSBA': 'Bacholor of Science of Business Administration'
   }
 
-  return shortNames[abbreviation]
+  return shortNames[abbreviation] || ''
+}
+
+// Helper function to shrink couse names
+function shrinkCourseName(name: string): string {
+  const longNames: Record<string, string> = {
+    'Bachelor of Science in Computer Science': 'BSCS',
+    'Bachelor of Science in Information Technology': 'BSIT',
+    'Bachelor of Science in Tourism Management': 'BSTM',
+    'Bachelor of Science in Computer Engineering': 'BSCpE',
+    'Bachelor of Multimedia Arts': 'BMMA',
+    'Bachelor of Science in Culinary Arts': 'BSCM',
+    'Bachelor of Science in Business Administration': 'BSBA'
+  }
+
+  return longNames[name] || ''
 }

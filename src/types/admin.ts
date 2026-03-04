@@ -43,3 +43,13 @@ export type CourseTemplateStats = {
   departments: DepartmentTag[];
   updated_at: string | null;
 }
+
+export type StudentTemplates = {
+  student_id: number;
+  student_name: string;
+  course_name: string;
+  year: number;
+  status: 'Incomplete' | 'Pending';
+  departments: Departments[];
+  progress: number;
+}
