@@ -34,7 +34,7 @@ export function useDeleteTemplates() {
 }
 
 async function fetchCourseTemplates(): Promise<CourseTemplateStats[]> {
-  const response = await fetch('/api/admin/templates')
+  const response = await fetch('/api/admin/course-templates')
   const json = await response.json()
 
   if (!response.ok) {
@@ -50,13 +50,13 @@ type ClearanceTemplates = {
 }
 
 async function createTemplates(clearanceTemplates: ClearanceTemplates): Promise<void> {
-  const response = await fetch('/api/admin/templates', {
+  const response = await fetch('/api/admin/course-templates', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(clearanceTemplates),
   })
 
-  const json = response.json()
+  const json = await response.json()
 
   if (!response.ok) {
     throw new Error('Failed to create templates')
@@ -66,13 +66,13 @@ async function createTemplates(clearanceTemplates: ClearanceTemplates): Promise<
 }
 
 async function deleteTemplates(course_id: number): Promise<void> {
-  const response = await fetch('/api/admin/templates', {
+  const response = await fetch('/api/admin/course-templates', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ course_id })
   })
 
-  const json = response.json()
+  const json = await response.json()
 
   if (!response.ok) {
     throw new Error('Failed to delete a template')

@@ -31,25 +31,25 @@ export default function StudentStatsView({ page, setPage}: Props) {
 
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <div className='flex flex-col gap-4 justify-between bg-indigo-50 rounded-xl border border-indigo-200 p-6 shadow-xs'>
-          <div className='text-sm text-transform: uppercase text-indigo-600 tracking-wider'>Total Non-Cleared</div>
+          <div className='text-base text-indigo-600'>Total Non-Cleared</div>
           <p className='text-4xl font-bold text-indigo-500'>{stats?.totalNonCleared}</p>
           <p className='text-sm text-gray-500'>students</p>
         </div>
 
         <div className='flex flex-col gap-4 justify-between bg-amber-50 rounded-xl border border-amber-200 p-6 shadow-xs'>
-          <div className='text-sm text-transform: uppercase text-amber-600 font-small tracking-wider'>Incomplete</div>
+          <div className='text-base text-amber-600 font-small'>Incomplete</div>
           <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
           <p className='text-sm text-gray-500'>partially cleared</p>
         </div>
 
         <div className='flex flex-col gap-4 justify-between bg-red-50 rounded-xl border border-red-200 p-6 shadow-xs'>
-          <div className='text-sm text-transform: uppercase text-red-600 font-small tracking-wider'>Pending</div>
+          <div className='text-base text-red-600 font-small'>Pending</div>
           <p className='text-4xl font-bold text-red-500'>{stats?.pending}</p>
           <p className='text-sm text-gray-500'>zero progress</p>
         </div>
 
         <div className='flex flex-col gap-4 justify-between bg-cyan-50 rounded-xl border border-cyan-200 p-6 shadow-xs'>
-          <div className='text-sm text-transform: uppercase text-cyan-600 font-small tracking-wider'>Avg. Completion</div>
+          <div className='text-base text-cyan-600 font-small'>Avg. Completion</div>
           <p className='text-4xl font-bold text-cyan-500'>{stats?.averageCompletion}%</p>
           <p className='text-sm text-gray-500'>across all students</p>
         </div>
