@@ -13,7 +13,16 @@ export default function AdminStats({ page, setPage }: Props) {
   const { data } = useFetchStudentTemplates() // delete later
 
   if (isLoading) {
-    return <div>Loading stats...</div>
+    return (
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-200 p-6 shadow-xs'>
+            <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
+            <div className='h-9 w-16 bg-gray-200 rounded animate-pulse' />
+          </div>
+        ))}
+      </div>
+    )
   }
   
   return (

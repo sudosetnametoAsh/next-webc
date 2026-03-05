@@ -8,9 +8,11 @@ export async function GET(request: Request) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const limit = Math.min(30, Math.max(1, parseInt(searchParams.get('limit') || '25')))
   const courseFilter = searchParams.get('course') || ''
+  const search = searchParams.get('search') || ''
+  const offset = (page - 1) * limit
 
   try {
-    // Build the enrollment query with joins
+    // Single query for both count and paginated data
     let query = supabase
       .from('enrollments')
       .select(`
@@ -32,46 +34,21 @@ export async function GET(request: Request) {
       query = query.eq('course_sections.courses.course_name', courseFilter)
     }
 
-    // Get total count first
-    const { count: totalCount, error: countError } = await query
-
-    if (countError) {
-      console.error('Error counting students:', countError)
-      return NextResponse.json({ error: countError.message }, { status: 500 })
+    // Apply search filter (by student name or student id)
+    if (search) {
+      query = query.or(`student_name.ilike.%${search}%,student_id.ilike.%${search}%`, { foreignTable: 'students' })
     }
 
-    const total = totalCount ?? 0
-    const totalPages = Math.ceil(total / limit)
-    const offset = (page - 1) * limit
-
-    // Fetch paginated data
-    let dataQuery = supabase
-      .from('enrollments')
-      .select(`
-        student:students (
-          student_id,
-          student_name,
-          student_clearances ( status )
-        ),
-        section:course_sections!inner (
-          section_number,
-          year,
-          semester,
-          courses!inner ( course_id, course_name )
-        )
-      `)
-
-    if (courseFilter) {
-      dataQuery = dataQuery.eq('course_sections.courses.course_name', courseFilter)
-    }
-
-    const { data, error } = await dataQuery
+    const { data, count: totalCount, error } = await query
       .range(offset, offset + limit - 1)
 
     if (error) {
       console.error('Error fetching students list:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    const total = totalCount ?? 0
+    const totalPages = Math.ceil(total / limit)
 
     const students = (data ?? []).map((row: any) => {
       const clearances = row.student?.student_clearances ?? []

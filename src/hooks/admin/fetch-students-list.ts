@@ -5,12 +5,13 @@ type Params = {
   page: number
   limit?: number
   course?: string
+  search?: string
 }
 
-export function useFetchStudentsList({ page, limit = 25, course = '' }: Params) {
+export function useFetchStudentsList({ page, limit = 25, course = '', search = '' }: Params) {
   return useQuery({
-    queryKey: ['admin', 'students-list', page, limit, course],
-    queryFn: () => fetchStudentsList(page, limit, course),
+    queryKey: ['admin', 'students-list', page, limit, course, search],
+    queryFn: () => fetchStudentsList(page, limit, course, search),
     staleTime: 1000 * 60 * 5,
     placeholderData: (prev) => prev,
   })
@@ -19,7 +20,8 @@ export function useFetchStudentsList({ page, limit = 25, course = '' }: Params) 
 async function fetchStudentsList(
   page: number,
   limit: number,
-  course: string
+  course: string,
+  search: string
 ): Promise<AdminStudentListResponse> {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -28,6 +30,10 @@ async function fetchStudentsList(
 
   if (course) {
     params.set('course', course)
+  }
+
+  if (search) {
+    params.set('search', search)
   }
 
   const response = await fetch(`/api/admin/students-list?${params}`)
