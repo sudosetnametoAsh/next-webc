@@ -15,9 +15,7 @@ export function UserProfileAvatar({ name }: UserProfileAvatarProps) {
   const getInitials = (fullName: string) => {
     if (!fullName) return "??";
 
-    // 1. Remove text inside parentheses (e.g., "(Student)")
-    // 2. Remove commas
-    // 3. Trim extra spaces
+   
     const cleanName = fullName.replace(/\s*\(.*?\)\s*/g, "").replace(/,/g, "").trim();
 
     // Split into words
@@ -25,14 +23,12 @@ export function UserProfileAvatar({ name }: UserProfileAvatarProps) {
 
     if (parts.length === 0) return "??";
     
-    // If only one word (e.g. "Jaro"), take first 2 letters
+    
     if (parts.length === 1) {
         return parts[0].substring(0, 2).toUpperCase();
     }
 
-    // Otherwise take first letter of First Name and First letter of Last Name
-    // parts[0][0] = First char of first word
-    // parts[parts.length - 1][0] = First char of last word
+    
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
