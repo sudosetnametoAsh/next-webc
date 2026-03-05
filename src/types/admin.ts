@@ -48,9 +48,9 @@ export type StudentTemplates = {
   student_id: number;
   student_name: string;
   course_name: string;
-  year: number;
-  status: 'Incomplete' | 'Pending';
-  departments: Departments[];
+  course_year: number;
+  overallStatus: 'Incomplete' | 'Pending';
+  pending_departments: Departments[];
   progress: number;
 }
 

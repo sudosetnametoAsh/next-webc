@@ -3,22 +3,25 @@
 import { useState } from 'react'
 import Header from '@/components/admin/header'
 import AdminStats from '@/components/admin/admin-stats'
-import StudentStatsView from '@/components/admin/student-stats-view'
+import StudentClearanceStatus from '@/components/admin/student-clearance-status'
+import TotalStudentsView from '@/components/admin/total-students-view'
 import QuickActions from '@/components/admin/quick-actions'
 import CourseTemplatesList from '@/components/admin/course-templates-list'
 
 export default function AdminDashboard({ email }: { email: string }) {
-  const [page, setPage] = useState('dashboard')
+  const [adminPage, setAdminPage] = useState('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
 
   const renderPage = () => {
-    switch (page) {
-      case 'student-stats-view':
-        return <StudentStatsView page={page} setPage={setPage} />
+    switch (adminPage) {
+      case 'total-students-list':
+        return <TotalStudentsView page={adminPage} setPage={setAdminPage} />
+      case 'student-clearance-status':
+        return <StudentClearanceStatus setAdminPage={setAdminPage} />
       default:
         return (
           <>
-            <AdminStats page={page} setPage={setPage} />
+            <AdminStats setAdminPage={setAdminPage} />
 
             <QuickActions searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
@@ -39,7 +42,7 @@ export default function AdminDashboard({ email }: { email: string }) {
     <div>
       <Header email={email} />
 
-      <main className='min-h-screen bg-slate-100'>
+      <main className='min-h-screen bg-gray-100'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6'>
           {renderPage()}
         </div>

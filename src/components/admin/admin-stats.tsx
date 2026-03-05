@@ -1,16 +1,13 @@
 'use client'
 
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
-import { useFetchStudentTemplates } from '@/hooks/admin/student-templates' // delete later
 
 type Props = {
-  page: string
-  setPage: (page: string) => void
+  setAdminPage: (adminPage: string) => void
 }
 
-export default function AdminStats({ page, setPage }: Props) {
+export default function AdminStats({ setAdminPage }: Props) {
   const { data: stats, isLoading  } = useFetchAdminStats()
-  const { data } = useFetchStudentTemplates() // delete later
 
   if (isLoading) {
     return (
@@ -29,7 +26,7 @@ export default function AdminStats({ page, setPage }: Props) {
     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
       <div className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-300 p-6 shadow-xs cursor-pointer hover transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md'>
         <div className='text-base text-gray-600'>Total Students</div>
-        <p className='text-4xl font-bold text-gray-700' onClick={() => setPage('student-stats-view')}>
+        <p className='text-4xl font-bold text-gray-700' onClick={() => setAdminPage('total-students-list')}>
           {stats?.totalStudents}
         </p>
       </div>
@@ -41,7 +38,7 @@ export default function AdminStats({ page, setPage }: Props) {
 
       <div 
         className='flex flex-col gap-8 justify-start bg-amber-50 rounded-xl border border-amber-300 p-6 shadow-xs transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md cursor-pointer'
-        onClick={() => setPage('student-stats-view')}
+        onClick={() => setAdminPage('student-clearance-status')}
       >
         <div className='text-base text-amber-600'>Incomplete</div>
         <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
@@ -49,7 +46,7 @@ export default function AdminStats({ page, setPage }: Props) {
 
       <div 
         className='flex flex-col gap-8 justify-between bg-red-50 rounded-xl border border-red-300 p-6 shadow-xs transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md cursor-pointer'
-        onClick={() => setPage('student-stats-view')}
+        onClick={() => setAdminPage('student-clearance-status')}
       >
         <div className='text-base text-red-600'>Pending</div>
         <p className='text-4xl font-bold text-red-500'>{stats?.pending}</p>
