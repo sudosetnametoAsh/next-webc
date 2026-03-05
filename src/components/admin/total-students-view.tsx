@@ -12,7 +12,7 @@ type Props = {
 
 const ITEMS_PER_PAGE = 25
 
-export default function StudentStatsView({ page, setPage }: Props) {
+export default function TotalStudentsView({ page, setPage }: Props) {
   const { data: stats, isLoading: statsLoading } = useFetchAdminStats()
 
   const [currentPage, setCurrentPage] = useState(1)

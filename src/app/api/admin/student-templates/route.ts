@@ -24,7 +24,10 @@ export async function GET() {
         student_clearances (
           status,
           clearance_templates (
-            departments ( dept_name )
+            departments ( 
+              dept_id,
+              dept_name
+            )
           )
         )
       `)
@@ -46,7 +49,7 @@ export async function GET() {
         for (const clearance of student.student_clearances) {
           
           if (clearance.status !== 'Signed') { 
-            pendingDepts.push(clearance.clearance_templates.departments.dept_name) 
+            pendingDepts.push(clearance.clearance_templates.departments) 
           }
         }
 
@@ -72,8 +75,6 @@ export async function GET() {
         }
       })
     )
-
-    console.log(studentTemplates)
 
     return NextResponse.json({ data: studentTemplates }, { status: 200 })
 
