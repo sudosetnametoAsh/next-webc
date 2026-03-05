@@ -1,123 +1,277 @@
+/* sti-login.module.css */
+
+/* ── Variables ─────────────────────────────────────────── */
+:root {
+  --sti-red: #eb4626;
+  --sti-red-dark: #c93a1e;
+  --sti-blue: #1e3a8a;
+  --sti-blue-light: #2f56c7;
+  --card-radius: 16px;
+  --shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Full-screen container ─────────────────────────────── */
 .container {
-  min-height: 100vh;
+  min-height: 100svh;
   width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: url(/sti-login-enhanced.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
-  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+
+  /* Background image with a dark overlay for contrast */
+  background: linear-gradient(rgba(10, 20, 60, 0.55), rgba(10, 20, 60, 0.65)),
+    url(/sti-login-enhanced.png) center/cover no-repeat fixed;
+
+  font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ── Decorative blobs ──────────────────────────────────── */
+.blob1,
+.blob2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.blob1 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, var(--sti-red), transparent 70%);
+  top: -100px;
+  right: -80px;
+  animation: drift 10s ease-in-out infinite alternate;
+}
+
+.blob2 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, var(--sti-blue-light), transparent 70%);
+  bottom: -80px;
+  left: -60px;
+  animation: drift 13s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(24px, 20px) scale(1.06); }
+}
+
+/* ── Top-left logo ─────────────────────────────────────── */
 .logoTopLeft {
   position: absolute;
-  top: 24px;
+  top: 20px;
   left: 24px;
-  /* background-color: #fbbf24; */
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: bold;
-  color: #1e3a8a;
-  font-size: 18px;
-  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+  animation: fadeDown 0.6s ease both;
 }
 
 .logoTopLeft img {
-  height: 60px;
-  width: auto;
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
 }
 
+.logoTopLeftText {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Card ──────────────────────────────────────────────── */
 .loginCard {
   position: relative;
   z-index: 10;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  padding: 32px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
   width: 100%;
-  max-width: 448px;
+  max-width: 420px;
   margin: 0 16px;
+  overflow: hidden;
+  animation: riseUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
 }
 
+/* Red accent bar at top of card */
+.accentBar {
+  height: 5px;
+  background: linear-gradient(90deg, var(--sti-red), var(--sti-blue-light));
+}
+
+.cardInner {
+  padding: 36px 40px 32px;
+}
+
+/* ── Center logo ───────────────────────────────────────── */
 .logoCenter {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.logoRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0f4ff, #e8eeff);
+  border: 3px solid #dde4f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(30, 58, 138, 0.12);
+}
+
+.logoRing img {
+  width: 56px !important;
+  height: 56px !important;
+  object-fit: contain;
+}
+
+/* ── Heading ───────────────────────────────────────────── */
+.heading {
   text-align: center;
-  margin-bottom: 32px;
-}
-
-.logoBox {
-  display: inline-block;
-  /* background-color: #fbbf24; */
-  padding: 12px 24px;
-  border-radius: 8px;
-}
-
-.logoBox img {
-  height: 80px;
-  width: auto;
-  display: block;
-}
-
-.logoText {
-  color: #1e3a8a;
-  font-weight: bold;
-  font-size: 32px;
+  margin-bottom: 28px;
 }
 
 .title {
-  text-align: center;
-  margin-bottom: 30px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
 }
 
-.title h1 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1f2937;
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
   margin: 0;
 }
 
-.loginButton {
+/* ── Divider ───────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: #9ca3af;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* ── Sign-in button (styles exposed to SignInButton via global) */
+/* Your SignInButton likely renders a <button>; target it here  */
+.loginCard :global(button),
+.loginCard :global(.loginButton) {
   width: 100%;
-  background-color: #EB4626;
+  background: linear-gradient(135deg, var(--sti-red), #d63b1f);
   color: white;
-  font-weight: 500;
-  padding: 12px 16px;
-  border-radius: 3px;
+  font-weight: 600;
+  padding: 13px 16px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  transition: background-color 0.2s;
+  gap: 10px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  box-shadow: 0 4px 14px rgba(235, 70, 38, 0.35);
 }
 
-.loginButton:hover {
-  background-color: #dc2626;
+.loginCard :global(button):hover,
+.loginCard :global(.loginButton):hover {
+  background: linear-gradient(135deg, #d63b1f, var(--sti-blue));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(235, 70, 38, 0.4);
 }
 
-/* .helpLink {
-  text-align: center;
-  margin-top: 24px;
+.loginCard :global(button):active,
+.loginCard :global(.loginButton):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(235, 70, 38, 0.3);
 }
 
-.helpLink a {
-  font-size: 14px;
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.helpLink a:hover {
-  text-decoration: underline;
-} */
-
+/* ── Footer ────────────────────────────────────────────── */
 .footer {
   text-align: center;
-  margin-top: 32px;
-  font-size: 12px;
-  color: #6b7280;
+  margin-top: 28px;
+  font-size: 11px;
+  color: #9ca3af;
+  letter-spacing: 0.03em;
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes riseUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cardInner {
+    padding: 28px 24px 24px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .logoRing {
+    width: 76px;
+    height: 76px;
+  }
+
+  .logoTopLeftText {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .loginCard {
+    margin: 0 10px;
+  }
+
+  .cardInner {
+    padding: 24px 18px 20px;
+  }
 }

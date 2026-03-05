@@ -53,3 +53,19 @@ export type StudentTemplates = {
   departments: Departments[];
   progress: number;
 }
+
+export type AdminStudentListItem = {
+  student_id: string;
+  student_name: string;
+  course_name: string;
+  section: string;
+  clearance_status: 'Cleared' | 'Incomplete' | 'Pending';
+}
+
+export type AdminStudentListResponse = {
+  students: AdminStudentListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
