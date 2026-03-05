@@ -48,6 +48,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
 
 # documentation
 GEMINI.md
+=======
+webc_full_backup.sql
+>>>>>>> a6d3a7b (something something)
