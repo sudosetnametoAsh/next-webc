@@ -29,7 +29,7 @@ export default function AdminStats({ page, setPage }: Props) {
     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
       <div className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-300 p-6 shadow-xs cursor-pointer hover transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md'>
         <div className='text-base text-gray-600'>Total Students</div>
-        <p className='text-4xl font-bold text-gray-700' onClick={() => setPage('overall-students-view')}>
+        <p className='text-4xl font-bold text-gray-700' onClick={() => setPage('student-stats-view')}>
           {stats?.totalStudents}
         </p>
       </div>
