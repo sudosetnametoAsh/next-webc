@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react' 
+import { useEffect, useRef, useState } from 'react' 
 import { ChevronRight, GripVertical, X, User } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,18 +17,40 @@ type Props = {
 
 export default function CreateTemplateModal({ open, onOpenChange }: Props) {
   // Hooks
-  const { data: courses = [] } = useFetchCourses()
-  const { data: departments = [] } = useFetchDepartments()
+  const { data: courses = [], isSuccess: isSucessCourses } = useFetchCourses()
+  const { data: departments = [], isSuccess: isSuccessDepts } = useFetchDepartments()
   const { data: staff = [] } = useFetchStaff()
   const createTemplates = useCreateTemplates()
   
+  const courseIds = () => courses?.map(c => c.course_id)
+  const deptIds = () => departments?.map(d => d.dept_id)
+
   // State
   const [step, setStep] = useState<'select' | 'assign'>('select')
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
   const [staffAssignments, setStaffAssignments] = useState<StaffAssignment[]>([])
   const [activeDeptId, setActiveDeptId] = useState<number | null>(null)
-  
+
+  const initializedCourses = useRef(false)
+  const initializedDepts = useRef(false)
+
+
+  useEffect(() => {
+    if (isSucessCourses && !initializedCourses.current) {
+      setSelectedCourses(courseIds)
+      initializedCourses.current = true
+    }
+  }, [isSucessCourses, courses])
+
+  useEffect(() => {
+    if (isSuccessDepts && !initializedDepts.current) {
+      setSelectedDepartments(deptIds)
+      initializedDepts.current = true
+    }
+  }, [isSuccessDepts, departments])
+
+
   // --- Handlers ---
 
   const handleClose = () => {
@@ -37,8 +59,8 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
     // Reset all state on close after animation
     setTimeout(() => {
       setStep('select')
-      setSelectedCourses([])
-      setSelectedDepartments([])
+      setSelectedCourses(courseIds)
+      setSelectedDepartments(deptIds)
       setStaffAssignments([])
       setActiveDeptId(null)
     }, 200)
@@ -72,7 +94,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
 
     // Initialize staff assignments for selected departments
     const assignments: StaffAssignment[] = selectedDepartments.map((dept_id) => {
-      const dept = departments.find((dept) => dept.dept_id === dept_id)
+      const dept = departments?.find((dept) => dept.dept_id === dept_id)
       return {
         dept_id: dept_id,
         dept_name: dept?.dept_name ?? '',

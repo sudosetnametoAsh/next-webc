@@ -24,9 +24,12 @@ export default function AdminStats({ setAdminPage }: Props) {
   
   return (
     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-      <div className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-300 p-6 shadow-xs cursor-pointer hover transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md'>
+      <div 
+        onClick={() => setAdminPage('total-students-list')}
+        className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-300 p-6 shadow-xs cursor-pointer hover transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md'
+      >
         <div className='text-base text-gray-600'>Total Students</div>
-        <p className='text-4xl font-bold text-gray-700' onClick={() => setAdminPage('total-students-list')}>
+        <p className='text-4xl font-bold text-gray-700'>
           {stats?.totalStudents}
         </p>
       </div>
@@ -38,7 +41,7 @@ export default function AdminStats({ setAdminPage }: Props) {
 
       <div 
         className='flex flex-col gap-8 justify-start bg-amber-50 rounded-xl border border-amber-300 p-6 shadow-xs transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md cursor-pointer'
-        onClick={() => setAdminPage('student-clearance-status')}
+        onClick={() => setAdminPage('student-list-view')}
       >
         <div className='text-base text-amber-600'>Incomplete</div>
         <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
@@ -46,7 +49,7 @@ export default function AdminStats({ setAdminPage }: Props) {
 
       <div 
         className='flex flex-col gap-8 justify-between bg-red-50 rounded-xl border border-red-300 p-6 shadow-xs transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md cursor-pointer'
-        onClick={() => setAdminPage('student-clearance-status')}
+        onClick={() => setAdminPage('student-list-view')}
       >
         <div className='text-base text-red-600'>Pending</div>
         <p className='text-4xl font-bold text-red-500'>{stats?.pending}</p>
