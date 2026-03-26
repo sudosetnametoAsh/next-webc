@@ -355,8 +355,8 @@ export default function StudentListView({ setAdminPage }: Props) {
           </select>
 
           <span className="text-xs text-gray-400 ml-auto whitespace-nowrap">
-              {paginated.length}
-              {(paginated.length ?? 0) > 1 ? ' results' : ' result'}
+              {filteredStudents.length}
+              {(filteredStudents.length ?? 0) > 1 ? ' results' : ' result'}
           </span>
         </div>
 
