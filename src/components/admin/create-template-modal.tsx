@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronRight, GripVertical, X, User } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
+import ConfirmationModal  from '@/components/admin/confirmation-modal'
 import { useFetchCourses } from '@/hooks/admin/fetch-courses'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
@@ -31,6 +32,10 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
   const [staffAssignments, setStaffAssignments] = useState<StaffAssignment[]>([])
   const [activeDeptId, setActiveDeptId] = useState<number | null>(null)
+
+  // State for confirmation modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
 
   const initializedCourses = useRef(false)
   const initializedDepts = useRef(false)
@@ -118,12 +123,14 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
     setActiveDeptId(null)
   }
 
-  const handleSave = async () => {
+  const handleConfirm = async () => {
     const allAssigned = staffAssignments.every((assignment) => assignment.staff_id !== null)
     if (!allAssigned) {
       alert('Please assign staff to all selected departments.')
       return
     }
+    
+    setIsConfirmLoading(true)
 
     try {
       await createTemplates.mutateAsync({ courses: selectedCourses, assignments: staffAssignments })
@@ -132,6 +139,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
     } catch (error) {
       console.error('Failed to create templates', error)
     }
+
+    setIsConfirmLoading(false)
+    setIsConfirmOpen(false)
 
   }
 
@@ -169,6 +179,10 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
           )
           : (
             <AssignmentStep 
+              isConfirmOpen={isConfirmOpen}
+              setIsConfirmOpen={setIsConfirmOpen}
+              isConfirmLoading={isConfirmLoading}
+              handleConfirm={handleConfirm}
               assignments={staffAssignments}
               onSelectDepartment={setActiveDeptId}
             />
@@ -207,7 +221,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
           ) : activeDeptId === null ? (
             // Save Button
             <button
-              onClick={handleSave}
+              onClick={() => setIsConfirmOpen(true)}
               disabled={createTemplates.isPending}
               className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer' 
             >
@@ -287,35 +301,56 @@ function SelectionStep({
 
 // Step 2: Department list with staff assignment
 function AssignmentStep({
+  isConfirmOpen,
+  setIsConfirmOpen,
+  isConfirmLoading,
   assignments,
+  handleConfirm,
   onSelectDepartment,
 }: {
+  isConfirmOpen: boolean
+  setIsConfirmOpen: (isConfirmOpen: boolean) => void
+  isConfirmLoading: boolean
+  handleConfirm: () => void
   assignments: StaffAssignment[]
   onSelectDepartment: (dept_id: number) => void
 }) {
   return (
-    <div className='space-y-2'>
-      {assignments.map((assignment) => (
-        <button
-          key={assignment.dept_id}
-          onClick={() => onSelectDepartment(assignment.dept_id)}
-          className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left cursor-pointer'
-        >
-          <div className='flex items-center gap-3'>
-            <GripVertical className='w-8 h-8 text-gray-400' />
-            <div className='flex flex-col gap-1'>
-              <p className='text-l font-medium text-gray-900'>
-                {assignment.dept_name}
+    <>
+      <div className='space-y-2'>
+        {assignments.map((assignment) => (
+          <button
+            key={assignment.dept_id}
+            onClick={() => onSelectDepartment(assignment.dept_id)}
+            className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left cursor-pointer'
+          >
+            <div className='flex items-center gap-3'>
+              <GripVertical className='w-8 h-8 text-gray-400' />
+              <div className='flex flex-col gap-1'>
+                <p className='text-l font-medium text-gray-900'>
+                  {assignment.dept_name}
+                  </p>
+                <p className='text-xs text-gray-500'>
+                  {assignment.staff_name ?? 'No Staff Assigned'}
                 </p>
-              <p className='text-xs text-gray-500'>
-                {assignment.staff_name ?? 'No Staff Assigned'}
-              </p>
+              </div>
             </div>
-          </div>
-          <ChevronRight className='w-8 h-8 text-gray-400' />
-        </button>
-      ))}
-    </div>
+            <ChevronRight className='w-8 h-8 text-gray-400' />
+          </button>
+        ))}
+      </div>
+
+      <ConfirmationModal 
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        variant="neutral"
+        title="Are you sure you want to create templates?"
+        description="This will create clearance templates for all students across all courses and departments."
+        confirmLabel="Yes, create it"
+        isLoading={isConfirmLoading}
+      />
+    </>
   )
 }
 

@@ -65,7 +65,7 @@ async function createTemplates(clearanceTemplates: ClearanceTemplates): Promise<
   return json
 }
 
-async function deleteTemplates(course_id: number): Promise<void> {
+async function deleteTemplates(course_id?: number): Promise<void> {
   const response = await fetch('/api/admin/course-templates', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },

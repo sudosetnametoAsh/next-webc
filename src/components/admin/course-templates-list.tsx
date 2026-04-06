@@ -1,12 +1,26 @@
 'use client'
 
+import { useState } from 'react'
+import ConfirmationModal from './confirmation-modal'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
 import { useDeleteTemplates } from '@/hooks/admin/course-templates'
 import { CourseTemplateStats } from '@/types/admin'
 import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Trash } from 'lucide-react'
 
-export default function CourseTemplatesList({ searchQuery }: { searchQuery: string }) {
+type Props = {
+  searchQuery: string;
+}
+
+export default function CourseTemplatesList({ 
+  searchQuery,
+  }: Props) {
+
+  // State for confirmation modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
+  const [selectedId, setSelectedId] = useState(0)
+
   const { data: templates = [], isLoading } = useFetchCourseTemplates()
   const deleteTemplate = useDeleteTemplates()
 
@@ -23,14 +37,17 @@ export default function CourseTemplatesList({ searchQuery }: { searchQuery: stri
     if (expandCourseAbbreviation(template.course_name).toLowerCase().includes(query)) { return true }
   })
 
-  const handleDelete = async (course_id: number) => {
-    if (!confirm('Are you sure want to delete this course template?')) return
+  const handleDelete = async (course_id?: number) => {
+    setIsConfirmLoading(true)
 
-      try {
-        await deleteTemplate.mutateAsync(course_id)
-      } catch(error) {
-        console.error('Failed to delete template', error)
-      }
+    try {
+      await deleteTemplate.mutateAsync(course_id)
+    } catch(error) {
+      console.error('Failed to delete template', error)
+    }
+
+    setIsConfirmLoading(false)
+    setIsConfirmOpen(false)
   }
 
   if (isLoading) {
@@ -54,18 +71,31 @@ export default function CourseTemplatesList({ searchQuery }: { searchQuery: stri
   }
   
   return (
-    <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-      {filteredTemplates.map(template => (
-        <CourseTemplateCard key={template.course_id} template={template} handleDelete={handleDelete}/>
-      ))}
-    </div>
+    <>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+        {filteredTemplates.map(template => (
+          <CourseTemplateCard key={template.course_id} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedId={setSelectedId} />
+        ))}
+      </div>
+      <ConfirmationModal 
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => handleDelete(selectedId)}
+        variant="destructive"
+        title="Are you sure you want to delete this course template?"
+        description="This action irreversible."
+        confirmLabel="Yes, delete it"
+        isLoading={isConfirmLoading}
+      />
+    </>
   )
 }
 
-function CourseTemplateCard({ template, handleDelete }:  
+function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedId }:  
   { 
-    template: CourseTemplateStats 
-    handleDelete: (course_id: number) => void 
+    template: CourseTemplateStats;
+    setIsConfirmOpen: (isConfirmOpen: boolean) => void;
+    setSelectedId: (selectedId: number) => void;
   }) {
     return (
       <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
@@ -116,7 +146,7 @@ function CourseTemplateCard({ template, handleDelete }:
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <button 
             className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
-            onClick={() => handleDelete(template.course_id)}
+            onClick={() => { setIsConfirmOpen(true); setSelectedId(template.course_id); }}
           >
             {/* {template.updated_at ? `Updated ${template.updated_at}` : "Updated a few hours ago"} */}
             <Trash className='w-4 h-4' />
