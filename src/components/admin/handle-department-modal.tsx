@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Building2, Pencil, Plus, Trash2, X, Check, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import ConfirmationModal from './confirmation-modal'
 import {
   useFetchDepartments,
   useCreateDepartment,
@@ -116,6 +117,11 @@ function DeptRow({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
+  // State for delete confirmation modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
+  const [selectedDeptId, setSelectedDeptId] = useState(0)
+
   const { data: departments = [], isLoading } = useFetchDepartments()
   const createDepartment = useCreateDepartment()
   const updateDepartment = useUpdateDepartment()
@@ -124,6 +130,11 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
   const [newName, setNewName] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingName, setEditingName] = useState('')
+
+  const handleClose = () => {
+    onOpenChange(false)
+    setIsConfirmOpen(false)
+  }
 
   const handleCreate = useCallback(async () => {
     if (!newName.trim()) return
@@ -146,13 +157,18 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
     }
   }, [editingName, updateDepartment])
 
-  const handleDelete = useCallback(async (id: number) => {
-    if (!confirm('Delete this department? Linked staff accounts will also be removed.')) return
+  const handleConfirmDelete = useCallback(async (id: number) => {
+    setIsConfirmLoading(true)
+
     try {
       await deleteDepartment.mutateAsync(id)
     } catch (err) {
       console.error('Delete failed:', err)
     }
+
+    setIsConfirmOpen(false)
+    setIsConfirmLoading(false)
+
   }, [deleteDepartment])
 
   const startEditing = useCallback((id: number, name: string) => {
@@ -160,8 +176,9 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
     setEditingName(name)
   }, [])
 
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
         
         {/* Header */}
@@ -231,12 +248,23 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
                   onStartEdit={() => startEditing(dept.dept_id, dept.dept_name)}
                   onSaveEdit={() => handleUpdate(dept.dept_id)}
                   onCancelEdit={() => setEditingId(null)}
-                  onDelete={() => handleDelete(dept.dept_id)}
+                  onDelete={() => { setIsConfirmOpen(true); setSelectedDeptId(dept.dept_id); }}
                   isSaving={updateDepartment.isPending}
                 />
               ))}
             </div>
           )}
+
+          <ConfirmationModal 
+            isOpen={isConfirmOpen}
+            onClose={() => setIsConfirmOpen(false)}
+            onConfirm={() => handleConfirmDelete(selectedDeptId)}
+            variant="destructive"
+            title="Are you sure you want to delete this department?"
+            description="Linked staff accounts will also be removed. This action is irreversible"
+            confirmLabel="Yes, delete it"
+            isLoading={isConfirmLoading}
+          />
         </div>
 
         {/* Footer count */}
