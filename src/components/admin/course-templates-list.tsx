@@ -19,7 +19,7 @@ export default function CourseTemplatesList({
   // State for confirmation modal
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isConfirmLoading, setIsConfirmLoading] = useState(false)
-  const [selectedId, setSelectedId] = useState(0)
+  const [selectedCourseId, setSelectedCourseId] = useState(0)
 
   const { data: templates = [], isLoading } = useFetchCourseTemplates()
   const deleteTemplate = useDeleteTemplates()
@@ -74,13 +74,13 @@ export default function CourseTemplatesList({
     <>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
         {filteredTemplates.map(template => (
-          <CourseTemplateCard key={template.course_id} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedId={setSelectedId} />
+          <CourseTemplateCard key={template.course_id} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
         ))}
       </div>
       <ConfirmationModal 
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
-        onConfirm={() => handleDelete(selectedId)}
+        onConfirm={() => handleDelete(selectedCourseId)}
         variant="destructive"
         title="Are you sure you want to delete this course template?"
         description="This action irreversible."
@@ -91,11 +91,11 @@ export default function CourseTemplatesList({
   )
 }
 
-function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedId }:  
+function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:  
   { 
     template: CourseTemplateStats;
     setIsConfirmOpen: (isConfirmOpen: boolean) => void;
-    setSelectedId: (selectedId: number) => void;
+    setSelectedCourseId: (selectedCourseId: number) => void;
   }) {
     return (
       <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
@@ -146,7 +146,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedId }:
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <button 
             className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
-            onClick={() => { setIsConfirmOpen(true); setSelectedId(template.course_id); }}
+            onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id); }}
           >
             {/* {template.updated_at ? `Updated ${template.updated_at}` : "Updated a few hours ago"} */}
             <Trash className='w-4 h-4' />

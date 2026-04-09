@@ -57,9 +57,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
 
 
   // --- Handlers ---
-
   const handleClose = () => {
     onOpenChange(false)
+    setIsConfirmOpen(false)
 
     // Reset all state on close after animation
     setTimeout(() => {
