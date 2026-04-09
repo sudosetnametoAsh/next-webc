@@ -210,12 +210,10 @@ export default function StudentListView({ setAdminPage }: Props) {
     setStudentPage(1)
   }
 
-
-
-
   if (isLoading) {
     return <div>Loading...</div>
   }
+
 
   return (
     <>
@@ -363,7 +361,8 @@ export default function StudentListView({ setAdminPage }: Props) {
           </span>
         </div>
 
-          {/* Table - desktop */}
+        {/* Table - desktop */}
+        <div className='hidden md:block overflow-x-auto'>
           <table className='w-full'>
             <thead>
               <tr className='border-b border-gray-50'>
@@ -421,14 +420,61 @@ export default function StudentListView({ setAdminPage }: Props) {
                   )))}
             </tbody>
           </table>
-      </div>
+        </div>
 
-      <div className='px-4 sm:px-6 py-4 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3'>
-          <span className='text-gray-500'>
-            Showing {paginated.length === 0 ? 0 : (studentPage - 1) * PAGE_SIZE + 1}-
-            {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {paginated.length} {paginated.length > 1 ? 'students' : 'student'}
-          </span>
-          <Pagination current={studentPage} total={totalPages} onChange={setStudentPage} />
+        {/* Mobile view */}
+        <div className='md:hidden divide-y divide-gray-50'>
+            {paginated.length === 0 ? (
+              <div className='px-6 py-16 text-center text-sm text-gray-400'>
+                No students match you filters.
+              </div>
+            ) : (paginated.map((s) => (
+              <div key={s.student_id} className='px-4 py-4 space-y-3'>
+                <div className='flex items-center justify-between gap-2"'>
+                  {/* <div className='flex items-center gap-3'>
+                    <Avatar />
+                  </div> */}
+                  <div className='flex items-center gap-3'>
+                    <p className='text-base font-semibold text-gray-800'>{s.student_name}</p>
+                    <p className='text-sm text-gray-500 font-mono'>{s.student_id}</p>
+                  </div>
+                </div>
+                <p className='text-sm mb-3'>{s.overallStatus}</p>
+                <div className='flex items-center gap-4 text-xs text-gray-500'>
+                  <span className='text-sm font-semibold'>{shrinkCourseName(s.course_name) || s.course_name}</span>
+                  <span className="text-xs text-gray-400">
+                    {s.course_year === 1 ? (
+                      `${s.course_year}st Year`
+                    ) : s.course_year === 2 ? (
+                      `${s.course_year}nd Year`
+                    ) : s.course_year === 3 ? (
+                      `${s.course_year}rd Year`
+                    ) : `${s.course_year}th Year`}
+                  </span>
+                </div>
+                {s.pending_departments.length > 0 && (
+                  <div className='flex flex-wrap gap-1.5'>
+                    {s.pending_departments.map((d) => (
+                      <span 
+                        key={d.dept_name}
+                        className='p-2 bg-gray-100 text-gray-700 rounded-lg border-gray-200 text-xs'
+                      >
+                          {d.dept_name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )))}
+        </div>
+
+        <div className='px-4 sm:px-6 py-4 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3'>
+            <span className='text-gray-500'>
+              Showing {paginated.length === 0 ? 0 : (studentPage - 1) * PAGE_SIZE + 1}-
+              {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {paginated.length} {paginated.length > 1 ? 'students' : 'student'}
+            </span>
+            <Pagination current={studentPage} total={totalPages} onChange={setStudentPage} />
+        </div>
       </div>
     </>
   )

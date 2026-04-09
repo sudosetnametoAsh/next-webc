@@ -346,7 +346,7 @@ function AssignmentStep({
         onConfirm={handleConfirm}
         variant="neutral"
         title="Are you sure you want to create templates?"
-        description="This will create clearance templates for all students across all courses and departments."
+        description="This will create clearance templates for all students across selected courses and departments."
         confirmLabel="Yes, create it"
         isLoading={isConfirmLoading}
       />
