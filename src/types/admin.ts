@@ -49,23 +49,23 @@ export type StudentTemplates = {
   student_name: string;
   course_name: string;
   course_year: number;
-  overallStatus: 'Incomplete' | 'Pending';
+  overallStatus: 'Incomplete' | 'Pending' | 'Signed';
   pending_departments: Departments[];
   progress: number;
 }
 
-export type AdminStudentListItem = {
-  student_id: string;
-  student_name: string;
-  course_name: string;
-  section: string;
-  clearance_status: 'Cleared' | 'Incomplete' | 'Pending';
-}
+// export type AdminStudentListItem = {
+//   student_id: string;
+//   student_name: string;
+//   course_name: string;
+//   section: string;
+//   clearance_status: 'Cleared' | 'Incomplete' | 'Pending';
+// }
 
-export type AdminStudentListResponse = {
-  students: AdminStudentListItem[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+// export type AdminStudentListResponse = {
+//   students: AdminStudentListItem[];
+//   total: number;
+//   page: number;
+//   limit: number;
+//   totalPages: number;
+// }

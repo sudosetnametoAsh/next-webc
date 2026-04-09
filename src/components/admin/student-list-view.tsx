@@ -11,12 +11,12 @@ type Props = {
   setAdminPage: (adminPage: string) => void
 }
 
-type TabType = 'all' | 'incomplete' | 'pending'
+type TabType = 'all' | 'incomplete' | 'pending' | 'signed'
 
 type SortType = 'name-a-z' | 'name-z-a'
 
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 8
 
 
 function Pagination({
@@ -139,6 +139,7 @@ export default function StudentListView({ setAdminPage }: Props) {
   const totalNonCleared = studentTemplates?.length
   const incompleteCount = stats?.incomplete
   const pendingCount = stats?.pending
+  const signedCount = stats?.signed
   const courses = courseTemplates?.map(cT => shrinkCourseName(cT.course_name) || cT.course_name)
   const maxDeptNum = Math.max(...courseTemplates?.map(cT => cT.departments.length) ?? [])
   const courseTemplate = courseTemplates?.filter(cT => cT.departments.length === maxDeptNum)[0]
@@ -151,6 +152,7 @@ export default function StudentListView({ setAdminPage }: Props) {
 
     if (activeTab === 'incomplete') { data = data.filter(s => s.overallStatus === 'Incomplete') }
     if (activeTab === 'pending') { data = data.filter(s => s.overallStatus === 'Pending') }
+    if (activeTab === 'signed') { data = data.filter(s => s.overallStatus === 'Signed') }
 
     // search filter by student or course
     if (search.trim()) {
@@ -271,6 +273,7 @@ export default function StudentListView({ setAdminPage }: Props) {
               { key: 'all', label: 'All Students', count: totalNonCleared },
               { key: 'incomplete', label: 'Incomplete', count: incompleteCount },
               { key: 'pending', label: 'Pending', count: pendingCount },
+              { key: 'signed', label: 'Signed', count: signedCount },
             ] as { key: TabType; label: string; count: number }[]
           ).map((tab) => (
             <button
