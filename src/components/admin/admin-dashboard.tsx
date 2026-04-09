@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Header from '@/components/admin/header'
 import AdminStats from '@/components/admin/admin-stats'
-import TotalStudentsView from '@/components/admin/total-students-view'
 import StudentListView from '@/components/admin/student-list-view'
 import QuickActions from '@/components/admin/quick-actions'
 import CourseTemplatesList from '@/components/admin/course-templates-list'
@@ -14,8 +13,6 @@ export default function AdminDashboard({ email }: { email: string }) {
 
   const renderPage = () => {
     switch (adminPage) {
-      case 'total-students-list':
-        return <TotalStudentsView page={adminPage} setPage={setAdminPage} />
       case 'student-list-view':
         return <StudentListView setAdminPage={setAdminPage} />
       default:

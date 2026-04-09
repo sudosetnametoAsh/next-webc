@@ -36,13 +36,13 @@ export async function GET() {
     if (studentsError) { throw studentsError }
 
     const students = data.filter(student => student.student_clearances. length > 0)
-    const nonClearedStudents = students.filter(student => student.student_clearances.some(sC => sC.status !== 'Signed'))
 
     const studentTemplates = await Promise.all(
-      (nonClearedStudents).map(async (student: any) => {
+      (students).map(async (student: any) => {
         
-        // Identify status (incomplete, pending)
-        const overallStatus = student.student_clearances.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
+        // Identify status (incomplete, pending, signed)
+        const overallStatus = student.student_clearances.every((sC: any) => sC.status === 'Signed') ? 'Signed'
+            : student.student_clearances.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
 
         // Get pending departments
         const pendingDepts = []
@@ -57,7 +57,7 @@ export async function GET() {
         const { data: enrollments } = await supabase
           .from('enrollments')
           .select('student_id, course_sections ( year, courses ( course_name ))')
-          .in('student_id', nonClearedStudents.map(s => s.student_id))
+          .in('student_id', students.map(s => s.student_id))
         
         const enrollmentMap = new Map(enrollments?.map(e => [e.student_id, e])) 
 
