@@ -6,11 +6,13 @@ import CreateTemplateModal from './create-template-modal'
 import ManageDepartmentsModal from './handle-department-modal'
 
 type Props = {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  toastSuccess: (message: string, title?: string) => number;
+  toastError: (message: string, title?: string) => number;
 }
 
-export default function QuickActions({ searchQuery, setSearchQuery }: Props) {
+export default function QuickActions({ searchQuery, setSearchQuery, toastSuccess, toastError }: Props) {
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
 
@@ -61,8 +63,8 @@ export default function QuickActions({ searchQuery, setSearchQuery }: Props) {
           </button> */}
         </div>
 
-        <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} />
-        <ManageDepartmentsModal open={isDepartmentsModalOpen} onOpenChange={setDepartmentsModalOpen} />
+        <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} toastSuccess={toastSuccess} toastError={toastError} />
+        <ManageDepartmentsModal open={isDepartmentsModalOpen} onOpenChange={setDepartmentsModalOpen} toastSuccess={toastSuccess} toastError={toastError} />
       </div>
     </>
   )

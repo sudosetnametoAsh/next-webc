@@ -10,10 +10,14 @@ import { Trash } from 'lucide-react'
 
 type Props = {
   searchQuery: string;
+  toastSuccess: (message: string, title?: string) => number;
+  toastError: (message: string, title?: string) => number;
 }
 
 export default function CourseTemplatesList({ 
   searchQuery,
+  toastSuccess,
+  toastError
   }: Props) {
 
   // State for confirmation modal
@@ -44,10 +48,12 @@ export default function CourseTemplatesList({
       await deleteTemplate.mutateAsync(course_id)
     } catch(error) {
       console.error('Failed to delete template', error)
+      toastError("Please try again.", "Failed to delete course template.")
     }
 
     setIsConfirmLoading(false)
     setIsConfirmOpen(false)
+    toastSuccess("Course template removed successfully!")
   }
 
   if (isLoading) {

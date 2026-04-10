@@ -204,7 +204,7 @@ export default function ConfirmationModal({
                        hover:bg-gray-50 active:bg-gray-100
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300
                        transition-colors duration-150
-                       disabled:opacity-40 disabled:cursor-not-allowed"
+                       disabled:opacity-40 cursor-pointer"
           >
             {cancelLabel}
           </button>
@@ -217,7 +217,7 @@ export default function ConfirmationModal({
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white
                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                         transition-colors duration-150
-                        disabled:cursor-not-allowed disabled:opacity-70
+                        cursor-pointer disabled:opacity-70
                         ${confirmBtnClass}`}
           >
             {isLoading && <SpinnerIcon />}
