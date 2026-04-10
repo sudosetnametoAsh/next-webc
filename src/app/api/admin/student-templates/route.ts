@@ -61,7 +61,12 @@ export async function GET() {
         
         const enrollmentMap = new Map(enrollments?.map(e => [e.student_id, e])) 
 
-        const course_section = enrollmentMap.get(student.student_id)?.course_sections
+        type CourseSection = {
+          year: string;
+          courses: { course_name: string };
+        }
+
+        const course_section = enrollmentMap.get(student.student_id)?.course_sections as CourseSection | undefined
         const course_name = course_section?.courses?.course_name
         const course_year = course_section?.year
 
