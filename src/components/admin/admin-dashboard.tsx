@@ -6,10 +6,18 @@ import AdminStats from '@/components/admin/admin-stats'
 import StudentListView from '@/components/admin/student-list-view'
 import QuickActions from '@/components/admin/quick-actions'
 import CourseTemplatesList from '@/components/admin/course-templates-list'
+import { ToastContainer } from './toast'
+import { useToast } from './use-toast'
 
 export default function AdminDashboard({ email }: { email: string }) {
   const [adminPage, setAdminPage] = useState('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Toast notification
+  const { toasts, dismiss, success, error } = useToast({
+    maxToasts: 3,
+    duration: 4000,
+  })
 
   const renderPage = () => {
     switch (adminPage) {
@@ -18,9 +26,10 @@ export default function AdminDashboard({ email }: { email: string }) {
       default:
         return (
           <>
+            <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
             <AdminStats setAdminPage={setAdminPage} />
 
-            <QuickActions searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <QuickActions searchQuery={searchQuery} setSearchQuery={setSearchQuery} toastSuccess={success} toastError={error} />
 
             {/* Course Templates Section */}
             <section>
@@ -28,7 +37,7 @@ export default function AdminDashboard({ email }: { email: string }) {
                 <h2 className='text-2xl font-bold text-gray-900 mb-2'>Course Templates</h2>
                 <p className='text-sm text-gray-600'>Manage clearance templates for each course</p>
               </div>
-              <CourseTemplatesList searchQuery={searchQuery} />
+              <CourseTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
             </section>
           </>
         )

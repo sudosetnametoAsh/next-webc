@@ -14,14 +14,16 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Department = {
-  dept_id: number
-  dept_name: string
-  email?: string
+  dept_id: number;
+  dept_name: string;
+  email?: string;
 }
 
 type Props = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  toastSuccess: (message: string, title?: string) => number;
+  toastError: (message: string, title?: string) => number;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -116,7 +118,7 @@ function DeptRow({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
+export default function ManageDepartmentsModal({ open, onOpenChange, toastSuccess, toastError }: Props) {
   // State for delete confirmation modal
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isConfirmLoading, setIsConfirmLoading] = useState(false)
@@ -143,7 +145,10 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
       setNewName('')
     } catch (err) {
       console.error('Create failed:', err)
+      toastError("Please try again.", "Failed to create department.")
     }
+
+    toastSuccess("New department created successfully!")
   }, [newName, createDepartment])
 
   const handleUpdate = useCallback(async (id: number) => {
@@ -154,7 +159,10 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
       setEditingName('')
     } catch (err) {
       console.error('Update failed:', err)
+      toastError("Please try again.", "Failed to rename department")
     }
+
+    toastSuccess("Department renamed successfully!")
   }, [editingName, updateDepartment])
 
   const handleConfirmDelete = useCallback(async (id: number) => {
@@ -164,10 +172,12 @@ export default function ManageDepartmentsModal({ open, onOpenChange }: Props) {
       await deleteDepartment.mutateAsync(id)
     } catch (err) {
       console.error('Delete failed:', err)
+      toastError("Please try again.", "Failed to delete department.")
     }
 
     setIsConfirmOpen(false)
     setIsConfirmLoading(false)
+    toastSuccess("Department removed successfully!")
 
   }, [deleteDepartment])
 

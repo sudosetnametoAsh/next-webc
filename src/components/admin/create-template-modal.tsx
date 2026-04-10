@@ -12,11 +12,13 @@ import { useCreateTemplates } from '@/hooks/admin/course-templates'
 import { StaffAssignment } from '@/types/admin'
 
 type Props = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  toastSuccess: (message: string, title?: string) => number;
+  toastError: (message: string, title?: string) => number;
 }
 
-export default function CreateTemplateModal({ open, onOpenChange }: Props) {
+export default function CreateTemplateModal({ open, onOpenChange, toastSuccess, toastError }: Props) {
   // Hooks
   const { data: courses = [], isSuccess: isSucessCourses } = useFetchCourses()
   const { data: departments = [], isSuccess: isSuccessDepts } = useFetchDepartments()
@@ -126,7 +128,7 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
   const handleConfirm = async () => {
     const allAssigned = staffAssignments.every((assignment) => assignment.staff_id !== null)
     if (!allAssigned) {
-      alert('Please assign staff to all selected departments.')
+      toastError("Please ensure all departments have assigned staff.", "Failed to create templates.")
       return
     }
     
@@ -138,10 +140,12 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
 
     } catch (error) {
       console.error('Failed to create templates', error)
+      toastError("Please try again.", "Failed to create templates.")
     }
 
     setIsConfirmLoading(false)
     setIsConfirmOpen(false)
+    toastSuccess("Created templates successfully!")
 
   }
 
@@ -187,9 +191,9 @@ export default function CreateTemplateModal({ open, onOpenChange }: Props) {
               onSelectDepartment={setActiveDeptId}
             />
           )
-       }
+      }
 
-       <div className='flex justify-end gap-2 border-t pt-4'>
+      <div className='flex justify-end gap-2 border-t pt-4'>
           {/* Back Button */}
           { step === 'assign' && activeDeptId === null && (
             <button 
