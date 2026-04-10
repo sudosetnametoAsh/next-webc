@@ -136,7 +136,7 @@ export default function StudentListView({ setAdminPage }: Props) {
   const { data: courseTemplates } = useFetchCourseTemplates()
   const { data: studentTemplates, } = useFetchStudentTemplates()
 
-  const totalNonCleared = studentTemplates?.length
+  const totalStudentTemplates = studentTemplates?.length
   const incompleteCount = stats?.incomplete
   const pendingCount = stats?.pending
   const signedCount = stats?.signed
@@ -268,7 +268,7 @@ export default function StudentListView({ setAdminPage }: Props) {
         <div className='flex'>
           {(
             [
-              { key: 'all', label: 'All Students', count: totalNonCleared },
+              { key: 'all', label: 'All Students', count: totalStudentTemplates },
               { key: 'incomplete', label: 'Incomplete', count: incompleteCount },
               { key: 'pending', label: 'Pending', count: pendingCount },
               { key: 'signed', label: 'Signed', count: signedCount },
