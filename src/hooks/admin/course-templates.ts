@@ -17,6 +17,7 @@ export function useCreateTemplates() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'course-templates'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'student-templates'] })
     }
   })
 }
@@ -29,6 +30,7 @@ export function useDeleteTemplates() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'course-templates'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'student-templates'] })
     }
   })
 }

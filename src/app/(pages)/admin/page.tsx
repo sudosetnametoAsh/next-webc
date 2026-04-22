@@ -1,8 +1,3 @@
-import AdminDashboard from '@/components/admin/admin-dashboard'
-import { getSession } from '@/lib/auth/get-session'
+import { redirect } from "next/navigation"
 
-export default async function AdminPage() {
-  const session = await getSession()
-
-  return <AdminDashboard email={session?.user_email || ""} />
-}
+export default function AdminPage() { redirect('/admin/dashboard') }
