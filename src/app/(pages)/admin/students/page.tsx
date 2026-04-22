@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
@@ -219,14 +221,14 @@ export default function StudentListView({ setAdminPage }: Props) {
     <>
       <div>
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-3 font-medium tracking-wide uppercase">
+        {/* <div className="flex items-center gap-2 text-xs text-gray-400 mb-3 font-medium tracking-wide uppercase">
           <span
             className='cursor-pointer' 
             onClick={() => setAdminPage('dashboard')}
           >Dashboard</span>
           <span>›</span>
           <span className="text-gray-600">Students</span>
-        </div>
+        </div> */}
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">
           Student Clearance Status
         </h1>
