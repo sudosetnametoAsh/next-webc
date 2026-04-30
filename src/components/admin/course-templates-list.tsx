@@ -62,23 +62,23 @@ export default function CourseTemplatesList({
 
   if (templates.length === 0) {
     return (
-      <div className='p-8 text-center'>
-        <p className='text-gray-700'>No clearance templates found. Create a new one.</p>
+      <div className='border border-gray-200 rounded-lg p-32 text-center'>
+        <p className='text-gray-500'>No clearance templates found. Create a new one.</p>
       </div>
     )
   }
 
   if (filteredTemplates.length === 0) {
     return (
-      <div className='p-8 text-center'>
-        <p className='text-gray-700'>No results found for "{searchQuery}"</p>
+      <div className='border border-gray-200 rounded-lg p-32 text-center'>
+        <p className='text-gray-500'>No results found for "{searchQuery}"</p>
       </div>
     )
   }
   
   return (
     <>
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {filteredTemplates.map(template => (
           <CourseTemplateCard key={template.course_id} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
         ))}
@@ -151,7 +151,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <button 
-            className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+            className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
             onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id); }}
           >
             {/* {template.updated_at ? `Updated ${template.updated_at}` : "Updated a few hours ago"} */}

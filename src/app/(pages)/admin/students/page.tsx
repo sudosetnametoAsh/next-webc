@@ -428,7 +428,7 @@ export default function StudentListView({ setAdminPage }: Props) {
         <div className='md:hidden divide-y divide-gray-50'>
             {paginated.length === 0 ? (
               <div className='px-6 py-16 text-center text-sm text-gray-400'>
-                No students match you filters.
+                No students match your filters.
               </div>
             ) : (paginated.map((s) => (
               <div key={s.student_id} className='px-4 py-4 space-y-3'>
