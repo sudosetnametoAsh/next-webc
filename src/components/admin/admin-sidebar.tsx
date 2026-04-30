@@ -3,26 +3,27 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, Newspaper, User } from "lucide-react";
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
-const IconDashboard = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
-    <rect x="3" y="3" width="7" height="7" rx="1" />
-    <rect x="14" y="3" width="7" height="7" rx="1" />
-    <rect x="3" y="14" width="7" height="7" rx="1" />
-    <rect x="14" y="14" width="7" height="7" rx="1" />
-  </svg>
-);
+// const IconDashboard = () => (
+//   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
+//     <rect x="3" y="3" width="7" height="7" rx="1" />
+//     <rect x="14" y="3" width="7" height="7" rx="1" />
+//     <rect x="3" y="14" width="7" height="7" rx="1" />
+//     <rect x="14" y="14" width="7" height="7" rx="1" />
+//   </svg>
+// );
 
-const IconStudents = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-);
+// const IconStudents = () => (
+//   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
+//     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+//     <circle cx="9" cy="7" r="4" />
+//     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+//     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+//   </svg>
+// );
 
 const IconSignOut = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
@@ -78,8 +79,9 @@ interface SidebarProps {
 // ─── Nav Config ───────────────────────────────────────────────────────────────
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: <IconDashboard /> },
-  { label: "Students",  href: "/admin/students",  icon: <IconStudents />  },
+  { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard /> },
+  { label: "Students",  href: "/admin/students",  icon: <User /> },
+  { label: "Templates", href: "/admin/templates", icon: <Newspaper /> },
 ];
 
 const STORAGE_KEY = "admin_sidebar_collapsed";

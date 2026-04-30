@@ -18,8 +18,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       />
 
       {/* Main content area — offset on mobile for hamburger button */}
+      {/* remove - max-w-7xl */}
       <main className="flex-1 overflow-auto pt-16 lg:pt-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="max-w-[1920px] mx-auto px-6 sm:px-6 lg:px-12 py-8 space-y-6">
           {children}
         </div>
       </main>
