@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
@@ -8,6 +8,13 @@ import { StudentTemplates } from '@/types/admin'
 import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Search } from 'lucide-react'
 
+// ———— Types ————————————————————————————————————————————————————————————————————————————————————————————————
+
+type StatCard = {
+  label: string;
+  value: number;
+  accentColor: string;
+}
 
 type Props = {
   setAdminPage: (adminPage: string) => void
@@ -20,6 +27,46 @@ type SortType = 'name-a-z' | 'name-z-a'
 
 const PAGE_SIZE = 8
 
+// ———— Sub components ————————————————————————————————————————————————————————————————————————————————————————————————
+
+function StatCard({ card, index }: { card: StatCard, index: number }) {
+
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), index * 100)
+    return () => clearTimeout(t)
+  }, [index])
+
+  return (
+    <div
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 overflow-hiddentransition-all duration-500
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
+    >
+      <div className={`h-1 w-full ${card.accentColor}`} />
+      <div className='flex flex-col gap-6 p-5'>
+        <p className='text-sm text-slate-500 font-medium mb-2'>{card.label}</p>
+        <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800'>{card.label !== 'Avg. Completion' ? card.value : `${card.value}%`}</p>
+      </div>
+    </div>
+  )
+}
+
+function StatusBadge({ status }: { status: 'Incomplete' | 'Pending' | 'Signed' }) {
+
+  const color = () => {
+    
+    if (status === 'Incomplete') { return 'amber' }
+    if (status === 'Pending') { return 'red' }
+    if (status === 'Signed') { return 'emerald' }
+  }
+
+  return (
+    <div className={`flex justify-center items-center bg-${color()}-50 border border-${color()}-200 rounded-full px-3 py-1`}>
+      <p className={`text-sm text-${color()}-600 font-mono font-bold`}>{status}</p>
+    </div>
+  )
+}
 
 function Pagination({
   current,
@@ -122,6 +169,7 @@ function Pagination({
   )
 }
 
+// ———— Main component ————————————————————————————————————————————————————————————————————————————————————————————————
 
 export default function StudentListView({ setAdminPage }: Props) {
 
@@ -135,16 +183,41 @@ export default function StudentListView({ setAdminPage }: Props) {
 
   // Hooks
   const { data: stats, isLoading } = useFetchAdminStats()
-  const { data: courseTemplates } = useFetchCourseTemplates()
-  const { data: studentTemplates, } = useFetchStudentTemplates()
+  const { data: courseTemplates = [] } = useFetchCourseTemplates()
+  const { data: studentTemplates = [] } = useFetchStudentTemplates()
 
-  const totalStudentTemplates = studentTemplates?.length
+  // ———— Data ————————————————————————————————————————
+
+  const statCards: StatCard[] = [
+    {
+      label: 'Total Non-Cleared',
+      value: stats?.totalNonCleared ?? 0,
+      accentColor: 'bg-[#0a1128]',
+    },
+    {
+      label: 'Incomplete',
+      value: stats?.incomplete ?? 0,
+      accentColor: 'bg-amber-600',
+    },
+    {
+      label: 'Pending',
+      value: stats?.pending ?? 0,
+      accentColor: 'bg-red-600',
+    },
+    {
+      label: 'Avg. Completion',
+      value: stats?.averageCompletion ?? 0,
+      accentColor: 'bg-cyan-600',
+    },
+  ]
+
+  const totalStudentTemplates = studentTemplates.length
   const incompleteCount = stats?.incomplete
   const pendingCount = stats?.pending
   const signedCount = stats?.signed
-  const courses = courseTemplates?.map(cT => shrinkCourseName(cT.course_name) || cT.course_name)
-  const maxDeptNum = Math.max(...courseTemplates?.map(cT => cT.departments.length) ?? [])
-  const courseTemplate = courseTemplates?.filter(cT => cT.departments.length === maxDeptNum)[0]
+  const courses = courseTemplates.map(cT => shrinkCourseName(cT.course_name) || cT.course_name)
+  const maxDeptNum = Math.max(...courseTemplates.map(cT => cT.departments.length) ?? [])
+  const courseTemplate = courseTemplates.filter(cT => cT.departments.length === maxDeptNum)[0]
   const departments = courseTemplate?.departments.map(d => d.dept_name)
 
 
@@ -220,16 +293,7 @@ export default function StudentListView({ setAdminPage }: Props) {
   return (
     <>
       <div>
-        {/* Breadcrumb */}
-        {/* <div className="flex items-center gap-2 text-xs text-gray-400 mb-3 font-medium tracking-wide uppercase">
-          <span
-            className='cursor-pointer' 
-            onClick={() => setAdminPage('dashboard')}
-          >Dashboard</span>
-          <span>›</span>
-          <span className="text-gray-600">Students</span>
-        </div> */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2">
           Student Clearance Status
         </h1>
         <p className="text-sm text-gray-500">
@@ -239,7 +303,10 @@ export default function StudentListView({ setAdminPage }: Props) {
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-        <div className='flex flex-col gap-4 justify-between bg-indigo-50 rounded-xl border border-indigo-200 p-6 shadow-xs'>
+        {statCards.map((card, i) => (
+          <StatCard key={card.label} card={card} index={i} />
+        ))}
+        {/* <div className='flex flex-col gap-4 justify-between bg-indigo-50 rounded-xl border border-indigo-200 p-6 shadow-xs'>
           <div className='text-base text-indigo-600'>Total Non-Cleared</div>
           <p className='text-4xl font-bold text-indigo-500'>{stats?.totalNonCleared}</p>
           <p className='text-sm text-gray-500'>students</p>
@@ -261,13 +328,13 @@ export default function StudentListView({ setAdminPage }: Props) {
           <div className='text-base text-cyan-600 font-small'>Avg. Completion</div>
           <p className='text-4xl font-bold text-cyan-500'>{stats?.averageCompletion}%</p>
           <p className='text-sm text-gray-500'>across all students</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Table Card */}
       <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
         {/* Tabs */}
-        <div className='flex'>
+        <div className='flex flex-wrap'>
           {(
             [
               { key: 'all', label: 'All Students', count: totalStudentTemplates },
@@ -381,7 +448,7 @@ export default function StudentListView({ setAdminPage }: Props) {
             <tbody className='divide-y divide-gray-50'>
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className='px-6 py-16 text-center text-sm text-gray-400'>
+                    <td colSpan={5} className='px-6 py-16 text-center text-sm text-slate-400'>
                       No students match your filters.
                     </td>
                   </tr>
@@ -391,11 +458,11 @@ export default function StudentListView({ setAdminPage }: Props) {
                       <td className='px-6 py-4'>
                         <span className='font-semibold text-gray-800'>{s.student_name}</span>
                       </td>
-                      <td className='px-6 py-4 text-gray-500'>{s.student_id}</td>
+                      <td className='px-6 py-4 text-gray-700 font-mono'>{s.student_id}</td>
                       <td className="px-6 py-4">
                           <span className="text-base font-semibold text-gray-700">{shrinkCourseName(s.course_name) || s.course_name}</span>
                           <br />
-                          <span className="text-sm text-gray-400">
+                          <span className="text-sm text-gray-500">
                             {s.course_year === 1 ? (
                               `${s.course_year}st Year`
                             ) : s.course_year === 2 ? (
@@ -405,13 +472,15 @@ export default function StudentListView({ setAdminPage }: Props) {
                             ) : `${s.course_year}th Year`}
                           </span>
                         </td>
-                        <td className='px-6 py-4'>{s.overallStatus}</td>
+                        <td className='px-6 py-4'>
+                          <StatusBadge status={s.overallStatus} />
+                        </td>
                         <td className='px-6 py-4'>
                           <div className='flex flex-wrap gap-1.5 max-w-xs'>
                             {s.pending_departments.map((d) => (
                               <span 
                                 key={d.dept_name}
-                                className='p-2 bg-gray-100 text-gray-700 rounded-lg border-gray-200 text-sm'
+                                className='p-2 bg-[#e7e7ea] text-[#3b4153] text-xs font-medium rounded-lg border border-gray-300'
                               >
                                   {d.dept_name}
                               </span>
@@ -437,14 +506,16 @@ export default function StudentListView({ setAdminPage }: Props) {
                     <Avatar />
                   </div> */}
                   <div className='flex items-center gap-3'>
-                    <p className='text-base font-semibold text-gray-800'>{s.student_name}</p>
-                    <p className='text-sm text-gray-500 font-mono'>{s.student_id}</p>
+                    <p className='text-lg font-semibold text-gray-800'>{s.student_name}</p>
+                    <p className='text-sm text-gray-700 font-mono'>{s.student_id}</p>
                   </div>
                 </div>
-                <p className='text-sm mb-3'>{s.overallStatus}</p>
-                <div className='flex items-center gap-4 text-xs text-gray-500'>
+                <div className='text-sm flex items-start mb-3'>
+                  <StatusBadge status={s.overallStatus} />
+                </div>
+                <div className='flex items-center gap-4 text-xs text-gray-700'>
                   <span className='text-sm font-semibold'>{shrinkCourseName(s.course_name) || s.course_name}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {s.course_year === 1 ? (
                       `${s.course_year}st Year`
                     ) : s.course_year === 2 ? (
@@ -459,7 +530,7 @@ export default function StudentListView({ setAdminPage }: Props) {
                     {s.pending_departments.map((d) => (
                       <span 
                         key={d.dept_name}
-                        className='p-2 bg-gray-100 text-gray-700 rounded-lg border-gray-200 text-xs'
+                        className='p-2 bg-[#e7e7ea] text-[#3b4153] text-xs font-medium rounded-lg border border-gray-300'
                       >
                           {d.dept_name}
                       </span>

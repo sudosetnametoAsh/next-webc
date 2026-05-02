@@ -1,8 +1,8 @@
+import AdminSidebar from '@/components/admin/admin-sidebar';
 import { getSession } from "@/lib/auth/get-session";
-import AdminSidebar from "@/components/admin/admin-sidebar";
-import SignOutButton from "@/components/auth/sign-out-button"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  
   const session = await getSession()
 
   return (
@@ -11,10 +11,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         user={{
           name: session.name,
           email: session.email,
-          role: "",
-          avatarInitials: session.email.charAt(0).toUpperCase(),
+          role: session.role,
+          avatarInitials: session.name.charAt(0).toUpperCase(),
         }}
-        signOutSlot={<SignOutButton />}
       />
 
       {/* Main content area — offset on mobile for hamburger button */}

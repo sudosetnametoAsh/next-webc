@@ -62,8 +62,8 @@ export default function CourseTemplatesList({
 
   if (templates.length === 0) {
     return (
-      <div className='border border-gray-200 rounded-lg p-32 text-center'>
-        <p className='text-gray-500'>No clearance templates found. Create a new one.</p>
+      <div className='border border-slate-200 rounded-lg p-32 text-center'>
+        <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
       </div>
     )
   }
@@ -119,7 +119,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
           </div>
           <div className='h-2 bg-gray-100 rounded-full overflow-hidden'>
             <div 
-              className='h-full bg-black transition-all duration-300'
+              className='h-full bg-blue-900 transition-all duration-300'
               style={{ width: `${template.completion_rate}%` }}
             />
           </div>
@@ -139,7 +139,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
               template.departments.map(dept => (
                 <span 
                   key={dept.dept_id}
-                  className='px-2 py-1 bg-gray-200 text-gray-900 font-medium text-xs rounded-md border border-gray-300'
+                  className='px-2 py-1 bg-[#e7e7ea] text-[#3b4153] font-medium text-xs rounded-lg border border-gray-300'
                 >{dept.dept_name}</span>
               ))
             ) : (

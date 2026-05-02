@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { renderToString} from 'react-dom/server'
 import AdminStats from '@/components/admin/admin-stats'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
 import { useFetchDepartments } from '@/hooks/admin/departments'
@@ -11,18 +10,18 @@ import { shrinkCourseName, expandCourseAbbreviation } from '@/utils/formatters'
 function CourseBadge({ children }: { children: React.ReactNode }) {
   return (
     <div className='min-w-[70px] flex justify-center items-center bg-blue-100 px-2 py-4 rounded-lg'>
-      <p className='text-sm font-medium text-blue-900'>{children}</p>
+      <p className='text-xs sm:text-sm font-medium text-blue-900'>{children}</p>
     </div>
   )
 }
 
 export default function AdminDashboard() {
 
-  const { data: templates = [], isLoading } = useFetchCourseTemplates()
+  const { data: courseTemplates = [], isLoading } = useFetchCourseTemplates()
   const { data: fetchDepts = [] } = useFetchDepartments()
   const { data: studentTemplates = [] } = useFetchStudentTemplates()
 
-  const courseTDepts = templates.flatMap((t) => t.departments)
+  const courseTDepts = courseTemplates.flatMap((t) => t.departments)
   const courseTDeptIds = courseTDepts.map((tDept) => tDept.dept_id)
   const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.includes(fDept.dept_id)) ?? []
   const pendingDepts = studentTemplates.map((sT) => sT.pending_departments.map((pD) => pD.dept_name)) ?? []
@@ -68,7 +67,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-6">Dashboard</h1>
+      <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-6">Dashboard</h1>
       <AdminStats />
 
       <div className='flex flex-col 3xl:flex-row justify-evenly gap-4 mt-12'>
@@ -86,14 +85,14 @@ export default function AdminDashboard() {
           </div>
 
           <div className='pt-4'>
-            {templates.length === 0 ? (
+            {courseTemplates.length === 0 ? (
               <div className='flex min-h-[300px] justify-center items-center'>
-                <p className='text-gray-500'>No clearance templates found. Create a new one.</p>
+                <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
               </div>
             ): (
 
               <ul className='divide-y divide-gray-200'>
-                {templates.map((template) => (
+                {courseTemplates.map((template) => (
                   
                   <li key={template.course_name} className='flex items-center gap-4 py-3'>
                     <CourseBadge>
@@ -102,8 +101,8 @@ export default function AdminDashboard() {
 
                     <div className='w-full flex justify-between'>
                       <div className='flex flex-col gap-1'>
-                        <p className='font-medium'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
-                        <p className='text-sm text-gray-500'>{template.students_enrolled} students enrolled</p>
+                        <p className='text-sm sm:text-base font-medium'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
+                        <p className='text-xs sm:text-sm text-gray-500'>{template.students_enrolled} students enrolled</p>
                       </div>
 
                       <div className='min-w-[100px] flex flex-col justify-between'>
@@ -130,9 +129,9 @@ export default function AdminDashboard() {
           </div>
 
           <div className='pt-4'>
-            {templates.length === 0 ? (
+            {courseTemplates.length === 0 ? (
               <div className='flex min-h-[300px] justify-center items-center'>
-                <p className='text-gray-500'>No clearance templates found. Create a new one.</p>
+                <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
               </div>
             ): (
               <ul className='divide-y divide-gray-200'>
@@ -141,15 +140,15 @@ export default function AdminDashboard() {
                   <li key={templateDept.dept_name} className='flex gap-4 py-3'>
                     <p className='text-2xl text-yellow-500'>&#8226;</p>
 
-                    <div className='w-full flex items-center justify-between'>
-                      <p className='font-medium'>{templateDept.dept_name}</p>
+                    <div className='w-full flex flex-wrap gap-2 items-center justify-between'>
+                      <p className='text-sm sm:text-base font-medium'>{templateDept.dept_name}</p>
 
                       <div className='flex gap-4'>
                         <div className='bg-red-100 border border-red-50 rounded-full px-3 py-2'>
-                          <p className='text-sm text-red-700'>{templateDept.count.pending} pending</p>
+                          <p className='text-xs text-red-700'>{templateDept.count.pending} pending</p>
                         </div>
                         <div className='bg-emerald-100 border border-emerald-50 rounded-full px-3 py-2'>
-                          <p className='text-sm text-emerald-700'>{templateDept.count.signed} signed</p>
+                          <p className='text-xs text-emerald-700'>{templateDept.count.signed} signed</p>
                         </div>
                       </div>
                     </div>

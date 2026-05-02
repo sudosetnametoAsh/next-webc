@@ -28,7 +28,7 @@ export default function Templates() {
       <section>
         <div className='flex flex-col xl:flex-row gap-4 justify-between mb-8'>
           <div>
-            <h2 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>Course Templates</h2>
+            <h2 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2'>Course Templates</h2>
             <p className='text-sm text-gray-600'>Manage clearance templates for each course</p>
           </div>
 

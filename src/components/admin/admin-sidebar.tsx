@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Newspaper, User } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Newspaper, User, Sheet } from "lucide-react";
+import { useMsal } from "@azure/msal-react";
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,8 @@ interface SidebarProps {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard /> },
   { label: "Students",  href: "/admin/students",  icon: <User /> },
-  { label: "Templates", href: "/admin/templates", icon: <Newspaper /> },
+  { label: "Templates", href: "/admin/templates", icon: <Sheet /> },
+  { label: "Reports", href: "/admin/reports", icon: <Newspaper /> },
 ];
 
 const STORAGE_KEY = "admin_sidebar_collapsed";
@@ -155,8 +157,6 @@ export default function AdminSidebar({
     role: "Admin",
     avatarInitials: "A",
   },
-  onSignOut,
-  signOutSlot
 }: SidebarProps) {
   // Desktop collapse state — persisted in localStorage
   const [collapsed, setCollapsed] = useState(false);
@@ -180,8 +180,16 @@ export default function AdminSidebar({
     });
   };
 
-  const handleSignOut = () => {
-    onSignOut?.();
+  const { instance } = useMsal()
+
+  const handleSignOut = async () => {
+    // onSignOut?.();
+    try {
+      await fetch("/api/session", { method: "DELETE" });
+      await instance.logoutRedirect();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Prevent body scroll when mobile drawer open
@@ -198,19 +206,20 @@ export default function AdminSidebar({
     <div className="flex flex-col h-full">
 
       {/* ── Logo + Collapse Button ── */}
-      <div className={`flex items-center h-16 px-4 shrink-0 border-b border-[#111c3a]
+      <div className={`flex items-center h-16 px-4 py-10 shrink-0 border-b border-[#111c3a]
         ${collapsed && !isMobile ? "justify-center" : "justify-between"}`}>
 
         {(!collapsed || isMobile) && (
           <div className="flex items-center gap-2.5 overflow-hidden">
             {/* Logo mark */}
             <div className="w-8 h-8 rounded-lg bg-[#ffb900] flex items-center justify-center shrink-0 shadow-md shadow-[#ffb900]/40">
-              <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4">
+              <GraduationCap />
+              {/* <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              </svg>
+              </svg> */}
             </div>
             <div className="leading-tight overflow-hidden">
-              <p className="text-[15px] font-bold text-[#f1f5f9] tracking-tight whitespace-nowrap">Admin</p>
+              <p className="text-[18px] font-bold text-[#f1f5f9] tracking-tight whitespace-nowrap">STI College</p>
               <p className="text-[10px] text-[#475569] font-medium tracking-widest uppercase whitespace-nowrap"></p>
             </div>
           </div>
@@ -222,7 +231,7 @@ export default function AdminSidebar({
             onClick={toggleCollapse}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={`
-              p-1.5 rounded-lg text-[#475569] hover:bg-[#111c3a] hover:text-[#94a3b8]
+              p-1.5 rounded-lg text-[#475569] hover:bg-[#111c3a] hover:text-[#94a3b8] cursor-pointer
               transition-all duration-200 shrink-0
               ${collapsed ? "" : ""}
             `}
@@ -283,11 +292,11 @@ export default function AdminSidebar({
         )}
 
         {/* Sign out */}
-        {/* {collapsed && !isMobile ? (
+        {collapsed && !isMobile ? (
           <Tooltip label="Sign Out">
             <button
               onClick={handleSignOut}
-              className="w-full flex justify-center items-center p-2.5 rounded-xl text-[#64748b]
+              className="w-full flex justify-center items-center p-2.5 rounded-xl text-[#64748b] cursor-pointer
                 hover:bg-[#1e293b] hover:text-red-400 transition-all duration-200 group"
               aria-label="Sign Out"
             >
@@ -297,6 +306,16 @@ export default function AdminSidebar({
         ) : (
           <button
             onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#64748b] text-sm font-medium cursor-pointer
+              hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
+          >
+            <IconSignOut />
+            <span>Sign Out</span>
+          </button>
+        )}
+        {/* {signOutSlot ?? (
+          <button
+            onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#64748b] text-sm font-medium
               hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
           >
@@ -304,16 +323,6 @@ export default function AdminSidebar({
             <span>Sign Out</span>
           </button>
         )} */}
-        {signOutSlot ?? (
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#64748b] text-sm font-medium
-            hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
-        >
-          <IconSignOut />
-          <span>Sign Out</span>
-        </button>
-      )}
       </div>
     </div>
   );
