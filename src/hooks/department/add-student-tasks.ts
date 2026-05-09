@@ -7,6 +7,7 @@ import {
 type NewTaskPayload = {
   clearance_id: string;
   task_id: string | null;
+  title: string;
   description: string;
   staff_id: string;
   dropbox: string;

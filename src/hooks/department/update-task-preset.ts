@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Payload = {
    updatedDescription: string;
+   updatedTitle: string;
    task_id: string;
 };
 export function useUpdateTaskPreset() {

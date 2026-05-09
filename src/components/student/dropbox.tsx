@@ -1,4 +1,3 @@
-// import { Send } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -17,7 +16,6 @@ export default function DropBox({
   taskId,
   deptName,
   studentId,
-  // dropbox,
 }: {
   task: string;
   taskId: number;
@@ -42,54 +40,62 @@ export default function DropBox({
       formData.append("studentId", studentId);
 
       mutate(formData);
-
       toast("Task Submitted");
     },
   });
 
-  // const isSubmitted = dropbox !== "pending" ? "#008000" : "#000000";
-
   return (
-    <div className="flex flex-row gap-2">
-      <Dialog>
-        <DialogTrigger asChild>
-          {/* <Send className="cursor-pointer" color={isSubmitted} /> */}
-          {<Button className="cursor-pointer">Upload</Button>}
-        </DialogTrigger>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="w-24 rounded-md bg-slate-900 text-sm font-medium text-white hover:bg-slate-800 cursor-pointer">
+          Upload
+        </Button>
+      </DialogTrigger>
 
-        <DialogContent className="p-5!">
-          <DialogTitle>Submit Task</DialogTitle>
-          <form
-            id="task-submission-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
+      <DialogContent className="p-6">
+        <DialogTitle className="text-slate-900 font-bold mb-4">Submit Task</DialogTitle>
+        <form
+          id="task-submission-form"
+          className="flex flex-col gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          <form.Field
+            name="file"
+            validators={{
+              onSubmit: ({ value }) =>
+                !value ? "File is required" : undefined,
             }}
           >
-            <form.Field
-              name="file"
-              validators={{
-                onSubmit: ({ value }) =>
-                  !value ? "File is required" : undefined,
-              }}
-            >
-              {(field) => (
+            {(field) => (
+              <div className="flex flex-col gap-2">
                 <Input
-                  className="p-10!"
+                  className="cursor-pointer file:text-slate-900"
                   type="file"
                   onChange={(e) => field.handleChange(e.target.files?.[0])}
                 />
-              )}
-            </form.Field>
-          </form>
+                {field.state.meta.errors ? (
+                  <em className="text-xs text-red-500">{field.state.meta.errors}</em>
+                ) : null}
+              </div>
+            )}
+          </form.Field>
+        </form>
 
+        <div className="mt-4 flex justify-end">
           <DialogClose asChild>
-            <Button type="submit" form="task-submission-form">
+            <Button
+              type="submit"
+              form="task-submission-form"
+              className="bg-slate-900 text-white hover:bg-slate-800 rounded-md"
+            >
               Submit
             </Button>
           </DialogClose>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

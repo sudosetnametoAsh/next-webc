@@ -1,6 +1,6 @@
-import VerifyDocument from "@/lib/ocr/ocr";
-import OpenRouterAI from "@/lib/open-ai/open-router";
-import { createClient } from "@/lib/supabase-config";
+import VerifyDocument from "@/lib/services/ocr";
+import OpenRouterAI from "@/lib/services/open-router";
+import { createClient } from "@/lib/db/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 

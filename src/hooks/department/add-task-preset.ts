@@ -4,7 +4,7 @@ export function useAddTaskPreset() {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: async (taskPreset: { description: string }) => {
+      mutationFn: async (taskPreset: { description: string, title: string }) => {
          const request = await fetch('/api/department/presets', {
             method: 'POST',
             body: JSON.stringify(taskPreset),

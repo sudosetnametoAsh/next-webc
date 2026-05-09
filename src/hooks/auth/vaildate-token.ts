@@ -2,13 +2,10 @@ import { useMsal } from "@azure/msal-react";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 type Response = {
-  role: string[]
-}
+  role: string[];
+};
 
-type Options = Pick<
-  UseQueryOptions<Response>,
-  "enabled" | "retry"
->;
+type Options = Pick<UseQueryOptions<Response>, "enabled" | "retry">;
 
 export function useValidateToken(options: Options) {
   const { instance, accounts } = useMsal();
@@ -20,6 +17,9 @@ export function useValidateToken(options: Options) {
         scopes: ["api://5255649e-e023-43ef-afcb-e60ed3f9a32e/User.Read"],
         account: accounts[0],
       });
+
+      console.log("id token: ", token.idTokenClaims);
+      console.log("access token: ", token.accessToken);
 
       const response = await fetch("/api/session", {
         method: "POST",

@@ -1,6 +1,7 @@
 "use client";
 import { useMsal } from "@azure/msal-react";
 import { Button } from "../ui/button";
+import { LogOut } from "lucide-react";
 // import { logoutRequest } from "@/lib/msal/msal-config";
 
 export default function SignOutButton() {
@@ -20,5 +21,9 @@ export default function SignOutButton() {
     }
   };
 
-  return <Button onClick={handleLogout}>Sign Out</Button>;
+  return (
+    <button className="cursor-pointer" onClick={handleLogout}>
+      <LogOut  size={20} color="#ffffff" />
+    </button>
+  );
 }

@@ -1,4 +1,4 @@
-// 'use client';
+'use client';
 import { useFetchCourses } from "@/hooks/department/fetch-courses";
 import { useFethStudents } from "@/hooks/department/fetch-students";
 import { DepartmentContextType } from "@/types/department-context";
@@ -17,18 +17,17 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [orderFilter, setOrderFilter] = useState<string>("A-Z");
 
-  const activeCourseId = courseId ?? String(courses[0]?.course_id);
-  console.log("course id is: ", activeCourseId);
+  const activeCourseId = courseId ?? String(courses?.[0]?.course_id);
 
   const selectedCourse = useMemo(
     () =>
-      courses.find((course) => String(course.course_id) === activeCourseId) ??
-      courses[0],
+      courses?.find((course) => String(course.course_id) === activeCourseId) ??
+      courses?.[0],
     [courses, activeCourseId],
   );
 
   const activeSectionId =
-    sectionId ?? String(selectedCourse.course_sections[0].section_id);
+    sectionId ?? String(selectedCourse?.course_sections[0]?.section_id);
 
   const { data: students = [], isFetching: fetchingStudents } =
     useFethStudents(activeSectionId); // Hook to fetch students

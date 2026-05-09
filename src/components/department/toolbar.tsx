@@ -29,11 +29,24 @@ export default function Toolbar() {
 
   const [taskId, setTaskId] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
+  const [title, setTitle] = useState<string>("")
 
   if (!preset) return null;
 
   return (
-    <section className="flex w-250 flex-col gap-2 border-2 p-2.5!">
+    <section className="flex w-255 flex-col gap-2 rounded-md border-2 p-4">
+      <div className="flex items-center">
+        <div className="flex flex-col">
+          <span className="text-[25px] font-semibold">Manage Students</span>
+          <span className="text-[14px]">
+            View and manage clearance status by section
+          </span>
+        </div>
+
+        <div className="ml-auto">
+          <ManagePresetButton preset={preset} />
+        </div>
+      </div>
       <CourseList
         courses={courses}
         activeCourseId={activeCourseId}
@@ -47,7 +60,6 @@ export default function Toolbar() {
         activeSectionId={activeSectionId}
       />
 
-      <ManagePresetButton preset={preset} />
       <div className="flex flex-row gap-2">
         <SelectAll
           students={filteredStudents}
@@ -56,25 +68,32 @@ export default function Toolbar() {
           effectiveStatus={effectiveStatus}
         />
 
-        <AddTask
-          preset={preset}
-          clearanceId={clearanceId}
-          taskId={taskId}
-          description={description}
-          setDescription={setDescription}
-        />
+        <div className="ml-auto flex gap-2">
+          <SignButton
+            clearanceId={clearanceId}
+            currentStatus={effectiveStatus}
+          />
 
-        <AddPreset
-          preset={preset}
-          taskId={taskId}
-          setTaskId={setTaskId}
-          clearanceId={clearanceId}
-          description={description}
-        />
+          <AddTask
+            preset={preset}
+            clearanceId={clearanceId}
+            taskId={taskId}
+            description={description}
+            setDescription={setDescription}
+            title={title}
+            setTitle={setTitle}
+          />
 
-        <SignButton clearanceId={clearanceId} currentStatus={effectiveStatus} />
+          <AddPreset
+            preset={preset}
+            taskId={taskId}
+            setTaskId={setTaskId}
+            clearanceId={clearanceId}
+            description={description}
+          />
 
-        <FilterButton />
+          <FilterButton />
+        </div>
       </div>
     </section>
   );

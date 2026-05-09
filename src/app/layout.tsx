@@ -1,5 +1,5 @@
-import QueryProvider from "@/lib/query/query-provider";
-import MSALProvider from "@/lib/msal/msal-provider";
+import QueryProvider from "@/lib/providers/query-provider";
+import MSALProvider from "@/lib/providers/msal-provider";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { Toaster } from "sonner";

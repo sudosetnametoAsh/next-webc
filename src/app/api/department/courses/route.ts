@@ -1,14 +1,15 @@
 import { getSession } from "@/lib/auth/get-session";
-import { createClient } from "@/lib/supabase-config";
+import { createClient } from "@/lib/db/supabase-client";
 import { NextResponse } from "next/server";
 
 const supabase = createClient();
 export async function GET() {
-  const payload = await getSession();
+  const { user_id } = await getSession();
 
   const { data: courses, error } = await supabase
     .from("courses")
-    .select(`
+    .select(
+      `
         course_id,
         course_name,
         course_sections(
@@ -18,8 +19,9 @@ export async function GET() {
           section_number
         ),
         clearance_templates!inner()
-    `)
-    .eq("clearance_templates.staff_id", payload.id);
+    `,
+    )
+    .eq("clearance_templates.staff_id", user_id);
 
   if (error) {
     console.error(error);

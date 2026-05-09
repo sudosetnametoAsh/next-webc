@@ -1,16 +1,18 @@
 import { z } from "zod";
 
 const TasksSchema = z.object({
+  title: z.string(),
   assigned_task_id: z.number(),
-  status: z.string(),
+  status: z.string(), // Now handles "Resubmit"
   dropbox: z.string().nullable(),
   description: z.string(),
   uploaded_at: z.string().nullable(),
+  comments: z.string().nullable().optional(), // Added to capture staff feedback
 });
 
 const StudentSchema = z.object({
   clearance_id: z.number(),
-  status: z.enum(["Signed", "Pending"]),
+  status: z.enum(["Signed", "Pending", "Incomplete"]),
   clearance_templates: z.object({
     departments: z.object({ dept_name: z.string() }),
     staffs: z.object({ staff_name: z.string() }),
@@ -18,15 +20,11 @@ const StudentSchema = z.object({
   assigned_tasks: z.array(TasksSchema),
 });
 
-const BalanceSchema = z.object({
-  amount: z.number(),
-});
 
 const UserDataSchema = z.object({
   name: z.string(),
   email: z.string(),
   id: z.string(),
-  balance: z.array(BalanceSchema),
 });
 
 export const FetchedDataSchema = z.object({

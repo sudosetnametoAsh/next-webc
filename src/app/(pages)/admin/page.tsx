@@ -1,11 +1,11 @@
-import SignOutButton from '@/components/auth/sign-out-button'
+import AzureSignOutButton from '@/components/auth/azure-sign-out-button'
 import React from 'react'
 
 const page = () => {
   return (
     <>
       <div>admin</div>
-      <SignOutButton />
+      <AzureSignOutButton />
     </>
 
   )

@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth/get-session";
-import { createClient } from "@/lib/supabase-config";
+import { createClient } from "@/lib/db/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = {
@@ -10,7 +10,7 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<Params> },
 ) {
-  const session = await getSession();
+  const {user_id} = await getSession();
   const { section_id } = await params;
 
   const { data: course_id } = await supabase
@@ -23,7 +23,7 @@ export async function GET(
     .from("clearance_templates")
     .select("template_id")
     .eq("course_id", course_id?.course_id)
-    .eq("staff_id", session.id)
+    .eq("staff_id", user_id)
     .single();
 
   const { data: students, error } = await supabase
@@ -35,7 +35,8 @@ export async function GET(
       enrollments!inner(),
       student_clearances!inner(
         clearance_id,
-        status
+        status,
+        assigned_tasks(description, assigned_task_id, dropbox, status, assigned_at, title)
       )
     `,
     )
@@ -43,7 +44,7 @@ export async function GET(
     .eq("student_clearances.template_id", template_id?.template_id);
 
   if (error) {
-    console.error(error);
+    console.error(error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

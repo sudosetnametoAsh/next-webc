@@ -35,7 +35,7 @@ export default function StudentList() {
     return <div> No students found for this section </div>;
 
   return (
-    <Accordion type="multiple" className="w-250">
+    <Accordion type="multiple" className="w-246 flex flex-col justify-center">
       {filteredStudents.map((student) => {
         const isDisabled =
           student.student_clearances[0].status !== effectiveStatus &&
@@ -45,7 +45,7 @@ export default function StudentList() {
           <AccordionItem
             key={student.student_id}
             value={student.student_id}
-            className={`mt-2! flex flex-col gap-2 rounded-sm border-2 p-2.5! data-[state=closed]:h-20 data-[state=closed]:overflow-hidden data-[state=open]:h-auto ${isDisabled ? "opacity-50 grayscale" : ""}`}
+            className={`mb-2 flex flex-col gap-2 rounded-sm border-2 p-2.5! data-[state=closed]:h-20 data-[state=closed]:overflow-hidden data-[state=open]:h-auto ${isDisabled ? "opacity-50 grayscale" : ""}`}
           >
             {/* Checkbox */}
             <Checkbox

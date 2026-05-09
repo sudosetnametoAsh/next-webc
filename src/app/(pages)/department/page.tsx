@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { fetchCourseServer } from "@/lib/api/courses";
 import { fetchStudentsServer } from "@/lib/api/students";
+import TaskView from "@/components/department/students/task-view";
 
 export default async function Department() {
   const queryClient = new QueryClient();
@@ -25,7 +26,9 @@ export default async function Department() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DepartmentContainer />
+      {/* <DepartmentContainer /> */}
+      {/* <TaskView /> */}
+      <p>hello world</p>
     </HydrationBoundary>
   );
 }

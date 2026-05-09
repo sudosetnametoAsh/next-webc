@@ -1,5 +1,3 @@
-// "use client";
-
 import Landing from "@/components/landing";
 import AuthGate from "@/components/auth/auth-gate";
 

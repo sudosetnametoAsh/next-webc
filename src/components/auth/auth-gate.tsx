@@ -21,7 +21,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     if (role.includes("Admin")) {
       router.replace("/admin");
     } else if (role.includes("Staff")) {
-      router.replace("/department");
+      router.replace("/department/dashboard");
     } else if (role.includes("Student")) {
       router.replace("/student");
     } else {

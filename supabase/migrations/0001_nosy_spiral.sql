@@ -1,0 +1,1 @@
+CREATE POLICY "user view their own clearance" ON "student_clearances" AS PERMISSIVE FOR SELECT TO "authenticated" USING (student_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()));

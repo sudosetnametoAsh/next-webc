@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { createClient } from "@/lib/supabase-config";
+import { createClient } from "@/lib/db/supabase-client";
 
 declare module "jose" {
   interface JWTPayload {

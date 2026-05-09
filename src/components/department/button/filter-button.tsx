@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDepartmentContext } from "@/context/deparment";
+import { Funnel } from "lucide-react";
 
 export default function FilterButton() {
   const { statusFilter, setStatusFilter, orderFilter, setOrderFilter } =
@@ -20,7 +21,8 @@ export default function FilterButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant={"outline"} className="p-2.5!">
-          Select Filter
+          {/* Select Filter */}
+          <Funnel color="#000000" />
         </Button>
       </DropdownMenuTrigger>
 

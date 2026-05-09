@@ -1,6 +1,7 @@
 import styles from "@/styles/sti-login.module.css";
 import Image from "next/image";
 import SignInButton from "./auth/signin-button";
+import AzureLoginButton from "./auth/azure-sign-in-button";
 
 export default function Login() {
     return (
@@ -36,7 +37,8 @@ export default function Login() {
                     <h1>Login Now</h1>
                 </div>
 
-                <SignInButton />
+                {/* <SignInButton /> */}
+                <AzureLoginButton />
 
                 <div className={styles.footer}>
                     © WebC, Inc. All Rights Reserved.

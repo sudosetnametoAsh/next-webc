@@ -12,42 +12,29 @@ export default function StatCard({
   taskCount,
 }: StatCard) {
   return (
-    <section id="stat-card" className="flex justify-center">
-      <div
-        id="stat-card-container"
-        className="flex w-[60vw] flex-row justify-center gap-2"
-      >
-        <div
-          id="total-department"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
-        >
-          <span className="text-sm font-medium">Department(s)</span>
-          <span className="text-4xl font-bold">{departmentCount}</span>
+    <section id="stat-card" className="mt-8 w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div className="flex h-32 flex-col justify-center gap-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <span className="text-xs font-bold text-slate-900">Department(s)</span>
+          <span className="text-4xl font-bold text-slate-900">{departmentCount}</span>
         </div>
 
-        <div
-          id="completed"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
-        >
-          <span className="text-sm font-medium">Completed</span>
-          <span className="text-4xl font-bold">{signed}</span>
+        <div className="flex h-32 flex-col justify-center gap-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <span className="text-xs font-bold text-slate-900">Completed</span>
+          <span className="text-4xl font-bold text-slate-900">{signed}</span>
         </div>
 
-        <div
-          id="pendingu"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
-        >
-          <span className="text-sm font-medium">Pending</span>
-          <span className="text-4xl font-bold">{pending}</span>
+        <div className="flex h-32 flex-col justify-center gap-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <span className="text-xs font-bold text-slate-900">Pending</span>
+          <span className="text-4xl font-bold text-slate-900">{pending}</span>
         </div>
 
-        <div
-          id="tasks"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
-        >
-          <span className="text-sm font-medium">Task(s)</span>
-          <span className="text-4xl font-bold">{taskCount}</span>
+        <div className="flex h-32 flex-col justify-center gap-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <span className="text-xs font-bold text-slate-900">Task(s)</span>
+          <span className="text-4xl font-bold text-slate-900">{taskCount}</span>
         </div>
+
       </div>
     </section>
   );

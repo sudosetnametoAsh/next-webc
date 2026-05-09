@@ -8,10 +8,10 @@ export default function StudentInterface() {
   const { data, isLoading, error } = useFetchRecords();
   const { userData, students } = data || {};
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  if (error) return <div className="flex h-screen items-center justify-center text-red-500">Error: {error.message}</div>;
 
-  if (!students || !userData) return;
+  if (!students || !userData) return null;
 
   const initial = userData.name[0];
   const name = userData.name;
@@ -21,18 +21,11 @@ export default function StudentInterface() {
   const calculateCardValues = students.reduce(
     (accumulator, current) => {
       const status = current.status;
-      const taskCount = current.assigned_tasks.filter(
-        (item) => item.status === "Pending" || item.status === "Flagged",
-      ).length;
-
       current.assigned_tasks.forEach((task) => {
         if (task.dropbox === "pending" || task.dropbox === "NULL")
           accumulator.Task++;
       });
-
       accumulator[status]++;
-      // accumulator.Task += taskCount;
-
       return accumulator;
     },
     { Signed: 0, Pending: 0, Task: 0 },
@@ -43,20 +36,23 @@ export default function StudentInterface() {
   const signed = calculateCardValues.Signed;
   const taskCount = calculateCardValues.Task;
 
-  const dummyDesc = "Send an X-Ray copy back-to-bak 1/4, A4";
 
   return (
-    <section className="flex min-h-dvh w-screen flex-col gap-5 bg-[#F6F8FB]">
-      <Header initial={initial} name={name} email={email} />
+    <section className="flex min-h-screen w-full flex-col bg-[#F8FAFC]">
+      <div className="mx-auto w-full max-w-5xl flex-1 px-6 pb-12">
+        <Header initial={initial} name={name} email={email} />
 
-      <StatCard
-        departmentCount={departmentCount}
-        signed={signed}
-        pending={pending}
-        taskCount={taskCount}
-      />
+        <StatCard
+          departmentCount={departmentCount}
+          signed={signed}
+          pending={pending}
+          taskCount={taskCount}
+        />
 
-      <ClearanceItem students={students} dummyDesc={dummyDesc} id={id} />
+        <div className="mt-8">
+          <ClearanceItem students={students} id={id} />
+        </div>
+      </div>
     </section>
   );
 }
