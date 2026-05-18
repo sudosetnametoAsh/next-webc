@@ -33,6 +33,6 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error(error)
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    return NextResponse.redirect(`${origin}/auth-error`);
   }
 }

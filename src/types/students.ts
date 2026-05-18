@@ -1,16 +1,16 @@
 export type Students = {
   student_id: string;
   student_name: string;
-  student_clearances: Clearance[];
+  clearance_records: ClearanceRecord[];
 };
 
-type Clearance = {
+type ClearanceRecord = {
   clearance_id: string;
   status: string;
-  assigned_tasks: Tasks[]
+  clearance_tasks: ClearanceTask[]
 };
 
-type Tasks = {
+type ClearanceTask = {
     description: string;
     assigned_task_id: number;
     dropbox: string;

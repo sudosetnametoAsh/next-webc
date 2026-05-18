@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict UgvPdTLqaxsI6jDnSDHjOIlNXgRZxPq4lhkmz5dORwEt2idTIpZxnbzHZhxZTFQ
+-- \restrict PBBc8wNXrqpIjimDl6HB1VgfEZFKv1C1P3OYTDQ9ZyEgr35vJiHBX5eQbFKuHZV
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -246,7 +246,21 @@ INSERT INTO "auth"."audit_log_entries" ("instance_id", "id", "payload", "created
 	('00000000-0000-0000-0000-000000000000', '525a0b9b-eeb4-40e1-a3a0-e567f2f3415a', '{"action":"logout","actor_id":"1bdfec79-1696-48c3-a6b3-f065ff8e6580","actor_name":"Dela Roca, Sean Mcihael (Student)","actor_username":"delaroca.351089@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account"}', '2026-04-26 04:35:17.750044+00', ''),
 	('00000000-0000-0000-0000-000000000000', '89713ab1-d25c-4e2b-bb88-c9b37605025a', '{"action":"login","actor_id":"1bdfec79-1696-48c3-a6b3-f065ff8e6580","actor_name":"Dela Roca, Sean Mcihael (Student)","actor_username":"delaroca.351089@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-04-26 04:35:35.516521+00', ''),
 	('00000000-0000-0000-0000-000000000000', 'fdcd8c6e-b387-4d47-80d3-f37512c5492c', '{"action":"login","actor_id":"1bdfec79-1696-48c3-a6b3-f065ff8e6580","actor_name":"Dela Roca, Sean Mcihael (Student)","actor_username":"delaroca.351089@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-04-26 04:40:49.411968+00', ''),
-	('00000000-0000-0000-0000-000000000000', '6614c94e-74ae-4cc5-bd44-f2825ecdde4c', '{"action":"login","actor_id":"1bdfec79-1696-48c3-a6b3-f065ff8e6580","actor_name":"Dela Roca, Sean Mcihael (Student)","actor_username":"delaroca.351089@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-04-26 04:41:39.116111+00', '');
+	('00000000-0000-0000-0000-000000000000', '6614c94e-74ae-4cc5-bd44-f2825ecdde4c', '{"action":"login","actor_id":"1bdfec79-1696-48c3-a6b3-f065ff8e6580","actor_name":"Dela Roca, Sean Mcihael (Student)","actor_username":"delaroca.351089@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-04-26 04:41:39.116111+00', ''),
+	('00000000-0000-0000-0000-000000000000', 'c8417ab5-842d-49bc-9443-e2e771f542b4', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 11:45:02.563315+00', ''),
+	('00000000-0000-0000-0000-000000000000', '6336e4e0-f22a-42c6-9809-ffa8027b5947', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider_type":"azure"}}', '2026-05-13 11:45:02.675515+00', ''),
+	('00000000-0000-0000-0000-000000000000', '33d572f1-c3f0-4d2a-9b48-fe29ccdf45f2', '{"action":"logout","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account"}', '2026-05-13 11:45:09.244004+00', ''),
+	('00000000-0000-0000-0000-000000000000', '154da2cd-77ce-4d33-8864-1a0f7f9d9216', '{"action":"login","actor_id":"6095eed5-0273-413a-bb0c-ec30591dbce8","actor_name":"Justine Lee Ungriano","actor_username":"ungriano.268119@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 11:49:13.838303+00', ''),
+	('00000000-0000-0000-0000-000000000000', 'f4ace2d0-d1f3-4735-a186-d5b16fab43db', '{"action":"login","actor_id":"6095eed5-0273-413a-bb0c-ec30591dbce8","actor_name":"Justine Lee Ungriano","actor_username":"ungriano.268119@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 11:50:00.843497+00', ''),
+	('00000000-0000-0000-0000-000000000000', '497d3b40-8bf6-4535-88e7-d8b0bb7c0360', '{"action":"login","actor_id":"6095eed5-0273-413a-bb0c-ec30591dbce8","actor_name":"Justine Lee Ungriano","actor_username":"ungriano.268119@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 12:13:08.630999+00', ''),
+	('00000000-0000-0000-0000-000000000000', '7907aca5-398b-44af-906a-08cdf50b0820', '{"action":"login","actor_id":"6095eed5-0273-413a-bb0c-ec30591dbce8","actor_name":"Justine Lee Ungriano","actor_username":"ungriano.268119@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 12:15:14.968532+00', ''),
+	('00000000-0000-0000-0000-000000000000', '5cd9d48d-1d48-4dba-bb8a-9fd4789892c1', '{"action":"login","actor_id":"6095eed5-0273-413a-bb0c-ec30591dbce8","actor_name":"Justine Lee Ungriano","actor_username":"ungriano.268119@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 12:15:37.086117+00', ''),
+	('00000000-0000-0000-0000-000000000000', 'f02e7538-3d89-476d-91ce-81eb3e47c484', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-13 12:20:36.490312+00', ''),
+	('00000000-0000-0000-0000-000000000000', 'ef96fcd3-e7b7-49a7-8778-e21db31670a8', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider_type":"azure"}}', '2026-05-13 12:20:36.686155+00', ''),
+	('00000000-0000-0000-0000-000000000000', '32e63a3c-cf9d-4887-bd9f-3474d80a5ef1', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider":"azure"}}', '2026-05-16 00:24:54.215119+00', ''),
+	('00000000-0000-0000-0000-000000000000', '94fddcd5-ef30-4f37-a2f0-e9b4a4edac16', '{"action":"login","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"account","traits":{"provider_type":"azure"}}', '2026-05-16 00:24:54.434971+00', ''),
+	('00000000-0000-0000-0000-000000000000', 'c6550ae8-1032-4ed0-942f-6446e9c74176', '{"action":"token_refreshed","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"token"}', '2026-05-16 01:23:28.116782+00', ''),
+	('00000000-0000-0000-0000-000000000000', '3f998946-3c31-46df-b242-31faa5901c31', '{"action":"token_revoked","actor_id":"c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb","actor_name":"Jaro, Jose Raphael (Student)","actor_username":"jaro.248919@lucena.sti.edu.ph","actor_via_sso":false,"log_type":"token"}', '2026-05-16 01:23:28.117279+00', '');
 
 
 --
@@ -329,7 +343,12 @@ INSERT INTO "auth"."flow_state" ("id", "user_id", "auth_code", "code_challenge_m
 	('1651e7e2-5052-4f0c-802b-165e2e196d71', NULL, '06568d8d-ae0c-44bf-afc0-60df2251e3da', 's256', 'KwBzDzx5EAYckT4PHeMsaM-MV9Q5mf-etPtljJ48-zw', 'azure', '', '', '2026-04-22 06:14:20.129601+00', '2026-04-22 06:14:20.129601+00', 'oauth', NULL, NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
 	('f9eda239-0fab-4aac-a70a-4f7f1734db42', NULL, '2d4f8114-8c05-4aa2-a86a-1022ca735dfd', 's256', 'RUzy_0wrfW8XeqPeEGOgquBwYI82rdwwkdKogm2luw0', 'azure', '', '', '2026-04-22 07:08:28.304677+00', '2026-04-22 07:08:28.304677+00', 'oauth', NULL, NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
 	('8358a559-a9ab-4f5a-9740-df0c576b3584', '1bdfec79-1696-48c3-a6b3-f065ff8e6580', 'e8c7cd33-71fc-4b56-80c6-a5f487644478', 's256', 'h6onEf83_OWoMzO0cOpozv2A2vOpP_TOMhn1uuz-2AQ', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6IllWZlpmY1VNeHFDLUFvYy1tZTBZT1k2SW9DQ25YeHJiM0VhUEtTWGw5ajAiLCJhbGciOiJSUzI1NiIsIng1dCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCIsImtpZCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc3MTc4MTQ4LCJuYmYiOjE3NzcxNzgxNDgsImV4cCI6MTc3NzE4MjUzNywiYWNjdCI6MSwiYWNyIjoiMSIsImFpbyI6IkFZUUFlLzhiQUFBQVhWMlZqUlBnZWhaZUNNLzdzVmw3ZnU4YmlFTmJXTnBVNThZQW9wczcvOUxPSUdjdWowVnRSMzcwdFVxZENzM2NZNm1jaldPZnBpZnV0c2QwUVpodmxWU2s5S01RMUx6VjVraUc3aDBuUEFOVEZjQlZtV3lhSnVWaGtadEVoU09HTjRGRkZBYkFqYzJMZWY0OS9qSFlSVEEvMTl6SHlndGRhN3NGZGxGZXRWZz0iLCJhbHRzZWNpZCI6IjU6OjEwMDMyMDAyRTJBQTY2QzAiLCJhbXIiOlsicHdkIl0sImFwcF9kaXNwbGF5bmFtZSI6ImNsZWFyYW5jZS1kZW1vIiwiYXBwaWQiOiI1MjU1NjQ5ZS1lMDIzLTQzZWYtYWZjYi1lNjBlZDNmOWEzMmUiLCJhcHBpZGFjciI6IjEiLCJlbWFpbCI6ImRlbGFyb2NhLjM1MTA4OUBsdWNlbmEuc3RpLmVkdS5waCIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoyNjkwOmYyOGI6OTk2OTpmZjY1OmEyMmQ6NTIwNiIsIm5hbWUiOiJEZWxhIFJvY2EsIFNlYW4gTWNpaGFlbCAoU3R1ZGVudCkiLCJvaWQiOiI2MTg1ZTg0MC1iZDU0LTRmYjUtYjUyYy04YWIyZGQ0NzJiZTIiLCJwbGF0ZiI6IjgiLCJwdWlkIjoiMTAwMzIwMDU3REY2NEQ5MSIsInJoIjoiMS5BYjRBTU1mbXhVOVJIVWl2QktRZWx1Rkl0d01BQUFBQUFBQUF3QUFBQUFBQUFBQUFBR3UtQUEuIiwic2NwIjoiZW1haWwgb3BlbmlkIHByb2ZpbGUgVXNlci5SZWFkIiwic2lkIjoiMDA0MTA4OGEtZTQxNC04MDk0LTgwOWItNWJlYjM5OGM4YWNhIiwic3ViIjoieGJlY0J4SENFMkVQOS02eUFBNml0cDlmOF9fTndtRFZHUEpCM2tfY3NncyIsInRlbmFudF9yZWdpb25fc2NvcGUiOiJBUyIsInRpZCI6ImM1ZTZjNzMwLTUxNGYtNDgxZC1hZjA0LWE0MWU5NmUxNDhiNyIsInVuaXF1ZV9uYW1lIjoiZGVsYXJvY2EuMzUxMDg5QGx1Y2VuYS5zdGkuZWR1LnBoIiwidXRpIjoiZTVQMzlqUWk5RXlSenpLaklWbDNBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiMTNiZDFjNzItNmY0YS00ZGNmLTk4NWYtMThkM2I4MGYyMDhhIl0sInhtc19hY2QiOjE3NTU1NzYzNzYsInhtc19hY3RfZmN0IjoiMyA5IiwieG1zX2Z0ZCI6InBzZHdQNFRoOGp2c2h2b05lVlZWSDNKNEZpZG9kWXpncDMxVTVCRGpXNjhCYTI5eVpXRmpaVzUwY21Gc0xXUnpiWE0iLCJ4bXNfaWRyZWwiOiI1IDIiLCJ4bXNfcGZ0ZXhwIjoxNzc3MjY4OTM3LCJ4bXNfc3QiOnsic3ViIjoiT3NmaFRTRU1PT2xoRkkwdS1JZC1sbVlvRnlFUy16c25WVWFiaE5NRUxnRSJ9LCJ4bXNfc3ViX2ZjdCI6IjMgMiIsInhtc190Y2R0IjoxNzU1NTcxMDU5LCJ4bXNfdG50X2ZjdCI6IjMgMiJ9.MWrR5oUnlWF9wsaHVHvoIogR0xBIoPFqFZLzb7oc8_XmcnXrn6gwY3InSCr6KXnbPmOz1mgn7ztKJ7Ae4rAJnRpWamvcJ54KvIR6q78v4FM57LtpQZmdE6Q5c2IpbABATdTAsIkGKc1ewT-mJDsaiGQumlsEgkSklnhVzR88COxeEcoJcGiUR32RdC2xDZ61M0vI6FS2eogsMUYFWlZFD4uzNl2VlBo6_POiqvMLQvVg_aRtRjSCgpDqUVaeszk5bNSdxTs8_7bK6npAW7Yd8vHtCojTTgspOsLIGzzj3fxvqRclmpPl3X2gtNp60FYxIcyQJ3RyVkG3NEC4zQv5NA', '', '2026-04-26 04:40:47.084245+00', '2026-04-26 04:40:49.414348+00', 'oauth', '2026-04-26 04:40:49.414266+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
-	('6f51d884-4c0a-47a8-9a23-9a5202633d0f', '1bdfec79-1696-48c3-a6b3-f065ff8e6580', '26b037be-620a-472e-80ed-c266a388ff57', 's256', 'rBH940rNEY-LuGWfNW76aTrxtd0J6-1tZZKv4kxaakU', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6IkZKbUhNYjRzX0NrNlR0TE00Mm9KaW9tNlhsdjN6Ry1INVdjY2pNaUc5bkkiLCJhbGciOiJSUzI1NiIsIng1dCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCIsImtpZCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc3MTc4MTk4LCJuYmYiOjE3NzcxNzgxOTgsImV4cCI6MTc3NzE4MjYzMCwiYWNjdCI6MSwiYWNyIjoiMSIsImFpbyI6IkFZUUFlLzhiQUFBQUcrcDBWSVJLWk4xVHA1Y0hoSWZKRmhwY09pVzFRZEJqN3ZkZXJybTR2aDBTeXNMZmpSZTk1UnFFK1BmdFV5Ujk4U2dWZnkrNnhyVEEvZTEyU2V3V3EwN0xiMlU0RVRDOWlEMTBBU3NFRU4zL3R6b1d6ZTBEQk1uKzdmK3Q1M3lJR3EySTNQalE1c1l6Q09nc0wvTHhYQVRxZ0h5WVFSMlgwdDhHOStvMmVwTT0iLCJhbHRzZWNpZCI6IjU6OjEwMDMyMDAyRTJBQTY2QzAiLCJhbXIiOlsicHdkIl0sImFwcF9kaXNwbGF5bmFtZSI6ImNsZWFyYW5jZS1kZW1vIiwiYXBwaWQiOiI1MjU1NjQ5ZS1lMDIzLTQzZWYtYWZjYi1lNjBlZDNmOWEzMmUiLCJhcHBpZGFjciI6IjEiLCJlbWFpbCI6ImRlbGFyb2NhLjM1MTA4OUBsdWNlbmEuc3RpLmVkdS5waCIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoyNjkwOmYyOGI6OTk2OTpmZjY1OmEyMmQ6NTIwNiIsIm5hbWUiOiJEZWxhIFJvY2EsIFNlYW4gTWNpaGFlbCAoU3R1ZGVudCkiLCJvaWQiOiI2MTg1ZTg0MC1iZDU0LTRmYjUtYjUyYy04YWIyZGQ0NzJiZTIiLCJwbGF0ZiI6IjgiLCJwdWlkIjoiMTAwMzIwMDU3REY2NEQ5MSIsInJoIjoiMS5BYjRBTU1mbXhVOVJIVWl2QktRZWx1Rkl0d01BQUFBQUFBQUF3QUFBQUFBQUFBQUFBR3UtQUEuIiwic2NwIjoiZW1haWwgb3BlbmlkIHByb2ZpbGUgVXNlci5SZWFkIiwic2lkIjoiMDA0MTA4OGEtNzNiMy01YzQxLTQwOTgtZGZkMjVmNDE3NTc0Iiwic3ViIjoieGJlY0J4SENFMkVQOS02eUFBNml0cDlmOF9fTndtRFZHUEpCM2tfY3NncyIsInRlbmFudF9yZWdpb25fc2NvcGUiOiJBUyIsInRpZCI6ImM1ZTZjNzMwLTUxNGYtNDgxZC1hZjA0LWE0MWU5NmUxNDhiNyIsInVuaXF1ZV9uYW1lIjoiZGVsYXJvY2EuMzUxMDg5QGx1Y2VuYS5zdGkuZWR1LnBoIiwidXRpIjoib2JTVGdod0tyRW15eElobnRYSWlBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiMTNiZDFjNzItNmY0YS00ZGNmLTk4NWYtMThkM2I4MGYyMDhhIl0sInhtc19hY2QiOjE3NTU1NzYzNzYsInhtc19hY3RfZmN0IjoiOSAzIiwieG1zX2Z0ZCI6IkkzUEF6dHFtU0RxT2xGSzQzVk5XRUZEVXk3U3hFa2FNTVVFcXQ5X3R1SFlCYTI5eVpXRnpiM1YwYUMxa2MyMXoiLCJ4bXNfaWRyZWwiOiI1IDQiLCJ4bXNfcGZ0ZXhwIjoxNzc3MjY5MDMwLCJ4bXNfc3QiOnsic3ViIjoiT3NmaFRTRU1PT2xoRkkwdS1JZC1sbVlvRnlFUy16c25WVWFiaE5NRUxnRSJ9LCJ4bXNfc3ViX2ZjdCI6IjEyIDMiLCJ4bXNfdGNkdCI6MTc1NTU3MTA1OSwieG1zX3RudF9mY3QiOiIzIDEwIn0.nhrx1qHqlf0LAvVKAGQF09_Kq6uQxukkdArhkeElIzxF79ged0fLazeaqDI5ozshmibksZWTYnwSJ50wSeZGgV2Mmt7n3jAnVu6sO_nJXn08kRrF6aZGZ2Egw_Vvpn7ODJnf0SM3t5YMhc1Uu1EzdHupVfuPrN_SeFckZ3EKHJ1wyF4EefBUDJh0r2OfmOMdhoxv0cfesCRBdTK9FTeQc8bHlaBM6GObhIJOZYxP5Tyivu9uWnWAWr-z6SCUkbTjPrQJR6hfpwklpB4WEsUgRk3qXRhKKqjAInOlmcDFx7fESrKfSQQKkDJ-sU2L4tN9P2t3IgYwUUD_GK7V36tKNg', '', '2026-04-26 04:41:26.4935+00', '2026-04-26 04:41:39.118788+00', 'oauth', '2026-04-26 04:41:39.118663+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false);
+	('6f51d884-4c0a-47a8-9a23-9a5202633d0f', '1bdfec79-1696-48c3-a6b3-f065ff8e6580', '26b037be-620a-472e-80ed-c266a388ff57', 's256', 'rBH940rNEY-LuGWfNW76aTrxtd0J6-1tZZKv4kxaakU', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6IkZKbUhNYjRzX0NrNlR0TE00Mm9KaW9tNlhsdjN6Ry1INVdjY2pNaUc5bkkiLCJhbGciOiJSUzI1NiIsIng1dCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCIsImtpZCI6IlUxc1g4WUZIUzdaNlZsN1ZITEl6VGVqYnZqMCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc3MTc4MTk4LCJuYmYiOjE3NzcxNzgxOTgsImV4cCI6MTc3NzE4MjYzMCwiYWNjdCI6MSwiYWNyIjoiMSIsImFpbyI6IkFZUUFlLzhiQUFBQUcrcDBWSVJLWk4xVHA1Y0hoSWZKRmhwY09pVzFRZEJqN3ZkZXJybTR2aDBTeXNMZmpSZTk1UnFFK1BmdFV5Ujk4U2dWZnkrNnhyVEEvZTEyU2V3V3EwN0xiMlU0RVRDOWlEMTBBU3NFRU4zL3R6b1d6ZTBEQk1uKzdmK3Q1M3lJR3EySTNQalE1c1l6Q09nc0wvTHhYQVRxZ0h5WVFSMlgwdDhHOStvMmVwTT0iLCJhbHRzZWNpZCI6IjU6OjEwMDMyMDAyRTJBQTY2QzAiLCJhbXIiOlsicHdkIl0sImFwcF9kaXNwbGF5bmFtZSI6ImNsZWFyYW5jZS1kZW1vIiwiYXBwaWQiOiI1MjU1NjQ5ZS1lMDIzLTQzZWYtYWZjYi1lNjBlZDNmOWEzMmUiLCJhcHBpZGFjciI6IjEiLCJlbWFpbCI6ImRlbGFyb2NhLjM1MTA4OUBsdWNlbmEuc3RpLmVkdS5waCIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoyNjkwOmYyOGI6OTk2OTpmZjY1OmEyMmQ6NTIwNiIsIm5hbWUiOiJEZWxhIFJvY2EsIFNlYW4gTWNpaGFlbCAoU3R1ZGVudCkiLCJvaWQiOiI2MTg1ZTg0MC1iZDU0LTRmYjUtYjUyYy04YWIyZGQ0NzJiZTIiLCJwbGF0ZiI6IjgiLCJwdWlkIjoiMTAwMzIwMDU3REY2NEQ5MSIsInJoIjoiMS5BYjRBTU1mbXhVOVJIVWl2QktRZWx1Rkl0d01BQUFBQUFBQUF3QUFBQUFBQUFBQUFBR3UtQUEuIiwic2NwIjoiZW1haWwgb3BlbmlkIHByb2ZpbGUgVXNlci5SZWFkIiwic2lkIjoiMDA0MTA4OGEtNzNiMy01YzQxLTQwOTgtZGZkMjVmNDE3NTc0Iiwic3ViIjoieGJlY0J4SENFMkVQOS02eUFBNml0cDlmOF9fTndtRFZHUEpCM2tfY3NncyIsInRlbmFudF9yZWdpb25fc2NvcGUiOiJBUyIsInRpZCI6ImM1ZTZjNzMwLTUxNGYtNDgxZC1hZjA0LWE0MWU5NmUxNDhiNyIsInVuaXF1ZV9uYW1lIjoiZGVsYXJvY2EuMzUxMDg5QGx1Y2VuYS5zdGkuZWR1LnBoIiwidXRpIjoib2JTVGdod0tyRW15eElobnRYSWlBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiMTNiZDFjNzItNmY0YS00ZGNmLTk4NWYtMThkM2I4MGYyMDhhIl0sInhtc19hY2QiOjE3NTU1NzYzNzYsInhtc19hY3RfZmN0IjoiOSAzIiwieG1zX2Z0ZCI6IkkzUEF6dHFtU0RxT2xGSzQzVk5XRUZEVXk3U3hFa2FNTVVFcXQ5X3R1SFlCYTI5eVpXRnpiM1YwYUMxa2MyMXoiLCJ4bXNfaWRyZWwiOiI1IDQiLCJ4bXNfcGZ0ZXhwIjoxNzc3MjY5MDMwLCJ4bXNfc3QiOnsic3ViIjoiT3NmaFRTRU1PT2xoRkkwdS1JZC1sbVlvRnlFUy16c25WVWFiaE5NRUxnRSJ9LCJ4bXNfc3ViX2ZjdCI6IjEyIDMiLCJ4bXNfdGNkdCI6MTc1NTU3MTA1OSwieG1zX3RudF9mY3QiOiIzIDEwIn0.nhrx1qHqlf0LAvVKAGQF09_Kq6uQxukkdArhkeElIzxF79ged0fLazeaqDI5ozshmibksZWTYnwSJ50wSeZGgV2Mmt7n3jAnVu6sO_nJXn08kRrF6aZGZ2Egw_Vvpn7ODJnf0SM3t5YMhc1Uu1EzdHupVfuPrN_SeFckZ3EKHJ1wyF4EefBUDJh0r2OfmOMdhoxv0cfesCRBdTK9FTeQc8bHlaBM6GObhIJOZYxP5Tyivu9uWnWAWr-z6SCUkbTjPrQJR6hfpwklpB4WEsUgRk3qXRhKKqjAInOlmcDFx7fESrKfSQQKkDJ-sU2L4tN9P2t3IgYwUUD_GK7V36tKNg', '', '2026-04-26 04:41:26.4935+00', '2026-04-26 04:41:39.118788+00', 'oauth', '2026-04-26 04:41:39.118663+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
+	('fe05f6d0-a7c2-478d-b86a-e93b2acbd76f', '6095eed5-0273-413a-bb0c-ec30591dbce8', 'f0c9ab6a-e403-43df-b27f-7d536d60becc', 's256', '75ygHnocQDQLDZ0_xQNWnwnyNVk1dXKz4wLYMc6SM_k', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6Ik5FUTBGMGJxRGVmUzBjaFdUTEVSdTlXQTJNckY2Z29zNThuWTN1RG1KS28iLCJhbGciOiJSUzI1NiIsIng1dCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSIsImtpZCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc4NjcyNjUzLCJuYmYiOjE3Nzg2NzI2NTMsImV4cCI6MTc3ODY3NjcxOCwiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsicDEiXSwiYWlvIjoiQWRRQUsvOGNBQUFBQy95Y2FQSkNvU3lmSFBaMzBXaGJxK1FkaHZ3a3JvcllaTHBXdzJaQnN6eVlySWRIQndZZTJ0Wm1UUDYwaXBpVm9zdk95Mi8wMjhTUnhUbzdRaEhicTg0c0ZZL0tFT08reFhIaDN3c0wrL1RMcGhGZktBckgyYkxQNUp6eVVYUXNlZGxhTEJaZklBTDVrRzJodU5RR0xUMTVzTExiVGR1OUlMNTQ4TmFHemVLUURmK2d5MEpsSEl0eWJkaEFVUVdZWXNKbCtjSWlxQlZsUERVdmdVR2w4WUZaZTM0VWM5c2t0bllUUy9qR1dJdW05RVhGckIrcWRrOVQ3dEtTRUF1Nk1PWDZLdnEwQlR1d3BoUVd6T2RkSGc9PSIsImFsdHNlY2lkIjoiNTo6MTAwMzIwMDE3MjQzQkQzQSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiY2xlYXJhbmNlLWRlbW8iLCJhcHBpZCI6IjUyNTU2NDllLWUwMjMtNDNlZi1hZmNiLWU2MGVkM2Y5YTMyZSIsImFwcGlkYWNyIjoiMSIsImVtYWlsIjoidW5ncmlhbm8uMjY4MTE5QGx1Y2VuYS5zdGkuZWR1LnBoIiwiZmFtaWx5X25hbWUiOiJVbmdyaWFubyIsImdpdmVuX25hbWUiOiJKdXN0aW5lIExlZSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoxOTA2OjVhOGY6YzIzNTozMmZmOmZlZDY6Nzg5NyIsIm5hbWUiOiJKdXN0aW5lIExlZSBVbmdyaWFubyIsIm9pZCI6ImQ3MTU0NmI3LWQ4ZmMtNGY3NS05YjE2LWY1MjlkMmIxNDgwYiIsInBsYXRmIjoiOCIsInB1aWQiOiIxMDAzMjAwNTA3MzI3OUREIiwicmgiOiIxLkFiNEFNTWZteFU5UkhVaXZCS1FlbHVGSXR3TUFBQUFBQUFBQXdBQUFBQUFBQUFBQUFQcS1BQS4iLCJzY3AiOiJlbWFpbCBvcGVuaWQgcHJvZmlsZSBVc2VyLlJlYWQiLCJzaWQiOiIwMDRlNGVmYS1iYTM3LTAxOTgtOTk1NC03ZTE3MWY0MzYzMmUiLCJzdWIiOiJsS2ZiTEdhenpZLTl0ZUdqTk9sVjMta1BQV1lnSDZ5U0RheU9COEFncjJBIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiYzVlNmM3MzAtNTE0Zi00ODFkLWFmMDQtYTQxZTk2ZTE0OGI3IiwidW5pcXVlX25hbWUiOiJ1bmdyaWFuby4yNjgxMTlAbHVjZW5hLnN0aS5lZHUucGgiLCJ1dGkiOiJ5RVJieUlTZkJFLVF4SFFkQ0E0QUFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyI2MmU5MDM5NC02OWY1LTQyMzctOTE5MC0wMTIxNzcxNDVlMTAiLCJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2FjZCI6MTc1NTU3NjM3NiwieG1zX2FjdF9mY3QiOiIzIDkiLCJ4bXNfZnRkIjoiVjJpdnViRHRkbnN1Q2JwZjNrTVc2QXczYmxNNUVGZW9jZm1uTkRoSmhZMEJhMjl5WldGalpXNTBjbUZzTFdSemJYTSIsInhtc19pZHJlbCI6IjEgMTAiLCJ4bXNfcGZ0ZXhwIjoxNzc4NzYzMTE4LCJ4bXNfc3QiOnsic3ViIjoiUFdfelY1cEhoY3JkZ2pwY2c4ekVGbDdHQ0lYWVBvMmtCUFM4MzZHSUVscyJ9LCJ4bXNfc3ViX2ZjdCI6IjMgMTQiLCJ4bXNfdGNkdCI6MTc1NTU3MTA1OSwieG1zX3RudF9mY3QiOiIyMCAzIn0.XKBf0mFYv9yPzCJi7j0iHZu8q5DFY-DpjPkXdLDFhqJmMgjQ7xDepqzHcxor1jTGYhWU1T9vBY6sP9QEO29Nhe44yl3I2Gjx92LreV3itDrYPAqvxGi48_0F3HEXjElm0heinZWa9NtN70An9N7uljMLBqqN7LtkKDqamUEPeoAhPauOK4yicspHLF76KzJfYpuzPOoZ-ITS9of02RC4PLNCJRrZKRqhZSJWWXVtkg_qIHOb9pWvPzB62FC3chSILFdMwMo5EPnI3mIUfyK9KacEfoNTEMZR7fjfFmhDa2MhHIZzm52695VgqBwlU3jl2JokBBUKur1Ul5lFAE6ZAQ', '', '2026-05-13 11:49:11.663063+00', '2026-05-13 11:49:13.838973+00', 'oauth', '2026-05-13 11:49:13.838931+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
+	('9de85a76-a1d7-43ae-ac50-a3e44e8dea39', '6095eed5-0273-413a-bb0c-ec30591dbce8', '2cfc03db-8c03-40c8-a3a7-168e2a98d869', 's256', 'qXPvNEPuR8HytqOKGN_OnIY1l6xI0HCnZRBS41M9YNI', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6Ik5KRnpnek1sYmZMXzR1UUcyMHliM0xaNHNiXzdGQXNFXy1Od211TUctRjAiLCJhbGciOiJSUzI1NiIsIng1dCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSIsImtpZCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc4NjcyNzAwLCJuYmYiOjE3Nzg2NzI3MDAsImV4cCI6MTc3ODY3Njg4OSwiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsicDEiXSwiYWlvIjoiQWRRQUsvOGNBQUFBK1FkZVFwRXNPU2NJaWhNNDZYeVg2YWhoZzF4WXdDWlQzelg1NCsrL2FqZTluaHY1RHhVMHE3UG9USEJMSW95dnRodkRZbmUwU0Y2T3lvL3J5cUpFZW14QnFWOVNJV3dkUVRhY0lWZXRjVFhqZk04OER6cDNTb1VjclVGV3hrRkw5TjVZYnpwWWdGdURwSm5PcDVZajN5ZGRnbjJHWTRQSzFYR1B4SWVKQ3UrZHYyeWVjNlR2UXBWcHhiY2xwK2pBWmtLMEpWOXF3K2QwREJxOVJYalBTT3lvT3A5dWZ5ZVFoSGMwbUx5Vm05VGJHY1VnQWdNRlR0TW1EdmNFZ1lLdkM4Q09vdys0bXhUTnUrZmFLSk94akE9PSIsImFsdHNlY2lkIjoiNTo6MTAwMzIwMDE3MjQzQkQzQSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiY2xlYXJhbmNlLWRlbW8iLCJhcHBpZCI6IjUyNTU2NDllLWUwMjMtNDNlZi1hZmNiLWU2MGVkM2Y5YTMyZSIsImFwcGlkYWNyIjoiMSIsImVtYWlsIjoidW5ncmlhbm8uMjY4MTE5QGx1Y2VuYS5zdGkuZWR1LnBoIiwiZmFtaWx5X25hbWUiOiJVbmdyaWFubyIsImdpdmVuX25hbWUiOiJKdXN0aW5lIExlZSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoxOTA2OjVhOGY6YzIzNTozMmZmOmZlZDY6Nzg5NyIsIm5hbWUiOiJKdXN0aW5lIExlZSBVbmdyaWFubyIsIm9pZCI6ImQ3MTU0NmI3LWQ4ZmMtNGY3NS05YjE2LWY1MjlkMmIxNDgwYiIsInBsYXRmIjoiOCIsInB1aWQiOiIxMDAzMjAwNTA3MzI3OUREIiwicmgiOiIxLkFiNEFNTWZteFU5UkhVaXZCS1FlbHVGSXR3TUFBQUFBQUFBQXdBQUFBQUFBQUFBQUFQcS1BQS4iLCJzY3AiOiJlbWFpbCBvcGVuaWQgcHJvZmlsZSBVc2VyLlJlYWQiLCJzaWQiOiIwMDRlNGVmYS1iYTM3LTAxOTgtOTk1NC03ZTE3MWY0MzYzMmUiLCJzdWIiOiJsS2ZiTEdhenpZLTl0ZUdqTk9sVjMta1BQV1lnSDZ5U0RheU9COEFncjJBIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiYzVlNmM3MzAtNTE0Zi00ODFkLWFmMDQtYTQxZTk2ZTE0OGI3IiwidW5pcXVlX25hbWUiOiJ1bmdyaWFuby4yNjgxMTlAbHVjZW5hLnN0aS5lZHUucGgiLCJ1dGkiOiJ5RVJieUlTZkJFLVF4SFFkemhJQUFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyI2MmU5MDM5NC02OWY1LTQyMzctOTE5MC0wMTIxNzcxNDVlMTAiLCJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2FjZCI6MTc1NTU3NjM3NiwieG1zX2FjdF9mY3QiOiI5IDMiLCJ4bXNfZnRkIjoiYXlDRV9PNXRCWU9lQm9EWGRiWmc0OW1vSHE5VzNtb0hyMXAzQ0FkYVNLWUJhMjl5WldGalpXNTBjbUZzTFdSemJYTSIsInhtc19pZHJlbCI6IjEgMTAiLCJ4bXNfcGZ0ZXhwIjoxNzc4NzYzMjg5LCJ4bXNfc3QiOnsic3ViIjoiUFdfelY1cEhoY3JkZ2pwY2c4ekVGbDdHQ0lYWVBvMmtCUFM4MzZHSUVscyJ9LCJ4bXNfc3ViX2ZjdCI6IjYgMyIsInhtc190Y2R0IjoxNzU1NTcxMDU5LCJ4bXNfdG50X2ZjdCI6IjMgMTYifQ.i5csXVQRsi4W9HyYT2cxzOu3Ge0f9LF5tnQB3ccCTkerqIX56RDNmYaIZ3gypmx6u2IhqxsnYqFdYTgLsWdkdiwEAD8IW5Tqwzkh4VrrTk9fuiPjK5MSwe1hZ-p7DoF30WHNZt3qdhUcZUlR1xYtPcO0vaudQthk_XWZDn9P8V6AZyVAH_ybOtB0R-L6p4zeee2CVFaesaDeX1K6A-3SzxKNsLLMkU6aRHRYOb8VNZUxnxY9sm2efPHWfw9bs3Rh0u4C1Fk6_3wWzXIJRGb0UudqGaXz0PHWRoukAXxvusKgpt3ZyigoiWYwqDJzi2a9lSd5AMd_s4yg9oCUDdNWPw', '', '2026-05-13 11:49:59.405803+00', '2026-05-13 11:50:00.844232+00', 'oauth', '2026-05-13 11:50:00.844147+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
+	('8685f983-b480-489d-ad6d-c043c1410e71', '6095eed5-0273-413a-bb0c-ec30591dbce8', '79b79246-fdb0-47cf-8662-b96c6fee91af', 's256', 'TnK--wQ8U7bNmd8dQZnpuTVyH-ZfUUAtRp2Und_D6n0', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6ImVfa1RYeVlXTG1zVGZOQXRZSk5nUkxGLUFSeDNRcERxdVQ2OWhINzFHaUUiLCJhbGciOiJSUzI1NiIsIng1dCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSIsImtpZCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc4Njc0MDg3LCJuYmYiOjE3Nzg2NzQwODcsImV4cCI6MTc3ODY3ODYyNiwiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsicDEiXSwiYWlvIjoiQWRRQUsvOGNBQUFBQlJxeHZjL0k1REFZajdNbGF6T00zWjh3NGx4RktlZHgyTyt4cXF3b011NGZ3bUNNYXpJTGo1S3lSSkIwb0RUd0tjbHZ2cWgvZlB1V1VqdlMzcmI3cWhXM3lhM3Z1U3hGR0V5VzRlQUtjM0RaU2p2Q2VNVmNKUXROanpKanJxa3JJYlZZZkxMbUcxNHRYaEQ0akdwL1NuUjljdlhOZk13b09iaTJwUjdoNFloMitDRUlYOVF1YnJhRG9uZklNWkhEWTJYSUdBYjlrZDltTERvaXU3bGxBZExpV0RCS3NtTDVsbHZ6bllDZGVpT0djMk1HbFlpSUp6MWk4bHVGZitPZy9yQUt2aFdRWEREOWZUaGpSZDJLeEE9PSIsImFsdHNlY2lkIjoiNTo6MTAwMzIwMDE3MjQzQkQzQSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiY2xlYXJhbmNlLWRlbW8iLCJhcHBpZCI6IjUyNTU2NDllLWUwMjMtNDNlZi1hZmNiLWU2MGVkM2Y5YTMyZSIsImFwcGlkYWNyIjoiMSIsImVtYWlsIjoidW5ncmlhbm8uMjY4MTE5QGx1Y2VuYS5zdGkuZWR1LnBoIiwiZmFtaWx5X25hbWUiOiJVbmdyaWFubyIsImdpdmVuX25hbWUiOiJKdXN0aW5lIExlZSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoxOTA2OjVhOGY6YzIzNTozMmZmOmZlZDY6Nzg5NyIsIm5hbWUiOiJKdXN0aW5lIExlZSBVbmdyaWFubyIsIm9pZCI6ImQ3MTU0NmI3LWQ4ZmMtNGY3NS05YjE2LWY1MjlkMmIxNDgwYiIsInBsYXRmIjoiOCIsInB1aWQiOiIxMDAzMjAwNTA3MzI3OUREIiwicmgiOiIxLkFiNEFNTWZteFU5UkhVaXZCS1FlbHVGSXR3TUFBQUFBQUFBQXdBQUFBQUFBQUFBQUFQcS1BQS4iLCJzY3AiOiJlbWFpbCBvcGVuaWQgcHJvZmlsZSBVc2VyLlJlYWQiLCJzaWQiOiIwMDRlNGVmYS1iYTM3LTAxOTgtOTk1NC03ZTE3MWY0MzYzMmUiLCJzdWIiOiJsS2ZiTEdhenpZLTl0ZUdqTk9sVjMta1BQV1lnSDZ5U0RheU9COEFncjJBIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiYzVlNmM3MzAtNTE0Zi00ODFkLWFmMDQtYTQxZTk2ZTE0OGI3IiwidW5pcXVlX25hbWUiOiJ1bmdyaWFuby4yNjgxMTlAbHVjZW5hLnN0aS5lZHUucGgiLCJ1dGkiOiJQVWFZYzBtUTkwcWxNUGhLTVRac0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyI2MmU5MDM5NC02OWY1LTQyMzctOTE5MC0wMTIxNzcxNDVlMTAiLCJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2FjZCI6MTc1NTU3NjM3NiwieG1zX2FjdF9mY3QiOiIzIDkiLCJ4bXNfZnRkIjoiN1lXMU1ULW4xSUMwOVdfajdIcUVpeHhKZWRISXo2bGExaVJvQk5acU92WUJhbUZ3WVc1bFlYTjBMV1J6YlhNIiwieG1zX2lkcmVsIjoiMSA2IiwieG1zX3BmdGV4cCI6MTc3ODc2NTAyNiwieG1zX3N0Ijp7InN1YiI6IlBXX3pWNXBIaGNyZGdqcGNnOHpFRmw3R0NJWFlQbzJrQlBTODM2R0lFbHMifSwieG1zX3N1Yl9mY3QiOiI2IDMiLCJ4bXNfdGNkdCI6MTc1NTU3MTA1OSwieG1zX3RudF9mY3QiOiIzIDQifQ.SYwVkihs_HVmj_4tt1YE-8l2z-lPDxZNTLTnB2SmQN3dgGAN6_2WP7iOrOUs4ZGItZPmPl6T-PXZUNS3YXp-hgovFg-XfUkxI_-HdEt5NE4-x-rDNVp71DQ314bKj2YAVKDxItIhstpXQErNgA5ZFKnXEZ7nJpNbTai6YleuM-WM4MRzWJXNbWARVuHMpE3pCerWOQ-sFwQ4Ebbzve8PjNAOsAg91ABbK7-VPPmJyTbhT_9RXkZLn_tjkH2IDr0r6fYtWer-41zTtwZ8sWzus7x82f9VTGVfJYIuP3dAwLiHTlbOQ9WLOepZFQHlP3DqZ9e63sVvhn01RtSHppRk7g', '', '2026-05-13 12:13:03.893227+00', '2026-05-13 12:13:08.631578+00', 'oauth', '2026-05-13 12:13:08.631539+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
+	('b1ebb0fb-5fec-4f09-9d60-369858bb2b94', '6095eed5-0273-413a-bb0c-ec30591dbce8', '6cdcf7d1-d9a2-4c1a-94a6-b6bc4f0f413e', 's256', 'dgyyIFrknCi1Olz8o0qQPnAlNfMtidVi_XEHO3nxE5g', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6IjFTVkgtenBsSlNSbG5KM0ljUzJJY25BemFrUFhIWlhTVGZBbi05SGtqREkiLCJhbGciOiJSUzI1NiIsIng1dCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSIsImtpZCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc4Njc0MjE0LCJuYmYiOjE3Nzg2NzQyMTQsImV4cCI6MTc3ODY3ODY4NSwiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsicDEiXSwiYWlvIjoiQWRRQUsvOGNBQUFBYWRtL0gyenpBMjc2UDBRaUpjU05FMi85L2NRWlV2bm1aNHNGclBRaWNQZGVXV2NjbStaTnpmOHNQMmZjL2JYVFc5RjRzY3RMcnhaWDhOakdidHgyVmJmNEt6YmZucmcrdzRvOFJpTnpJdm8rTXFzZHM4UWlYS3JDMHJyblZDZW9UK1dVU1pvVnE0MmJZSjh1aUh4ZGZmdGRybG5DTVVyMHJyTlk1Y2s3R1ErNE4zV2RtR0hxMDk0Sko2djhjTFBQcTRWVFJGN3dXQzJMTU1BbHlSakpBZjlsTjBMM3RFZFc3TzVzNTFDNHI5VGVpcFdCRmVRVmR6YlVmSTZzaG5WRzk0cStINjNlRS9WblFiVHRRYXlaRWc9PSIsImFsdHNlY2lkIjoiNTo6MTAwMzIwMDE3MjQzQkQzQSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiY2xlYXJhbmNlLWRlbW8iLCJhcHBpZCI6IjUyNTU2NDllLWUwMjMtNDNlZi1hZmNiLWU2MGVkM2Y5YTMyZSIsImFwcGlkYWNyIjoiMSIsImVtYWlsIjoidW5ncmlhbm8uMjY4MTE5QGx1Y2VuYS5zdGkuZWR1LnBoIiwiZmFtaWx5X25hbWUiOiJVbmdyaWFubyIsImdpdmVuX25hbWUiOiJKdXN0aW5lIExlZSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoxOTA2OjVhOGY6YzIzNTozMmZmOmZlZDY6Nzg5NyIsIm5hbWUiOiJKdXN0aW5lIExlZSBVbmdyaWFubyIsIm9pZCI6ImQ3MTU0NmI3LWQ4ZmMtNGY3NS05YjE2LWY1MjlkMmIxNDgwYiIsInBsYXRmIjoiOCIsInB1aWQiOiIxMDAzMjAwNTA3MzI3OUREIiwicmgiOiIxLkFiNEFNTWZteFU5UkhVaXZCS1FlbHVGSXR3TUFBQUFBQUFBQXdBQUFBQUFBQUFBQUFQcS1BQS4iLCJzY3AiOiJlbWFpbCBvcGVuaWQgcHJvZmlsZSBVc2VyLlJlYWQiLCJzaWQiOiIwMDRlNGVmYS1iYTM3LTAxOTgtOTk1NC03ZTE3MWY0MzYzMmUiLCJzdWIiOiJsS2ZiTEdhenpZLTl0ZUdqTk9sVjMta1BQV1lnSDZ5U0RheU9COEFncjJBIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiYzVlNmM3MzAtNTE0Zi00ODFkLWFmMDQtYTQxZTk2ZTE0OGI3IiwidW5pcXVlX25hbWUiOiJ1bmdyaWFuby4yNjgxMTlAbHVjZW5hLnN0aS5lZHUucGgiLCJ1dGkiOiJXQkVyaDNWVUNrcWYyMkF4cmljV0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyI2MmU5MDM5NC02OWY1LTQyMzctOTE5MC0wMTIxNzcxNDVlMTAiLCJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2FjZCI6MTc1NTU3NjM3NiwieG1zX2FjdF9mY3QiOiI5IDMiLCJ4bXNfZnRkIjoibm1fVzZrX2tTazJJSndCQ1FOWmtXZzFtdnRyeDhqVm01R2l6NDJXeThKOEJhbUZ3WVc1bFlYTjBMV1J6YlhNIiwieG1zX2lkcmVsIjoiMSAyIiwieG1zX3BmdGV4cCI6MTc3ODc2NTA4NSwieG1zX3N0Ijp7InN1YiI6IlBXX3pWNXBIaGNyZGdqcGNnOHpFRmw3R0NJWFlQbzJrQlBTODM2R0lFbHMifSwieG1zX3N1Yl9mY3QiOiIzIDE2IiwieG1zX3RjZHQiOjE3NTU1NzEwNTksInhtc190bnRfZmN0IjoiMTIgMyJ9.a5shJTXtHUYwC6ANPlCJ_mmDHNzGu7DXcgt4b-N7U0eMDXuPsc36cRuVEerXU-_Aptq9yQ1WkgEBPpPJhTCkJgfG5ftJDdZo34alYiWoy0W843vyIiuCVp3zT9N3Mjfdt8jtdgzWrvIQm5rD91dQ8kv0RpI3G90zGZtFpSr5rzUWPP086viw-WJZt0f2WBV1SvscdbJAKqBiWT0jd5XdFPWK0zhizS-5i9NvUZjQATXBqUBwCWrnxAHM-qBS9T6GbLMRrrdA-E8-cQY9alXnIKNeelGF1gSIAWOsuxRp6dH5SyHPGjh8mXhLAfYWAwZj90eesEVFi43-iSp83Q9dsg', '', '2026-05-13 12:15:04.367288+00', '2026-05-13 12:15:14.969083+00', 'oauth', '2026-05-13 12:15:14.969018+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false),
+	('f7fa76ed-c2f7-4373-ac71-656926de5056', '6095eed5-0273-413a-bb0c-ec30591dbce8', '807f346a-78c0-4780-946a-41e297bc9691', 's256', 'b7h5L8OHgM2pwz27qTLvrhF9g0aNz7YdowTEMJVEnVg', 'azure', 'eyJ0eXAiOiJKV1QiLCJub25jZSI6InJVeVVwalEzMDZoQzRLTG5YdE5xcFlpS3A3ZXozYlRpclVGUDJZUzQ3cDQiLCJhbGciOiJSUzI1NiIsIng1dCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSIsImtpZCI6Ilh0LW83aERicHVwQXotWlBtNkh4Q0ZXUzNjSSJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jNWU2YzczMC01MTRmLTQ4MWQtYWYwNC1hNDFlOTZlMTQ4YjcvIiwiaWF0IjoxNzc4Njc0MjM2LCJuYmYiOjE3Nzg2NzQyMzYsImV4cCI6MTc3ODY3ODk0OSwiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsicDEiXSwiYWlvIjoiQWRRQUsvOGNBQUFBQmw3WG9mbDBwWUd4QldLMEZPelB6am1tYzk5TktQYllucy9Jek1IbVcxZ05ab2Frc1VOVjRqeFVpWGpWMnJqQ2Z3RVlKQ0EvSHQzMldoL3p2T1BCSUJrb0xxT3NxUXpySXVMay96eCtYOHEwelJNMTBpaGljMDVBejFnU2dHUUVRTFdqZDAydm8wb0NwRnBpRm5vMjZPc3dxRkRybWh1U2VrRHZIVGZMN2hCV1hSU1JvM0lrdEIybGt0QzBGdHN2OFJ5RkZFOU5jc29XejlDd3VMcnc1UUlRdGtpYW5aL0VLb0hFT3owQ2JhUURYbTZaa0plTHBnMzA2WlcvdDhSb0dSYWNPR1F5U29QWXdCY0ZBd2FTR3c9PSIsImFsdHNlY2lkIjoiNTo6MTAwMzIwMDE3MjQzQkQzQSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiY2xlYXJhbmNlLWRlbW8iLCJhcHBpZCI6IjUyNTU2NDllLWUwMjMtNDNlZi1hZmNiLWU2MGVkM2Y5YTMyZSIsImFwcGlkYWNyIjoiMSIsImVtYWlsIjoidW5ncmlhbm8uMjY4MTE5QGx1Y2VuYS5zdGkuZWR1LnBoIiwiZmFtaWx5X25hbWUiOiJVbmdyaWFubyIsImdpdmVuX25hbWUiOiJKdXN0aW5lIExlZSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzI2ZDJhZDhjLTk1ZDUtNDQxMC1iOWZiLTFmZmFlNzU0OWVmOC8iLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyMDAxOmZkODoxOTA2OjVhOGY6YzIzNTozMmZmOmZlZDY6Nzg5NyIsIm5hbWUiOiJKdXN0aW5lIExlZSBVbmdyaWFubyIsIm9pZCI6ImQ3MTU0NmI3LWQ4ZmMtNGY3NS05YjE2LWY1MjlkMmIxNDgwYiIsInBsYXRmIjoiOCIsInB1aWQiOiIxMDAzMjAwNTA3MzI3OUREIiwicmgiOiIxLkFiNEFNTWZteFU5UkhVaXZCS1FlbHVGSXR3TUFBQUFBQUFBQXdBQUFBQUFBQUFBQUFQcS1BQS4iLCJzY3AiOiJlbWFpbCBvcGVuaWQgcHJvZmlsZSBVc2VyLlJlYWQiLCJzaWQiOiIwMDRlNGVmYS1iYTM3LTAxOTgtOTk1NC03ZTE3MWY0MzYzMmUiLCJzdWIiOiJsS2ZiTEdhenpZLTl0ZUdqTk9sVjMta1BQV1lnSDZ5U0RheU9COEFncjJBIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiYzVlNmM3MzAtNTE0Zi00ODFkLWFmMDQtYTQxZTk2ZTE0OGI3IiwidW5pcXVlX25hbWUiOiJ1bmdyaWFuby4yNjgxMTlAbHVjZW5hLnN0aS5lZHUucGgiLCJ1dGkiOiJTam4ybHBmTERFbS1yU0cyT0pRQUFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyI2MmU5MDM5NC02OWY1LTQyMzctOTE5MC0wMTIxNzcxNDVlMTAiLCJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2FjZCI6MTc1NTU3NjM3NiwieG1zX2FjdF9mY3QiOiIzIDkiLCJ4bXNfZnRkIjoiYTVMbG1sSnNLZl9aa0tDLV9kQ3k1ZUQ1NzgxLVh6cVE2bEpKQkVrbVRBVUJhMjl5WldGalpXNTBjbUZzTFdSemJYTSIsInhtc19pZHJlbCI6IjEgMTgiLCJ4bXNfcGZ0ZXhwIjoxNzc4NzY1MzQ5LCJ4bXNfc3QiOnsic3ViIjoiUFdfelY1cEhoY3JkZ2pwY2c4ekVGbDdHQ0lYWVBvMmtCUFM4MzZHSUVscyJ9LCJ4bXNfc3ViX2ZjdCI6IjQgMyIsInhtc190Y2R0IjoxNzU1NTcxMDU5LCJ4bXNfdG50X2ZjdCI6IjMgMTAifQ.bCln3naZnpEnKRqQOwhiIEh5AGdyyn16g8IwJoo4qDaPSqbE606nFuTYhGi82qSbGNwrfPdp1Bn1oxwhTORNqMo62ZBcBFeVQ8RE5ThIkheT1QuUzbgws2KLe2xDPA_rsg22JpAEz5qsTg7wRdFARCGn8gE0d2PcDarEba9tiIyxCnUc31vcSz-2q1TWpILRS02yXKiOXI1NyUgcmaRf1vY6sCgTkLLOZvh9yPCnMZECT2sAL9DC8l97SjTMHjM1SGxUr37pvObuhFcIf1Obl--RLgjZ1hB2KmnBXxHvZIl2zuXZihFiOLYXlCUZYEOcOXe3wYI7GftqoMqUfR6-GQ', '', '2026-05-13 12:15:35.527035+00', '2026-05-13 12:15:37.086665+00', 'oauth', '2026-05-13 12:15:37.086625+00', NULL, 'http://localhost:3000/api/auth/callback', NULL, NULL, false);
 
 
 --
@@ -337,10 +356,10 @@ INSERT INTO "auth"."flow_state" ("id", "user_id", "auth_code", "code_challenge_m
 --
 
 INSERT INTO "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") VALUES
-	('00000000-0000-0000-0000-000000000000', '6095eed5-0273-413a-bb0c-ec30591dbce8', 'authenticated', 'authenticated', 'ungriano.268119@lucena.sti.edu.ph', NULL, '2026-04-19 08:57:52.209876+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-24 00:06:20.881491+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "email": "ungriano.268119@lucena.sti.edu.ph", "full_name": "Justine Lee Ungriano", "provider_id": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "d71546b7-d8fc-4f75-9b16-f529d2b1480b", "sid": "0040ba6a-240b-6ea9-c7c5-4fd45b0fdd73", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "ungriano.268119@lucena.sti.edu.ph", "roles": ["Admin"]}, "email_verified": true, "phone_verified": false, "preferred_username": "ungriano.268119@lucena.sti.edu.ph"}', NULL, '2026-04-19 08:57:52.197662+00', '2026-04-24 00:06:20.887075+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
-	('00000000-0000-0000-0000-000000000000', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', 'authenticated', 'authenticated', 'jaro.248919@lucena.sti.edu.ph', NULL, '2026-04-19 11:52:05.495795+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-24 04:44:42.422579+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "email": "jaro.248919@lucena.sti.edu.ph", "full_name": "Jaro, Jose Raphael (Student)", "provider_id": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "98cddbf0-c9b7-4700-8983-32e197a7fd16", "sid": "0040ba6a-adf4-64d8-7323-4cb50589ee6a", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "jaro.248919@lucena.sti.edu.ph", "roles": ["Student"]}, "email_verified": true, "phone_verified": false, "preferred_username": "jaro.248919@lucena.sti.edu.ph"}', NULL, '2026-04-19 11:52:05.480844+00', '2026-04-24 06:08:28.802387+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
 	('00000000-0000-0000-0000-000000000000', '1bdfec79-1696-48c3-a6b3-f065ff8e6580', 'authenticated', 'authenticated', 'delaroca.351089@lucena.sti.edu.ph', NULL, '2026-04-22 01:50:40.32782+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-25 12:05:44.218804+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "OsfhTSEMOOlhFI0u-Id-lmYoFyES-zsnVUabhNMELgE", "email": "delaroca.351089@lucena.sti.edu.ph", "full_name": "Dela Roca, Sean Mcihael (Student)", "provider_id": "OsfhTSEMOOlhFI0u-Id-lmYoFyES-zsnVUabhNMELgE", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "6185e840-bd54-4fb5-b52c-8ab2dd472be2", "sid": "0041088a-73b3-5c41-4098-dfd25f417574", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "delaroca.351089@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "delaroca.351089@lucena.sti.edu.ph"}', NULL, '2026-04-22 01:50:40.312363+00', '2026-04-26 04:41:39.115153+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
-	('00000000-0000-0000-0000-000000000000', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', 'authenticated', 'authenticated', 'rodelas.337171@lucena.sti.edu.ph', NULL, '2026-04-24 04:09:55.708421+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-24 04:09:56.03895+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "email": "rodelas.337171@lucena.sti.edu.ph", "full_name": "Rodelas, Jan Jan (Student)", "provider_id": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "7cd24537-aa65-4c2c-93a2-8ac705b746a9", "sid": "0040ba6a-a177-f52b-a1c7-199b4d85ab61", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "rodelas.337171@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "rodelas.337171@lucena.sti.edu.ph"}', NULL, '2026-04-24 04:09:55.702+00', '2026-04-25 12:05:30.78375+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false);
+	('00000000-0000-0000-0000-000000000000', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', 'authenticated', 'authenticated', 'rodelas.337171@lucena.sti.edu.ph', NULL, '2026-04-24 04:09:55.708421+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-24 04:09:56.03895+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "email": "rodelas.337171@lucena.sti.edu.ph", "full_name": "Rodelas, Jan Jan (Student)", "provider_id": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "7cd24537-aa65-4c2c-93a2-8ac705b746a9", "sid": "0040ba6a-a177-f52b-a1c7-199b4d85ab61", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "rodelas.337171@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "rodelas.337171@lucena.sti.edu.ph"}', NULL, '2026-04-24 04:09:55.702+00', '2026-04-25 12:05:30.78375+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+	('00000000-0000-0000-0000-000000000000', '6095eed5-0273-413a-bb0c-ec30591dbce8', 'authenticated', 'authenticated', 'ungriano.268119@lucena.sti.edu.ph', NULL, '2026-04-19 08:57:52.209876+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-04-24 00:06:20.881491+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "email": "ungriano.268119@lucena.sti.edu.ph", "full_name": "Justine Lee Ungriano", "provider_id": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "d71546b7-d8fc-4f75-9b16-f529d2b1480b", "sid": "004e4efa-ba37-0198-9954-7e171f43632e", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "ungriano.268119@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "ungriano.268119@lucena.sti.edu.ph"}', NULL, '2026-04-19 08:57:52.197662+00', '2026-05-13 12:15:37.085764+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+	('00000000-0000-0000-0000-000000000000', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', 'authenticated', 'authenticated', 'jaro.248919@lucena.sti.edu.ph', NULL, '2026-04-19 11:52:05.495795+00', NULL, '', NULL, '', NULL, '', '', NULL, '2026-05-16 00:24:54.43629+00', '{"provider": "azure", "providers": ["azure"]}', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "email": "jaro.248919@lucena.sti.edu.ph", "full_name": "Jaro, Jose Raphael (Student)", "provider_id": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "98cddbf0-c9b7-4700-8983-32e197a7fd16", "sid": "004e9d1a-47e6-4323-6a10-cff533923c6b", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "jaro.248919@lucena.sti.edu.ph", "roles": ["Student"]}, "email_verified": true, "phone_verified": false, "preferred_username": "jaro.248919@lucena.sti.edu.ph"}', NULL, '2026-04-19 11:52:05.480844+00', '2026-05-16 01:23:28.118649+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false);
 
 
 --
@@ -348,10 +367,10 @@ INSERT INTO "auth"."users" ("instance_id", "id", "aud", "role", "email", "encryp
 --
 
 INSERT INTO "auth"."identities" ("provider_id", "user_id", "identity_data", "provider", "last_sign_in_at", "created_at", "updated_at", "id") VALUES
-	('PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls', '6095eed5-0273-413a-bb0c-ec30591dbce8', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "email": "ungriano.268119@lucena.sti.edu.ph", "full_name": "Justine Lee Ungriano", "provider_id": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "d71546b7-d8fc-4f75-9b16-f529d2b1480b", "sid": "0040ba6a-240b-6ea9-c7c5-4fd45b0fdd73", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "ungriano.268119@lucena.sti.edu.ph", "roles": ["Admin"]}, "email_verified": true, "phone_verified": false, "preferred_username": "ungriano.268119@lucena.sti.edu.ph"}', 'azure', '2026-04-19 08:57:52.203824+00', '2026-04-19 08:57:52.203915+00', '2026-04-24 00:06:20.519773+00', 'e85e8213-4611-4914-ab0e-5f97ee77dc00'),
 	('eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "email": "rodelas.337171@lucena.sti.edu.ph", "full_name": "Rodelas, Jan Jan (Student)", "provider_id": "eDDbg42vcc2QVoKhCgGO22j3tDpQuWt76pKNcy6-w-g", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "7cd24537-aa65-4c2c-93a2-8ac705b746a9", "sid": "0040ba6a-a177-f52b-a1c7-199b4d85ab61", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "rodelas.337171@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "rodelas.337171@lucena.sti.edu.ph"}', 'azure', '2026-04-24 04:09:55.705409+00', '2026-04-24 04:09:55.705443+00', '2026-04-24 04:09:55.705443+00', 'fbe575f2-37b3-4045-9b4e-38071ce46048'),
 	('OsfhTSEMOOlhFI0u-Id-lmYoFyES-zsnVUabhNMELgE', '1bdfec79-1696-48c3-a6b3-f065ff8e6580', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "OsfhTSEMOOlhFI0u-Id-lmYoFyES-zsnVUabhNMELgE", "email": "delaroca.351089@lucena.sti.edu.ph", "full_name": "Dela Roca, Sean Mcihael (Student)", "provider_id": "OsfhTSEMOOlhFI0u-Id-lmYoFyES-zsnVUabhNMELgE", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "6185e840-bd54-4fb5-b52c-8ab2dd472be2", "sid": "0041088a-73b3-5c41-4098-dfd25f417574", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "delaroca.351089@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "delaroca.351089@lucena.sti.edu.ph"}', 'azure', '2026-04-22 01:50:40.318591+00', '2026-04-22 01:50:40.318732+00', '2026-04-26 04:41:39.112055+00', 'fde2b0a3-abac-4019-aed5-9de9d1f0b314'),
-	('hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "email": "jaro.248919@lucena.sti.edu.ph", "full_name": "Jaro, Jose Raphael (Student)", "provider_id": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "98cddbf0-c9b7-4700-8983-32e197a7fd16", "sid": "0040ba6a-adf4-64d8-7323-4cb50589ee6a", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "jaro.248919@lucena.sti.edu.ph", "roles": ["Student"]}, "email_verified": true, "phone_verified": false, "preferred_username": "jaro.248919@lucena.sti.edu.ph"}', 'azure', '2026-04-19 11:52:05.488078+00', '2026-04-19 11:52:05.488181+00', '2026-04-24 04:44:42.015563+00', '42c78900-1654-419b-b983-15eb6ef80b42');
+	('PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls', '6095eed5-0273-413a-bb0c-ec30591dbce8', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "email": "ungriano.268119@lucena.sti.edu.ph", "full_name": "Justine Lee Ungriano", "provider_id": "PW_zV5pHhcrdgjpcg8zEFl7GCIXYPo2kBPS836GIEls", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "d71546b7-d8fc-4f75-9b16-f529d2b1480b", "sid": "004e4efa-ba37-0198-9954-7e171f43632e", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "ungriano.268119@lucena.sti.edu.ph", "roles": ["Staff"]}, "email_verified": true, "phone_verified": false, "preferred_username": "ungriano.268119@lucena.sti.edu.ph"}', 'azure', '2026-04-19 08:57:52.203824+00', '2026-04-19 08:57:52.203915+00', '2026-05-13 12:15:37.08423+00', 'e85e8213-4611-4914-ab0e-5f97ee77dc00'),
+	('hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '{"iss": "https://login.microsoftonline.com/c5e6c730-514f-481d-af04-a41e96e148b7/v2.0", "sub": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "email": "jaro.248919@lucena.sti.edu.ph", "full_name": "Jaro, Jose Raphael (Student)", "provider_id": "hHN3xbdpPM60B4Ny9ZtZaTxUNe1Nd4gfvY5ogiAGfZU", "custom_claims": {"idp": "https://sts.windows.net/26d2ad8c-95d5-4410-b9fb-1ffae7549ef8/", "oid": "98cddbf0-c9b7-4700-8983-32e197a7fd16", "sid": "004e9d1a-47e6-4323-6a10-cff533923c6b", "tid": "c5e6c730-514f-481d-af04-a41e96e148b7", "email": "jaro.248919@lucena.sti.edu.ph", "roles": ["Student"]}, "email_verified": true, "phone_verified": false, "preferred_username": "jaro.248919@lucena.sti.edu.ph"}', 'azure', '2026-04-19 11:52:05.488078+00', '2026-04-19 11:52:05.488181+00', '2026-05-16 00:24:54.213193+00', '42c78900-1654-419b-b983-15eb6ef80b42');
 
 
 --
@@ -371,9 +390,9 @@ INSERT INTO "auth"."identities" ("provider_id", "user_id", "identity_data", "pro
 --
 
 INSERT INTO "auth"."sessions" ("id", "user_id", "created_at", "updated_at", "factor_id", "aal", "not_after", "refreshed_at", "user_agent", "ip", "tag", "oauth_client_id", "refresh_token_hmac_key", "refresh_token_counter", "scopes") VALUES
-	('4375a607-70f9-491f-9803-60d6d29bf6f6', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '2026-04-24 00:06:52.144642+00', '2026-04-24 04:44:35.78126+00', NULL, 'aal1', NULL, '2026-04-24 04:44:35.781202', 'Mozilla/5.0 (X11; Linux x86_64; rv:149.0) Gecko/20100101 Firefox/149.0', '172.18.0.1', NULL, NULL, NULL, NULL, NULL),
-	('2c68830b-25ef-481c-a103-867c289b9cc3', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '2026-04-24 04:44:42.422662+00', '2026-04-24 06:08:28.805665+00', NULL, 'aal1', NULL, '2026-04-24 06:08:28.805545', 'node', '172.18.0.1', NULL, NULL, NULL, NULL, NULL),
-	('5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', '2026-04-24 04:09:56.03903+00', '2026-04-25 12:05:30.785226+00', NULL, 'aal1', NULL, '2026-04-25 12:05:30.785152', 'Mozilla/5.0 (X11; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0', '172.18.0.1', NULL, NULL, NULL, NULL, NULL);
+	('5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', '2026-04-24 04:09:56.03903+00', '2026-04-25 12:05:30.785226+00', NULL, 'aal1', NULL, '2026-04-25 12:05:30.785152', 'Mozilla/5.0 (X11; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0', '172.18.0.1', NULL, NULL, NULL, NULL, NULL),
+	('e2c389a1-dc5c-4d0a-b28a-4fd457f000c8', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '2026-05-13 12:20:36.687222+00', '2026-05-13 12:20:36.687222+00', NULL, 'aal1', NULL, NULL, 'node', '172.18.0.1', NULL, NULL, NULL, NULL, NULL),
+	('a1e6228f-0606-449f-886b-cf92ee1134c7', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '2026-05-16 00:24:54.436398+00', '2026-05-16 01:23:28.120874+00', NULL, 'aal1', NULL, '2026-05-16 01:23:28.120768', 'Mozilla/5.0 (X11; Linux x86_64; rv:150.0) Gecko/20100101 Firefox/150.0', '172.18.0.1', NULL, NULL, NULL, NULL, NULL);
 
 
 --
@@ -381,9 +400,9 @@ INSERT INTO "auth"."sessions" ("id", "user_id", "created_at", "updated_at", "fac
 --
 
 INSERT INTO "auth"."mfa_amr_claims" ("session_id", "created_at", "updated_at", "authentication_method", "id") VALUES
-	('4375a607-70f9-491f-9803-60d6d29bf6f6', '2026-04-24 00:06:52.150508+00', '2026-04-24 00:06:52.150508+00', 'oauth', '914675e8-17f3-4e94-8f7e-e3c389ee2b18'),
 	('5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97', '2026-04-24 04:09:56.042725+00', '2026-04-24 04:09:56.042725+00', 'oauth', 'b5ccc42a-2a17-4514-8265-64ffab308ff5'),
-	('2c68830b-25ef-481c-a103-867c289b9cc3', '2026-04-24 04:44:42.427014+00', '2026-04-24 04:44:42.427014+00', 'oauth', '75940d85-878b-44a0-869e-0340df40fb56');
+	('e2c389a1-dc5c-4d0a-b28a-4fd457f000c8', '2026-05-13 12:20:36.690266+00', '2026-05-13 12:20:36.690266+00', 'oauth', 'd0c59cb9-2a59-48af-a8d8-268a923d4fed'),
+	('a1e6228f-0606-449f-886b-cf92ee1134c7', '2026-05-16 00:24:54.440845+00', '2026-05-16 00:24:54.440845+00', 'oauth', '8db85e4a-8cbd-449d-8d65-454daacb43c1');
 
 
 --
@@ -427,16 +446,12 @@ INSERT INTO "auth"."mfa_amr_claims" ("session_id", "created_at", "updated_at", "
 --
 
 INSERT INTO "auth"."refresh_tokens" ("instance_id", "id", "token", "user_id", "revoked", "created_at", "updated_at", "parent", "session_id") VALUES
-	('00000000-0000-0000-0000-000000000000', 52, 'oq3toteep347', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-04-24 00:06:52.145926+00', '2026-04-24 01:28:23.908551+00', NULL, '4375a607-70f9-491f-9803-60d6d29bf6f6'),
-	('00000000-0000-0000-0000-000000000000', 55, 'rbbsvvbdmprx', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-04-24 01:28:23.909105+00', '2026-04-24 02:28:45.673823+00', 'oq3toteep347', '4375a607-70f9-491f-9803-60d6d29bf6f6'),
-	('00000000-0000-0000-0000-000000000000', 57, 'bff6xayetj5a', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-04-24 02:28:45.674575+00', '2026-04-24 03:28:45.902291+00', 'rbbsvvbdmprx', '4375a607-70f9-491f-9803-60d6d29bf6f6'),
-	('00000000-0000-0000-0000-000000000000', 61, 'zuvfwwjvt4oy', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-04-24 03:28:45.903054+00', '2026-04-24 04:44:35.778464+00', 'bff6xayetj5a', '4375a607-70f9-491f-9803-60d6d29bf6f6'),
-	('00000000-0000-0000-0000-000000000000', 64, '7vq6ktjya6v2', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', false, '2026-04-24 04:44:35.779275+00', '2026-04-24 04:44:35.779275+00', 'zuvfwwjvt4oy', '4375a607-70f9-491f-9803-60d6d29bf6f6'),
-	('00000000-0000-0000-0000-000000000000', 65, 'rm23ohuulb6i', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-04-24 04:44:42.424841+00', '2026-04-24 06:08:28.800197+00', NULL, '2c68830b-25ef-481c-a103-867c289b9cc3'),
-	('00000000-0000-0000-0000-000000000000', 67, '5hngyyud5tj7', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', false, '2026-04-24 06:08:28.801021+00', '2026-04-24 06:08:28.801021+00', 'rm23ohuulb6i', '2c68830b-25ef-481c-a103-867c289b9cc3'),
 	('00000000-0000-0000-0000-000000000000', 62, 'zy4q5ljia3h3', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', true, '2026-04-24 04:09:56.040921+00', '2026-04-24 06:08:30.440652+00', NULL, '5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97'),
 	('00000000-0000-0000-0000-000000000000', 68, 'mowf67wukrgb', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', true, '2026-04-24 06:08:30.4422+00', '2026-04-25 12:05:30.782311+00', 'zy4q5ljia3h3', '5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97'),
-	('00000000-0000-0000-0000-000000000000', 69, 'v5k7agqufczi', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', false, '2026-04-25 12:05:30.782847+00', '2026-04-25 12:05:30.782847+00', 'mowf67wukrgb', '5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97');
+	('00000000-0000-0000-0000-000000000000', 69, 'v5k7agqufczi', '0d22b454-2673-45bb-8ed9-12e1a3ab8233', false, '2026-04-25 12:05:30.782847+00', '2026-04-25 12:05:30.782847+00', 'mowf67wukrgb', '5f80f5aa-d32b-47fa-bb2e-e882ff0cfa97'),
+	('00000000-0000-0000-0000-000000000000', 87, 'li4wblxj4ij6', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', false, '2026-05-13 12:20:36.688788+00', '2026-05-13 12:20:36.688788+00', NULL, 'e2c389a1-dc5c-4d0a-b28a-4fd457f000c8'),
+	('00000000-0000-0000-0000-000000000000', 88, 'ob26sokuwhmy', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', true, '2026-05-16 00:24:54.438871+00', '2026-05-16 01:23:28.117673+00', NULL, 'a1e6228f-0606-449f-886b-cf92ee1134c7'),
+	('00000000-0000-0000-0000-000000000000', 89, '4qgbqoou3ru3', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', false, '2026-05-16 01:23:28.11808+00', '2026-05-16 01:23:28.11808+00', 'ob26sokuwhmy', 'a1e6228f-0606-449f-886b-cf92ee1134c7');
 
 
 --
@@ -479,6 +494,19 @@ INSERT INTO "auth"."refresh_tokens" ("instance_id", "id", "token", "user_id", "r
 -- Data for Name: __drizzle_migrations; Type: TABLE DATA; Schema: drizzle; Owner: postgres
 --
 
+
+
+--
+-- Data for Name: clearance_departments; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."clearance_departments" ("dept_id", "dept_name") VALUES
+	(2, 'Cashier'),
+	(3, 'Clinic'),
+	(5, 'Guidance Office'),
+	(7, 'Library'),
+	(8, 'Registrar'),
+	(9, 'Computer Laboratory');
 
 
 --
@@ -764,10 +792,10 @@ INSERT INTO "public"."staffs" ("staff_id", "staff_name", "time_in", "time_out") 
 
 
 --
--- Data for Name: activity_logs; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: clearance_logs; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."activity_logs" ("log_id", "staff_id", "message", "created_at", "actions") VALUES
+INSERT INTO "public"."clearance_logs" ("log_id", "staff_id", "message", "created_at", "actions") VALUES
 	(2, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-04-24 00:30:32.772575+00', 'Assign Task'),
 	(3, '02000351089', 'Signed off on clearances for 2 student(s).', '2026-04-24 00:32:54.515004+00', 'Sign Clearance'),
 	(4, '02000351089', 'Signed off on clearances for 1 student(s).', '2026-04-24 01:00:04.59414+00', 'Sign Clearance'),
@@ -784,14 +812,6 @@ INSERT INTO "public"."activity_logs" ("log_id", "staff_id", "message", "created_
 
 
 --
--- Data for Name: clearance_tasks_preset; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO "public"."clearance_tasks_preset" ("task_id", "description", "staff_id", "title") VALUES
-	(24, 'Settle the payment through the cashier', '02000351089', 'Missing Book');
-
-
---
 -- Data for Name: courses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -799,18 +819,6 @@ INSERT INTO "public"."courses" ("course_id", "course_name") VALUES
 	(1, 'BSCS'),
 	(2, 'BSIT'),
 	(3, 'BSCPE');
-
-
---
--- Data for Name: departments; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO "public"."departments" ("dept_id", "dept_name") VALUES
-	(2, 'Cashier'),
-	(3, 'Clinic'),
-	(5, 'Guidance Office'),
-	(7, 'Library'),
-	(8, 'Registrar');
 
 
 --
@@ -823,7 +831,11 @@ INSERT INTO "public"."clearance_templates" ("template_id", "course_id", "dept_id
 	(45, 3, 8, '02000485347'),
 	(44, 1, 2, '02000351089'),
 	(49, 3, 2, '02000351089'),
-	(50, 1, 8, '02000099262');
+	(50, 1, 8, '02000099262'),
+	(51, 1, 3, '02000079480'),
+	(52, 1, 5, '02000924567'),
+	(53, 1, 7, '02000788068'),
+	(55, 1, 9, '02000607789');
 
 
 --
@@ -831,265 +843,266 @@ INSERT INTO "public"."clearance_templates" ("template_id", "course_id", "dept_id
 --
 
 INSERT INTO "public"."students" ("student_id", "student_name", "phone_number", "balance") VALUES
-    ('02000000057', 'Harold Galvez', NULL, 0),
-    ('02000000058', 'Isabel Hermosa', NULL, 0),
-    ('02000000059', 'Joshua Iñigo', NULL, 0),
-    ('02000000060', 'Katrina Jamora', NULL, 0),
-    ('02000000061', 'Lawrence Kintanar', NULL, 0),
-    ('02000000062', 'Marianne Lim', NULL, 0),
-    ('02000000063', 'Nathaniel Malabanan', NULL, 0),
-    ('02000000064', 'Olivia Nolasco', NULL, 0),
-    ('02000000065', 'Paolo Ocampo', NULL, 0),
-    ('02000000066', 'Queenie Panganiban', NULL, 0),
-    ('02000000067', 'Rafael Quijano', NULL, 0),
-    ('02000000068', 'Sofia Rivera', NULL, 0),
-    ('02000000069', 'Timothy Santos', NULL, 0),
-    ('02000000070', 'Ursula Tan', NULL, 0),
-    ('02000000071', 'Vincent Uy', NULL, 0),
-    ('02000000072', 'Warren Valerio', NULL, 0),
-    ('02000000073', 'Xenia Wong', NULL, 0),
-    ('02000000074', 'Yuri Yumul', NULL, 0),
-    ('02000000075', 'Zoe Zafra', NULL, 0),
-    ('02000000076', 'Albert Andrada', NULL, 0),
-    ('02000000077', 'Bernadette Barrera', NULL, 0),
-    ('02000000078', 'Christian Coloma', NULL, 0),
-    ('02000000079', 'Diana Del Rosario', NULL, 0),
-    ('02000000080', 'Edward Encarnacion', NULL, 0),
-    ('02000000081', 'Felix Flores', NULL, 0),
-    ('02000000082', 'Giselle Guevarra', NULL, 0),
-    ('02000000083', 'Henry Hilario', NULL, 0),
-    ('02000000084', 'Irene Ilagan', NULL, 0),
-    ('02000000085', 'Jerome Javier', NULL, 0),
-    ('02000000086', 'Kimberly Katigbak', NULL, 0),
-    ('02000000087', 'Leo Lacuesta', NULL, 0),
-    ('02000000088', 'Monica Mercado', NULL, 0),
-    ('02000000089', 'Noel Navarro', NULL, 0),
-    ('02000000090', 'Ophelia Ong', NULL, 0),
-    ('02000000091', 'Patrick Perez', NULL, 0),
-    ('02000000092', 'Rina Quimbo', NULL, 0),
-    ('02000000093', 'Sean Ramos', NULL, 0),
-    ('02000000094', 'Tricia Sebastian', NULL, 0),
-    ('02000000095', 'Ulysses Tolentino', NULL, 0),
-    ('02000000096', 'Vanessa Umali', NULL, 0),
-    ('02000000097', 'Wilfredo Vergara', NULL, 0),
-    ('02000000098', 'Xander Yambao', NULL, 0),
-    ('02000000099', 'Yvette Zapata', NULL, 0),
-    ('02000000100', 'Zacharias Aguilar', NULL, 0),
-    ('02000000101', 'Aaron Villareal', NULL, 0),
-    ('02000000102', 'Bianca Abella', NULL, 0),
-    ('02000000103', 'Christian Bonifacio', NULL, 0),
-    ('02000000104', 'Danica Caballero', NULL, 0),
-    ('02000000105', 'Elliot Dizon', NULL, 0),
-    ('02000000106', 'Francesca Esguerra', NULL, 0),
-    ('02000000107', 'Gerald Fajardo', NULL, 0),
-    ('02000000108', 'Helena Go', NULL, 0),
-    ('02000000109', 'Isaac Hizon', NULL, 0),
-    ('02000000110', 'Joanna Isidro', NULL, 0),
-    ('02000000111', 'Kenneth Jacinto', NULL, 0),
-    ('02000000112', 'Lourdes Kasilag', NULL, 0),
-    ('02000000113', 'Matteo Lacson', NULL, 0),
-    ('02000000114', 'Nerissa Madarang', NULL, 0),
-    ('02000000115', 'Orlando Neri', NULL, 0),
-    ('02000000116', 'Priscilla Ong', NULL, 0),
-    ('02000000117', 'Quinton Pacheco', NULL, 0),
-    ('02000000118', 'Rowena Que', NULL, 0),
-    ('02000000119', 'Stefan Reyes', NULL, 0),
-    ('02000000120', 'Therese Samson', NULL, 0),
-    ('02000000121', 'Ulrich Tan', NULL, 0),
-    ('02000000122', 'Valerie Uy', NULL, 0),
-    ('02000000123', 'Winston Valencia', NULL, 0),
-    ('02000000124', 'Xiomara Yao', NULL, 0),
-    ('02000000125', 'Yohan Zubiri', NULL, 0),
-    ('02000000126', 'Zandra Almeda', NULL, 0),
-    ('02000000127', 'Andre Baltazar', NULL, 0),
-    ('02000000128', 'Bea Casipit', NULL, 0),
-    ('02000000129', 'Cedric Delos Reyes', NULL, 0),
-    ('02000000130', 'Daphne Eclarinal', NULL, 0),
-    ('02000000131', 'Enzo Flores', NULL, 0),
-    ('02000000132', 'Fatima Galang', NULL, 0),
-    ('02000000133', 'Gavin Herrera', NULL, 0),
-    ('02000000134', 'Hazel Ibañez', NULL, 0),
-    ('02000000135', 'Ivan Jalandoni', NULL, 0),
-    ('02000000136', 'Janelle Katipunan', NULL, 0),
-    ('02000000137', 'Karl Lorenzo', NULL, 0),
-    ('02000000138', 'Louise Manansala', NULL, 0),
-    ('02000000139', 'Miguel Navarro', NULL, 0),
-    ('02000000140', 'Nadine Ople', NULL, 0),
-    ('02000000141', 'Oscar Padilla', NULL, 0),
-    ('02000000142', 'Patricia Quinto', NULL, 0),
-    ('02000000143', 'Ramon Relativo', NULL, 0),
-    ('02000000144', 'Sabrina Soriano', NULL, 0),
-    ('02000000145', 'Tristan Tolosa', NULL, 0),
-    ('02000000146', 'Ursula Uson', NULL, 0),
-    ('02000000147', 'Victor Villanueva', NULL, 0),
-    ('02000000148', 'Willa Ylanan', NULL, 0),
-    ('02000000149', 'Xerxes Zapanta', NULL, 0),
-    ('02000000150', 'Yvette Zuniga', NULL, 0),
-    ('02000000151', 'Adrian Alcantara', NULL, 0),
-    ('02000000152', 'Belinda Bautista', NULL, 0),
-    ('02000000153', 'Crisanto Cabangon', NULL, 0),
-    ('02000000154', 'Dahlia De Leon', NULL, 0),
-    ('02000000155', 'Emmanuel Dimaano', NULL, 0),
-    ('02000000156', 'Felicia Espiritu', NULL, 0),
-    ('02000000157', 'Gregorio Fernandez', NULL, 0),
-    ('02000000158', 'Hannah Gatchalian', NULL, 0),
-    ('02000000159', 'Isandro Hilario', NULL, 0),
-    ('02000000160', 'Janine Ibarra', NULL, 0),
-    ('02000000161', 'Kristoffer Jamias', NULL, 0),
-    ('02000000162', 'Lianne Katigbak', NULL, 0),
-    ('02000000163', 'Manuel Lacsamana', NULL, 0),
-    ('02000000164', 'Noemi Magpantay', NULL, 0),
-    ('02000000165', 'Oliver Mallari', NULL, 0),
-    ('02000000166', 'Pauline Mendoza', NULL, 0),
-    ('02000000167', 'Quirino Natividad', NULL, 0),
-    ('02000000168', 'Roselle Ong', NULL, 0),
-    ('02000000169', 'Sebastian Pascual', NULL, 0),
-    ('02000000170', 'Theresa Quejada', NULL, 0),
-    ('02000000171', 'Ulysses Rabino', NULL, 0),
-    ('02000000172', 'Vanessa Recto', NULL, 0),
-    ('02000000173', 'Wilson Salvador', NULL, 0),
-    ('02000000174', 'Xandra Sarmiento', NULL, 0),
-    ('02000000175', 'Yolanda Sevilla', NULL, 0),
-    ('02000000176', 'Zachary Solis', NULL, 0),
-    ('02000000177', 'Alfonso Tolentino', NULL, 0),
-    ('02000000178', 'Bridgette Umali', NULL, 0),
-    ('02000000179', 'Carmela Valdez', NULL, 0),
-    ('02000000180', 'Dominic Vargas', NULL, 0),
-    ('02000000181', 'Esteban Villarin', NULL, 0),
-    ('02000000002', 'Bianca Santos', NULL, 0),
-    ('02000000003', 'Carlos Mendoza', NULL, 0),
-    ('02000000004', 'Daphne Reyes', NULL, 0),
-    ('02000000005', 'Ethan Navarro', NULL, 0),
-    ('02000000006', 'Fiona Delgado', NULL, 0),
-    ('02000000007', 'Gabriel Torres', NULL, 0),
-    ('02000000008', 'Hannah Flores', NULL, 0),
-    ('02000000009', 'Ivan Castillo', NULL, 0),
-    ('02000000010', 'Julia Romero', NULL, 0),
-    ('02000000011', 'Kevin Bautista', NULL, 0),
-    ('02000000051', 'Brian Alonzo', NULL, 0),
-    ('02000000052', 'Catherine Belmonte', NULL, 0),
-    ('02000000053', 'Daniel Cayanan', NULL, 0),
-    ('02000000054', 'Erika Dela Cruz', NULL, 0),
-    ('02000000055', 'Francis Esteban', NULL, 0),
-    ('02000000056', 'Grace Fernandez', NULL, 0),
-    ('02000000182', 'Frances Villena', NULL, 0),
-    ('02000000183', 'Gian Yabut', NULL, 0),
-    ('02000000184', 'Helene Yanga', NULL, 0),
-    ('02000000185', 'Irene Yap', NULL, 0),
-    ('02000000186', 'Joshua Zafra', NULL, 0),
-    ('02000000187', 'Karla Zulueta', NULL, 0),
-    ('02000000188', 'Leandro Abad', NULL, 0),
-    ('02000000189', 'Marissa Aquino', NULL, 0),
-    ('02000000190', 'Nathan Borja', NULL, 0),
-    ('02000000191', 'Ophelia Castañeda', NULL, 0),
-    ('02000000192', 'Patrick Damaso', NULL, 0),
-    ('02000000193', 'Regina De Vera', NULL, 0),
-    ('02000000194', 'Santino Enriquez', NULL, 0),
-    ('02000000195', 'Trisha Ferrer', NULL, 0),
-    ('02000000196', 'Ulises Gonzales', NULL, 0),
-    ('02000000197', 'Valerie Hernandez', NULL, 0),
-    ('02000000198', 'Warren Ilustre', NULL, 0),
-    ('02000000199', 'Ximena Jimenez', NULL, 0),
-    ('02000000200', 'Yosef Kalaw', NULL, 0),
-    ('02000000201', 'Abigail Llamas', NULL, 0),
-    ('02000000202', 'Bruno Magbanua', NULL, 0),
-    ('02000000203', 'Cynthia Navarro', NULL, 0),
-    ('02000000204', 'Diego Ortega', NULL, 0),
-    ('02000000205', 'Elena Padua', NULL, 0),
-    ('02000000206', 'Felix Quiambao', NULL, 0),
-    ('02000000207', 'Gabrielle Ramos', NULL, 0),
-    ('02000000208', 'Hector Sarmiento', NULL, 0),
-    ('02000000209', 'Isla Tan', NULL, 0),
-    ('02000000210', 'Jared Umali', NULL, 0),
-    ('02000000211', 'Kylie Valencia', NULL, 0),
-    ('02000000212', 'Leonardo Villanueva', NULL, 0),
-    ('02000000213', 'Maya Yabut', NULL, 0),
-    ('02000000214', 'Nathaniel Zamora', NULL, 0),
-    ('02000000215', 'Olivia Alonzo', NULL, 0),
-    ('02000000216', 'Patrick Bautista', NULL, 0),
-    ('02000000217', 'Quinn Caballero', NULL, 0),
-    ('02000000218', 'Rebecca Dela Rosa', NULL, 0),
-    ('02000000219', 'Samuel Enriquez', NULL, 0),
-    ('02000000220', 'Tracy Fernandez', NULL, 0),
-    ('02000000221', 'Ulrich Galvez', NULL, 0),
-    ('02000000222', 'Valerie Herrera', NULL, 0),
-    ('02000000223', 'Walter Ignacio', NULL, 0),
-    ('02000000224', 'Ximena Jacinto', NULL, 0),
-    ('02000000225', 'Yannick Katigbak', NULL, 0),
-    ('02000000226', 'Zara Lorenzo', NULL, 0),
-    ('02000000227', 'Adrian Manalo', NULL, 0),
-    ('02000000228', 'Bianca Navarro', NULL, 0),
-    ('02000000229', 'Christian Ong', NULL, 0),
-    ('02000000230', 'Danica Pascual', NULL, 0),
-    ('02000000231', 'Ethan Quirante', NULL, 0),
-    ('02000000232', 'Francesca Reyes', NULL, 0),
-    ('02000000233', 'Gabriel Santos', NULL, 0),
-    ('02000000234', 'Helena Tolentino', NULL, 0),
-    ('02000000235', 'Ian Umali', NULL, 0),
-    ('02000000236', 'Jasmine Valerio', NULL, 0),
-    ('02000000237', 'Kyle Wong', NULL, 0),
-    ('02000000238', 'Leah Yambao', NULL, 0),
-    ('02000000239', 'Miguel Zamudio', NULL, 0),
-    ('02000000240', 'Nicole Abad', NULL, 0),
-    ('02000000241', 'Oscar Bautista', NULL, 0),
-    ('02000854522', 'Jobart', '+639540465603', 0),
-    ('02000000027', 'Aaron Beltran', '+639940219856', 0),
-    ('02000000001', 'Adrian Cruz', '+639669819007', 0),
-    ('02000724184', 'Dino', NULL, 0),
-    ('02000000012', 'Lara Dominguez', NULL, 0),
-    ('02000000013', 'Marcus Villanueva', NULL, 0),
-    ('02000000014', 'Nina Paredes', NULL, 0),
-    ('02000000015', 'Oscar Valdez', NULL, 0),
-    ('02000000016', 'Paula Jimenez', NULL, 0),
-    ('02000000017', 'Quentin Ramos', NULL, 0),
-    ('02000000018', 'Rhea Alvarez', NULL, 0),
-    ('02000000019', 'Samuel Ortega', NULL, 0),
-    ('02000000020', 'Tanya Molina', NULL, 0),
-    ('02000000021', 'Ulysses Herrera', NULL, 0),
-    ('02000000022', 'Vanessa Aquino', NULL, 0),
-    ('02000000023', 'William Figueroa', NULL, 0),
-    ('02000000024', 'Xandra Lozano', NULL, 0),
-    ('02000000025', 'Yves Salazar', NULL, 0),
-    ('02000000026', 'Zara Montoya', NULL, 0),
-    ('02000000028', 'Beatrice Ibarra', NULL, 0),
-    ('02000000029', 'Caleb Fuentes', NULL, 0),
-    ('02000000030', 'Diana Rosales', NULL, 0),
-    ('02000000031', 'Elijah Cordero', NULL, 0),
-    ('02000000032', 'Faith Mercado', NULL, 0),
-    ('02000000033', 'George Manalo', NULL, 0),
-    ('02000000034', 'Hazel Macapagal', NULL, 0),
-    ('02000000035', 'Ian Villamor', NULL, 0),
-    ('02000000036', 'Jasmine Tiongson', NULL, 0),
-    ('02000000037', 'Kyle Abad', NULL, 0),
-    ('02000000038', 'Leah Corpuz', NULL, 0),
-    ('02000000039', 'Michael Espino', NULL, 0),
-    ('02000000040', 'Nicole Soriano', NULL, 0),
-    ('02000000041', 'Oliver De Vera', NULL, 0),
-    ('02000000042', 'Patricia Lucero', NULL, 0),
-    ('02000000043', 'Ronald De Guzman', NULL, 0),
-    ('02000000044', 'Samantha Ignacio', NULL, 0),
-    ('02000000045', 'Thomas Evangelista', NULL, 0),
-    ('02000000046', 'Una Villaflor', NULL, 0),
-    ('02000000047', 'Victor Carreon', NULL, 0),
-    ('02000000048', 'Wendy Magtibay', NULL, 0),
-    ('02000000049', 'Xavier Calderon', NULL, 0),
-    ('02000000050', 'Yanna Dimaculangan', NULL, 0),
-    ('02000000242', 'Patricia Calderon', NULL, 0),
-    ('02000000243', 'Ramon De Leon', NULL, 0),
-    ('02000000244', 'Sofia Esguerra', NULL, 0),
-    ('02000000245', 'Tristan Flores', NULL, 0),
-    ('02000000246', 'Ursula Gonzales', NULL, 0),
-    ('02000000247', 'Victor Hidalgo', NULL, 0),
-    ('02000000248', 'Wendy Ignacio', NULL, 0),
-    ('02000000249', 'Xavier Javier', NULL, 0),
-    ('02000000250', 'Yvonne Katigbak', NULL, 0),
-    ('02000609703', 'Jyrum Jaro', NULL, 0);
+	('02000000057', 'Harold Galvez', NULL, 0),
+	('02000000058', 'Isabel Hermosa', NULL, 0),
+	('02000000059', 'Joshua Iñigo', NULL, 0),
+	('02000000060', 'Katrina Jamora', NULL, 0),
+	('02000000061', 'Lawrence Kintanar', NULL, 0),
+	('02000000062', 'Marianne Lim', NULL, 0),
+	('02000000063', 'Nathaniel Malabanan', NULL, 0),
+	('02000000064', 'Olivia Nolasco', NULL, 0),
+	('02000000065', 'Paolo Ocampo', NULL, 0),
+	('02000000066', 'Queenie Panganiban', NULL, 0),
+	('02000000067', 'Rafael Quijano', NULL, 0),
+	('02000000068', 'Sofia Rivera', NULL, 0),
+	('02000000069', 'Timothy Santos', NULL, 0),
+	('02000000070', 'Ursula Tan', NULL, 0),
+	('02000000071', 'Vincent Uy', NULL, 0),
+	('02000000072', 'Warren Valerio', NULL, 0),
+	('02000000073', 'Xenia Wong', NULL, 0),
+	('02000000074', 'Yuri Yumul', NULL, 0),
+	('02000000075', 'Zoe Zafra', NULL, 0),
+	('02000000076', 'Albert Andrada', NULL, 0),
+	('02000000077', 'Bernadette Barrera', NULL, 0),
+	('02000000078', 'Christian Coloma', NULL, 0),
+	('02000000079', 'Diana Del Rosario', NULL, 0),
+	('02000000080', 'Edward Encarnacion', NULL, 0),
+	('02000000081', 'Felix Flores', NULL, 0),
+	('02000000082', 'Giselle Guevarra', NULL, 0),
+	('02000000083', 'Henry Hilario', NULL, 0),
+	('02000000084', 'Irene Ilagan', NULL, 0),
+	('02000000085', 'Jerome Javier', NULL, 0),
+	('02000000086', 'Kimberly Katigbak', NULL, 0),
+	('02000000087', 'Leo Lacuesta', NULL, 0),
+	('02000000088', 'Monica Mercado', NULL, 0),
+	('02000000089', 'Noel Navarro', NULL, 0),
+	('02000000090', 'Ophelia Ong', NULL, 0),
+	('02000000091', 'Patrick Perez', NULL, 0),
+	('02000000092', 'Rina Quimbo', NULL, 0),
+	('02000000093', 'Sean Ramos', NULL, 0),
+	('02000000094', 'Tricia Sebastian', NULL, 0),
+	('02000000095', 'Ulysses Tolentino', NULL, 0),
+	('02000000096', 'Vanessa Umali', NULL, 0),
+	('02000000097', 'Wilfredo Vergara', NULL, 0),
+	('02000000098', 'Xander Yambao', NULL, 0),
+	('02000000099', 'Yvette Zapata', NULL, 0),
+	('02000000100', 'Zacharias Aguilar', NULL, 0),
+	('02000000101', 'Aaron Villareal', NULL, 0),
+	('02000000102', 'Bianca Abella', NULL, 0),
+	('02000000103', 'Christian Bonifacio', NULL, 0),
+	('02000000104', 'Danica Caballero', NULL, 0),
+	('02000000105', 'Elliot Dizon', NULL, 0),
+	('02000000106', 'Francesca Esguerra', NULL, 0),
+	('02000000107', 'Gerald Fajardo', NULL, 0),
+	('02000000108', 'Helena Go', NULL, 0),
+	('02000000109', 'Isaac Hizon', NULL, 0),
+	('02000000110', 'Joanna Isidro', NULL, 0),
+	('02000000111', 'Kenneth Jacinto', NULL, 0),
+	('02000000112', 'Lourdes Kasilag', NULL, 0),
+	('02000000113', 'Matteo Lacson', NULL, 0),
+	('02000000114', 'Nerissa Madarang', NULL, 0),
+	('02000000115', 'Orlando Neri', NULL, 0),
+	('02000000116', 'Priscilla Ong', NULL, 0),
+	('02000000117', 'Quinton Pacheco', NULL, 0),
+	('02000000118', 'Rowena Que', NULL, 0),
+	('02000000119', 'Stefan Reyes', NULL, 0),
+	('02000000120', 'Therese Samson', NULL, 0),
+	('02000000121', 'Ulrich Tan', NULL, 0),
+	('02000000122', 'Valerie Uy', NULL, 0),
+	('02000000123', 'Winston Valencia', NULL, 0),
+	('02000000124', 'Xiomara Yao', NULL, 0),
+	('02000000125', 'Yohan Zubiri', NULL, 0),
+	('02000000126', 'Zandra Almeda', NULL, 0),
+	('02000000127', 'Andre Baltazar', NULL, 0),
+	('02000000128', 'Bea Casipit', NULL, 0),
+	('02000000129', 'Cedric Delos Reyes', NULL, 0),
+	('02000000130', 'Daphne Eclarinal', NULL, 0),
+	('02000000131', 'Enzo Flores', NULL, 0),
+	('02000000132', 'Fatima Galang', NULL, 0),
+	('02000000133', 'Gavin Herrera', NULL, 0),
+	('02000000134', 'Hazel Ibañez', NULL, 0),
+	('02000000135', 'Ivan Jalandoni', NULL, 0),
+	('02000000136', 'Janelle Katipunan', NULL, 0),
+	('02000000137', 'Karl Lorenzo', NULL, 0),
+	('02000000138', 'Louise Manansala', NULL, 0),
+	('02000000139', 'Miguel Navarro', NULL, 0),
+	('02000000140', 'Nadine Ople', NULL, 0),
+	('02000000141', 'Oscar Padilla', NULL, 0),
+	('02000000142', 'Patricia Quinto', NULL, 0),
+	('02000000143', 'Ramon Relativo', NULL, 0),
+	('02000000144', 'Sabrina Soriano', NULL, 0),
+	('02000000145', 'Tristan Tolosa', NULL, 0),
+	('02000000146', 'Ursula Uson', NULL, 0),
+	('02000000147', 'Victor Villanueva', NULL, 0),
+	('02000000148', 'Willa Ylanan', NULL, 0),
+	('02000000149', 'Xerxes Zapanta', NULL, 0),
+	('02000000150', 'Yvette Zuniga', NULL, 0),
+	('02000000151', 'Adrian Alcantara', NULL, 0),
+	('02000000152', 'Belinda Bautista', NULL, 0),
+	('02000000153', 'Crisanto Cabangon', NULL, 0),
+	('02000000154', 'Dahlia De Leon', NULL, 0),
+	('02000000155', 'Emmanuel Dimaano', NULL, 0),
+	('02000000156', 'Felicia Espiritu', NULL, 0),
+	('02000000157', 'Gregorio Fernandez', NULL, 0),
+	('02000000158', 'Hannah Gatchalian', NULL, 0),
+	('02000000159', 'Isandro Hilario', NULL, 0),
+	('02000000160', 'Janine Ibarra', NULL, 0),
+	('02000000161', 'Kristoffer Jamias', NULL, 0),
+	('02000000162', 'Lianne Katigbak', NULL, 0),
+	('02000000163', 'Manuel Lacsamana', NULL, 0),
+	('02000000164', 'Noemi Magpantay', NULL, 0),
+	('02000000165', 'Oliver Mallari', NULL, 0),
+	('02000000166', 'Pauline Mendoza', NULL, 0),
+	('02000000167', 'Quirino Natividad', NULL, 0),
+	('02000000168', 'Roselle Ong', NULL, 0),
+	('02000000169', 'Sebastian Pascual', NULL, 0),
+	('02000000170', 'Theresa Quejada', NULL, 0),
+	('02000000171', 'Ulysses Rabino', NULL, 0),
+	('02000000172', 'Vanessa Recto', NULL, 0),
+	('02000000173', 'Wilson Salvador', NULL, 0),
+	('02000000174', 'Xandra Sarmiento', NULL, 0),
+	('02000000175', 'Yolanda Sevilla', NULL, 0),
+	('02000000176', 'Zachary Solis', NULL, 0),
+	('02000000177', 'Alfonso Tolentino', NULL, 0),
+	('02000000178', 'Bridgette Umali', NULL, 0),
+	('02000000179', 'Carmela Valdez', NULL, 0),
+	('02000000180', 'Dominic Vargas', NULL, 0),
+	('02000000181', 'Esteban Villarin', NULL, 0),
+	('02000000002', 'Bianca Santos', NULL, 0),
+	('02000000003', 'Carlos Mendoza', NULL, 0),
+	('02000000004', 'Daphne Reyes', NULL, 0),
+	('02000000005', 'Ethan Navarro', NULL, 0),
+	('02000000006', 'Fiona Delgado', NULL, 0),
+	('02000000007', 'Gabriel Torres', NULL, 0),
+	('02000000008', 'Hannah Flores', NULL, 0),
+	('02000000009', 'Ivan Castillo', NULL, 0),
+	('02000000010', 'Julia Romero', NULL, 0),
+	('02000000011', 'Kevin Bautista', NULL, 0),
+	('02000000051', 'Brian Alonzo', NULL, 0),
+	('02000000052', 'Catherine Belmonte', NULL, 0),
+	('02000000053', 'Daniel Cayanan', NULL, 0),
+	('02000000054', 'Erika Dela Cruz', NULL, 0),
+	('02000000055', 'Francis Esteban', NULL, 0),
+	('02000000056', 'Grace Fernandez', NULL, 0),
+	('02000000182', 'Frances Villena', NULL, 0),
+	('02000000183', 'Gian Yabut', NULL, 0),
+	('02000000184', 'Helene Yanga', NULL, 0),
+	('02000000185', 'Irene Yap', NULL, 0),
+	('02000000186', 'Joshua Zafra', NULL, 0),
+	('02000000187', 'Karla Zulueta', NULL, 0),
+	('02000000188', 'Leandro Abad', NULL, 0),
+	('02000000189', 'Marissa Aquino', NULL, 0),
+	('02000000190', 'Nathan Borja', NULL, 0),
+	('02000000191', 'Ophelia Castañeda', NULL, 0),
+	('02000000192', 'Patrick Damaso', NULL, 0),
+	('02000000193', 'Regina De Vera', NULL, 0),
+	('02000000194', 'Santino Enriquez', NULL, 0),
+	('02000000195', 'Trisha Ferrer', NULL, 0),
+	('02000000196', 'Ulises Gonzales', NULL, 0),
+	('02000000197', 'Valerie Hernandez', NULL, 0),
+	('02000000198', 'Warren Ilustre', NULL, 0),
+	('02000000199', 'Ximena Jimenez', NULL, 0),
+	('02000000200', 'Yosef Kalaw', NULL, 0),
+	('02000000201', 'Abigail Llamas', NULL, 0),
+	('02000000202', 'Bruno Magbanua', NULL, 0),
+	('02000000203', 'Cynthia Navarro', NULL, 0),
+	('02000000204', 'Diego Ortega', NULL, 0),
+	('02000000205', 'Elena Padua', NULL, 0),
+	('02000000206', 'Felix Quiambao', NULL, 0),
+	('02000000207', 'Gabrielle Ramos', NULL, 0),
+	('02000000208', 'Hector Sarmiento', NULL, 0),
+	('02000000209', 'Isla Tan', NULL, 0),
+	('02000000210', 'Jared Umali', NULL, 0),
+	('02000000211', 'Kylie Valencia', NULL, 0),
+	('02000000212', 'Leonardo Villanueva', NULL, 0),
+	('02000000213', 'Maya Yabut', NULL, 0),
+	('02000000214', 'Nathaniel Zamora', NULL, 0),
+	('02000000215', 'Olivia Alonzo', NULL, 0),
+	('02000000216', 'Patrick Bautista', NULL, 0),
+	('02000000217', 'Quinn Caballero', NULL, 0),
+	('02000000218', 'Rebecca Dela Rosa', NULL, 0),
+	('02000000219', 'Samuel Enriquez', NULL, 0),
+	('02000000220', 'Tracy Fernandez', NULL, 0),
+	('02000000221', 'Ulrich Galvez', NULL, 0),
+	('02000000222', 'Valerie Herrera', NULL, 0),
+	('02000000223', 'Walter Ignacio', NULL, 0),
+	('02000000224', 'Ximena Jacinto', NULL, 0),
+	('02000000225', 'Yannick Katigbak', NULL, 0),
+	('02000000226', 'Zara Lorenzo', NULL, 0),
+	('02000000227', 'Adrian Manalo', NULL, 0),
+	('02000000228', 'Bianca Navarro', NULL, 0),
+	('02000000229', 'Christian Ong', NULL, 0),
+	('02000000230', 'Danica Pascual', NULL, 0),
+	('02000000231', 'Ethan Quirante', NULL, 0),
+	('02000000232', 'Francesca Reyes', NULL, 0),
+	('02000000233', 'Gabriel Santos', NULL, 0),
+	('02000000234', 'Helena Tolentino', NULL, 0),
+	('02000000235', 'Ian Umali', NULL, 0),
+	('02000000236', 'Jasmine Valerio', NULL, 0),
+	('02000000237', 'Kyle Wong', NULL, 0),
+	('02000000238', 'Leah Yambao', NULL, 0),
+	('02000000239', 'Miguel Zamudio', NULL, 0),
+	('02000000240', 'Nicole Abad', NULL, 0),
+	('02000000241', 'Oscar Bautista', NULL, 0),
+	('02000854522', 'Jobart', '+639540465603', 0),
+	('02000000027', 'Aaron Beltran', '+639940219856', 0),
+	('02000000001', 'Adrian Cruz', '+639669819007', 0),
+	('02000724184', 'Dino', NULL, 0),
+	('02000000012', 'Lara Dominguez', NULL, 0),
+	('02000000013', 'Marcus Villanueva', NULL, 0),
+	('02000000014', 'Nina Paredes', NULL, 0),
+	('02000000015', 'Oscar Valdez', NULL, 0),
+	('02000000016', 'Paula Jimenez', NULL, 0),
+	('02000000017', 'Quentin Ramos', NULL, 0),
+	('02000000018', 'Rhea Alvarez', NULL, 0),
+	('02000000019', 'Samuel Ortega', NULL, 0),
+	('02000000020', 'Tanya Molina', NULL, 0),
+	('02000000021', 'Ulysses Herrera', NULL, 0),
+	('02000000022', 'Vanessa Aquino', NULL, 0),
+	('02000000023', 'William Figueroa', NULL, 0),
+	('02000000024', 'Xandra Lozano', NULL, 0),
+	('02000000025', 'Yves Salazar', NULL, 0),
+	('02000000026', 'Zara Montoya', NULL, 0),
+	('02000000028', 'Beatrice Ibarra', NULL, 0),
+	('02000000029', 'Caleb Fuentes', NULL, 0),
+	('02000000030', 'Diana Rosales', NULL, 0),
+	('02000000031', 'Elijah Cordero', NULL, 0),
+	('02000000032', 'Faith Mercado', NULL, 0),
+	('02000000033', 'George Manalo', NULL, 0),
+	('02000000034', 'Hazel Macapagal', NULL, 0),
+	('02000000035', 'Ian Villamor', NULL, 0),
+	('02000000036', 'Jasmine Tiongson', NULL, 0),
+	('02000000037', 'Kyle Abad', NULL, 0),
+	('02000000038', 'Leah Corpuz', NULL, 0),
+	('02000000039', 'Michael Espino', NULL, 0),
+	('02000000040', 'Nicole Soriano', NULL, 0),
+	('02000000041', 'Oliver De Vera', NULL, 0),
+	('02000000042', 'Patricia Lucero', NULL, 0),
+	('02000000043', 'Ronald De Guzman', NULL, 0),
+	('02000000044', 'Samantha Ignacio', NULL, 0),
+	('02000000045', 'Thomas Evangelista', NULL, 0),
+	('02000000046', 'Una Villaflor', NULL, 0),
+	('02000000047', 'Victor Carreon', NULL, 0),
+	('02000000048', 'Wendy Magtibay', NULL, 0),
+	('02000000049', 'Xavier Calderon', NULL, 0),
+	('02000000050', 'Yanna Dimaculangan', NULL, 0),
+	('02000000242', 'Patricia Calderon', NULL, 0),
+	('02000000243', 'Ramon De Leon', NULL, 0),
+	('02000000244', 'Sofia Esguerra', NULL, 0),
+	('02000000245', 'Tristan Flores', NULL, 0),
+	('02000000246', 'Ursula Gonzales', NULL, 0),
+	('02000000247', 'Victor Hidalgo', NULL, 0),
+	('02000000248', 'Wendy Ignacio', NULL, 0),
+	('02000000249', 'Xavier Javier', NULL, 0),
+	('02000000250', 'Yvonne Katigbak', NULL, 0),
+	('02000609703', 'Jyrum Jaro', NULL, 0);
+
 
 --
--- Data for Name: student_clearances; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: clearance_records; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."student_clearances" ("clearance_id", "student_id", "status", "signed_at", "template_id") VALUES
+INSERT INTO "public"."clearance_records" ("clearance_id", "user_id", "status", "signed_at", "template_id") VALUES
 	(2690, '02000000030', 'Signed', '2026-04-17 05:24:09.605', 44),
 	(2716, '02000000127', 'Pending', NULL, 45),
 	(2717, '02000000128', 'Pending', NULL, 45),
@@ -1589,7 +1602,6 @@ INSERT INTO "public"."student_clearances" ("clearance_id", "student_id", "status
 	(3070, '02000000249', 'Pending', NULL, 49),
 	(3071, '02000000250', 'Pending', NULL, 49),
 	(2998, '02000000177', 'Signed', '2026-04-24 04:41:23.851', 49),
-	(3074, '02000609703', 'Incomplete', '2026-04-24 00:59:53.75', 44),
 	(2974, '02000000153', 'Signed', '2026-04-24 00:32:43.504', 49),
 	(3075, '02000000001', 'Pending', NULL, 50),
 	(3076, '02000000002', 'Pending', NULL, 50),
@@ -1644,16 +1656,241 @@ INSERT INTO "public"."student_clearances" ("clearance_id", "student_id", "status
 	(3125, '02000000051', 'Pending', NULL, 50),
 	(3126, '02000854522', 'Pending', NULL, 50),
 	(3127, '02000724184', 'Pending', NULL, 50),
-	(3128, '02000609703', 'Pending', NULL, 50);
+	(3129, '02000000001', 'Pending', NULL, 51),
+	(3130, '02000000002', 'Pending', NULL, 51),
+	(3131, '02000000003', 'Pending', NULL, 51),
+	(3132, '02000000004', 'Pending', NULL, 51),
+	(3133, '02000000005', 'Pending', NULL, 51),
+	(3134, '02000000006', 'Pending', NULL, 51),
+	(3135, '02000000007', 'Pending', NULL, 51),
+	(3136, '02000000008', 'Pending', NULL, 51),
+	(3137, '02000000009', 'Pending', NULL, 51),
+	(3138, '02000000010', 'Pending', NULL, 51),
+	(3139, '02000000011', 'Pending', NULL, 51),
+	(3140, '02000000012', 'Pending', NULL, 51),
+	(3141, '02000000013', 'Pending', NULL, 51),
+	(3142, '02000000014', 'Pending', NULL, 51),
+	(3143, '02000000015', 'Pending', NULL, 51),
+	(3144, '02000000016', 'Pending', NULL, 51),
+	(3145, '02000000017', 'Pending', NULL, 51),
+	(3146, '02000000018', 'Pending', NULL, 51),
+	(3147, '02000000019', 'Pending', NULL, 51),
+	(3148, '02000000020', 'Pending', NULL, 51),
+	(3149, '02000000021', 'Pending', NULL, 51),
+	(3150, '02000000022', 'Pending', NULL, 51),
+	(3151, '02000000023', 'Pending', NULL, 51),
+	(3152, '02000000024', 'Pending', NULL, 51),
+	(3153, '02000000025', 'Pending', NULL, 51),
+	(3154, '02000000026', 'Pending', NULL, 51),
+	(3155, '02000000027', 'Pending', NULL, 51),
+	(3156, '02000000028', 'Pending', NULL, 51),
+	(3157, '02000000029', 'Pending', NULL, 51),
+	(3158, '02000000030', 'Pending', NULL, 51),
+	(3159, '02000000031', 'Pending', NULL, 51),
+	(3160, '02000000032', 'Pending', NULL, 51),
+	(3161, '02000000033', 'Pending', NULL, 51),
+	(3162, '02000000034', 'Pending', NULL, 51),
+	(3163, '02000000035', 'Pending', NULL, 51),
+	(3164, '02000000036', 'Pending', NULL, 51),
+	(3165, '02000000037', 'Pending', NULL, 51),
+	(3166, '02000000038', 'Pending', NULL, 51),
+	(3167, '02000000039', 'Pending', NULL, 51),
+	(3168, '02000000040', 'Pending', NULL, 51),
+	(3169, '02000000041', 'Pending', NULL, 51),
+	(3170, '02000000042', 'Pending', NULL, 51),
+	(3171, '02000000043', 'Pending', NULL, 51),
+	(3172, '02000000044', 'Pending', NULL, 51),
+	(3173, '02000000045', 'Pending', NULL, 51),
+	(3174, '02000000046', 'Pending', NULL, 51),
+	(3175, '02000000047', 'Pending', NULL, 51),
+	(3176, '02000000048', 'Pending', NULL, 51),
+	(3177, '02000000049', 'Pending', NULL, 51),
+	(3178, '02000000050', 'Pending', NULL, 51),
+	(3179, '02000000051', 'Pending', NULL, 51),
+	(3180, '02000854522', 'Pending', NULL, 51),
+	(3181, '02000724184', 'Pending', NULL, 51),
+	(3183, '02000000001', 'Pending', NULL, 52),
+	(3184, '02000000002', 'Pending', NULL, 52),
+	(3185, '02000000003', 'Pending', NULL, 52),
+	(3186, '02000000004', 'Pending', NULL, 52),
+	(3187, '02000000005', 'Pending', NULL, 52),
+	(3188, '02000000006', 'Pending', NULL, 52),
+	(3189, '02000000007', 'Pending', NULL, 52),
+	(3190, '02000000008', 'Pending', NULL, 52),
+	(3191, '02000000009', 'Pending', NULL, 52),
+	(3192, '02000000010', 'Pending', NULL, 52),
+	(3193, '02000000011', 'Pending', NULL, 52),
+	(3194, '02000000012', 'Pending', NULL, 52),
+	(3195, '02000000013', 'Pending', NULL, 52),
+	(3196, '02000000014', 'Pending', NULL, 52),
+	(3197, '02000000015', 'Pending', NULL, 52),
+	(3198, '02000000016', 'Pending', NULL, 52),
+	(3199, '02000000017', 'Pending', NULL, 52),
+	(3200, '02000000018', 'Pending', NULL, 52),
+	(3201, '02000000019', 'Pending', NULL, 52),
+	(3202, '02000000020', 'Pending', NULL, 52),
+	(3203, '02000000021', 'Pending', NULL, 52),
+	(3204, '02000000022', 'Pending', NULL, 52),
+	(3205, '02000000023', 'Pending', NULL, 52),
+	(3206, '02000000024', 'Pending', NULL, 52),
+	(3207, '02000000025', 'Pending', NULL, 52),
+	(3208, '02000000026', 'Pending', NULL, 52),
+	(3209, '02000000027', 'Pending', NULL, 52),
+	(3210, '02000000028', 'Pending', NULL, 52),
+	(3211, '02000000029', 'Pending', NULL, 52),
+	(3212, '02000000030', 'Pending', NULL, 52),
+	(3213, '02000000031', 'Pending', NULL, 52),
+	(3214, '02000000032', 'Pending', NULL, 52),
+	(3215, '02000000033', 'Pending', NULL, 52),
+	(3216, '02000000034', 'Pending', NULL, 52),
+	(3217, '02000000035', 'Pending', NULL, 52),
+	(3218, '02000000036', 'Pending', NULL, 52),
+	(3219, '02000000037', 'Pending', NULL, 52),
+	(3220, '02000000038', 'Pending', NULL, 52),
+	(3221, '02000000039', 'Pending', NULL, 52),
+	(3222, '02000000040', 'Pending', NULL, 52),
+	(3223, '02000000041', 'Pending', NULL, 52),
+	(3224, '02000000042', 'Pending', NULL, 52),
+	(3225, '02000000043', 'Pending', NULL, 52),
+	(3226, '02000000044', 'Pending', NULL, 52),
+	(3227, '02000000045', 'Pending', NULL, 52),
+	(3228, '02000000046', 'Pending', NULL, 52),
+	(3229, '02000000047', 'Pending', NULL, 52),
+	(3230, '02000000048', 'Pending', NULL, 52),
+	(3231, '02000000049', 'Pending', NULL, 52),
+	(3232, '02000000050', 'Pending', NULL, 52),
+	(3233, '02000000051', 'Pending', NULL, 52),
+	(3234, '02000854522', 'Pending', NULL, 52),
+	(3235, '02000724184', 'Pending', NULL, 52),
+	(3237, '02000000001', 'Pending', NULL, 53),
+	(3238, '02000000002', 'Pending', NULL, 53),
+	(3239, '02000000003', 'Pending', NULL, 53),
+	(3240, '02000000004', 'Pending', NULL, 53),
+	(3241, '02000000005', 'Pending', NULL, 53),
+	(3242, '02000000006', 'Pending', NULL, 53),
+	(3243, '02000000007', 'Pending', NULL, 53),
+	(3244, '02000000008', 'Pending', NULL, 53),
+	(3182, '02000609703', 'Signed', NULL, 51),
+	(3236, '02000609703', 'Signed', NULL, 52),
+	(3245, '02000000009', 'Pending', NULL, 53),
+	(3246, '02000000010', 'Pending', NULL, 53),
+	(3247, '02000000011', 'Pending', NULL, 53),
+	(3248, '02000000012', 'Pending', NULL, 53),
+	(3249, '02000000013', 'Pending', NULL, 53),
+	(3250, '02000000014', 'Pending', NULL, 53),
+	(3251, '02000000015', 'Pending', NULL, 53),
+	(3252, '02000000016', 'Pending', NULL, 53),
+	(3253, '02000000017', 'Pending', NULL, 53),
+	(3254, '02000000018', 'Pending', NULL, 53),
+	(3255, '02000000019', 'Pending', NULL, 53),
+	(3256, '02000000020', 'Pending', NULL, 53),
+	(3257, '02000000021', 'Pending', NULL, 53),
+	(3258, '02000000022', 'Pending', NULL, 53),
+	(3259, '02000000023', 'Pending', NULL, 53),
+	(3260, '02000000024', 'Pending', NULL, 53),
+	(3261, '02000000025', 'Pending', NULL, 53),
+	(3262, '02000000026', 'Pending', NULL, 53),
+	(3263, '02000000027', 'Pending', NULL, 53),
+	(3264, '02000000028', 'Pending', NULL, 53),
+	(3265, '02000000029', 'Pending', NULL, 53),
+	(3266, '02000000030', 'Pending', NULL, 53),
+	(3267, '02000000031', 'Pending', NULL, 53),
+	(3268, '02000000032', 'Pending', NULL, 53),
+	(3269, '02000000033', 'Pending', NULL, 53),
+	(3270, '02000000034', 'Pending', NULL, 53),
+	(3271, '02000000035', 'Pending', NULL, 53),
+	(3272, '02000000036', 'Pending', NULL, 53),
+	(3273, '02000000037', 'Pending', NULL, 53),
+	(3274, '02000000038', 'Pending', NULL, 53),
+	(3275, '02000000039', 'Pending', NULL, 53),
+	(3276, '02000000040', 'Pending', NULL, 53),
+	(3277, '02000000041', 'Pending', NULL, 53),
+	(3278, '02000000042', 'Pending', NULL, 53),
+	(3279, '02000000043', 'Pending', NULL, 53),
+	(3280, '02000000044', 'Pending', NULL, 53),
+	(3281, '02000000045', 'Pending', NULL, 53),
+	(3282, '02000000046', 'Pending', NULL, 53),
+	(3283, '02000000047', 'Pending', NULL, 53),
+	(3284, '02000000048', 'Pending', NULL, 53),
+	(3285, '02000000049', 'Pending', NULL, 53),
+	(3286, '02000000050', 'Pending', NULL, 53),
+	(3287, '02000000051', 'Pending', NULL, 53),
+	(3288, '02000854522', 'Pending', NULL, 53),
+	(3289, '02000724184', 'Pending', NULL, 53),
+	(3291, '02000000001', 'Pending', NULL, 55),
+	(3292, '02000000002', 'Pending', NULL, 55),
+	(3293, '02000000003', 'Pending', NULL, 55),
+	(3294, '02000000004', 'Pending', NULL, 55),
+	(3295, '02000000005', 'Pending', NULL, 55),
+	(3296, '02000000006', 'Pending', NULL, 55),
+	(3297, '02000000007', 'Pending', NULL, 55),
+	(3298, '02000000008', 'Pending', NULL, 55),
+	(3299, '02000000009', 'Pending', NULL, 55),
+	(3300, '02000000010', 'Pending', NULL, 55),
+	(3301, '02000000011', 'Pending', NULL, 55),
+	(3302, '02000000012', 'Pending', NULL, 55),
+	(3303, '02000000013', 'Pending', NULL, 55),
+	(3304, '02000000014', 'Pending', NULL, 55),
+	(3305, '02000000015', 'Pending', NULL, 55),
+	(3306, '02000000016', 'Pending', NULL, 55),
+	(3307, '02000000017', 'Pending', NULL, 55),
+	(3308, '02000000018', 'Pending', NULL, 55),
+	(3309, '02000000019', 'Pending', NULL, 55),
+	(3310, '02000000020', 'Pending', NULL, 55),
+	(3311, '02000000021', 'Pending', NULL, 55),
+	(3312, '02000000022', 'Pending', NULL, 55),
+	(3313, '02000000023', 'Pending', NULL, 55),
+	(3314, '02000000024', 'Pending', NULL, 55),
+	(3315, '02000000025', 'Pending', NULL, 55),
+	(3316, '02000000026', 'Pending', NULL, 55),
+	(3317, '02000000027', 'Pending', NULL, 55),
+	(3318, '02000000028', 'Pending', NULL, 55),
+	(3319, '02000000029', 'Pending', NULL, 55),
+	(3320, '02000000030', 'Pending', NULL, 55),
+	(3321, '02000000031', 'Pending', NULL, 55),
+	(3322, '02000000032', 'Pending', NULL, 55),
+	(3323, '02000000033', 'Pending', NULL, 55),
+	(3324, '02000000034', 'Pending', NULL, 55),
+	(3325, '02000000035', 'Pending', NULL, 55),
+	(3326, '02000000036', 'Pending', NULL, 55),
+	(3327, '02000000037', 'Pending', NULL, 55),
+	(3328, '02000000038', 'Pending', NULL, 55),
+	(3329, '02000000039', 'Pending', NULL, 55),
+	(3330, '02000000040', 'Pending', NULL, 55),
+	(3331, '02000000041', 'Pending', NULL, 55),
+	(3332, '02000000042', 'Pending', NULL, 55),
+	(3333, '02000000043', 'Pending', NULL, 55),
+	(3334, '02000000044', 'Pending', NULL, 55),
+	(3335, '02000000045', 'Pending', NULL, 55),
+	(3336, '02000000046', 'Pending', NULL, 55),
+	(3337, '02000000047', 'Pending', NULL, 55),
+	(3338, '02000000048', 'Pending', NULL, 55),
+	(3339, '02000000049', 'Pending', NULL, 55),
+	(3340, '02000000050', 'Pending', NULL, 55),
+	(3341, '02000000051', 'Pending', NULL, 55),
+	(3342, '02000854522', 'Pending', NULL, 55),
+	(3343, '02000724184', 'Pending', NULL, 55),
+	(3344, '02000609703', 'Pending', NULL, 55),
+	(3074, '02000609703', 'Signed', '2026-05-16 00:14:48.980001', 44),
+	(3128, '02000609703', 'Signed', NULL, 50),
+	(3290, '02000609703', 'Signed', NULL, 53);
 
 
 --
--- Data for Name: assigned_tasks; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: staff_predefined_tasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."assigned_tasks" ("assigned_task_id", "clearance_id", "task_id", "description", "status", "assigned_at", "staff_id", "dropbox", "uploaded_at", "comments", "title") VALUES
-	(73, 3074, 24, 'Settle the payment through the cashier', 'Cleared', '2026-04-24 03:13:07.262932+00', '02000351089', 'http://127.0.0.1:54321/storage/v1/object/public/images/user_uploads/02000609703.Cashier.(Missing%20Book)', '2026-04-24 03:28:07.948+00', '', 'Missing Book'),
-	(74, 3074, NULL, 'Pay your bill at the cashier', 'Cleared', '2026-04-24 04:44:01.231054+00', '02000351089', 'http://127.0.0.1:54321/storage/v1/object/public/images/user_uploads/02000609703.Cashier.(School%20bill)', '2026-04-24 04:46:39.431+00', '', 'School bill');
+INSERT INTO "public"."staff_predefined_tasks" ("task_id", "description", "staff_id", "title") VALUES
+	(24, 'Settle the payment through the cashier', '02000351089', 'Missing Book');
+
+
+--
+-- Data for Name: clearance_tasks; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."clearance_tasks" ("assigned_task_id", "clearance_id", "task_id", "description", "status", "assigned_at", "staff_id", "dropbox", "uploaded_at", "comments", "title") VALUES
+	(75, 3290, NULL, 'Pending book return', 'Pending', '2026-05-16 00:07:45.07982+00', '02000788068', NULL, NULL, NULL, 'Book Return'),
+	(76, 3290, NULL, 'Send a picture of the book borrowed', 'Flagged', '2026-05-16 02:17:30.152043+00', '02000788068', 'http://127.0.0.1:54321/storage/v1/object/public/images/user_uploads/.Library.(Picture)', '2026-05-16 02:18:01.397+00', NULL, 'Picture');
 
 
 --
@@ -1670,6 +1907,12 @@ INSERT INTO "public"."course_sections" ("section_id", "course_id", "year", "seme
 	(10, 3, 1, 2, 2),
 	(11, 3, 1, 2, 3),
 	(12, 3, 2, 2, 1);
+
+
+--
+-- Data for Name: debug_logs; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
@@ -1932,6 +2175,11 @@ INSERT INTO "public"."enrollments" ("student_id", "section_id") VALUES
 	('02000609703', 1);
 
 
+--
+-- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
 
 --
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
@@ -1986,7 +2234,8 @@ INSERT INTO "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at
 	('1c4ee1c5-edf0-49fe-81b0-bf6220b723dc', 'images', 'user_uploads/02000724184.Registrar.(lab x-ray)', NULL, '2026-04-16 14:08:55.446638+00', '2026-04-16 14:08:55.446638+00', '2026-04-16 14:08:55.446638+00', '{"eTag": "\"d9bb52621e431b19d77af672646732c2\"", "size": 28550, "mimetype": "image/jpeg", "cacheControl": "max-age=3600", "lastModified": "2026-04-16T14:08:55.430Z", "contentLength": 28550, "httpStatusCode": 200}', 'cecc4ad1-0a86-4a93-9d5b-bdc0a04b11a5', NULL, '{}'),
 	('0b829dd7-d8f3-4bb0-8375-1ce6018d5f37', 'images', 'user_uploads/02000609703.Cashier.(Settle the payment through the cashier)', NULL, '2026-04-24 00:13:00.631983+00', '2026-04-24 02:11:34.321783+00', '2026-04-24 00:13:00.631983+00', '{"eTag": "\"67b0285d62e989a1e1ac04aa21367d89\"", "size": 651122, "mimetype": "image/png", "cacheControl": "max-age=3600", "lastModified": "2026-04-24T02:11:34.309Z", "contentLength": 651122, "httpStatusCode": 200}', '4cf1de01-5611-4d24-9a33-933d9e6307a3', NULL, '{}'),
 	('cd6bf9ee-88d3-4bda-a641-39a9c4640d2a', 'images', 'user_uploads/02000609703.Cashier.(Missing Book)', NULL, '2026-04-24 03:13:29.417457+00', '2026-04-24 03:28:03.867266+00', '2026-04-24 03:13:29.417457+00', '{"eTag": "\"67b0285d62e989a1e1ac04aa21367d89\"", "size": 651122, "mimetype": "image/png", "cacheControl": "max-age=3600", "lastModified": "2026-04-24T03:28:03.858Z", "contentLength": 651122, "httpStatusCode": 200}', '98ca5eef-66fc-48a7-9f19-0bfd46768294', NULL, '{}'),
-	('64dc0ea3-4cde-4369-ac77-a05bf9d07a3a', 'images', 'user_uploads/02000609703.Cashier.(School bill)', NULL, '2026-04-24 04:45:16.742505+00', '2026-04-24 04:46:33.904161+00', '2026-04-24 04:45:16.742505+00', '{"eTag": "\"67b0285d62e989a1e1ac04aa21367d89\"", "size": 651122, "mimetype": "image/png", "cacheControl": "max-age=3600", "lastModified": "2026-04-24T04:46:33.889Z", "contentLength": 651122, "httpStatusCode": 200}', '2318c37d-d2a1-4aa8-8efb-119fd3a37116', NULL, '{}');
+	('64dc0ea3-4cde-4369-ac77-a05bf9d07a3a', 'images', 'user_uploads/02000609703.Cashier.(School bill)', NULL, '2026-04-24 04:45:16.742505+00', '2026-04-24 04:46:33.904161+00', '2026-04-24 04:45:16.742505+00', '{"eTag": "\"67b0285d62e989a1e1ac04aa21367d89\"", "size": 651122, "mimetype": "image/png", "cacheControl": "max-age=3600", "lastModified": "2026-04-24T04:46:33.889Z", "contentLength": 651122, "httpStatusCode": 200}', '2318c37d-d2a1-4aa8-8efb-119fd3a37116', NULL, '{}'),
+	('e527e0a6-8461-49e0-8a47-1c685ecc24b5', 'images', 'user_uploads/.Library.(Picture)', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '2026-05-16 02:17:51.08583+00', '2026-05-16 02:17:51.08583+00', '2026-05-16 02:17:51.08583+00', '{"eTag": "\"f6a8ad9bbdb86d547987b3cc9276e995\"", "size": 9071816, "mimetype": "image/jpeg", "cacheControl": "max-age=3600", "lastModified": "2026-05-16T02:17:51.055Z", "contentLength": 9071816, "httpStatusCode": 200}', '2ba31f46-f568-4db4-a254-bc05d7a6a147', 'c0ff9855-1138-4e95-a2ec-ebaed0c9bdcb', '{}');
 
 
 --
@@ -2017,7 +2266,7 @@ INSERT INTO "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at
 -- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin
 --
 
-SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 80, true);
+SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 89, true);
 
 
 --
@@ -2038,7 +2287,7 @@ SELECT pg_catalog.setval('"public"."activity_logs_log_id_seq"', 14, true);
 -- Name: assigned_tasks_assigned_task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."assigned_tasks_assigned_task_id_seq"', 74, true);
+SELECT pg_catalog.setval('"public"."assigned_tasks_assigned_task_id_seq"', 76, true);
 
 
 --
@@ -2052,7 +2301,7 @@ SELECT pg_catalog.setval('"public"."clearance_tasks_preset_task_id_seq"', 24, tr
 -- Name: clearance_templates_template_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."clearance_templates_template_id_seq"', 50, true);
+SELECT pg_catalog.setval('"public"."clearance_templates_template_id_seq"', 55, true);
 
 
 --
@@ -2070,20 +2319,31 @@ SELECT pg_catalog.setval('"public"."courses_course_id_seq"', 3, true);
 
 
 --
+-- Name: debug_logs_debug_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"public"."debug_logs_debug_id_seq"', 1, false);
+
+
+--
 -- Name: departments_dept_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."departments_dept_id_seq"', 8, true);
+SELECT pg_catalog.setval('"public"."departments_dept_id_seq"', 9, true);
 
 
+--
+-- Name: notifications_notif_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
 
+SELECT pg_catalog.setval('"public"."notifications_notif_id_seq"', 1, false);
 
 
 --
 -- Name: student_clearances_clearance_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."student_clearances_clearance_id_seq"', 3128, true);
+SELECT pg_catalog.setval('"public"."student_clearances_clearance_id_seq"', 3344, true);
 
 
 --
@@ -2097,6 +2357,6 @@ SELECT pg_catalog.setval('"supabase_functions"."hooks_id_seq"', 1, false);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict UgvPdTLqaxsI6jDnSDHjOIlNXgRZxPq4lhkmz5dORwEt2idTIpZxnbzHZhxZTFQ
+-- \unrestrict PBBc8wNXrqpIjimDl6HB1VgfEZFKv1C1P3OYTDQ9ZyEgr35vJiHBX5eQbFKuHZV
 
 RESET ALL;

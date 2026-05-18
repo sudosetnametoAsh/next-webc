@@ -22,7 +22,7 @@ const MENU_ITEMS = [
   { name: "Reports", icon: FileText, path: "/department/reports" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar( {department, user_name } : {department: string; user_name: string}) {
   const { courses, setCourseId, setSectionId, activeSectionId } =
     useDepartmentContext();
   const pathname = usePathname();
@@ -166,10 +166,10 @@ export default function Sidebar() {
 
         <div className="flex flex-col justify-center">
           <span className="text-sm leading-none font-semibold text-white">
-            Noemi Martillano
+            {user_name}
           </span>
           <span className="mt-1.5 text-xs leading-none text-slate-400">
-            Academic Head
+            {department}
           </span>
         </div>
         <div className="ml-auto items-center flex">

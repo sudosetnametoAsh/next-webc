@@ -46,10 +46,10 @@ export default function ClearanceItem({
       {sortedStudents.map((item) => {
         const deptName = item.clearance_templates.departments.dept_name;
         const staffName = item.clearance_templates.staffs.staff_name;
-        const taskTotal = item.assigned_tasks.length;
+        const taskTotal = item.clearance_tasks.length;
         const isSigned = item.status === "Signed";
 
-        const pendingTask = item.assigned_tasks.reduce(
+        const pendingTask = item.clearance_tasks.reduce(
           (acc, curr) => {
             if (
               curr.dropbox === "pending" ||
@@ -124,7 +124,7 @@ export default function ClearanceItem({
               {/* Outer Content: Task List */}
               <AccordionContent className="border-t border-slate-100 bg-slate-50/30 p-6 pb-6">
                 <Accordion type="multiple" className="flex flex-col gap-4">
-                  {item.assigned_tasks.map((task) => {
+                  {item.clearance_tasks.map((task) => {
                     const isCompleted =
                       task.status === "Completed" || task.status === "Cleared";
                     const isResubmit =

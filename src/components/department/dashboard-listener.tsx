@@ -16,7 +16,7 @@ export default function RealtimeDashboardListener() {
       // Listen to clearances
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "student_clearances" },
+        { event: "*", schema: "public", table: "clearance_records" },
         (payload) => {
           console.log("Clearance changed:", payload);
           router.refresh(); // Tells Next.js to re-run the Server Component fetch
@@ -25,7 +25,7 @@ export default function RealtimeDashboardListener() {
       // Listen to tasks
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "assigned_tasks" },
+        { event: "*", schema: "public", table: "clearance_tasks" },
         (payload) => {
           console.log("Task changed:", payload);
           router.refresh();
@@ -33,7 +33,7 @@ export default function RealtimeDashboardListener() {
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "activity_logs" },
+        { event: "*", schema: "public", table: "clearance_logs" },
         (payload) => {
           console.log("Task changed:", payload);
           router.refresh();

@@ -13,14 +13,14 @@ export default function RealtimeRefreshListener() {
       .channel("clearance-management-updates")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "student_clearances" },
+        { event: "*", schema: "public", table: "clearance_records" },
         () => {
           router.refresh();
         }
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "assigned_tasks" },
+        { event: "*", schema: "public", table: "clearance_tasks" },
         () => {
           router.refresh();
         }

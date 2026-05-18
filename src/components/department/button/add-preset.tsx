@@ -35,6 +35,7 @@ type Props = {
   setTaskId: Dispatch<SetStateAction<string[]>>;
   clearanceId: string[];
   description: string;
+  sectionId?: string | null;
 };
 
 export default function AddPreset({
@@ -43,8 +44,9 @@ export default function AddPreset({
   setTaskId,
   clearanceId,
   description,
+  sectionId,
 }: Props) {
-  const { mutate } = useAddStudentTasks("243");
+  const { mutate } = useAddStudentTasks(clearanceId[0] || null, sectionId);
   const [dropboxTasks, setDropboxTasks] = useState<string[]>([]);
 
   if (!preset) return <div>No preset available</div>;

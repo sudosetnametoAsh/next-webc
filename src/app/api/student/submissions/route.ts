@@ -1,10 +1,9 @@
+import { createClient } from "@/lib/db/supabase-server";
 import VerifyDocument from "@/lib/services/ocr";
 import OpenRouterAI from "@/lib/services/open-router";
-import { createClient } from "@/lib/db/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
-const supabase = createClient();
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 const FormSchema = z.object({
   file: z.instanceof(File),
@@ -15,6 +14,7 @@ const FormSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
   const form = await req.formData();
   const formObject = Object.fromEntries(form.entries());
   const formData = FormSchema.safeParse(formObject);
@@ -49,8 +49,13 @@ export async function POST(req: NextRequest) {
   const rules = await generate_rules;
   const document_result = await VerifyDocument({ rules, file });
 
-  const { error: statusError } = await supabase
-    .from("assigned_tasks")
+const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
+  );
+
+  const { error: statusError } = await supabaseAdmin
+    .from("clearance_tasks")
     .update({
       status: document_result,
       dropbox: publicUrl,

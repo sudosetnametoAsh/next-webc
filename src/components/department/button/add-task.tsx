@@ -24,6 +24,7 @@ type Props = {
   setDescription: Dispatch<SetStateAction<string>>;
   title: string;
   setTitle: Dispatch<SetStateAction<string>>;
+  sectionId?: string | null;
 };
 
 type Data = {
@@ -44,8 +45,9 @@ export default function AddTask({
   setDescription,
   title,
   setTitle,
+  sectionId,
 }: Props) {
-  const { mutate } = useAddStudentTasks("243");
+  const { mutate } = useAddStudentTasks(clearanceId[0] || null, sectionId);
 
   const [hasDropBox, setHasDropBox] = useState<boolean>(false);
   // Optional: Add a state for the detailed description if needed in the future.

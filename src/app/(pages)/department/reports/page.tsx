@@ -1,22 +1,12 @@
-import { headers } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/db/supabase-server";
 import React from "react";
 import { getSession } from "@/lib/auth/get-session";
-
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Supabase server client
-   ═══════════════════════════════════════════════════════════════════════ */
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 /* ═══════════════════════════════════════════════════════════════════════
    Types
    ═══════════════════════════════════════════════════════════════════════ */
 type ClearanceRow = {
-  student_id: string;
+  user_id: string;
   status: string;
   signed_at: string | null;
   clearance_templates: {
@@ -56,14 +46,15 @@ type ProgramStat = {
    Page — Server Component
    ═══════════════════════════════════════════════════════════════════════ */
 export default async function Reports() {
+  const supabase = await createClient();
   const {user_id} = await getSession();
   const staffId = user_id;
 
   /* ── 1. Clearances scoped to this staff's templates ───────────────── */
   const { data: clearances, error: cErr } = await supabase
-    .from("student_clearances")
+    .from("clearance_records")
     .select(
-      "status, signed_at, student_id, clearance_templates!inner(course_id, courses(course_name))"
+      "status, signed_at, user_id, clearance_templates!inner(course_id, courses(course_name))"
     )
     .eq("clearance_templates.staff_id", staffId);
 
@@ -75,7 +66,7 @@ export default async function Reports() {
   const rows: ClearanceRow[] = clearances || [];
 
   /* ── 2. Fetch section enrollments for these students + courses ────── */
-  const studentIds = [...new Set(rows.map((c) => c.student_id))];
+  const studentIds = [...new Set(rows.map((c) => c.user_id))];
   const courseIds = [
     ...new Set(
       rows.map((c) => c.clearance_templates?.course_id).filter(Boolean) as number[]
@@ -111,7 +102,7 @@ export default async function Reports() {
 
   /* ── 3. Assigned tasks for "Tasks to Review" card ─────────────────── */
   const { data: tasks } = await supabase
-    .from("assigned_tasks")
+    .from("clearance_tasks")
     .select("status")
     .eq("staff_id", staffId);
 
@@ -198,7 +189,7 @@ export default async function Reports() {
     else if (c.status === "Incomplete") p.incomplete++;
 
     // Resolve section from enrollment lookup
-    const sKey = `${c.student_id}-${courseId}`;
+    const sKey = `${c.user_id}-${courseId}`;
     const sInfo = enrollmentLookup.get(sKey);
     if (sInfo) {
       const label = `Section ${sInfo.sectionNumber} · ${sInfo.year} · Sem ${sInfo.semester}`;

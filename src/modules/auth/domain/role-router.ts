@@ -1,6 +1,6 @@
 const routes: Record<string, string> = {
   Admin: "/admin",
-  Staff: "/department/dashboard",
+  Department: "/department/dashboard",
   Student: "/student",
 };
 

@@ -23,7 +23,7 @@ type Params = {
 };
 
 type Student = {
-  student_clearances: Clearance[];
+  clearance_records: Clearance[];
 };
 
 type Clearance = {
@@ -39,8 +39,8 @@ export default function SelectAll({
 }: Params) {
   const [open, setOpen] = useState(false);
 
-  const studentClearances = useMemo(
-    () => students.map((student) => student.student_clearances[0]),
+  const clearanceRecords = useMemo(
+    () => students.map((student) => student.clearance_records[0]),
     [students],
   );
 
@@ -48,13 +48,13 @@ export default function SelectAll({
 
   // Group strictly by "Signed" vs "Actionable" (Pending, Incomplete, Awaiting)
   const signedIds = useMemo(
-    () => studentClearances.filter((s) => s.status === "Signed").map((s) => s.clearance_id),
-    [studentClearances]
+    () => clearanceRecords.filter((s) => s.status === "Signed").map((s) => s.clearance_id),
+    [clearanceRecords]
   );
 
   const actionableIds = useMemo(
-    () => studentClearances.filter((s) => s.status !== "Signed").map((s) => s.clearance_id),
-    [studentClearances]
+    () => clearanceRecords.filter((s) => s.status !== "Signed").map((s) => s.clearance_id),
+    [clearanceRecords]
   );
 
   const hasMixedStatuses = signedIds.length > 0 && actionableIds.length > 0;

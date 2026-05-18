@@ -12,17 +12,21 @@ export default async function Department() {
   const queryClient = new QueryClient();
 
   const courses = await fetchCourseServer();
-  const initialSectionId = String(courses[0].course_sections[0].section_id);
+  const initialSectionId = courses?.[0]?.course_sections?.[0]?.section_id
+    ? String(courses[0].course_sections[0].section_id)
+    : null;
 
   await queryClient.prefetchQuery({
     queryKey: ["courses"],
     queryFn: fetchCourseServer,
   });
 
-  await queryClient.prefetchQuery({
-    queryKey: ["students", initialSectionId],
-    queryFn: () => fetchStudentsServer(initialSectionId),
-  });
+  if (initialSectionId) {
+    await queryClient.prefetchQuery({
+      queryKey: ["students", initialSectionId],
+      queryFn: () => fetchStudentsServer(initialSectionId),
+    });
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

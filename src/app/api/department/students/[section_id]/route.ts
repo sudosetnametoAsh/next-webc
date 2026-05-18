@@ -1,15 +1,16 @@
 import { getSession } from "@/lib/auth/get-session";
-import { createClient } from "@/lib/db/supabase-client";
+import { createClient } from "@/lib/db/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = {
   section_id: string;
 };
-const supabase = createClient();
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<Params> },
 ) {
+  const supabase = await createClient();
   const {user_id} = await getSession();
   const { section_id } = await params;
 
@@ -33,15 +34,15 @@ export async function GET(
       student_id,
       student_name,
       enrollments!inner(),
-      student_clearances!inner(
+      clearance_records!inner(
         clearance_id,
         status,
-        assigned_tasks(description, assigned_task_id, dropbox, status, assigned_at, title)
+        clearance_tasks(description, assigned_task_id, dropbox, status, assigned_at, title)
       )
     `,
     )
     .eq("enrollments.section_id", section_id)
-    .eq("student_clearances.template_id", template_id?.template_id);
+    .eq("clearance_records.template_id", template_id?.template_id);
 
   if (error) {
     console.error(error.message);

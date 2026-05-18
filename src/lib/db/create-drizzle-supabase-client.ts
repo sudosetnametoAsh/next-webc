@@ -21,6 +21,8 @@ const admin = drizzle(postgres(process.env.ADMIN_DATABASE_URL!, { prepare: false
 // Protected by RLS
 const client = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }), config);
 
+// This extracts the specific type of the object returned by your function
+
 export async function createDrizzleSupabaseClient() {
   // FIX 2: Instantiate Supabase inside the function execution, during the actual request
   const supabase = await createClient();
@@ -36,3 +38,5 @@ export async function createDrizzleSupabaseClient() {
 
   return createDrizzle(token, { admin, client });
 }
+
+export type DrizzleSupabaseClient = Awaited<ReturnType<typeof createDrizzleSupabaseClient>>;

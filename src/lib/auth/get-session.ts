@@ -1,29 +1,38 @@
+import { jwtDecode } from "jwt-decode";
 import { createClient } from "../db/supabase-server";
+
+type CustomPayload = {
+  user_id: string;
+  email: string;
+  user_metadata: {
+    full_name: string;
+  };
+  department: string;
+};
 
 export async function getSession(): Promise<{
   user_id: string;
   user_email: string;
   user_name: string;
+  department: string
 }> {
   const supabase = await createClient();
   const {
-    data: { user },
+    data: { session },
     error,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (!user || error) {
+  if (!session || error) {
     console.error(error?.message);
     throw new Error("No active session");
   }
 
-  const { data: user_info } = await supabase
-    .from("users")
-    .select("email, user_id")
-    .eq("auth_id", user.id);
+  const payload = jwtDecode<CustomPayload>(session.access_token);
 
   return {
-    user_id: user_info?.[0].user_id,
-    user_email: user_info?.[0].email,
-    user_name: user.user_metadata.full_name,
+    user_id: payload.user_id,
+    user_email: payload.email,
+    user_name: payload.user_metadata.full_name,
+    department: payload.department,
   };
 }

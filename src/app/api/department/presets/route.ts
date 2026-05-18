@@ -1,14 +1,13 @@
 import { getSession } from "@/lib/auth/get-session";
-import { createClient } from "@/lib/db/supabase-client";
+import { createClient } from "@/lib/db/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 
-const supabase = createClient();
-
 export async function GET() {
+  const supabase = await createClient();
   const { user_id } = await getSession();
 
   const { data: preset, error } = await supabase
-    .from("clearance_tasks_preset")
+    .from("staff_predefined_tasks")
     .select(
       `
         task_id,
@@ -26,12 +25,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
   const { user_id } = await getSession();
 
   const { title, description } = await req.json();
 
   const { data: preset, error } = await supabase
-    .from("clearance_tasks_preset")
+    .from("staff_predefined_tasks")
     .insert({
       title: title,
       description: description,
@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const supabase = await createClient();
   const { task_id } = await req.json();
   const { data: preset, error } = await supabase
-    .from("clearance_tasks_preset")
+    .from("staff_predefined_tasks")
     .delete()
     .eq("task_id", task_id)
     .select();
@@ -65,10 +66,11 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const supabase = await createClient();
   const { updatedTitle, updatedDescription, task_id } = await req.json();
 
   const { data: preset, error } = await supabase
-    .from("clearance_tasks_preset")
+    .from("staff_predefined_tasks")
     .update({
       title: updatedTitle,
       description: updatedDescription

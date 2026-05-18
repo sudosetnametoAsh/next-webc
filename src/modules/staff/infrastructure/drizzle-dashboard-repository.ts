@@ -7,12 +7,12 @@ import {
 } from "../application/repository/dashboard-repository";
 
 import {
-  activityLogs,
-  assignedTasks,
+  clearanceLogs,
+  clearanceTasks,
   clearanceTemplates,
   courses,
   staffs,
-  studentClearances,
+  clearanceRecords,
   students,
 } from "@/lib/db/schema";
 
@@ -23,14 +23,14 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
     const result = await db
       .select({
         total: sql<number>`count(*)::int`,
-        signed: sql<number>`sum(case when ${studentClearances.status} = 'Signed' then 1 else 0 end)::int`,
-        incomplete: sql<number>`sum(case when ${studentClearances.status} = 'Incomplete' then 1 else 0 end)::int`,
-        pending: sql<number>`sum(case when ${studentClearances.status} = 'Pending' then 1 else 0 end)::int`,
+        signed: sql<number>`sum(case when ${clearanceRecords.status} = 'Signed' then 1 else 0 end)::int`,
+        incomplete: sql<number>`sum(case when ${clearanceRecords.status} = 'Incomplete' then 1 else 0 end)::int`,
+        pending: sql<number>`sum(case when ${clearanceRecords.status} = 'Pending' then 1 else 0 end)::int`,
       })
-      .from(studentClearances)
+      .from(clearanceRecords)
       .innerJoin(
         clearanceTemplates,
-        eq(studentClearances.templateId, clearanceTemplates.templateId),
+        eq(clearanceRecords.templateId, clearanceTemplates.templateId),
       )
       .where(eq(clearanceTemplates.staffId, staffId));
     const row = result[0];
@@ -47,33 +47,33 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
   ): Promise<getRecentSubmissionsPromise[]> {
     const rows = await db
       .select({
-        assignedTaskId: assignedTasks.assignedTaskId,
+        assignedTaskId: clearanceTasks.assignedTaskId,
         studentId: students.studentId,
         // firstName: students.firstName,
         // lastName: students.lastName,
         studentName: students.studentName,
         course: courses.courseName,
-        taskTitle: assignedTasks.title,
-        uploadedAt: assignedTasks.uploadedAt,
+        taskTitle: clearanceTasks.title,
+        uploadedAt: clearanceTasks.uploadedAt,
       })
-      .from(assignedTasks)
+      .from(clearanceTasks)
       .innerJoin(
-        studentClearances,
-        eq(assignedTasks.clearanceId, studentClearances.clearanceId),
+        clearanceRecords,
+        eq(clearanceTasks.clearanceId, clearanceRecords.clearanceId),
       )
-      .innerJoin(students, eq(studentClearances.studentId, students.studentId))
+      .innerJoin(students, eq(clearanceRecords.userId, students.studentId))
       .innerJoin(
         clearanceTemplates,
-        eq(studentClearances.templateId, clearanceTemplates.templateId),
+        eq(clearanceRecords.templateId, clearanceTemplates.templateId),
       )
       .innerJoin(courses, eq(clearanceTemplates.courseId, courses.courseId))
       .where(
         and(
-          eq(assignedTasks.staffId, staffId),
-          isNotNull(assignedTasks.uploadedAt), // Crucial: Only get actual submissions
+          eq(clearanceTasks.staffId, staffId),
+          isNotNull(clearanceTasks.uploadedAt), // Crucial: Only get actual submissions
         ),
       )
-      .orderBy(desc(assignedTasks.uploadedAt))
+      .orderBy(desc(clearanceTasks.uploadedAt))
       .limit(5); // Show only the 5 most recent
     // Format the data for the frontend
 
@@ -93,14 +93,14 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
   ): Promise<getRecentActivityPromise[]> {
     const response = await db
       .select({
-        message: activityLogs.message,
-        actions: activityLogs.actions,
-        created_at: activityLogs.createdAt,
+        message: clearanceLogs.message,
+        actions: clearanceLogs.actions,
+        created_at: clearanceLogs.createdAt,
       })
-      .from(activityLogs)
-      .innerJoin(staffs, eq(staffs.staffId, activityLogs.staffId))
-      .where(eq(activityLogs.staffId, staffId))
-      .orderBy(desc(activityLogs.createdAt))
+      .from(clearanceLogs)
+      .innerJoin(staffs, eq(staffs.staffId, clearanceLogs.staffId))
+      .where(eq(clearanceLogs.staffId, staffId))
+      .orderBy(desc(clearanceLogs.createdAt))
       .limit(10)
 
 

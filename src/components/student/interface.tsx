@@ -21,7 +21,7 @@ export default function StudentInterface() {
   const calculateCardValues = students.reduce(
     (accumulator, current) => {
       const status = current.status;
-      current.assigned_tasks.forEach((task) => {
+      current.clearance_tasks.forEach((task) => {
         if (task.dropbox === "pending" || task.dropbox === "NULL")
           accumulator.Task++;
       });

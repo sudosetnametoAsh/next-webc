@@ -68,7 +68,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 CREATE OR REPLACE FUNCTION "public"."assign_clearance_on_enrollment"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$BEGIN
-    INSERT INTO public.student_clearances (student_id, template_id, status)
+    INSERT INTO public.clearane_records (user_id, template_id, status)
     SELECT
         NEW.student_id,
         ct.template_id,
@@ -90,7 +90,7 @@ ALTER FUNCTION "public"."assign_clearance_on_enrollment"() OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."backfill_clearance_to_students"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$BEGIN
-    INSERT INTO public.student_clearances (student_id, template_id, status)
+    INSERT INTO public.clearance_records (user_id, template_id, status)
     SELECT
         e.student_id,
         NEW.template_id,
@@ -118,8 +118,8 @@ BEGIN
     FROM public.course_sections
     WHERE section_id = OLD.section_id;
 
-    DELETE FROM public.student_clearances
-    WHERE student_id = OLD.student_id
+    DELETE FROM public.clearance_records
+    WHERE user_id = OLD.user_id
       AND template_id IN (
           SELECT template_id
           FROM public.clearance_templates
@@ -141,7 +141,8 @@ ALTER FUNCTION "public"."cleanup_clearance_on_drop"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."custom_access_token_hook"("event" "jsonb") RETURNS "jsonb"
-    LANGUAGE "plpgsql"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
     AS $$
   DECLARE
     v_claims jsonb;
@@ -166,23 +167,23 @@ CREATE OR REPLACE FUNCTION "public"."custom_access_token_hook"("event" "jsonb") 
     -- Inject the claim if the user exists
     IF v_custom_user_id IS NOT NULL THEN
       v_claims := jsonb_set(v_claims, '{user_id}', to_jsonb(v_custom_user_id));
-    END IF;
+      
+      -- 1. Fix the syntax: Remove 'IS'
+      IF v_azure_role = 'Department' THEN
 
-    -- 1. Fix the syntax: Remove 'IS'
-    IF v_azure_role = 'Staff' THEN
+        -- 2. Use the correct table name: clearance_departments
+        SELECT DISTINCT d.dept_name INTO v_department
+        FROM public.clearance_departments d
+        JOIN public.clearance_templates ct ON d.dept_id = ct.dept_id
+        WHERE ct.staff_id = v_custom_user_id
+        LIMIT 1;
 
-      -- 2. Add LIMIT 1 to prevent "multiple rows" errors
-      SELECT DISTINCT d.dept_name INTO v_department
-      FROM public.departments d
-      JOIN public.clearance_templates ct ON d.dept_id = ct.dept_id
-      WHERE ct.staff_id = v_custom_user_id
-      LIMIT 1;
+        IF v_department IS NOT NULL THEN
+          -- 3. Fix the JSON path: It needs curly braces '{department}'
+          v_claims := jsonb_set(v_claims, '{department}', to_jsonb(v_department));
+        END IF;
 
-      IF v_department IS NOT NULL THEN
-        -- 3. Fix the JSON path: It needs curly braces '{department}'
-        v_claims := jsonb_set(v_claims, '{department}', to_jsonb(v_department));
       END IF;
-
     END IF;
 
     -- Update the 'claims' object in the ORIGINAL event
@@ -245,7 +246,7 @@ ALTER SEQUENCE "drizzle"."__drizzle_migrations_id_seq" OWNED BY "drizzle"."__dri
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."activity_logs" (
+CREATE TABLE IF NOT EXISTS "public"."clearance_logs" (
     "log_id" integer NOT NULL,
     "staff_id" "text" NOT NULL,
     "message" "text" NOT NULL,
@@ -254,7 +255,7 @@ CREATE TABLE IF NOT EXISTS "public"."activity_logs" (
 );
 
 
-ALTER TABLE "public"."activity_logs" OWNER TO "postgres";
+ALTER TABLE "public"."clearance_logs" OWNER TO "postgres";
 
 
 CREATE SEQUENCE IF NOT EXISTS "public"."activity_logs_log_id_seq"
@@ -268,11 +269,11 @@ CREATE SEQUENCE IF NOT EXISTS "public"."activity_logs_log_id_seq"
 ALTER SEQUENCE "public"."activity_logs_log_id_seq" OWNER TO "postgres";
 
 
-ALTER SEQUENCE "public"."activity_logs_log_id_seq" OWNED BY "public"."activity_logs"."log_id";
+ALTER SEQUENCE "public"."activity_logs_log_id_seq" OWNED BY "public"."clearance_logs"."log_id";
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."assigned_tasks" (
+CREATE TABLE IF NOT EXISTS "public"."clearance_tasks" (
     "assigned_task_id" integer NOT NULL,
     "clearance_id" integer NOT NULL,
     "task_id" integer,
@@ -283,11 +284,12 @@ CREATE TABLE IF NOT EXISTS "public"."assigned_tasks" (
     "dropbox" "text",
     "uploaded_at" timestamp with time zone,
     "comments" "text",
-    "title" "text"
+    "title" "text" NOT NULL,
+    CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['Cleared'::"text", 'Pending'::"text", 'Submitted'::"text", 'Rejected'::"text", 'Flagged'::"text", 'Verified'::"text"])))
 );
 
 
-ALTER TABLE "public"."assigned_tasks" OWNER TO "postgres";
+ALTER TABLE "public"."clearance_tasks" OWNER TO "postgres";
 
 
 CREATE SEQUENCE IF NOT EXISTS "public"."assigned_tasks_assigned_task_id_seq"
@@ -301,11 +303,33 @@ CREATE SEQUENCE IF NOT EXISTS "public"."assigned_tasks_assigned_task_id_seq"
 ALTER SEQUENCE "public"."assigned_tasks_assigned_task_id_seq" OWNER TO "postgres";
 
 
-ALTER SEQUENCE "public"."assigned_tasks_assigned_task_id_seq" OWNED BY "public"."assigned_tasks"."assigned_task_id";
+ALTER SEQUENCE "public"."assigned_tasks_assigned_task_id_seq" OWNED BY "public"."clearance_tasks"."assigned_task_id";
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."clearance_tasks_preset" (
+CREATE TABLE IF NOT EXISTS "public"."clearance_departments" (
+    "dept_id" integer NOT NULL,
+    "dept_name" character varying(100) NOT NULL
+);
+
+
+ALTER TABLE "public"."clearance_departments" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."clearance_records" (
+    "clearance_id" integer NOT NULL,
+    "user_id" character varying(11) NOT NULL,
+    "status" character varying(20) DEFAULT 'Pending'::character varying NOT NULL,
+    "signed_at" timestamp without time zone,
+    "template_id" integer NOT NULL,
+    CONSTRAINT "studentclearances_status_check" CHECK ((("status")::"text" = ANY (ARRAY[('Pending'::character varying)::"text", ('Signed'::character varying)::"text", ('Incomplete'::character varying)::"text"])))
+);
+
+
+ALTER TABLE "public"."clearance_records" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."staff_predefined_tasks" (
     "task_id" integer NOT NULL,
     "description" "text" NOT NULL,
     "staff_id" "text" NOT NULL,
@@ -313,7 +337,7 @@ CREATE TABLE IF NOT EXISTS "public"."clearance_tasks_preset" (
 );
 
 
-ALTER TABLE "public"."clearance_tasks_preset" OWNER TO "postgres";
+ALTER TABLE "public"."staff_predefined_tasks" OWNER TO "postgres";
 
 
 CREATE SEQUENCE IF NOT EXISTS "public"."clearance_tasks_preset_task_id_seq"
@@ -327,13 +351,13 @@ CREATE SEQUENCE IF NOT EXISTS "public"."clearance_tasks_preset_task_id_seq"
 ALTER SEQUENCE "public"."clearance_tasks_preset_task_id_seq" OWNER TO "postgres";
 
 
-ALTER SEQUENCE "public"."clearance_tasks_preset_task_id_seq" OWNED BY "public"."clearance_tasks_preset"."task_id";
+ALTER SEQUENCE "public"."clearance_tasks_preset_task_id_seq" OWNED BY "public"."staff_predefined_tasks"."task_id";
 
 
 
 CREATE TABLE IF NOT EXISTS "public"."clearance_templates" (
     "template_id" integer NOT NULL,
-    "course_id" integer NOT NULL,
+    "course_id" integer,
     "dept_id" integer NOT NULL,
     "staff_id" "text" NOT NULL
 );
@@ -433,15 +457,6 @@ ALTER SEQUENCE "public"."debug_logs_debug_id_seq" OWNED BY "public"."debug_logs"
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."departments" (
-    "dept_id" integer NOT NULL,
-    "dept_name" character varying(100) NOT NULL
-);
-
-
-ALTER TABLE "public"."departments" OWNER TO "postgres";
-
-
 CREATE SEQUENCE IF NOT EXISTS "public"."departments_dept_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -453,7 +468,7 @@ CREATE SEQUENCE IF NOT EXISTS "public"."departments_dept_id_seq"
 ALTER SEQUENCE "public"."departments_dept_id_seq" OWNER TO "postgres";
 
 
-ALTER SEQUENCE "public"."departments_dept_id_seq" OWNED BY "public"."departments"."dept_id";
+ALTER SEQUENCE "public"."departments_dept_id_seq" OWNED BY "public"."clearance_departments"."dept_id";
 
 
 
@@ -464,6 +479,38 @@ CREATE TABLE IF NOT EXISTS "public"."enrollments" (
 
 
 ALTER TABLE "public"."enrollments" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."notifications" (
+    "notif_id" integer NOT NULL,
+    "user_id" character varying NOT NULL,
+    "title" "text" NOT NULL,
+    "description" "text" NOT NULL,
+    "type" "text" NOT NULL,
+    "is_read" boolean DEFAULT false NOT NULL,
+    "ref_url" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "type_check" CHECK (("type" = ANY (ARRAY['System'::"text", 'Warning'::"text", 'Info'::"text"])))
+);
+
+
+ALTER TABLE "public"."notifications" OWNER TO "postgres";
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."notifications_notif_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."notifications_notif_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."notifications_notif_id_seq" OWNED BY "public"."notifications"."notif_id";
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."staffs" (
@@ -477,19 +524,6 @@ CREATE TABLE IF NOT EXISTS "public"."staffs" (
 ALTER TABLE "public"."staffs" OWNER TO "postgres";
 
 
-CREATE TABLE IF NOT EXISTS "public"."student_clearances" (
-    "clearance_id" integer NOT NULL,
-    "student_id" character varying(11) NOT NULL,
-    "status" character varying(20) DEFAULT 'Pending'::character varying NOT NULL,
-    "signed_at" timestamp without time zone,
-    "template_id" integer NOT NULL,
-    CONSTRAINT "studentclearances_status_check" CHECK ((("status")::"text" = ANY (ARRAY[('Pending'::character varying)::"text", ('Signed'::character varying)::"text", ('Incomplete'::character varying)::"text"])))
-);
-
-
-ALTER TABLE "public"."student_clearances" OWNER TO "postgres";
-
-
 CREATE SEQUENCE IF NOT EXISTS "public"."student_clearances_clearance_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -501,7 +535,7 @@ CREATE SEQUENCE IF NOT EXISTS "public"."student_clearances_clearance_id_seq"
 ALTER SEQUENCE "public"."student_clearances_clearance_id_seq" OWNER TO "postgres";
 
 
-ALTER SEQUENCE "public"."student_clearances_clearance_id_seq" OWNED BY "public"."student_clearances"."clearance_id";
+ALTER SEQUENCE "public"."student_clearances_clearance_id_seq" OWNED BY "public"."clearance_records"."clearance_id";
 
 
 
@@ -530,15 +564,19 @@ ALTER TABLE ONLY "drizzle"."__drizzle_migrations" ALTER COLUMN "id" SET DEFAULT 
 
 
 
-ALTER TABLE ONLY "public"."activity_logs" ALTER COLUMN "log_id" SET DEFAULT "nextval"('"public"."activity_logs_log_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."clearance_departments" ALTER COLUMN "dept_id" SET DEFAULT "nextval"('"public"."departments_dept_id_seq"'::"regclass");
 
 
 
-ALTER TABLE ONLY "public"."assigned_tasks" ALTER COLUMN "assigned_task_id" SET DEFAULT "nextval"('"public"."assigned_tasks_assigned_task_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."clearance_logs" ALTER COLUMN "log_id" SET DEFAULT "nextval"('"public"."activity_logs_log_id_seq"'::"regclass");
 
 
 
-ALTER TABLE ONLY "public"."clearance_tasks_preset" ALTER COLUMN "task_id" SET DEFAULT "nextval"('"public"."clearance_tasks_preset_task_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."clearance_records" ALTER COLUMN "clearance_id" SET DEFAULT "nextval"('"public"."student_clearances_clearance_id_seq"'::"regclass");
+
+
+
+ALTER TABLE ONLY "public"."clearance_tasks" ALTER COLUMN "assigned_task_id" SET DEFAULT "nextval"('"public"."assigned_tasks_assigned_task_id_seq"'::"regclass");
 
 
 
@@ -558,11 +596,11 @@ ALTER TABLE ONLY "public"."debug_logs" ALTER COLUMN "debug_id" SET DEFAULT "next
 
 
 
-ALTER TABLE ONLY "public"."departments" ALTER COLUMN "dept_id" SET DEFAULT "nextval"('"public"."departments_dept_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."notifications" ALTER COLUMN "notif_id" SET DEFAULT "nextval"('"public"."notifications_notif_id_seq"'::"regclass");
 
 
 
-ALTER TABLE ONLY "public"."student_clearances" ALTER COLUMN "clearance_id" SET DEFAULT "nextval"('"public"."student_clearances_clearance_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."staff_predefined_tasks" ALTER COLUMN "task_id" SET DEFAULT "nextval"('"public"."clearance_tasks_preset_task_id_seq"'::"regclass");
 
 
 
@@ -571,12 +609,22 @@ ALTER TABLE ONLY "drizzle"."__drizzle_migrations"
 
 
 
-ALTER TABLE ONLY "public"."activity_logs"
+ALTER TABLE ONLY "public"."clearance_logs"
     ADD CONSTRAINT "activity_logs_pkey" PRIMARY KEY ("log_id");
 
 
 
-ALTER TABLE ONLY "public"."clearance_tasks_preset"
+ALTER TABLE ONLY "public"."clearance_departments"
+    ADD CONSTRAINT "clearance_departments_dept_name_unique" UNIQUE ("dept_name");
+
+
+
+ALTER TABLE ONLY "public"."clearance_tasks"
+    ADD CONSTRAINT "clearance_tasks_pkey" PRIMARY KEY ("assigned_task_id");
+
+
+
+ALTER TABLE ONLY "public"."staff_predefined_tasks"
     ADD CONSTRAINT "clearancerequirements_pkey" PRIMARY KEY ("task_id");
 
 
@@ -601,8 +649,13 @@ ALTER TABLE ONLY "public"."debug_logs"
 
 
 
-ALTER TABLE ONLY "public"."departments"
+ALTER TABLE ONLY "public"."clearance_departments"
     ADD CONSTRAINT "departments_pkey" PRIMARY KEY ("dept_id");
+
+
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("notif_id");
 
 
 
@@ -611,7 +664,7 @@ ALTER TABLE ONLY "public"."staffs"
 
 
 
-ALTER TABLE ONLY "public"."student_clearances"
+ALTER TABLE ONLY "public"."clearance_records"
     ADD CONSTRAINT "studentclearances_pkey" PRIMARY KEY ("clearance_id");
 
 
@@ -638,22 +691,22 @@ CREATE OR REPLACE TRIGGER "tr_template_backfill_clearances" AFTER INSERT ON "pub
 
 
 
-ALTER TABLE ONLY "public"."activity_logs"
+ALTER TABLE ONLY "public"."clearance_logs"
     ADD CONSTRAINT "activity_log_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "public"."staffs"("staff_id");
 
 
 
-ALTER TABLE ONLY "public"."assigned_tasks"
+ALTER TABLE ONLY "public"."clearance_tasks"
     ADD CONSTRAINT "assigned_tasks_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "public"."staffs"("staff_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 
-ALTER TABLE ONLY "public"."assigned_tasks"
-    ADD CONSTRAINT "clearance_id_fk" FOREIGN KEY ("clearance_id") REFERENCES "public"."student_clearances"("clearance_id") ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."clearance_tasks"
+    ADD CONSTRAINT "clearance_id_fk" FOREIGN KEY ("clearance_id") REFERENCES "public"."clearance_records"("clearance_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 
-ALTER TABLE ONLY "public"."clearance_tasks_preset"
+ALTER TABLE ONLY "public"."staff_predefined_tasks"
     ADD CONSTRAINT "clearancerequirements_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "public"."staffs"("staff_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -664,7 +717,7 @@ ALTER TABLE ONLY "public"."clearance_templates"
 
 
 ALTER TABLE ONLY "public"."clearance_templates"
-    ADD CONSTRAINT "clearancetemplates_dept_id_fkey" FOREIGN KEY ("dept_id") REFERENCES "public"."departments"("dept_id") ON DELETE CASCADE;
+    ADD CONSTRAINT "clearancetemplates_dept_id_fkey" FOREIGN KEY ("dept_id") REFERENCES "public"."clearance_departments"("dept_id") ON DELETE CASCADE;
 
 
 
@@ -688,17 +741,22 @@ ALTER TABLE ONLY "public"."enrollments"
 
 
 
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notif_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id");
+
+
+
 ALTER TABLE ONLY "public"."staffs"
     ADD CONSTRAINT "staffs_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "public"."users"("user_id");
 
 
 
-ALTER TABLE ONLY "public"."student_clearances"
-    ADD CONSTRAINT "studentclearances_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "public"."students"("student_id") ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."clearance_records"
+    ADD CONSTRAINT "studentclearances_student_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."students"("student_id") ON DELETE CASCADE;
 
 
 
-ALTER TABLE ONLY "public"."student_clearances"
+ALTER TABLE ONLY "public"."clearance_records"
     ADD CONSTRAINT "studentclearances_template_id_fkey" FOREIGN KEY ("template_id") REFERENCES "public"."clearance_templates"("template_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -708,18 +766,114 @@ ALTER TABLE ONLY "public"."students"
 
 
 
-ALTER TABLE ONLY "public"."assigned_tasks"
-    ADD CONSTRAINT "task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."clearance_tasks_preset"("task_id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."clearance_tasks"
+    ADD CONSTRAINT "task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."staff_predefined_tasks"("task_id") ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 
--- CREATE POLICY "Students view own clearances" ON "public"."student_clearances" FOR SELECT USING ((("student_id")::"text" IN ( SELECT "users"."user_id"
---    FROM "public"."users"
---   WHERE ("users"."auth_id" = "auth"."uid"()))));
+CREATE POLICY "admin can make changes" ON "public"."clearance_departments" TO "authenticated" USING (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Admin'::"text")) WITH CHECK (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Admin'::"text"));
 
 
 
-ALTER TABLE "public"."student_clearances" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin can make changes" ON "public"."clearance_templates" TO "authenticated" USING (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Admin'::"text")) WITH CHECK (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Admin'::"text"));
+
+
+
+CREATE POLICY "clearance client can submit work" ON "public"."clearance_tasks" FOR UPDATE TO "authenticated" USING ((("clearance_id" IN ( SELECT "clearance_records"."clearance_id"
+   FROM "public"."clearance_records"
+  WHERE (("clearance_records"."user_id")::"text" IN ( SELECT "users"."user_id"
+           FROM "public"."users"
+          WHERE ("users"."auth_id" = "auth"."uid"()))))) AND (("status" = 'Pending'::"text") OR ("status" = 'Rejected'::"text")))) WITH CHECK (("status" = ANY (ARRAY['Submitted'::"text", 'Rejected'::"text"])));
+
+
+
+ALTER TABLE "public"."clearance_departments" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."clearance_logs" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."clearance_records" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."clearance_tasks" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."clearance_templates" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "department staff can make changes" ON "public"."clearance_logs" TO "authenticated" USING (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text")) WITH CHECK (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text"));
+
+
+
+CREATE POLICY "department staff can make changes" ON "public"."staff_predefined_tasks" TO "authenticated" USING (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text")) WITH CHECK (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text"));
+
+
+
+CREATE POLICY "department staff can manage assigned tasks" ON "public"."clearance_tasks" TO "authenticated" USING ((((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text") AND ("staff_id" IN ( SELECT "users"."user_id"
+   FROM "public"."users"
+  WHERE ("users"."auth_id" = "auth"."uid"()))))) WITH CHECK ((((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text") AND ("staff_id" IN ( SELECT "users"."user_id"
+   FROM "public"."users"
+  WHERE ("users"."auth_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "department staff can only view their own task" ON "public"."staff_predefined_tasks";
+
+
+
+ALTER TABLE "public"."staff_predefined_tasks" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."staffs" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."students" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "users can view departments" ON "public"."clearance_departments" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "users can view logs" ON "public"."clearance_logs" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "users can view own student record" ON "public"."students" FOR SELECT TO "authenticated" USING ((("student_id")::"text" IN ( SELECT "users"."user_id"
+   FROM "public"."users"
+  WHERE ("users"."auth_id" = "auth"."uid"()))));
+
+
+
+CREATE POLICY "users can view own tasks" ON "public"."clearance_tasks" FOR SELECT TO "authenticated" USING ((("clearance_id" IN ( SELECT "clearance_records"."clearance_id"
+   FROM "public"."clearance_records"
+  WHERE (("clearance_records"."user_id")::"text" IN ( SELECT "users"."user_id"
+           FROM "public"."users"
+          WHERE ("users"."auth_id" = "auth"."uid"()))))) OR (((((("auth"."jwt"() -> 'user_metadata'::"text") -> 'custom_claims'::"text") -> 'roles'::"text") ->> 0) = 'Department'::"text") AND ("staff_id" IN ( SELECT "users"."user_id"
+   FROM "public"."users"
+  WHERE ("users"."auth_id" = "auth"."uid"()))))));
+
+
+
+CREATE POLICY "users can view own user record" ON "public"."users" FOR SELECT TO "authenticated" USING (("auth_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "users can view staffs" ON "public"."staffs" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "users can view template" ON "public"."clearance_templates" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "users view their own clearance" ON "public"."clearance_records" FOR SELECT TO "authenticated" USING ((("user_id")::"text" IN ( SELECT "users"."user_id"
+   FROM "public"."users"
+  WHERE ("users"."auth_id" = "auth"."uid"()))));
+
 
 
 
@@ -941,9 +1095,9 @@ GRANT ALL ON FUNCTION "public"."generate_user_id"() TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."activity_logs" TO "anon";
-GRANT ALL ON TABLE "public"."activity_logs" TO "authenticated";
-GRANT ALL ON TABLE "public"."activity_logs" TO "service_role";
+GRANT ALL ON TABLE "public"."clearance_logs" TO "anon";
+GRANT ALL ON TABLE "public"."clearance_logs" TO "authenticated";
+GRANT ALL ON TABLE "public"."clearance_logs" TO "service_role";
 
 
 
@@ -953,9 +1107,9 @@ GRANT ALL ON SEQUENCE "public"."activity_logs_log_id_seq" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."assigned_tasks" TO "anon";
-GRANT ALL ON TABLE "public"."assigned_tasks" TO "authenticated";
-GRANT ALL ON TABLE "public"."assigned_tasks" TO "service_role";
+GRANT ALL ON TABLE "public"."clearance_tasks" TO "anon";
+GRANT ALL ON TABLE "public"."clearance_tasks" TO "authenticated";
+GRANT ALL ON TABLE "public"."clearance_tasks" TO "service_role";
 
 
 
@@ -965,9 +1119,22 @@ GRANT ALL ON SEQUENCE "public"."assigned_tasks_assigned_task_id_seq" TO "service
 
 
 
-GRANT ALL ON TABLE "public"."clearance_tasks_preset" TO "anon";
-GRANT ALL ON TABLE "public"."clearance_tasks_preset" TO "authenticated";
-GRANT ALL ON TABLE "public"."clearance_tasks_preset" TO "service_role";
+GRANT ALL ON TABLE "public"."clearance_departments" TO "anon";
+GRANT ALL ON TABLE "public"."clearance_departments" TO "authenticated";
+GRANT ALL ON TABLE "public"."clearance_departments" TO "service_role";
+GRANT SELECT ON TABLE "public"."clearance_departments" TO "supabase_auth_admin";
+
+
+
+GRANT ALL ON TABLE "public"."clearance_records" TO "anon";
+GRANT ALL ON TABLE "public"."clearance_records" TO "authenticated";
+GRANT ALL ON TABLE "public"."clearance_records" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."staff_predefined_tasks" TO "anon";
+GRANT ALL ON TABLE "public"."staff_predefined_tasks" TO "authenticated";
+GRANT ALL ON TABLE "public"."staff_predefined_tasks" TO "service_role";
 
 
 
@@ -1026,13 +1193,6 @@ GRANT ALL ON SEQUENCE "public"."debug_logs_debug_id_seq" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."departments" TO "anon";
-GRANT ALL ON TABLE "public"."departments" TO "authenticated";
-GRANT ALL ON TABLE "public"."departments" TO "service_role";
-GRANT SELECT ON TABLE "public"."departments" TO "supabase_auth_admin";
-
-
-
 GRANT ALL ON SEQUENCE "public"."departments_dept_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."departments_dept_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."departments_dept_id_seq" TO "service_role";
@@ -1045,15 +1205,21 @@ GRANT ALL ON TABLE "public"."enrollments" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."notifications" TO "anon";
+GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
+GRANT ALL ON TABLE "public"."notifications" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."notifications_notif_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."notifications_notif_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."notifications_notif_id_seq" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."staffs" TO "anon";
 GRANT ALL ON TABLE "public"."staffs" TO "authenticated";
 GRANT ALL ON TABLE "public"."staffs" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."student_clearances" TO "anon";
-GRANT ALL ON TABLE "public"."student_clearances" TO "authenticated";
-GRANT ALL ON TABLE "public"."student_clearances" TO "service_role";
 
 
 
@@ -1134,6 +1300,23 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 
+
+
+
+
+--
+-- Dumped schema changes for auth and storage
+--
+
+CREATE POLICY "Allow authenticated reads" ON "storage"."objects" FOR SELECT TO "authenticated" USING (("bucket_id" = 'images'::"text"));
+
+
+
+CREATE POLICY "Allow authenticated updates" ON "storage"."objects" FOR UPDATE TO "authenticated" USING (("bucket_id" = 'images'::"text"));
+
+
+
+CREATE POLICY "Allow authenticated uploads" ON "storage"."objects" FOR INSERT TO "authenticated" WITH CHECK (("bucket_id" = 'images'::"text"));
 
 
 

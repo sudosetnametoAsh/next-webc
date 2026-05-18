@@ -17,35 +17,6 @@ import TaskView from "./task-view";
 
 type CheckedState = boolean | "indeterminate";
 
-// const checkPrerequisites = (
-//   clearances: any[],
-//   currentDeptName: string | undefined,
-// ): boolean => {
-//   if (!clearances || !currentDeptName) return false;
-//   const dept = currentDeptName.toLowerCase();
-
-//   const isSigned = (targetDept: string) => {
-//     return clearances.some(
-//       (c) =>
-//         c.clearance_templates?.departments?.dept_name?.toLowerCase() ===
-//           targetDept && c.status === "Signed",
-//     );
-//   };
-
-//   if (dept === "cashier") return true;
-//   if (!isSigned("cashier")) return false;
-
-//   if (dept === "registrar") {
-//     return clearances.every(
-//       (c) =>
-//         c.clearance_templates?.departments?.dept_name?.toLowerCase() ===
-//           "registrar" || c.status === "Signed",
-//     );
-//   }
-
-//   return true;
-// };
-
 // 1. Define the deepest nested level (departments)
 export interface Department {
   dept_name?: string | null;
@@ -58,7 +29,7 @@ export interface ClearanceTemplate {
   departments?: Department | Department[] | null;
 }
 
-// 3. Define the main row (student_clearances)
+// 3. Define the main row (clearance_records)
 export interface ClearanceRecord {
   clearance_id?: string;
   student_id?: string;
@@ -75,7 +46,6 @@ export const checkPrerequisites = (
 
   const dept = currentDeptName.toLowerCase();
 
-  // The helper function now has perfect Type Autocomplete!
   const getDeptName = (c: ClearanceRecord): string | undefined => {
     const template = Array.isArray(c.clearance_templates)
       ? c.clearance_templates[0]
@@ -114,9 +84,11 @@ export default function StudentsClient() {
     setClearanceId,
     effectiveStatus,
     selectedStudents,
+    departmentName,
+    activeSectionId,
   } = useDepartmentContext();
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const { data: preset } = useFetchPreset();
   const queryClient = useQueryClient();
 
@@ -130,24 +102,20 @@ export default function StudentsClient() {
   );
 
   // --- REALTIME CHECKBOX SYNC FIX ---
-  // Whenever the students list updates (via Realtime refetch), remove any checked IDs
-  // that no longer match the active filter (e.g., a student went from Pending to Signed).
-  // --- REALTIME CHECKBOX SYNC FIX ---
   useEffect(() => {
     setClearanceId((prev) => {
       if (prev.length === 0) return prev;
 
-      // Group logically by Signed vs Not Signed
       const isSelectedGroupSigned = effectiveStatus === "Signed";
 
       const currentValidIds = new Set(
         students
           .filter((s) => {
             const isStudentSigned =
-              s.student_clearances?.[0]?.status === "Signed";
+              s.clearance_records?.[0]?.status === "Signed";
             return isStudentSigned === isSelectedGroupSigned;
           })
-          .map((s) => s.student_clearances?.[0]?.clearance_id)
+          .map((s) => s.clearance_records?.[0]?.clearance_id)
           .filter(Boolean),
       );
 
@@ -156,72 +124,25 @@ export default function StudentsClient() {
     });
   }, [students, effectiveStatus, setClearanceId]);
 
-  //   useEffect(() => {
-  //     async function fetchPrereqStatus() {
-  //       if (students.length === 0) return;
-  //       const studentIds = students.map((s) => s.student_id);
-
-  //       const { data: allClearances } = await supabase
-  //         .from("student_clearances")
-  //         .select(
-  //           "clearance_id, student_id, status, clearance_templates(dept_id, departments(dept_name))",
-  //         )
-  //         .in("student_id", studentIds);
-
-  //       if (!allClearances) return;
-
-  //       const deptMap = new Map<string, string>();
-  //       for (const c of allClearances) {
-  //         const name =
-  //           c.clearance_templates?.departments?.dept_name?.toLowerCase();
-  //         if (name) deptMap.set(c.clearance_id, name);
-  //       }
-
-  //       const studentClearancesMap = new Map<string, any[]>();
-  //       for (const c of allClearances) {
-  //         if (!studentClearancesMap.has(c.student_id))
-  //           studentClearancesMap.set(c.student_id, []);
-  //         studentClearancesMap.get(c.student_id)!.push(c);
-  //       }
-
-  //       const newStatus = new Map<string, boolean>();
-  //       for (const s of students) {
-  //         const cId = s.student_clearances?.[0]?.clearance_id;
-  //         if (!cId) continue;
-  //         const currentDept = deptMap.get(cId);
-  //         const allStudentClearances =
-  //           studentClearancesMap.get(s.student_id) || [];
-  //         newStatus.set(
-  //           cId,
-  //           checkPrerequisites(allStudentClearances, currentDept),
-  //         );
-  //       }
-  //       setPrereqStatus(newStatus);
-  //     }
-  //     fetchPrereqStatus();
-  //   }, [students, supabase]);
-
   useEffect(() => {
     async function fetchPrereqStatus() {
       if (students.length === 0) return;
       const studentIds = students.map((s) => s.student_id);
 
       const { data: allClearances } = await supabase
-        .from("student_clearances")
+        .from("clearance_records")
         .select(
-          "clearance_id, student_id, status, clearance_templates(dept_id, departments(dept_name))",
+          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, departments:clearance_departments(dept_name))",
         )
-        .in("student_id", studentIds);
+        .in("user_id", studentIds);
 
       if (!allClearances) return;
 
-      // FIX 1: Extract the exact type that Supabase returned so we don't have to use 'any'
       type ClearanceRecord = NonNullable<typeof allClearances>[number];
 
       const deptMap = new Map<string, string>();
 
       for (const c of allClearances) {
-        // FIX 2: Safely extract the first item from the nested arrays
         const template = Array.isArray(c.clearance_templates)
           ? c.clearance_templates[0]
           : c.clearance_templates;
@@ -235,7 +156,6 @@ export default function StudentsClient() {
         if (name) deptMap.set(c.clearance_id, name);
       }
 
-      // FIX 3: Apply the extracted type to our Map
       const studentClearancesMap = new Map<string, ClearanceRecord[]>();
 
       for (const c of allClearances) {
@@ -247,7 +167,7 @@ export default function StudentsClient() {
 
       const newStatus = new Map<string, boolean>();
       for (const s of students) {
-        const cId = s.student_clearances?.[0]?.clearance_id;
+        const cId = s.clearance_records?.[0]?.clearance_id;
         if (!cId) continue;
         const currentDept = deptMap.get(cId);
         const allStudentClearances =
@@ -261,7 +181,6 @@ export default function StudentsClient() {
     }
     fetchPrereqStatus();
   }, [students, supabase]);
-  // Note: if `checkPrerequisites` is defined outside this effect, it might need to be in the dependency array or wrapped in a useCallback.
 
   // --- REALTIME SUBSCRIPTION ---
   useEffect(() => {
@@ -269,14 +188,14 @@ export default function StudentsClient() {
       .channel("clearance-management-updates")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "student_clearances" },
+        { event: "*", schema: "public", table: "clearance_records" },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ["students"] });
         },
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "assigned_tasks" },
+        { event: "*", schema: "public", table: "clearance_tasks" },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ["students"] });
         },
@@ -305,9 +224,9 @@ export default function StudentsClient() {
   const progress = useMemo(() => {
     return students.reduce(
       (acc, s) => {
-        const status = s.student_clearances?.[0]?.status;
+        const status = s.clearance_records?.[0]?.status;
         const taskCount =
-          s.student_clearances?.[0]?.assigned_tasks?.length || 0;
+          s.clearance_records?.[0]?.clearance_tasks?.length || 0;
         if (status === "Signed") acc.cleared++;
         else if (taskCount > 0) acc.incomplete++;
         else acc.pending++;
@@ -352,22 +271,11 @@ export default function StudentsClient() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/*
-              NOTE ON LOGGING:
-              Pass `logActivity` to SignToggleButton if you can edit it,
-              otherwise use a wrapper. Example inside SignToggleButton:
-              await logActivity("Sign", `Signed off ${clearanceId.length} students`)
-            */}
             <SignToggleButton
               clearanceId={signableClearanceIds}
               currentStatus={effectiveStatus}
             />
             <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
-              {/*
-                NOTE ON LOGGING:
-                Inside AddTask, after a successful task creation, you can call:
-                await logActivity("Assign Task", `Assigned "${description}" to ${clearanceId.length} students`)
-              */}
               <AddTask
                 preset={preset}
                 clearanceId={clearanceId}
@@ -376,6 +284,7 @@ export default function StudentsClient() {
                 setDescription={setDescription}
                 title={title}
                 setTitle={setTitle}
+                sectionId={activeSectionId}
               />
               <div className="mx-1 h-4 w-px bg-slate-200"></div>
               <AddPreset
@@ -384,6 +293,7 @@ export default function StudentsClient() {
                 setTaskId={setTaskId}
                 clearanceId={clearanceId}
                 description={description}
+                sectionId={activeSectionId}
               />
               <div className="mx-1 h-4 w-px bg-slate-200"></div>
               <ManagePresetButton preset={preset} />
@@ -412,10 +322,10 @@ export default function StudentsClient() {
         <div className="flex flex-col gap-2">
           {displayedStudents.length > 0 ? (
             displayedStudents.map((student) => {
-              const cId = student.student_clearances?.[0]?.clearance_id;
-              const dbStatus = student.student_clearances?.[0]?.status;
+              const cId = student.clearance_records?.[0]?.clearance_id;
+              const dbStatus = student.clearance_records?.[0]?.status;
               const taskCount =
-                student.student_clearances?.[0]?.assigned_tasks?.length || 0;
+                student.clearance_records?.[0]?.clearance_tasks?.length || 0;
               const isLocked = prereqStatus.get(cId) === false;
 
               let displayStatus = dbStatus;
@@ -441,8 +351,6 @@ export default function StudentsClient() {
                   "border border-emerald-200/50 bg-emerald-50 text-emerald-700";
               }
 
-              // const isDisabled =
-              //   dbStatus !== effectiveStatus && selectedStudents.length !== 0;
               const isSelectedGroupSigned = effectiveStatus === "Signed";
               const isThisStudentSigned = dbStatus === "Signed";
               const isDisabled =
@@ -565,9 +473,10 @@ export default function StudentsClient() {
           <div className="fixed top-0 right-0 z-50 flex h-full flex-col border-l border-slate-200 bg-white shadow-2xl">
             <div className="flex-1 overflow-y-auto">
               <TaskView
-                studentTasks={student.student_clearances[0].assigned_tasks}
+                studentTasks={student.clearance_records[0].clearance_tasks}
                 studentId={student.student_id}
                 studentName={student.student_name}
+                currentDepartment={departmentName}
               />
             </div>
           </div>

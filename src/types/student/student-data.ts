@@ -10,14 +10,14 @@ const TasksSchema = z.object({
   comments: z.string().nullable().optional(), // Added to capture staff feedback
 });
 
-const StudentSchema = z.object({
+const ClearanceRecordSchema = z.object({
   clearance_id: z.number(),
   status: z.enum(["Signed", "Pending", "Incomplete"]),
   clearance_templates: z.object({
     departments: z.object({ dept_name: z.string() }),
     staffs: z.object({ staff_name: z.string() }),
   }),
-  assigned_tasks: z.array(TasksSchema),
+  clearance_tasks: z.array(TasksSchema),
 });
 
 
@@ -29,12 +29,12 @@ const UserDataSchema = z.object({
 
 export const FetchedDataSchema = z.object({
   user_data: UserDataSchema,
-  data: z.array(StudentSchema),
+  data: z.array(ClearanceRecordSchema),
 });
 
 export type FetchedData = {
   userData: z.infer<typeof UserDataSchema>;
-  students: z.infer<typeof StudentSchema>[];
+  students: z.infer<typeof ClearanceRecordSchema>[];
 };
 
-export type Students = z.infer<typeof StudentSchema>[];
+export type Students = z.infer<typeof ClearanceRecordSchema>[];

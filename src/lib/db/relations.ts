@@ -1,17 +1,17 @@
 import { relations } from "drizzle-orm/relations";
-import { staffs, activityLogs, assignedTasks, studentClearances, clearanceTasksPreset, courses, clearanceTemplates, departments, courseSections, enrollments, students, users } from "./schema";
+import { staffs, clearanceLogs, clearanceTasks, clearanceRecords, staffPredefinedTasks, courses, clearanceTemplates, clearanceDepartments, courseSections, enrollments, students, users } from "./schema";
 
-export const activityLogsRelations = relations(activityLogs, ({one}) => ({
+export const clearanceLogsRelations = relations(clearanceLogs, ({one}) => ({
 	staff: one(staffs, {
-		fields: [activityLogs.staffId],
+		fields: [clearanceLogs.staffId],
 		references: [staffs.staffId]
 	}),
 }));
 
 export const staffsRelations = relations(staffs, ({one, many}) => ({
-	activityLogs: many(activityLogs),
-	assignedTasks: many(assignedTasks),
-	clearanceTasksPresets: many(clearanceTasksPreset),
+	clearanceLogs: many(clearanceLogs),
+	clearanceTasks: many(clearanceTasks),
+	staffPredefinedTasks: many(staffPredefinedTasks),
 	clearanceTemplates: many(clearanceTemplates),
 	user: one(users, {
 		fields: [staffs.staffId],
@@ -19,37 +19,37 @@ export const staffsRelations = relations(staffs, ({one, many}) => ({
 	}),
 }));
 
-export const assignedTasksRelations = relations(assignedTasks, ({one}) => ({
+export const clearanceTasksRelations = relations(clearanceTasks, ({one}) => ({
 	staff: one(staffs, {
-		fields: [assignedTasks.staffId],
+		fields: [clearanceTasks.staffId],
 		references: [staffs.staffId]
 	}),
-	studentClearance: one(studentClearances, {
-		fields: [assignedTasks.clearanceId],
-		references: [studentClearances.clearanceId]
+	clearanceRecord: one(clearanceRecords, {
+		fields: [clearanceTasks.clearanceId],
+		references: [clearanceRecords.clearanceId]
 	}),
-	clearanceTasksPreset: one(clearanceTasksPreset, {
-		fields: [assignedTasks.taskId],
-		references: [clearanceTasksPreset.taskId]
+	staffPredefinedTask: one(staffPredefinedTasks, {
+		fields: [clearanceTasks.taskId],
+		references: [staffPredefinedTasks.taskId]
 	}),
 }));
 
-export const studentClearancesRelations = relations(studentClearances, ({one, many}) => ({
-	assignedTasks: many(assignedTasks),
+export const clearanceRecordsRelations = relations(clearanceRecords, ({one, many}) => ({
+	clearanceTasks: many(clearanceTasks),
 	student: one(students, {
-		fields: [studentClearances.studentId],
+		fields: [clearanceRecords.userId],
 		references: [students.studentId]
 	}),
 	clearanceTemplate: one(clearanceTemplates, {
-		fields: [studentClearances.templateId],
+		fields: [clearanceRecords.templateId],
 		references: [clearanceTemplates.templateId]
 	}),
 }));
 
-export const clearanceTasksPresetRelations = relations(clearanceTasksPreset, ({one, many}) => ({
-	assignedTasks: many(assignedTasks),
+export const staffPredefinedTasksRelations = relations(staffPredefinedTasks, ({one, many}) => ({
+	clearanceTasks: many(clearanceTasks),
 	staff: one(staffs, {
-		fields: [clearanceTasksPreset.staffId],
+		fields: [staffPredefinedTasks.staffId],
 		references: [staffs.staffId]
 	}),
 }));
@@ -59,15 +59,15 @@ export const clearanceTemplatesRelations = relations(clearanceTemplates, ({one, 
 		fields: [clearanceTemplates.courseId],
 		references: [courses.courseId]
 	}),
-	department: one(departments, {
+	department: one(clearanceDepartments, {
 		fields: [clearanceTemplates.deptId],
-		references: [departments.deptId]
+		references: [clearanceDepartments.deptId]
 	}),
 	staff: one(staffs, {
 		fields: [clearanceTemplates.staffId],
 		references: [staffs.staffId]
 	}),
-	studentClearances: many(studentClearances),
+	clearanceRecords: many(clearanceRecords),
 }));
 
 export const coursesRelations = relations(courses, ({many}) => ({
@@ -75,7 +75,7 @@ export const coursesRelations = relations(courses, ({many}) => ({
 	courseSections: many(courseSections),
 }));
 
-export const departmentsRelations = relations(departments, ({many}) => ({
+export const clearanceDepartmentsRelations = relations(clearanceDepartments, ({many}) => ({
 	clearanceTemplates: many(clearanceTemplates),
 }));
 
@@ -100,7 +100,7 @@ export const enrollmentsRelations = relations(enrollments, ({one}) => ({
 
 export const studentsRelations = relations(students, ({one, many}) => ({
 	enrollments: many(enrollments),
-	studentClearances: many(studentClearances),
+	clearanceRecords: many(clearanceRecords),
 	user: one(users, {
 		fields: [students.studentId],
 		references: [users.userId]

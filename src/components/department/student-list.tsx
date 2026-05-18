@@ -38,7 +38,7 @@ export default function StudentList() {
     <Accordion type="multiple" className="w-246 flex flex-col justify-center">
       {filteredStudents.map((student) => {
         const isDisabled =
-          student.student_clearances[0].status !== effectiveStatus &&
+          student.clearance_records[0].status !== effectiveStatus &&
           selectedStudents.length !== 0;
 
         return (
@@ -52,11 +52,11 @@ export default function StudentList() {
               className={`isDisabled ? "cursor-not-allowed" : "cursor-pointer" mr-2!`}
               disabled={isDisabled}
               checked={clearanceId.includes(
-                student.student_clearances?.[0].clearance_id,
+                student.clearance_records?.[0].clearance_id,
               )}
               onCheckedChange={(checked) =>
                 handleStudentChange(
-                  student.student_clearances?.[0].clearance_id,
+                  student.clearance_records?.[0].clearance_id,
                   checked,
                 )
               }
@@ -66,14 +66,14 @@ export default function StudentList() {
             <AccordionTrigger className="flex cursor-pointer justify-start p-2.5!">
               {student.student_name} ({student.student_id})
               <strong className="justfify-end flex">
-                {student.student_clearances[0].status}
+                {student.clearance_records[0].status}
               </strong>
             </AccordionTrigger>
 
             {/* Content */}
             <AccordionContent className="flex justify-start">
               <StudentTaskList
-                clearanceId={student.student_clearances?.[0].clearance_id}
+                clearanceId={student.clearance_records?.[0].clearance_id}
               />
             </AccordionContent>
           </AccordionItem>

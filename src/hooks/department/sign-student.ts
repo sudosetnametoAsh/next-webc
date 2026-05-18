@@ -18,7 +18,7 @@ export function useSignStudent() {
 
       if (!response.ok) throw new Error("Unable to sign student");
 
-      return response.json;
+      return response.json();
     },
   });
 }

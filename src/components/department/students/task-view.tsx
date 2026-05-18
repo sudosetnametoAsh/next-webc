@@ -84,16 +84,16 @@ export default function TaskView({
     const fetchProgress = async () => {
       if (!studentId) return;
       const { data, error } = await supabase
-        .from("student_clearances")
+        .from("clearance_records")
         .select(`
           status,
           signed_at,
           clearance_templates (
             dept_id,
-            departments ( dept_name )
+            departments:clearance_departments ( dept_name )
           )
         `)
-        .eq("student_id", studentId);
+        .eq("user_id", studentId);
 
       if (!error && data) {
         const formatted: ClearanceProgress[] = data
@@ -112,7 +112,7 @@ export default function TaskView({
   useEffect(() => {
     const channel = supabase
       .channel("custom-all-channel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "assigned_tasks" }, (payload) => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "clearance_tasks" }, (payload) => {
         if (payload.eventType === "UPDATE") {
           setTasks((prev) => prev.map((t) => t.assigned_task_id === payload.new.assigned_task_id ? { ...t, ...payload.new } : t));
         }
@@ -141,7 +141,7 @@ export default function TaskView({
     setIsLoading(true);
     setActiveTaskId(taskId);
     try {
-      const { data, error } = await supabase.from("assigned_tasks").select("dropbox, uploaded_at").eq("assigned_task_id", taskId).single();
+      const { data, error } = await supabase.from("clearance_tasks").select("dropbox, uploaded_at").eq("assigned_task_id", taskId).single();
       if (error) throw error;
 
       const formattedDate = data.uploaded_at ? new Date(data.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Unknown Date";
@@ -192,7 +192,7 @@ export default function TaskView({
 
     try {
       const { error } = await supabase
-        .from("assigned_tasks")
+        .from("clearance_tasks")
         .update({ status: "Cleared" })
         .eq("assigned_task_id", taskId);
       if (error) throw error;
@@ -213,7 +213,7 @@ export default function TaskView({
     setTasks((prev) => prev.map((t) => t.assigned_task_id === activeTaskId ? { ...t, status: newStatus, comments: comment } : t));
     closeModal();
     try {
-      const { error } = await supabase.from("assigned_tasks").update({ status: newStatus, comments: comment }).eq("assigned_task_id", activeTaskId);
+      const { error } = await supabase.from("clearance_tasks").update({ status: newStatus, comments: comment }).eq("assigned_task_id", activeTaskId);
       if (error) throw error;
     } catch (error) {
       console.error("Error updating task status:", error);
@@ -235,7 +235,7 @@ export default function TaskView({
 
     try {
       const { error } = await supabase
-        .from("assigned_tasks")
+        .from("clearance_tasks")
         .update({
           status: "Resubmit",
           dropbox: null,

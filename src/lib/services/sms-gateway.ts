@@ -19,7 +19,7 @@ export default async function smsGateWay({
       body: JSON.stringify({
         phoneNumbers: [phone_number],
         textMessage: {
-          text: `Your clearance on the ${department} department has been signed`,
+          text: `Your clearance on the Clinic department has been signed`,
         },
       }),
     });

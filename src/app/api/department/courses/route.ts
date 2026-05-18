@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/auth/get-session";
-import { createClient } from "@/lib/db/supabase-client";
+import { createClient } from "@/lib/db/supabase-server";
 import { NextResponse } from "next/server";
 
-const supabase = createClient();
 export async function GET() {
+  const supabase = await createClient();
   const { user_id } = await getSession();
 
   const { data: courses, error } = await supabase

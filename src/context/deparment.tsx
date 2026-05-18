@@ -6,7 +6,7 @@ import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 const DepartmentContext = createContext<DepartmentContextType | null>(null);
 
-export function DepartmentProvider({ children }: { children: ReactNode }) {
+export function DepartmentProvider({ children, departmentName }: { children: ReactNode; departmentName?: string }) {
   const { data: courses = [] } = useFetchCourses();
 
   const [courseId, setCourseId] = useState<string | null>(null); // Keeyps track of selected course
@@ -17,7 +17,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [orderFilter, setOrderFilter] = useState<string>("A-Z");
 
-  const activeCourseId = courseId ?? String(courses?.[0]?.course_id);
+  const activeCourseId = courseId ?? (courses?.[0]?.course_id ? String(courses[0].course_id) : null);
 
   const selectedCourse = useMemo(
     () =>
@@ -27,7 +27,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
   );
 
   const activeSectionId =
-    sectionId ?? String(selectedCourse?.course_sections[0]?.section_id);
+    sectionId ?? (selectedCourse?.course_sections?.[0]?.section_id ? String(selectedCourse.course_sections[0].section_id) : "");
 
   const { data: students = [], isFetching: fetchingStudents } =
     useFethStudents(activeSectionId); // Hook to fetch students
@@ -37,7 +37,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
   const selectedStudents = useMemo(
     () =>
       students.filter((student) =>
-        selectedIds.has(student.student_clearances?.[0].clearance_id),
+        selectedIds.has(student.clearance_records?.[0].clearance_id),
       ),
     [students, selectedIds],
   );
@@ -46,7 +46,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
     if (selectedStudents.length === 0) return "";
 
     return selectedStudents.every(
-      (s) => s.student_clearances?.[0].status === "Signed",
+      (s) => s.clearance_records?.[0].status === "Signed",
     )
       ? "Signed"
       : "Pending";
@@ -54,7 +54,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
 
   const filteredStudents = useMemo(() => {
     const sortViaStatus = students.filter((student) => {
-      const studentStatus = student.student_clearances[0].status;
+      const studentStatus = student.clearance_records[0].status;
       const matchesStatus =
         statusFilter === "All" || studentStatus === statusFilter;
 
@@ -99,6 +99,7 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
     setStatusFilter,
     orderFilter,
     setOrderFilter,
+    departmentName,
   };
   return (
     <DepartmentContext.Provider value={value}>

@@ -11,16 +11,16 @@ export async function GET() {
   const id = user_id;
 
   const { data: studentData, error: studentError } = await supabase
-    .from("student_clearances")
+    .from("clearance_records")
     .select(
       `
         clearance_id,
         status,
         clearance_templates (
-          departments ( dept_name ),
+          clearance_departments ( dept_name ),
           staffs ( staff_name )
         ),
-        assigned_tasks (
+        clearance_tasks (
           assigned_task_id,
           status,
           dropbox,

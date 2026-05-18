@@ -16,8 +16,8 @@ import {
 import { authenticatedRole } from "drizzle-orm/supabase";
 import { sql } from "drizzle-orm";
 
-export const activityLogs = pgTable(
-  "activity_logs",
+export const clearanceLogs = pgTable(
+  "clearance_logs",
   {
     logId: serial("log_id").primaryKey().notNull(),
     staffId: text("staff_id").notNull(),
@@ -33,13 +33,26 @@ export const activityLogs = pgTable(
       foreignColumns: [staffs.staffId],
       name: "activity_log_staff_id_fkey",
     }),
+    pgPolicy("users can view logs", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
+    pgPolicy("department staff can make changes", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+    }),
   ],
 );
 
-export const assignedTasks = pgTable(
-  "assigned_tasks",
+export const clearanceTasks = pgTable(
+  "clearance_tasks",
   {
-    assignedTaskId: serial("assigned_task_id").notNull(),
+    assignedTaskId: serial("assigned_task_id").primaryKey().notNull(),
     clearanceId: integer("clearance_id").notNull(),
     taskId: integer("task_id"),
     description: text().notNull(),
@@ -55,7 +68,7 @@ export const assignedTasks = pgTable(
       mode: "string",
     }),
     comments: text(),
-    title: text(),
+    title: text().notNull(),
   },
   (table) => [
     foreignKey({
@@ -67,23 +80,48 @@ export const assignedTasks = pgTable(
       .onDelete("cascade"),
     foreignKey({
       columns: [table.clearanceId],
-      foreignColumns: [studentClearances.clearanceId],
+      foreignColumns: [clearanceRecords.clearanceId],
       name: "clearance_id_fk",
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
     foreignKey({
       columns: [table.taskId],
-      foreignColumns: [clearanceTasksPreset.taskId],
+      foreignColumns: [staffPredefinedTasks.taskId],
       name: "task_id_fk",
     })
       .onUpdate("cascade")
       .onDelete("set null"),
+
+    check(
+      "status_check",
+      sql`${table.status}::text IN ('Cleared', 'Pending', 'Submitted', 'Rejected', 'Flagged', 'Verified')`,
+    ),
+    pgPolicy("users can view own tasks", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`(clearance_id IN (SELECT clearance_id FROM public.clearance_records WHERE user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))) OR ((auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+    }),
+    pgPolicy("clearance client can submit work", {
+      as: "permissive",
+      for: "update",
+      to: authenticatedRole,
+      using: sql`clearance_id IN (SELECT clearance_id FROM public.clearance_records WHERE user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())) AND (status = 'Pending' OR status = 'Rejected')`,
+      withCheck: sql`status IN ('Submitted', 'Rejected')`,
+    }),
+    pgPolicy("department staff can manage assigned tasks", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
   ],
 );
 
-export const clearanceTasksPreset = pgTable(
-  "clearance_tasks_preset",
+export const staffPredefinedTasks = pgTable(
+  "staff_predefined_tasks",
   {
     taskId: serial("task_id").primaryKey().notNull(),
     description: text().notNull(),
@@ -98,6 +136,13 @@ export const clearanceTasksPreset = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+    pgPolicy("department staff can manage their own predefined tasks", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
   ],
 );
 
@@ -105,7 +150,7 @@ export const clearanceTemplates = pgTable(
   "clearance_templates",
   {
     templateId: serial("template_id").primaryKey().notNull(),
-    courseId: integer("course_id").notNull(),
+    courseId: integer("course_id"),
     deptId: integer("dept_id").notNull(),
     staffId: text("staff_id").notNull(),
   },
@@ -117,7 +162,7 @@ export const clearanceTemplates = pgTable(
     }).onDelete("cascade"),
     foreignKey({
       columns: [table.deptId],
-      foreignColumns: [departments.deptId],
+      foreignColumns: [clearanceDepartments.deptId],
       name: "clearancetemplates_dept_id_fkey",
     }).onDelete("cascade"),
     foreignKey({
@@ -127,6 +172,19 @@ export const clearanceTemplates = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+    pgPolicy("users can view template", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
+    pgPolicy("admin can make changes", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+    }),
   ],
 );
 
@@ -147,23 +205,54 @@ export const courseSections = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+    pgPolicy("users can view course sections", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
   ],
 );
 
 export const courses = pgTable("courses", {
   courseId: serial("course_id").primaryKey().notNull(),
   courseName: varchar("course_name", { length: 100 }).notNull(),
-});
+}, (table) => [
+  pgPolicy("users can view courses", {
+    as: "permissive",
+    for: "select",
+    to: authenticatedRole,
+    using: sql`true`,
+  }),
+]);
 
 export const debugLogs = pgTable("debug_logs", {
   debugId: serial("debug_id").primaryKey().notNull(),
   payload: jsonb(),
 });
 
-export const departments = pgTable("departments", {
-  deptId: serial("dept_id").primaryKey().notNull(),
-  deptName: varchar("dept_name", { length: 100 }).notNull(),
-});
+export const clearanceDepartments = pgTable(
+  "clearance_departments",
+  {
+    deptId: serial("dept_id").primaryKey().notNull(),
+    deptName: varchar("dept_name", { length: 100 }).notNull().unique(),
+  },
+  () => [
+    pgPolicy("users can view departments", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
+    pgPolicy("admin can make changes", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+    }),
+  ],
+);
 
 export const enrollments = pgTable(
   "enrollments",
@@ -186,6 +275,12 @@ export const enrollments = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+    pgPolicy("users can view enrollments", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
   ],
 );
 
@@ -203,21 +298,27 @@ export const staffs = pgTable(
       foreignColumns: [users.userId],
       name: "staffs_staff_id_fkey",
     }),
+    pgPolicy("users can view staffs", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
   ],
 );
 
-export const studentClearances = pgTable(
-  "student_clearances",
+export const clearanceRecords = pgTable(
+  "clearance_records",
   {
     clearanceId: serial("clearance_id").primaryKey().notNull(),
-    studentId: varchar("student_id", { length: 11 }).notNull(),
+    userId: varchar("user_id", { length: 11 }).notNull(),
     status: varchar({ length: 20 }).default("Pending").notNull(),
     signedAt: timestamp("signed_at", { mode: "string" }),
     templateId: integer("template_id").notNull(),
   },
   (table) => [
     foreignKey({
-      columns: [table.studentId],
+      columns: [table.userId],
       foreignColumns: [students.studentId],
       name: "studentclearances_student_id_fkey",
     }).onDelete("cascade"),
@@ -232,11 +333,31 @@ export const studentClearances = pgTable(
       "studentclearances_status_check",
       sql`(status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Signed'::character varying)::text, ('Incomplete'::character varying)::text])`,
     ),
-    pgPolicy("user view their own clearance", {
+    pgPolicy("users view their own clearance", {
       as: "permissive",
       for: "select",
       to: authenticatedRole,
-      using: sql`student_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      using: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
+    pgPolicy("department staff can view clearance records", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+    }),
+    pgPolicy("department staff can update clearance records", {
+      as: "permissive",
+      for: "update",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+    }),
+    pgPolicy("admin can manage clearance records", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
     }),
   ],
 );
@@ -255,34 +376,64 @@ export const students = pgTable(
       foreignColumns: [users.userId],
       name: "students_student_id_fkey",
     }).onDelete("cascade"),
+    pgPolicy("users can view own student record", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`student_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
+    pgPolicy("department staff can view students", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+    }),
   ],
 );
 
-export const notifications = pgTable("notifications", {
-  notifId: serial("notif_id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  type: text("type").notNull(), // system, warning, info
-  isRead: boolean("is_read").default(false).notNull(),
-  refUrl: text("ref_url").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
-    .defaultNow()
-    .notNull(),
-}, (table) => [
-  foreignKey({
-    columns: [table.userId],
-    foreignColumns: [users.userId],
-    name: "notif_user_id_fkey"
-  }),
-  check("type_check", sql`${table.type}::text IN ('System', 'Warning', 'Info')`)
-]);
+export const notifications = pgTable(
+  "notifications",
+  {
+    notifId: serial("notif_id").primaryKey(),
+    userId: varchar("user_id").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    type: text("type").notNull(), // system, warning, info
+    isRead: boolean("is_read").default(false).notNull(),
+    refUrl: text("ref_url").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.userId],
+      name: "notif_user_id_fkey",
+    }),
+    check(
+      "type_check",
+      sql`${table.type}::text IN ('System', 'Warning', 'Info')`,
+    ),
+  ],
+);
 
-export const users = pgTable("users", {
-  userId: varchar("user_id")
-    .default(sql`generate_user_id()`)
-    .primaryKey()
-    .notNull(),
-  email: varchar().notNull(),
-  authId: uuid("auth_id"),
-});
+export const users = pgTable(
+  "users",
+  {
+    userId: varchar("user_id")
+      .default(sql`generate_user_id()`)
+      .primaryKey()
+      .notNull(),
+    email: varchar().notNull(),
+    authId: uuid("auth_id"),
+  },
+  () => [
+    pgPolicy("users can view own user record", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`auth_id = auth.uid()`,
+    }),
+  ],
+);
