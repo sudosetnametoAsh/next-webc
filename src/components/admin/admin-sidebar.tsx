@@ -83,7 +83,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard /> },
   { label: "Students",  href: "/admin/students",  icon: <User /> },
   { label: "Templates", href: "/admin/templates", icon: <Sheet /> },
-  { label: "Reports", href: "/admin/reports", icon: <Newspaper /> },
+  // { label: "Reports", href: "/admin/reports", icon: <Newspaper /> },
 ];
 
 const STORAGE_KEY = "admin_sidebar_collapsed";

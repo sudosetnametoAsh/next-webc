@@ -1,70 +1,113 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react' 
+import { useFetchCourses } from '@/hooks/admin/courses'
+import { useFetchDepartments } from '@/hooks/admin/departments'
 import { ChevronRight, GripVertical, X, User } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import ConfirmationModal  from '@/components/admin/confirmation-modal'
-import { useFetchCourses } from '@/hooks/admin/fetch-courses'
-import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
 import { useCreateTemplates } from '@/hooks/admin/course-templates'
 import { StaffAssignment } from '@/types/admin'
+import { Courses, Departments } from '@/types/admin'
+import { expandCourseAbbreviation } from '@/utils/formatters'
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  selectedCourses: number[];
+  setSelectedCourses: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedDepartments: number[];
+  setSelectedDepartments: React.Dispatch<React.SetStateAction<number[]>>;
+  courses: Courses[];
+  departments: Departments[];
+  courseIds: number[];
+  deptIds: number[];
   toastSuccess: (message: string, title?: string) => number;
   toastError: (message: string, title?: string) => number;
 }
 
-export default function CreateTemplateModal({ open, onOpenChange, toastSuccess, toastError }: Props) {
-  // Hooks
-  const { data: courses = [], isSuccess: isSucessCourses } = useFetchCourses()
-  const { data: departments = [], isSuccess: isSuccessDepts } = useFetchDepartments()
-  const { data: staff = [] } = useFetchStaff()
-  const createTemplates = useCreateTemplates()
-  
-  const courseIds = () => courses?.map(c => c.course_id)
-  const deptIds = () => departments?.map(d => d.dept_id)
+export default function CreateTemplateModal({ 
+  open, 
+  onOpenChange,
+  selectedCourses,
+  setSelectedCourses,
+  selectedDepartments,
+  setSelectedDepartments,
+  courses,
+  departments,
+  courseIds,
+  deptIds,
+  toastSuccess, 
+  toastError }: Props) {
 
-  // State
+  // ————————————————————————————————————————
+  // State for delete confirmation modal
+  // ————————————————————————————————————————
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
+  
+  // ————————————————————————————————————————
+  // Core State
+  // ————————————————————————————————————————
+
   const [step, setStep] = useState<'select' | 'assign'>('select')
-  const [selectedCourses, setSelectedCourses] = useState<number[]>([])
-  const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
+  // const [selectedCourses, setSelectedCourses] = useState<number[]>([])
+  // const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
   const [staffAssignments, setStaffAssignments] = useState<StaffAssignment[]>([])
   const [activeDeptId, setActiveDeptId] = useState<number | null>(null)
 
-  // State for confirmation modal
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
+  // ————————————————————————————————————————
+  // Hooks
+  // ————————————————————————————————————————
 
-  const initializedCourses = useRef(false)
-  const initializedDepts = useRef(false)
+  // const { data: courses = [], isSuccess: isSucessCourses } = useFetchCourses()
+  // const { data: departments = [], isSuccess: isSuccessDepts } = useFetchDepartments()
+  const { data: staff = [] } = useFetchStaff()
+  const createTemplates = useCreateTemplates()
 
+  // ————————————————————————————————————————
+  // Data
+  // ————————————————————————————————————————
+  
+  // const courseIds = () => courses?.map(c => c.course_id)
+  // const deptIds = () => departments?.map(d => d.dept_id)
 
-  useEffect(() => {
-    if (isSucessCourses && !initializedCourses.current) {
-      setSelectedCourses(courseIds)
-      initializedCourses.current = true
-    }
-  }, [isSucessCourses, courses])
+  // ————————————————————————————————————————
+  // Reference
+  // ————————————————————————————————————————
 
-  useEffect(() => {
-    if (isSuccessDepts && !initializedDepts.current) {
-      setSelectedDepartments(deptIds)
-      initializedDepts.current = true
-    }
-  }, [isSuccessDepts, departments])
+  // const initializedCourses = useRef(false)
+  // const initializedDepts = useRef(false)
 
+  // useEffect(() => {
+  //   if (isSucessCourses && !initializedCourses.current) {
+  //     setSelectedCourses(courseIds)
+  //     initializedCourses.current = true
+  //   }
+  // }, [isSucessCourses, courses])
 
-  // --- Handlers ---
+  // useEffect(() => {
+  //   if (isSuccessDepts && !initializedDepts.current) {
+  //     setSelectedDepartments(deptIds)
+  //     initializedDepts.current = true
+  //   }
+  // }, [isSuccessDepts, departments])
+
+  // ————————————————————————————————————————
+  // Handlers
+  // ————————————————————————————————————————
+
   const handleClose = () => {
+
     onOpenChange(false)
     setIsConfirmOpen(false)
 
     // Reset all state on close after animation
     setTimeout(() => {
+
       setStep('select')
       setSelectedCourses(courseIds)
       setSelectedDepartments(deptIds)
@@ -274,7 +317,7 @@ function SelectionStep({
                 checked={selectedCourses.includes(course.course_id)}
                 onCheckedChange={() => toggleCourse(course.course_id)}
               />
-              <p className='text-sm text-gray-900'>{course.course_name}</p>
+              <p className='text-sm text-gray-900'>{expandCourseAbbreviation(course.course_name) || course.course_name}</p>
             </label>
           ))}
         </div>

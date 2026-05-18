@@ -1,25 +1,79 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from 'react' 
 import CourseTemplatesList from '@/components/admin/course-templates-list'
-import { Plus, Building2, Search, Trash } from 'lucide-react'
+import { Plus, Building2, BookOpenText, Search, Trash } from 'lucide-react'
 import { ToastContainer } from '@/components/admin/toast'
 import { useToast } from '@/components/admin/use-toast'
 import CreateTemplateModal from '@/components/admin/create-template-modal'
 import ManageDepartmentsModal from '@/components/admin/handle-department-modal'
 import DeleteAllTemplateModal from '@/components/admin/delete-template-modal'
+import ManageCoursesModal from "@/components/admin/handle-courses-modal"
+
+import { useFetchCourses } from '@/hooks/admin/courses'
+import { useFetchDepartments } from '@/hooks/admin/departments'
 
 export default function Templates() {
+
+  // ————————————————————————————————————————
+  // Core State
+  // ————————————————————————————————————————
+
   const [searchQuery, setSearchQuery] = useState('')
   const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
+  const [isCoursesModalOpen, setCoursesModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false)
 
-  // Toast notification
+  const [selectedCourses, setSelectedCourses] = useState<number[]>([])
+  const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
+
+  // ————————————————————————————————————————
+  // Hooks
+  // ————————————————————————————————————————
+
+  const { data: courses = [], isSuccess: isSucessCourses } = useFetchCourses()
+  const { data: departments = [], isSuccess: isSuccessDepts } = useFetchDepartments()
+
+  // ————————————————————————————————————————
+  // Data
+  // ————————————————————————————————————————
+  
+  const courseIds = courses.map(c => c.course_id)
+  const deptIds = departments.map(d => d.dept_id)
+
+  // ————————————————————————————————————————
+  // Reference
+  // ————————————————————————————————————————
+
+  const initializedCourses = useRef(false)
+  const initializedDepts = useRef(false)
+
+  useEffect(() => {
+    if (isSucessCourses && !initializedCourses.current) {
+      setSelectedCourses(courseIds)
+      initializedCourses.current = true
+    }
+  }, [isSucessCourses, courses])
+
+  useEffect(() => {
+    if (isSuccessDepts && !initializedDepts.current) {
+      setSelectedDepartments(deptIds)
+      initializedDepts.current = true
+    }
+  }, [isSuccessDepts, departments])
+
+  // ————————————————————————————————————————
+  // Toast Notification
+  // ————————————————————————————————————————
+
   const { toasts, dismiss, success, error } = useToast({
     maxToasts: 3,
     duration: 4000,
   })
+
+  // console.log(`CourseIds (${selectedCourses.length}): ${selectedCourses}`)
+  // console.log(`DeptIds (${selectedDepartments.length}): ${selectedDepartments}`,)
 
   return (
     <>
@@ -40,6 +94,15 @@ export default function Templates() {
             >
               <Plus className="h-4 w-4" />
               Create Template
+            </button>
+
+            {/* Manage Programs button */}
+            <button
+              onClick={() => setCoursesModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <BookOpenText className="h-4 w-4" />
+              Manage Courses
             </button>
 
             {/* Manage Departments button */}
@@ -84,9 +147,41 @@ export default function Templates() {
         <CourseTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
       </section>
 
-      <CreateTemplateModal open={isTemplateModalOpen} onOpenChange={setTemplateModalOpen} toastSuccess={success} toastError={error} />
-      <ManageDepartmentsModal open={isDepartmentsModalOpen} onOpenChange={setDepartmentsModalOpen} toastSuccess={success} toastError={error} />
-      <DeleteAllTemplateModal open={isDeleteAllModalOpen} onOpenChange={setIsDeleteAllModalOpen} toastSuccess={success} toastError={error} />
+      <CreateTemplateModal 
+        open={isTemplateModalOpen} 
+        onOpenChange={setTemplateModalOpen}
+        selectedCourses={selectedCourses}
+        setSelectedCourses={setSelectedCourses}
+        selectedDepartments={selectedDepartments}
+        setSelectedDepartments={setSelectedDepartments}
+        courses={courses}
+        departments={departments}
+        courseIds={courseIds}
+        deptIds={deptIds}
+        toastSuccess={success} 
+        toastError={error} />
+
+      <ManageCoursesModal 
+        open={isCoursesModalOpen}
+        onOpenChange={setCoursesModalOpen}
+        setSelectedCourses={setSelectedCourses}
+        courseIds={courseIds}
+        toastSuccess={success}
+        toastError={error} />
+
+      <ManageDepartmentsModal
+        open={isDepartmentsModalOpen}
+        onOpenChange={setDepartmentsModalOpen}
+        setSelectedDepartments={setSelectedDepartments}
+        deptIds={deptIds}
+        toastSuccess={success}
+        toastError={error} />
+
+      <DeleteAllTemplateModal 
+        open={isDeleteAllModalOpen}
+        onOpenChange={setIsDeleteAllModalOpen}
+        toastSuccess={success}
+        toastError={error} />
     </>
   )
 }
