@@ -270,43 +270,43 @@
 //   }, [])
 
 //   return (
-//     <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6'>
-//       <h2 className='text-base font-bold text-slate-800'>Department signing rate</h2>
-//       <p className='text-xs text-slate-400 mt-0.5 mb-6'>
-//         How many students each department has cleared
-//       </p>
+    // <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6'>
+    //   <h2 className='text-base font-bold text-slate-800'>Department signing rate</h2>
+    //   <p className='text-xs text-slate-400 mt-0.5 mb-6'>
+    //     How many students each department has cleared
+    //   </p>
 
-//       {sortedDeptData.length === 0 ? (
-//         <div className='flex min-h-[300px] justify-center items-center'>
-//           <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
-//         </div>
-//       ): (
+    //   {sortedDeptData.length === 0 ? (
+    //     <div className='flex min-h-[300px] justify-center items-center'>
+    //       <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
+    //     </div>
+    //   ): (
 
-//         <div className='space-y-4'>
-//           {sortedDeptData.map((dept, i) => (
-//             <div key={dept.dept_name} className='flex items-center gap-4'>
-//               {/* Name */}
-//               <span className='w-36 text-sm text-slate-600 shrink-0 truncate'>{dept.dept_name}</span>
+    //     <div className='space-y-4'>
+    //       {sortedDeptData.map((dept, i) => (
+    //         <div key={dept.dept_name} className='flex items-center gap-4'>
+    //           {/* Name */}
+    //           <span className='w-36 text-sm text-slate-600 shrink-0 truncate'>{dept.dept_name}</span>
 
-//               {/* Back track */}
-//               <div className='flex-1 h-3 bg-slate-100 rounded-full overflow-hidden'>
-//                 {dept.rate !== null && (
-//                   <div 
-//                     className={`h-full rounded-full transition-all duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
-//                     style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 80}ms`, }}
-//                   />
-//                 )}
-//               </div>
+    //           {/* Back track */}
+    //           <div className='flex-1 h-3 bg-slate-100 rounded-full overflow-hidden'>
+    //             {dept.rate !== null && (
+    //               <div 
+    //                 className={`h-full rounded-full transition-all duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
+    //                 style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 80}ms`, }}
+    //               />
+    //             )}
+    //           </div>
 
-//               {/* Rate label */}
-//               <span className={`w-8 text-sm font-semibold text-right shrink-0 ${getDeptRateColor(dept.rate)}`}>
-//                 {getDeptRateLabel(dept.rate)}
-//               </span>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
+    //           {/* Rate label */}
+    //           <span className={`w-8 text-sm font-semibold text-right shrink-0 ${getDeptRateColor(dept.rate)}`}>
+    //             {getDeptRateLabel(dept.rate)}
+    //           </span>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   )}
+    // </div>
 //   )
 // }
 

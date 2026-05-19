@@ -8,7 +8,7 @@ import { StudentTemplates } from '@/types/admin'
 import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Search } from 'lucide-react'
 
-// ———— Types ————————————————————————————————————————————————————————————————————————————————————————————————
+// ———— TYPES ————————————————————————————————————————————————————————————————————————————————————————————————
 
 type StatCard = {
   label: string;
@@ -24,10 +24,11 @@ type TabType = 'all' | 'incomplete' | 'pending' | 'signed'
 
 type SortType = 'name-a-z' | 'name-z-a'
 
+// ———— CONSTANTS ————————————————————————————————————————————————————————————————————————————————————————————————
 
 const PAGE_SIZE = 8
 
-// ———— Sub components ————————————————————————————————————————————————————————————————————————————————————————————————
+// ———— SUB COMPONENTS ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function StatCard({ card, index }: { card: StatCard, index: number }) {
 
@@ -169,7 +170,7 @@ function Pagination({
   )
 }
 
-// ———— Main component ————————————————————————————————————————————————————————————————————————————————————————————————
+// ———— MAIN COMPONENT ————————————————————————————————————————————————————————————————————————————————————————————————
 
 export default function StudentListView({ setAdminPage }: Props) {
 
@@ -306,29 +307,6 @@ export default function StudentListView({ setAdminPage }: Props) {
         {statCards.map((card, i) => (
           <StatCard key={card.label} card={card} index={i} />
         ))}
-        {/* <div className='flex flex-col gap-4 justify-between bg-indigo-50 rounded-xl border border-indigo-200 p-6 shadow-xs'>
-          <div className='text-base text-indigo-600'>Total Non-Cleared</div>
-          <p className='text-4xl font-bold text-indigo-500'>{stats?.totalNonCleared}</p>
-          <p className='text-sm text-gray-500'>students</p>
-        </div>
-
-        <div className='flex flex-col gap-4 justify-between bg-amber-50 rounded-xl border border-amber-200 p-6 shadow-xs'>
-          <div className='text-base text-amber-600 font-small'>Incomplete</div>
-          <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
-          <p className='text-sm text-gray-500'>partially cleared</p>
-        </div>
-
-        <div className='flex flex-col gap-4 justify-between bg-red-50 rounded-xl border border-red-200 p-6 shadow-xs'>
-          <div className='text-base text-red-600 font-small'>Pending</div>
-          <p className='text-4xl font-bold text-red-500'>{stats?.pending}</p>
-          <p className='text-sm text-gray-500'>zero progress</p>
-        </div>
-
-        <div className='flex flex-col gap-4 justify-between bg-cyan-50 rounded-xl border border-cyan-200 p-6 shadow-xs'>
-          <div className='text-base text-cyan-600 font-small'>Avg. Completion</div>
-          <p className='text-4xl font-bold text-cyan-500'>{stats?.averageCompletion}%</p>
-          <p className='text-sm text-gray-500'>across all students</p>
-        </div> */}
       </div>
 
       {/* Table Card */}
