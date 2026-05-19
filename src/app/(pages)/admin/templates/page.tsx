@@ -1,17 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react' 
-import CourseTemplatesList from '@/components/admin/course-templates-list'
-import { Plus, Building2, BookOpenText, Search, Trash } from 'lucide-react'
-import { ToastContainer } from '@/components/admin/toast'
 import { useToast } from '@/components/admin/use-toast'
+import { useFetchCourses } from '@/hooks/admin/courses'
+import { useFetchDepartments } from '@/hooks/admin/departments'
+import { ToastContainer } from '@/components/admin/toast'
+import CourseTemplatesList from '@/components/admin/course-templates-list'
 import CreateTemplateModal from '@/components/admin/create-template-modal'
 import ManageDepartmentsModal from '@/components/admin/handle-department-modal'
 import DeleteAllTemplateModal from '@/components/admin/delete-template-modal'
 import ManageCoursesModal from "@/components/admin/handle-courses-modal"
-
-import { useFetchCourses } from '@/hooks/admin/courses'
-import { useFetchDepartments } from '@/hooks/admin/departments'
+import { Plus, Building2, BookOpenText, Search, Trash } from 'lucide-react'
 
 export default function Templates() {
 
@@ -24,7 +23,6 @@ export default function Templates() {
   const [isCoursesModalOpen, setCoursesModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false)
-
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
 
@@ -96,7 +94,7 @@ export default function Templates() {
               Create Template
             </button>
 
-            {/* Manage Programs button */}
+            {/* Manage Courses button */}
             <button
               onClick={() => setCoursesModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
