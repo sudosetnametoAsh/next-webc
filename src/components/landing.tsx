@@ -1,61 +1,24 @@
-
-
 import styles from "@/styles/sti-login.module.css";
 import Image from "next/image";
 import SignInButton from "./auth/signin-button";
 import AzureLoginButton from "./auth/azure-sign-in-button";
 
 export default function Login() {
-  return (
-    <div className={styles.container}>
-      
-      <div className={styles.blob1} />
-      <div className={styles.blob2} />
+    return (
+        <div className={styles.container}>
 
-      
-      <div className={styles.logoTopLeft}>
-        <Image
-          src="/stilogo.png"
-          alt="STI Logo"
-          width={48}
-          height={48}
-          unoptimized
-        />
-        <span className={styles.logoTopLeftText}></span>
-      </div>
-
-      
-      <div className={styles.loginCard}>
-        
-        <div className={styles.accentBar} />
-
-        <div className={styles.cardInner}>
-          
-          <div className={styles.logoCenter}>
-            <div className={styles.logoRing}>
-              <Image
-                src="/stilogo.png"
-                alt="STI Logo"
-                width={64}
-                height={64}
-                unoptimized
-                priority
-              />
+            <div className={styles.logoTopLeft}>
+                <Image
+                    src="/stilogo.png"
+                    alt="STI Logo"
+                    width={120}
+                    height={120}
+                    unoptimized />
             </div>
-          </div>
 
-         
-          <div className={styles.heading}>
-            <h1 className={styles.title}>Welcome back</h1>
-            <p className={styles.subtitle}>Sign in to your STI account</p>
-          </div>
 
-          
-          <div className={styles.divider}>
-            <span>continue with</span>
-          </div>
+            <div className={styles.loginCard}>
 
-<<<<<<< HEAD
                 <div className={styles.logoCenter}>
                     <div className={styles.logoBox}>
                         <Image
@@ -81,18 +44,7 @@ export default function Login() {
                     © WebC, Inc. All Rights Reserved.
                 </div>
             </div>
-=======
-          <SignInButton />
->>>>>>> c65578e (added students-list-view, viewing overall students in that section)
 
-          <p className={styles.footer}>© WebC, Inc. All Rights Reserved.</p>
         </div>
-<<<<<<< HEAD
     )
 }
-=======
-      </div>
-    </div>
-  );
-}
->>>>>>> c65578e (added students-list-view, viewing overall students in that section)
