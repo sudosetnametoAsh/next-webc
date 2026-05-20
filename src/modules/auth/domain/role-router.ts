@@ -1,7 +1,7 @@
 const routes: Record<string, string> = {
   Admin: "/admin",
   Department: "/department/dashboard",
-  Student: "/student",
+  Client: "/clearance",
 };
 
 export class RoleRouter {
