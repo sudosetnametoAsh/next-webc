@@ -1,10 +1,12 @@
-import { createClient } from '@/lib/db/supabase-client'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient()
 
 // --- GET: Fetch Course Templates & Stats ---
 export async function GET() {
+
+  const supabase = await createClient()
+
   try {
     // 1. Get all courses
     const { data, error: coursesError } = await supabase
@@ -15,7 +17,7 @@ export async function GET() {
         clearance_templates (
           template_id,
           dept_id,
-          departments ( dept_name ),
+          clearance_departments ( dept_name ),
           staffs ( staff_name )
         )
       `)
@@ -80,7 +82,7 @@ export async function GET() {
           students_enrolled: studentsEnrolled,
           departments: course.clearance_templates?.map((t: any) => ({
             dept_id: t.dept_id,
-            dept_name: t.departments?.dept_name || 'Unknown',
+            dept_name: t.clearance_departments?.dept_name || 'Unknown',
             staff_name: t.staffs?.staff_name || null
           })) || [],
           updated_at: new Date().toISOString()
@@ -98,6 +100,9 @@ export async function GET() {
 
 // POST: Create templates
 export async function POST(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { courses, assignments } = await req.json()
 
@@ -173,6 +178,9 @@ export async function POST(req: NextRequest) {
 
 // DELETE: Remove templates based on course
 export async function DELETE(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { course_id } = await req.json()
 

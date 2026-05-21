@@ -1,12 +1,14 @@
-import { createClient } from '@/lib/db/supabase-client'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from "next/server"
 
-const supabase = createClient()
 
 // Get all departments
 export async function GET() {
+
+  const supabase = await createClient()
+
   const { data, error } = await supabase
-    .from('departments')
+    .from('clearance_departments')
     .select('dept_id, dept_name')
   
   if (error) {
@@ -19,6 +21,9 @@ export async function GET() {
 
 // Create a new department
 export async function POST(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { dept_name } = await req.json()
 
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('departments')
+      .from('clearance_departments')
       .insert({ dept_name: dept_name.trim() })
       .select()
       .single()
@@ -47,6 +52,9 @@ export async function POST(req: NextRequest) {
 
 // Update an existing department
 export async function PATCH(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { dept_id, dept_name } = await req.json()
 
@@ -55,7 +63,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('departments')
+      .from('clearance_departments')
       .update({ dept_name: dept_name.trim() })
       .eq('dept_id', dept_id)
       .select()
@@ -76,6 +84,9 @@ export async function PATCH(req: NextRequest) {
 
 // Delete a department
 export async function DELETE(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { dept_id } = await req.json()
 
@@ -84,7 +95,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { error } = await supabase
-      .from('departments')
+      .from('clearance_departments')
       .delete()
       .eq('dept_id', dept_id)
     

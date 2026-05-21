@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/db/supabase-client"
+import { createClient } from "@/lib/db/supabase-server"
 import { NextRequest, NextResponse } from "next/server"
 
 
 // DELETE: Remove all templates
 export async function DELETE(req: NextRequest) {
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     const { courseIds } = await req.json()

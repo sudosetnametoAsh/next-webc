@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/db/supabase-client'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextResponse } from 'next/server'
 
 
 // GET: Fetch student templates & statuses
 export async function GET() {
-  const supabase = createClient()
+  
+  const supabase = await createClient()
 
   try {
     // Get all enrolled students
@@ -24,7 +25,7 @@ export async function GET() {
         clearance_records (
           status,
           clearance_templates (
-            departments ( 
+            clearance_departments ( 
               dept_id,
               dept_name
             )
@@ -49,7 +50,7 @@ export async function GET() {
         for (const clearance of student.clearance_records) {
           
           if (clearance.status !== 'Signed') { 
-            pendingDepts.push(clearance.clearance_templates.departments) 
+            pendingDepts.push(clearance.clearance_templates.clearance_departments) 
           }
         }
 
@@ -80,6 +81,8 @@ export async function GET() {
         }
       })
     )
+
+    // console.log(studentTemplates)
 
     return NextResponse.json({ data: studentTemplates }, { status: 200 })
 

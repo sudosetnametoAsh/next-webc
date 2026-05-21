@@ -183,9 +183,15 @@ export default function StudentListView({ setAdminPage }: Props) {
   const [studentPage, setStudentPage] = useState(1)
 
   // Hooks
-  const { data: stats, isLoading } = useFetchAdminStats()
-  const { data: courseTemplates = [] } = useFetchCourseTemplates()
-  const { data: studentTemplates = [] } = useFetchStudentTemplates()
+  const { data: stats, isLoading: isLoadingAdminStats } = useFetchAdminStats()
+  const { data: courseTemplates = [], isLoading: isLoadingCourseTemplates } = useFetchCourseTemplates()
+  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates, isFetching: isFetchingStudentTemplates, isSuccess } = useFetchStudentTemplates()
+
+  // const isLoading = isLoadingStats || isLoadingCourseTemplates || isLoadingStudentTemplates
+
+  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates || isFetchingStudentTemplates) {
+    return <div>Loading...</div>
+  }
 
   // ———— Data ————————————————————————————————————————
 
@@ -212,6 +218,10 @@ export default function StudentListView({ setAdminPage }: Props) {
     },
   ]
 
+  // console.log(stats)
+
+  // console.log("Student Templates length:", studentTemplates.length)
+
   const totalStudentTemplates = studentTemplates.length
   const incompleteCount = stats?.incomplete
   const pendingCount = stats?.pending
@@ -221,6 +231,7 @@ export default function StudentListView({ setAdminPage }: Props) {
   const courseTemplate = courseTemplates.filter(cT => cT.departments.length === maxDeptNum)[0]
   const departments = courseTemplate?.departments.map(d => d.dept_name)
 
+  // console.log(studentTemplates)
 
   const getFilteredStudents = (students: StudentTemplates[]) => {
 
@@ -242,12 +253,20 @@ export default function StudentListView({ setAdminPage }: Props) {
       ))
     }
 
+    // console.log(data)
+
     // filter by course
     data = data?.filter(d => 
       courseFilter.toLowerCase() === 'all' ||
       shrinkCourseName(d.course_name).toLowerCase().includes(courseFilter.toLowerCase()) || 
       d.course_name.toLowerCase().includes(courseFilter.toLowerCase())
     )
+    // data?.filter(d => {
+    //   if (!d.course_name) return false; // skip incomplete records
+    //   const courseName = d.course_name.toLowerCase();
+    //   const filter = courseFilter.toLowerCase();
+    //   return filter === 'all' || shrinkCourseName(d.course_name).toLowerCase().includes(filter) || courseName.includes(filter);
+    // })
 
     // filter by pending department
     data = data.filter(d => (
@@ -264,6 +283,10 @@ export default function StudentListView({ setAdminPage }: Props) {
 
     return data ?? []
   }
+
+  // if (isLoading) {
+  //   return <div>Loading...</div>
+  // }
 
   const filteredStudents = getFilteredStudents(studentTemplates ?? [])
 
@@ -286,9 +309,9 @@ export default function StudentListView({ setAdminPage }: Props) {
     setStudentPage(1)
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>
+  // }
 
 
   return (
