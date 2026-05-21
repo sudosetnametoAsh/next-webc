@@ -37,8 +37,8 @@ export default function Login() {
                     <h1>Login Now</h1>
                 </div>
 
-                {/* <SignInButton /> */}
-                <AzureLoginButton />
+                <SignInButton />
+                {/* <AzureLoginButton /> */}
 
                 <div className={styles.footer}>
                     © WebC, Inc. All Rights Reserved.

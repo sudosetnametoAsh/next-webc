@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase-config'
+import { createClient } from '@/lib/db/supabase-client'
 import { NextResponse } from 'next/server'
 
 
@@ -21,7 +21,7 @@ export async function GET() {
       .select(`
         student_id,
         student_name,
-        student_clearances (
+        clearance_records (
           status,
           clearance_templates (
             departments ( 
@@ -35,18 +35,18 @@ export async function GET() {
 
     if (studentsError) { throw studentsError }
 
-    const students = data.filter(student => student.student_clearances. length > 0)
+    const students = data.filter(student => student.clearance_records. length > 0)
 
     const studentTemplates = await Promise.all(
       (students).map(async (student: any) => {
         
         // Identify status (incomplete, pending, signed)
-        const overallStatus = student.student_clearances.every((sC: any) => sC.status === 'Signed') ? 'Signed'
-            : student.student_clearances.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
+        const overallStatus = student.clearance_records.every((sC: any) => sC.status === 'Signed') ? 'Signed'
+            : student.clearance_records.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
 
         // Get pending departments
         const pendingDepts = []
-        for (const clearance of student.student_clearances) {
+        for (const clearance of student.clearance_records) {
           
           if (clearance.status !== 'Signed') { 
             pendingDepts.push(clearance.clearance_templates.departments) 
