@@ -19,7 +19,8 @@ export default function Templates() {
   // ————————————————————————————————————————
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
+  const [isStudentTemplateModalOpen, setStudentTemplateModalOpen] = useState(false)
+  const [isStaffTemplateModalOpen, setStaffTemplateModalOpen] = useState(false)
   const [isCoursesModalOpen, setCoursesModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false)
@@ -85,13 +86,22 @@ export default function Templates() {
           </div>
 
           <div className="flex items-center flex-wrap gap-2">
-            {/* Create Template button */}
+            {/* Create Template button for students */}
             <button
-              onClick={() => setTemplateModalOpen(true)}
+              onClick={() => setStudentTemplateModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
             >
               <Plus className="h-4 w-4" />
-              Create Template
+              Create student templates
+            </button>
+
+            {/* Create Template button for staff */}
+            <button
+              onClick={() => setStaffTemplateModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Create staff templates
             </button>
 
             {/* Manage Courses button */}
@@ -145,9 +155,25 @@ export default function Templates() {
         <CourseTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
       </section>
 
-      <CreateTemplateModal 
-        open={isTemplateModalOpen} 
-        onOpenChange={setTemplateModalOpen}
+      <CreateTemplateModal
+        mode={"student"}
+        open={isStudentTemplateModalOpen} 
+        onOpenChange={setStudentTemplateModalOpen}
+        selectedCourses={selectedCourses}
+        setSelectedCourses={setSelectedCourses}
+        selectedDepartments={selectedDepartments}
+        setSelectedDepartments={setSelectedDepartments}
+        courses={courses}
+        departments={departments}
+        courseIds={courseIds}
+        deptIds={deptIds}
+        toastSuccess={success} 
+        toastError={error} />
+      
+      <CreateTemplateModal
+        mode={"staff"}
+        open={isStaffTemplateModalOpen} 
+        onOpenChange={setStaffTemplateModalOpen}
         selectedCourses={selectedCourses}
         setSelectedCourses={setSelectedCourses}
         selectedDepartments={selectedDepartments}

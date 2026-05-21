@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GraduationCap, LayoutDashboard, Newspaper, User, Sheet } from "lucide-react";
 import { useMsal } from "@azure/msal-react";
+import AzureSignOutButton from "../auth/azure-sign-out-button";
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -182,15 +183,15 @@ export default function AdminSidebar({
 
   const { instance } = useMsal()
 
-  const handleSignOut = async () => {
-    // onSignOut?.();
-    try {
-      await fetch("/api/session", { method: "DELETE" });
-      await instance.logoutRedirect();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // const handleSignOut = async () => {
+  //   // onSignOut?.();
+  //   try {
+  //     await fetch("/api/session", { method: "DELETE" });
+  //     await instance.logoutRedirect();
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   // Prevent body scroll when mobile drawer open
   useEffect(() => {
@@ -292,7 +293,8 @@ export default function AdminSidebar({
         )}
 
         {/* Sign out */}
-        {collapsed && !isMobile ? (
+        < AzureSignOutButton />
+        {/* {collapsed && !isMobile ? (
           <Tooltip label="Sign Out">
             <button
               onClick={handleSignOut}
@@ -312,7 +314,7 @@ export default function AdminSidebar({
             <IconSignOut />
             <span>Sign Out</span>
           </button>
-        )}
+        )} */}
         {/* {signOutSlot ?? (
           <button
             onClick={handleSignOut}
