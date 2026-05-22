@@ -8,24 +8,27 @@ import { makeGetClearanceRecords } from "@/composition/clearance/make-get-cleara
 import { makeGetDepartmentDetailsServer } from "@/composition/clearance/make-get-department-details-server";
 import { makeGetOfficeHours } from "@/composition/clearance/make-get-office-hours";
 import { makeGetSummary } from "@/composition/clearance/make-get-summary";
+import { getSession } from "@/lib/auth/get-session";
 import { Clock, GraduationCap, Send, ShieldCheck, User } from "lucide-react";
 import Link from "next/link";
+import AzureSignOutButton from "@/components/auth/azure-sign-out-button";
 
 export default async function Clearance({
   searchParams,
 }: {
   searchParams: { tab: string };
 }) {
+  const { user_id } = await getSession();
   const getClearanceRecords = await makeGetClearanceRecords();
   const getSummary = await makeGetSummary();
   const getDepartmentDetailsServer = await makeGetDepartmentDetailsServer();
   const getOfficeHours = await makeGetOfficeHours();
 
   const [summary, records, tasks, departments] = await Promise.all([
-    getSummary.execute(),
-    getClearanceRecords.execute(),
-    getDepartmentDetailsServer.execute(),
-    getOfficeHours.execute(),
+    getSummary.execute(user_id),
+    getClearanceRecords.execute(user_id),
+    getDepartmentDetailsServer.execute(user_id),
+    getOfficeHours.execute(user_id),
   ]);
   const params = await searchParams;
   const activeTab = params.tab || "overview";
@@ -37,10 +40,10 @@ export default async function Clearance({
   return (
     <main className="min-h-screen bg-gray-50/50 pb-10">
       {/* GLOBAL HEADER */}
-      <header className="flex h-[56px] w-full items-center border-b bg-white">
+      <header className="flex h-14 w-full items-center border-b bg-white">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-[#ffb900] text-black">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-[#ffb900] text-amber-950 ">
               <GraduationCap size={20} />
             </div>
             <div className="flex flex-col leading-tight">
@@ -51,9 +54,11 @@ export default async function Clearance({
             </div>
           </div>
 
-          <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-gray-50 text-gray-600">
-            <User size={20} />
-          </div>
+          <AzureSignOutButton>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+              <User size={20} />
+            </div>
+          </AzureSignOutButton>
         </div>
       </header>
 
@@ -66,21 +71,21 @@ export default async function Clearance({
             href="?tab=overview"
             className={`${baseTabClass} ${activeTab === "overview" ? activeClass : inactiveClass}`}
           >
-            <ShieldCheck size={18} className={activeTab === "overview" ? "text-amber-500" : ""} />
+            <ShieldCheck size={18} className={activeTab === "overview" ? "text-black" : ""} />
             Overview
           </Link>
           <Link
             href="?tab=tasks"
             className={`${baseTabClass} ${activeTab === "tasks" ? activeClass : inactiveClass}`}
           >
-            <Send size={18} className={activeTab === "tasks" ? "text-amber-500" : ""} />
+            <Send size={18} className={activeTab === "tasks" ? "text-black" : ""} />
             Tasks
           </Link>
           <Link
             href="?tab=office-hours"
             className={`${baseTabClass} ${activeTab === "office-hours" ? activeClass : inactiveClass}`}
           >
-            <Clock size={18} className={activeTab === "office-hours" ? "text-amber-500" : ""} />
+            <Clock size={18} className={activeTab === "office-hours" ? "text-black" : ""} />
             Office Hours
           </Link>
         </nav>

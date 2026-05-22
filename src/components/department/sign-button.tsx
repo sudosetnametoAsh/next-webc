@@ -1,4 +1,4 @@
-import { useSignStudent } from "@/hooks/department/sign-student"
+import { useSignClient } from "@/hooks/department/sign-client"
 import { Button } from "../ui/button"
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
 }
 
 export default function SignToggleButton({ clearanceId, currentStatus }: Props) {
-    const { mutate, isPending } = useSignStudent()
+    const { mutate, isPending } = useSignClient()
 
     const isSigned = currentStatus === "Signed"
     const targetStatus = isSigned ? "Pending" : "Signed"

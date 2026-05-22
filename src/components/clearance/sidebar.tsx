@@ -3,18 +3,44 @@ import {
   getClearanceRecordsPromise,
 } from "@/modules/clearance/application/repository/dashboard-repository";
 import {
-  AlertCircle,
   CheckCircle2,
   Clock,
-  FileText,
   ShieldCheck,
   X,
-  ExternalLink,
   MessageSquareWarning,
-  User
+  Calendar,
+  Eye,
+  UserCheck,
+  XCircle,
+  RotateCcw,
 } from "lucide-react";
 import TaskSubmissionModal from "./task-submission-modal";
 import { getDepartmentDetailsPromise } from "@/modules/clearance/application/repository/department-repository";
+
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case "Cleared":
+      return { bg: "bg-emerald-50", text: "text-emerald-600", label: "Cleared" };
+    case "Flagged":
+    case "Submitted":
+      return { bg: "bg-blue-50", text: "text-blue-600", label: "Submitted" };
+    case "Pending":
+      return { bg: "bg-amber-50", text: "text-amber-600", label: "Pending" };
+    case "Rejected":
+      return { bg: "bg-red-50", text: "text-red-600", label: "Rejected" };
+    default:
+      return { bg: "bg-slate-50", text: "text-slate-600", label: status };
+  }
+};
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "—";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
 export default function Sidebar({
   selectedRecord,
@@ -41,157 +67,215 @@ export default function Sidebar({
         }`}
       >
         <header className="flex items-center justify-between border-b p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-50">
-              <ShieldCheck className="text-pink-600" size={24} />
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+              <ShieldCheck className="text-blue-600" size={24} />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="min-w-0">
+              <h2 className="text-xl font-bold text-slate-900 truncate">
                 {selectedRecord.department}
               </h2>
-              <p className="text-sm text-gray-500">{selectedRecord.staff}</p>
+              <p className="text-sm font-medium text-slate-500 truncate">
+                {selectedRecord.staff}
+              </p>
             </div>
           </div>
           <button
             onClick={() => setSelectedRecord(null)}
-            className="rounded-full p-2 hover:bg-gray-100 transition-colors"
+            className="rounded-full p-2 hover:bg-slate-100 transition-colors"
           >
-            <X className="text-gray-500" size={24} />
+            <X className="text-slate-400" size={24} />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="mb-8 rounded-xl border bg-gray-50 p-4">
-            <h3 className="mb-3 text-sm font-bold tracking-wider text-gray-500 uppercase">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          {/* Department Information */}
+          <section>
+            <h3 className="mb-4 text-xs font-bold tracking-wider text-slate-400 uppercase">
               Department Information
             </h3>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 text-sm text-gray-700">
-                <Clock size={16} className="text-gray-400" />
-                <span>{`${selectedRecord.time_in}AM - ${selectedRecord.time_out}`}</span>
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+              <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-100">
+                  <Clock size={16} className="text-slate-400" />
+                </div>
+                {selectedRecord.time_in && selectedRecord.time_out ? (
+                  <span>{`${selectedRecord.time_in}AM - ${selectedRecord.time_out}`}</span>
+                ) : (
+                  <span className="italic text-slate-400">No schedule set</span>
+                )}
               </div>
             </div>
-          </div>
+          </section>
 
-          <div>
-            <h3 className="mb-4 text-sm font-bold tracking-wider text-gray-500 uppercase">
-              Assigned Tasks
-            </h3>
-            <div className="flex flex-col gap-3">
+          {/* Assigned Tasks */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                Assigned Tasks
+              </h3>
+              <span className="text-[10px] font-bold text-slate-400">
+                {departmentTasks.length} {departmentTasks.length === 1 ? "TASK" : "TASKS"}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-4">
               {departmentTasks.map((task) => {
-                // Determine effective status (Flagged appears as Submitted to the client)
-                const effectiveStatus = task.status === "Flagged" ? "Submitted" : task.status;
+                const effectiveStatus =
+                  task.status === "Flagged" ? "Submitted" : task.status || "Pending";
+                const statusCfg = getStatusConfig(effectiveStatus);
 
                 const isPending = effectiveStatus === "Pending";
                 const isCleared = effectiveStatus === "Cleared";
                 const isSubmitted = effectiveStatus === "Submitted";
                 const isRejected = effectiveStatus === "Rejected";
 
-                // Determine submission type based on dropbox nullability
-                const isPhysical = task.dropbox === null;
-                const isDigital = task.dropbox !== null;
+                const hasDropbox =
+                  task.dropbox &&
+                  task.dropbox.trim() !== "" &&
+                  task.dropbox.toLowerCase() !== "null";
+
+                // Improved logic mirroring task-view:
+                // A task originally required a dropbox if it currently has one,
+                // OR if it's rejected (meaning the previous dropbox submission was rejected)
+                const originallyRequiredDropbox = hasDropbox || isRejected;
+
+                // It's in-person ONLY if it has no dropbox, is not rejected, and not cleared
+                const isInPerson = !hasDropbox && !isRejected && !isCleared;
+
+                // For pending actions logic
+                const isDigital = originallyRequiredDropbox;
 
                 return (
                   <div
                     key={task.assigned_task_id}
-                    className={`flex flex-col gap-3 rounded-xl border p-4 transition-all ${
-                      isRejected
-                        ? "border-red-200 bg-red-50/30"
-                        : isCleared
-                        ? "border-green-100 bg-green-50/30"
-                        : "hover:border-blue-200 hover:bg-blue-50/50"
-                    }`}
+                    className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm transition-all hover:border-slate-300"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        {isCleared && <CheckCircle2 className="text-green-500" size={20} />}
-                        {isRejected && <AlertCircle className="text-red-500" size={20} />}
-                        {isSubmitted && <Clock size={20} className="text-gray-400" />}
-                        {isPending && <FileText className="text-gray-400" size={20} />}
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-2 gap-2">
+                            <h4
+                              className={`text-sm font-bold leading-tight break-words ${
+                                isCleared ? "text-slate-400 line-through" : "text-slate-900"
+                              }`}
+                            >
+                              {task.title}
+                            </h4>
+                            <span
+                              className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
+                            >
+                              {statusCfg.label}
+                            </span>
+                          </div>
 
-                        <div className="flex flex-col">
-                          <span
-                            className={`text-sm font-semibold ${
-                              isCleared ? "text-gray-500 line-through" : "text-gray-900"
-                            }`}
-                          >
-                            {task.title}
-                          </span>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {isInPerson && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">
+                                <UserCheck size={10} />
+                                In-Person
+                              </span>
+                            )}
+                            {isRejected && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                                <XCircle size={10} />
+                                Action Required
+                              </span>
+                            )}
+                          </div>
 
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-tight ${
-                              isRejected
-                                ? "text-red-600"
-                                : isSubmitted
-                                ? "text-gray-400"
-                                : isCleared
-                                ? "text-green-600"
-                                : "text-gray-400"
-                            }`}
-                          >
-                            {effectiveStatus}
-                          </span>
+                          {task.description && (
+                            <p
+                              className={`text-xs leading-relaxed ${
+                                isCleared ? "text-slate-400" : "text-slate-500"
+                              }`}
+                            >
+                              {task.description}
+                            </p>
+                          )}
+
+                          {/* In-person note */}
+                          {isInPerson && (
+                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+                              <UserCheck size={14} className="shrink-0 text-slate-400 mt-0.5" />
+                              <p className="text-xs text-slate-500 leading-relaxed">
+                                No file upload required — please complete this requirement in person at the department office.
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Rejection Note */}
+                          {isRejected && task.comments && (
+                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 p-3">
+                              <MessageSquareWarning
+                                size={14}
+                                className="shrink-0 text-red-500 mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">
+                                  Feedback
+                                </p>
+                                <p className="text-xs text-red-700 leading-relaxed">
+                                  {task.comments}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
+                    </div>
 
-                      {/* Action Buttons */}
+                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50">
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                        <Calendar size={12} />
+                        Assigned {formatDate(task.assigned_at)}
+                      </span>
+
                       <div className="flex items-center gap-2">
-                        {/* Pending Actions */}
                         {isPending && isDigital && (
                           <button
-                            onClick={() => setActiveTask(task)} // Trigger Modal
-                            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                            onClick={() => setActiveTask(task)}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
                           >
                             Submit
                           </button>
                         )}
-                        {isPending && isPhysical && (
-                          <div className="flex items-center gap-1.5 rounded bg-gray-100 px-3 py-1.5 text-[11px] font-medium text-gray-600">
-                            <User size={14} />
-                            <span>In-person</span>
-                          </div>
-                        )}
 
-                        {/* Rejected Actions */}
                         {isRejected && (
                           <button
-                            onClick={() => setActiveTask(task)} // Trigger Modal
-                            className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                            onClick={() => setActiveTask(task)}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
                           >
-                            Fix & Resubmit
+                            <RotateCcw size={12} />
+                            Resubmit
                           </button>
                         )}
 
-                        {/* Submitted Actions */}
                         {isSubmitted && isDigital && task.dropbox && (
                           <a
                             href={task.dropbox}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-amber-50 transition-colors"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-slate-50 transition-colors"
                           >
-                            <ExternalLink size={14} />
-                            <span>View Document</span>
+                            <Eye size={12} />
+                            View
                           </a>
+                        )}
+
+                        {isCleared && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 uppercase tracking-tight">
+                            <CheckCircle2 size={14} />
+                             Cleared
+                          </span>
                         )}
                       </div>
                     </div>
-
-                    {/* Rejection Comments */}
-                    {isRejected && task.comments && (
-                      <div className="mt-1 flex items-start gap-2 rounded-lg bg-red-100/50 p-3 text-sm text-red-800">
-                        <MessageSquareWarning size={16} className="mt-0.5 shrink-0 text-red-500" />
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold uppercase text-red-600 mb-0.5">Department Comment</span>
-                          <span>{task.comments}</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })}
             </div>
-          </div>
+          </section>
         </div>
       </div>
 

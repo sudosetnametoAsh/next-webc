@@ -5,8 +5,8 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { fetchCourseServer } from "@/lib/api/courses";
-import { fetchStudentsServer } from "@/lib/api/students";
-import TaskView from "@/components/department/students/task-view";
+import { fetchClientsServer } from "@/lib/api/clients";
+import TaskView from "@/components/department/clients/task-view";
 
 export default async function Department() {
   const queryClient = new QueryClient();
@@ -23,8 +23,8 @@ export default async function Department() {
 
   if (initialSectionId) {
     await queryClient.prefetchQuery({
-      queryKey: ["students", initialSectionId],
-      queryFn: () => fetchStudentsServer(initialSectionId),
+      queryKey: ["clients", initialSectionId],
+      queryFn: () => fetchClientsServer(initialSectionId),
     });
   }
 

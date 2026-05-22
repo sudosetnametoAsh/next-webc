@@ -6,12 +6,12 @@ type FetchedData = {
   status: string;
 };
 
-export function useFetchStudentTasks(clearanceId: string | null) {
+export function useFetchClientTasks(clearanceId: string | null) {
   return useQuery({
-    queryKey: ["student-tasks", clearanceId],
+    queryKey: ["client-tasks", clearanceId],
     queryFn: async (): Promise<FetchedData[]> => {
       const response = await fetch(
-        `/api/department/students/tasks/${clearanceId}`,
+        `/api/department/clients/tasks/${clearanceId}`,
         {
           credentials: "include",
         },

@@ -1,0 +1,1 @@
+CREATE POLICY "staff can manage own record" ON "staffs" AS PERMISSIVE FOR ALL TO "authenticated" USING (staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())) WITH CHECK (staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()));

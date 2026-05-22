@@ -63,7 +63,26 @@ export default async function Reports() {
     throw new Error("Failed to load report data");
   }
 
-  const rows: ClearanceRow[] = clearances || [];
+  const rows: ClearanceRow[] = (clearances as any[])?.map((c) => {
+    const template = Array.isArray(c.clearance_templates)
+      ? c.clearance_templates[0]
+      : c.clearance_templates;
+    const course = Array.isArray(template?.courses)
+      ? template.courses[0]
+      : template?.courses;
+
+    return {
+      user_id: c.user_id,
+      status: c.status,
+      signed_at: c.signed_at,
+      clearance_templates: template
+        ? {
+            course_id: template.course_id,
+            courses: course ? { course_name: course.course_name } : null,
+          }
+        : null,
+    };
+  }) || [];
 
   /* ── 2. Fetch section enrollments for these students + courses ────── */
   const studentIds = [...new Set(rows.map((c) => c.user_id))];
@@ -88,7 +107,14 @@ export default async function Reports() {
       .in("course_sections.course_id", courseIds);
 
     if (enrollments) {
-      for (const e of enrollments as EnrollmentRow[]) {
+      const mappedEnrollments: EnrollmentRow[] = (enrollments as any[]).map((e) => ({
+        student_id: e.student_id,
+        course_sections: Array.isArray(e.course_sections)
+          ? e.course_sections[0]
+          : e.course_sections,
+      }));
+
+      for (const e of mappedEnrollments) {
         if (e.course_sections) {
           enrollmentLookup.set(`${e.student_id}-${e.course_sections.course_id}`, {
             sectionNumber: e.course_sections.section_number,
@@ -151,7 +177,8 @@ export default async function Reports() {
 
   const maxVal = Math.max(...daily.map((d) => d.cleared), 1);
   const step = Math.ceil(maxVal / 4);
-  const yAxisLabels = [step * 4, step * 3, step * 2, step, 0];
+  const yAxisMax = step * 4;
+  const yAxisLabels = [yAxisMax, step * 3, step * 2, step, 0];
 
   /* ── Donut chart values ───────────────────────────────────────────── */
   const total = counts.Signed + counts.Pending + counts.Incomplete;
@@ -234,15 +261,15 @@ export default async function Reports() {
           label="Cleared Today"
           value={clearedToday}
           icon={<CheckCircleIcon />}
-          iconBg="border-emerald-100 bg-emerald-50 text-emerald-500"
-          valueColor="text-gray-900"
+          iconBg="border-emerald-100 bg-gray-50 text-black"
+          valueColor="text-black"
         />
         <StatCard
           label="Clearances Pending"
           value={counts.Pending}
           icon={<ClockIcon />}
-          iconBg="border-blue-100 bg-blue-50 text-blue-500"
-          valueColor="text-gray-900"
+          iconBg="border-emerald-100 bg-gray-50 text-black"
+          valueColor="text-black"
           subtitle="Awaiting student action"
           subtitleColor="text-gray-500"
         />
@@ -250,17 +277,17 @@ export default async function Reports() {
           label="Tasks to Review"
           value={tasksToReview}
           icon={<ClipboardIcon />}
-          iconBg="border-amber-100 bg-amber-50 text-amber-500"
-          valueColor="text-amber-600"
+          iconBg="border-emerald-100 bg-gray-50 text-black"
+          valueColor="text-black"
           subtitle={tasksToReview > 0 ? "Requires your review" : "All caught up"}
-          subtitleColor={tasksToReview > 0 ? "text-amber-500" : "text-emerald-500"}
+          subtitleColor={tasksToReview > 0 ? "text-gray-500" : "text-gray-500"}
         />
         <StatCard
           label="Total Cleared"
           value={counts.Signed}
           icon={<TrendUpIcon />}
-          iconBg="border-emerald-100 bg-emerald-50 text-emerald-500"
-          valueColor="text-gray-900"
+          iconBg="border-emerald-100 bg-gray-50 text-black"
+          valueColor="text-black"
           subtitle={`${clearedPct}% of ${total} total`}
           subtitleColor="text-gray-400"
         />
@@ -304,7 +331,7 @@ export default async function Reports() {
                     <div
                       className="w-6 md:w-10 bg-emerald-500 rounded-t-sm hover:opacity-80 transition-opacity"
                       style={{
-                        height: d.cleared > 0 ? `${(d.cleared / maxVal) * 100}%` : "0",
+                        height: d.cleared > 0 ? `${(d.cleared / yAxisMax) * 100}%` : "0",
                         minHeight: d.cleared > 0 ? "4px" : "0",
                       }}
                     />

@@ -127,6 +127,34 @@
       "when": 1778909844486,
       "tag": "0017_wise_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1779326622166,
+      "tag": "0018_sweet_professor_monster",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1779332092133,
+      "tag": "0019_concerned_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1779347602532,
+      "tag": "0020_medical_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1779406310509,
+      "tag": "0021_futuristic_chameleon",
+      "breakpoints": true
     }
   ]
 }

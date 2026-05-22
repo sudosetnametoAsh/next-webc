@@ -15,22 +15,22 @@ export default function Overview({ summary, records }: { summary: getSummaryProm
                     label="Signed"
                     value={summary.signed}
                     icon={Building}
-                    colorClass="text-pink-600"
-                    bgClass="bg-pink-50"
+                    colorClass="text-black"
+                    bgClass="bg-gray-100"
                 />
                 <StatCard
                     label="Incomplete"
                     value={summary.incomplete}
                     icon={Users}
-                    colorClass="text-emerald-600"
-                    bgClass="bg-emerald-50"
+                    colorClass="text-black"
+                    bgClass="bg-gray-100"
                 />
                 <StatCard
                     label="Pending"
                     value={summary.pending}
                     icon={Clock}
-                    colorClass="text-orange-600"
-                    bgClass="bg-orange-50"
+                    colorClass="text-black"
+                    bgClass="bg-gray-100"
                 />
                 {/* <StatCard label="Completed" value="0" icon={CheckCircle} colorClass="text-green-600" bgClass="bg-green-50" /> */}
             </div>

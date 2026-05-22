@@ -1,17 +1,17 @@
 import { Students } from '@/types/students';
 import { useQuery } from '@tanstack/react-query';
 
-export function useFethStudents(sectionId: string) {
+export function useFetchClients(sectionId: string) {
    return useQuery({
-      queryKey: ['students', sectionId],
-      queryFn: () => fetchStudents(sectionId),
+      queryKey: ['clients', sectionId],
+      queryFn: () => fetchClients(sectionId),
       enabled: !!sectionId,
       staleTime: 1000 * 60 * 5,
    });
 }
 
-export async function fetchStudents(sectionId: string): Promise<Students[]> {
-   const response = await fetch(`/api/department/students/${sectionId}`, {
+export async function fetchClients(sectionId: string): Promise<Students[]> {
+   const response = await fetch(`/api/department/clients/${sectionId}`, {
       credentials: 'include',
    });
    const json = await response.json();

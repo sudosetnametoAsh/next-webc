@@ -1,5 +1,5 @@
 "use client";
-import { useFetchStudentTasks } from "@/hooks/department/fetch-student-tasks";
+import { useFetchClientTasks } from "@/hooks/department/fetch-client-tasks";
 import { Button } from "../ui/button";
 import { SearchAlert } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
@@ -10,12 +10,12 @@ type Params = {
   clearanceId: string;
 };
 
-export function StudentTaskList({ clearanceId }: Params) {
+export function ClientTaskList({ clearanceId }: Params) {
   const {
     data: tasks = [],
     isLoading,
     error,
-  } = useFetchStudentTasks(clearanceId);
+  } = useFetchClientTasks(clearanceId);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 

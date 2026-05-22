@@ -19,7 +19,7 @@ type Data = {
   status: string;
 };
 
-export function useAddStudentTasks(
+export function useAddClientTasks(
   clearanceId: string | null,
   sectionId?: string | null,
 ): UseMutationResult<{ data: Data }, Error, NewTaskPayload[]> {
@@ -28,7 +28,7 @@ export function useAddStudentTasks(
   return useMutation({
     mutationFn: async (tasks: NewTaskPayload[]) => {
       const response = await fetch(
-        `/api/department/students/tasks/${clearanceId || 'bulk'}`,
+        `/api/department/clients/tasks/${clearanceId || 'bulk'}`,
         {
           method: "POST",
           headers: {
@@ -49,12 +49,12 @@ export function useAddStudentTasks(
     onSuccess: () => {
       if (sectionId) {
         queryClient.invalidateQueries({
-          queryKey: ["students", sectionId],
+          queryKey: ["clients", sectionId],
         });
       }
       if (clearanceId) {
         queryClient.invalidateQueries({
-          queryKey: ["student-tasks", clearanceId],
+          queryKey: ["client-tasks", clearanceId],
         });
       }
     },

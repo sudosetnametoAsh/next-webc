@@ -11,9 +11,9 @@ export type DepartmentContextType = {
    setCourseId: Dispatch<SetStateAction<string | null>>;
    sectionId: string | null;
    setSectionId: Dispatch<SetStateAction<string | null>>;
-   activeCourseId: string;
+   activeCourseId: string | null;
    selectedCourse: Courses;
-   activeSectionId: string;
+   activeSectionId: string | null;
    clearanceId: string[];
    setClearanceId: Dispatch<SetStateAction<string[]>>;
    selectedStudents: Students[];
@@ -23,4 +23,11 @@ export type DepartmentContextType = {
    orderFilter: string;
    setOrderFilter: Dispatch<SetStateAction<string>>;
    departmentName?: string;
+   userId?: string;
+   viewType: 'students' | 'staff';
+   setViewType: Dispatch<SetStateAction<'students' | 'staff'>>;
+   prereqStatus: Map<string, boolean>;
+   eligibleCount: number;
+   sectionEligibleCounts: Record<string, number>;
+   hasStaffTemplates: boolean;
 };

@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 type Props = {
     sections: Sections[] | undefined
     setSectionId: Dispatch<SetStateAction<string | null>>;
-    activeSectionId: string;
+    activeSectionId: string | null;
 }
 
 type Sections = {

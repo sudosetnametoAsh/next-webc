@@ -17,7 +17,7 @@ export type getRecentSubmissionsPromise = {
 export type getRecentActivityPromise = {
     message: string;
     actions: string;
-    created_at: Date;
+    created_at: string;
 }
 
 export interface DashboardRepository {

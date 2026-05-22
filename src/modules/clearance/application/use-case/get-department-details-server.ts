@@ -3,7 +3,7 @@ import { DashBoardRepository } from "../repository/dashboard-repository";
 export class getDepartmentDetailsServer {
     constructor (private repository: DashBoardRepository) {}
 
-    async execute() {
-        return await this.repository.getDepartmentDetails()
+    async execute(userId?: string) {
+        return await this.repository.getDepartmentDetails(userId)
     }
 }

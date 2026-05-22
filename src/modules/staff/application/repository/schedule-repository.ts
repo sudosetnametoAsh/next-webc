@@ -6,5 +6,10 @@ export type getSchedulePromise = {
 
 export interface ScheduleRepository {
   getSchedule(id: string): Promise<getSchedulePromise>;
-  setSchedule(id: string, time_in: string, time_out: string): Promise<void>;
+  setSchedule(
+    id: string, 
+    time_in: string, 
+    time_out: string,
+    name?: string
+  ): Promise<void>;
 }

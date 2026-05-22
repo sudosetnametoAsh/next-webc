@@ -25,10 +25,12 @@ export default function StudentInterface() {
         if (task.dropbox === "pending" || task.dropbox === "NULL")
           accumulator.Task++;
       });
-      accumulator[status]++;
+      if (status === "Signed" || status === "Pending" || status === "Incomplete") {
+        accumulator[status]++;
+      }
       return accumulator;
     },
-    { Signed: 0, Pending: 0, Task: 0 },
+    { Signed: 0, Pending: 0, Incomplete: 0, Task: 0 },
   );
 
   const departmentCount = students.length;

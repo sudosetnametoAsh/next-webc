@@ -36,9 +36,9 @@ export const clearanceTasksRelations = relations(clearanceTasks, ({one}) => ({
 
 export const clearanceRecordsRelations = relations(clearanceRecords, ({one, many}) => ({
 	clearanceTasks: many(clearanceTasks),
-	student: one(students, {
+	user: one(users, {
 		fields: [clearanceRecords.userId],
-		references: [students.studentId]
+		references: [users.userId]
 	}),
 	clearanceTemplate: one(clearanceTemplates, {
 		fields: [clearanceRecords.templateId],
@@ -100,7 +100,6 @@ export const enrollmentsRelations = relations(enrollments, ({one}) => ({
 
 export const studentsRelations = relations(students, ({one, many}) => ({
 	enrollments: many(enrollments),
-	clearanceRecords: many(clearanceRecords),
 	user: one(users, {
 		fields: [students.studentId],
 		references: [users.userId]
@@ -110,4 +109,5 @@ export const studentsRelations = relations(students, ({one, many}) => ({
 export const usersRelations = relations(users, ({many}) => ({
 	staffs: many(staffs),
 	students: many(students),
+	clearanceRecords: many(clearanceRecords),
 }));

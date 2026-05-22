@@ -68,7 +68,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 CREATE OR REPLACE FUNCTION "public"."assign_clearance_on_enrollment"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$BEGIN
-    INSERT INTO public.clearane_records (user_id, template_id, status)
+    INSERT INTO public.clearance_records (user_id, template_id, status)
     SELECT
         NEW.student_id,
         ct.template_id,
