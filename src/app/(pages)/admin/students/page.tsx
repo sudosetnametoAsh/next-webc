@@ -297,7 +297,7 @@ export default function StudentListView({ setAdminPage }: Props) {
           Student Clearance Status
         </h1>
         <p className="text-sm text-gray-500">
-          Track and manage students who haven't completed their clearance.
+          Track and manage students who haven&apos;t completed their clearance.
         </p>
       </div>
 

@@ -71,7 +71,7 @@ export default function CourseTemplatesList({
   if (filteredTemplates.length === 0) {
     return (
       <div className='border border-gray-200 rounded-lg p-32 text-center'>
-        <p className='text-gray-500'>No results found for "{searchQuery}"</p>
+        <p className='text-gray-500'>No results found for &quot;{searchQuery}&quot;</p>
       </div>
     )
   }
