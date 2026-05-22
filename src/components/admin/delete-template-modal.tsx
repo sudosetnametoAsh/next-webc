@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useDeleteAllTemplates } from '@/hooks/admin/clearance-templates';
+import { useFetchStaffTemplates } from '@/hooks/admin/staff-templates';
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates';
+import { useDeleteStaffTemplates } from '@/hooks/admin/staff-templates';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { TriangleAlert } from 'lucide-react';
 
@@ -29,9 +31,13 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
   const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
 
   const { data: courseTemplates = [] } = useFetchCourseTemplates()
+  const { data: staffTemplates = [] } = useFetchStaffTemplates()
+
   const courseIds = courseTemplates.map(cT => cT.course_id) ?? []
+  const deptIds = staffTemplates.map(sT => sT.dept_id) ?? []
 
   const deleteAllTemplates = useDeleteAllTemplates()
+  const deleteAllStaffTemplates = useDeleteStaffTemplates()
 
   const handleClose = () => {
     onOpenChange(false)
@@ -61,6 +67,8 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
 
     try {
       await deleteAllTemplates.mutateAsync(courseIds)
+      
+      if (staffTemplates.length !== 0) { await deleteAllStaffTemplates.mutateAsync(deptIds) }
       handleClose()
     } catch (err) {
       console.error('Failed to delete all templates', err)
@@ -68,7 +76,7 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
     }
 
     setIsDeleteLoading(false)
-    toastSuccess('Delete all templates successfully!')
+    toastSuccess('Deleted all templates successfully!')
   }
 
   return (

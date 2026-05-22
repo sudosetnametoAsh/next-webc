@@ -78,9 +78,10 @@ export default function CourseTemplatesList({
   
   return (
     <>
+      <h3 className='text-xl font-bold text-gray-900 mb-4'>Student Templates</h3>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {filteredTemplates.map(template => (
-          <CourseTemplateCard key={template.course_id} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
+          <CourseTemplateCard key={template.course_id as number} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
         ))}
       </div>
       <ConfirmationModal 
@@ -152,19 +153,11 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <button 
             className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
-            onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id); }}
+            onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id as number); }}
           >
-            {/* {template.updated_at ? `Updated ${template.updated_at}` : "Updated a few hours ago"} */}
             <Trash className='w-4 h-4' />
           </button>
           <span>&nbsp;</span>
-          {/* <button 
-            className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1 transition-colors cursor-pointer"
-            onClick={() => console.log(template.course_id)}
-          >
-            Manage
-            <ArrowRight className="w-4 h-4" />
-          </button> */}
         </div>
       </div>
     )

@@ -42,3 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 webc_full_backup.sql
+
+# documentation
+GEMINI.md

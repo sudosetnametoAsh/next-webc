@@ -183,9 +183,13 @@ export default function StudentListView({ setAdminPage }: Props) {
   const [studentPage, setStudentPage] = useState(1)
 
   // Hooks
-  const { data: stats, isLoading } = useFetchAdminStats()
-  const { data: courseTemplates = [] } = useFetchCourseTemplates()
-  const { data: studentTemplates = [] } = useFetchStudentTemplates()
+  const { data: stats, isLoading: isLoadingAdminStats } = useFetchAdminStats()
+  const { data: courseTemplates = [], isLoading: isLoadingCourseTemplates } = useFetchCourseTemplates()
+  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates, isFetching: isFetchingStudentTemplates } = useFetchStudentTemplates()
+
+  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates || isFetchingStudentTemplates) {
+    return <div>Loading...</div>
+  }
 
   // ———— Data ————————————————————————————————————————
 
@@ -220,7 +224,6 @@ export default function StudentListView({ setAdminPage }: Props) {
   const maxDeptNum = Math.max(...courseTemplates.map(cT => cT.departments.length) ?? [])
   const courseTemplate = courseTemplates.filter(cT => cT.departments.length === maxDeptNum)[0]
   const departments = courseTemplate?.departments.map(d => d.dept_name)
-
 
   const getFilteredStudents = (students: StudentTemplates[]) => {
 
@@ -284,10 +287,6 @@ export default function StudentListView({ setAdminPage }: Props) {
   const handleCourseFilter = (course: string) => {
     setCourseFilter(course)
     setStudentPage(1)
-  }
-
-  if (isLoading) {
-    return <div>Loading...</div>
   }
 
 
@@ -522,7 +521,7 @@ export default function StudentListView({ setAdminPage }: Props) {
         <div className='px-4 sm:px-6 py-4 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3'>
             <span className='text-gray-500'>
               Showing {paginated.length === 0 ? 0 : (studentPage - 1) * PAGE_SIZE + 1}-
-              {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {paginated.length} {paginated.length > 1 ? 'students' : 'student'}
+              {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length} {filteredStudents.length > 1 ? 'students' : 'student'}
             </span>
             <Pagination current={studentPage} total={totalPages} onChange={setStudentPage} />
         </div>

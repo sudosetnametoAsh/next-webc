@@ -1,25 +1,38 @@
-import { headers } from "next/headers";
+import { jwtDecode } from "jwt-decode";
+import { createClient } from "../db/supabase-server";
 
-type SessionPayload = {
+type CustomPayload = {
+  user_id: string;
   email: string;
-  role: string;
-  name: string;
-  id: string;
-  iat: number;
-  exp: number;
+  user_metadata: {
+    full_name: string;
+  };
+  department: string;
 };
 
-export async function getSession(): Promise<SessionPayload> {
-  const header = await headers();
-  const payload = header.get("x-session");
+export async function getSession(): Promise<{
+  user_id: string;
+  user_email: string;
+  user_name: string;
+  department: string
+}> {
+  const supabase = await createClient();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
-  if (!payload) {
-    throw new Error("Session not found in headers");
+  if (!session || error) {
+    console.error(error?.message);
+    throw new Error("No active session");
   }
 
-  try {
-    return JSON.parse(payload);
-  } catch {
-    throw new Error("Invalid session payload");
-  }
+  const payload = jwtDecode<CustomPayload>(session.access_token);
+
+  return {
+    user_id: payload.user_id,
+    user_email: payload.email,
+    user_name: payload.user_metadata.full_name,
+    department: payload.department,
+  };
 }

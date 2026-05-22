@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 type FetchedData = {
   description: string;
+  dropbox: string;
+  status: string;
 };
 
 export function useFetchStudentTasks(clearanceId: string | null) {
@@ -12,7 +14,7 @@ export function useFetchStudentTasks(clearanceId: string | null) {
         `/api/department/students/tasks/${clearanceId}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -23,5 +25,6 @@ export function useFetchStudentTasks(clearanceId: string | null) {
       return data.data;
     },
     enabled: !!clearanceId,
+    staleTime: 1000 * 60 * 5,
   });
 }

@@ -9,10 +9,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen bg-slate">
       <AdminSidebar
         user={{
-          name: session.name,
-          email: session.email,
-          role: session.role,
-          avatarInitials: session.name.charAt(0).toUpperCase(),
+          name: session.user_name,
+          email: session.user_email,
+          role: "Admin",
+          avatarInitials: session.user_name.charAt(0).toUpperCase(),
         }}
       />
 

@@ -1,52 +1,62 @@
 import {
-   useMutation,
-   UseMutationResult,
-   useQueryClient,
-} from '@tanstack/react-query';
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 type NewTaskPayload = {
-   clearance_id: string;
-   task_id: string | null;
-   description: string;
-   staff_id: string;
+  clearance_id: string;
+  task_id: string | null;
+  title: string;
+  description: string;
+  staff_id: string;
+  dropbox: string;
 };
 
 type Data = {
-   assigned_task_id: number;
-   description: string;
-   status: string;
+  assigned_task_id: number;
+  description: string;
+  status: string;
 };
 
 export function useAddStudentTasks(
-   clearanceId: string | null,
+  clearanceId: string | null,
+  sectionId?: string | null,
 ): UseMutationResult<{ data: Data }, Error, NewTaskPayload[]> {
-   const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-   return useMutation({
-      mutationFn: async (tasks: NewTaskPayload[]) => {
-         const response = await fetch(
-            `/api/department/students/tasks/${clearanceId}`,
-            {
-               method: 'POST',
-               headers: {
-                  'Content-Type': 'application/json',
-               },
-               credentials: 'include',
-               body: JSON.stringify(tasks),
-            },
-         );
+  return useMutation({
+    mutationFn: async (tasks: NewTaskPayload[]) => {
+      const response = await fetch(
+        `/api/department/students/tasks/${clearanceId || 'bulk'}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(tasks),
+        },
+      );
 
-         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to add tasks');
-         }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add tasks");
+      }
 
-         return response.json();
-      },
-      onSuccess: () => {
-         queryClient.invalidateQueries({
-            queryKey: ['student-tasks', clearanceId],
-         });
-      },
-   });
+      return response.json();
+    },
+    onSuccess: () => {
+      if (sectionId) {
+        queryClient.invalidateQueries({
+          queryKey: ["students", sectionId],
+        });
+      }
+      if (clearanceId) {
+        queryClient.invalidateQueries({
+          queryKey: ["student-tasks", clearanceId],
+        });
+      }
+    },
+  });
 }

@@ -1,8 +1,6 @@
-
-
 import styles from "@/styles/sti-login.module.css";
 import Image from "next/image";
-import SignInButton from "./auth/signin-button";
+import AzureLoginButton from "./auth/azure-sign-in-button";
 
 export default function Login() {
   return (
@@ -31,12 +29,12 @@ export default function Login() {
         <div className={styles.cardInner}>
           
           <div className={styles.logoCenter}>
-            <div className={styles.logoRing}>
+            <div className={styles.logoBox}>
               <Image
                 src="/stilogo.png"
                 alt="STI Logo"
-                width={64}
-                height={64}
+                width={120}
+                height={120}
                 unoptimized
                 priority
               />
@@ -44,19 +42,15 @@ export default function Login() {
           </div>
 
          
-          <div className={styles.heading}>
-            <h1 className={styles.title}>Welcome back</h1>
-            <p className={styles.subtitle}>Sign in to your STI account</p>
+          <div className={styles.title}>
+            <h1>Login Now</h1>
           </div>
 
-          
-          <div className={styles.divider}>
-            <span>continue with</span>
+          <AzureLoginButton />
+
+          <div className={styles.footer}>
+            © WebC, Inc. All Rights Reserved.
           </div>
-
-          <SignInButton />
-
-          <p className={styles.footer}>© WebC, Inc. All Rights Reserved.</p>
         </div>
       </div>
     </div>

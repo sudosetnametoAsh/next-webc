@@ -1,118 +1,119 @@
-// 'use client';
-import { useFetchCourses } from '@/hooks/department/fetch-courses';
-import { useFethStudents } from '@/hooks/department/fetch-students';
-import { DepartmentContextType } from '@/types/department-context';
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+'use client';
+import { useFetchCourses } from "@/hooks/department/fetch-courses";
+import { useFethStudents } from "@/hooks/department/fetch-students";
+import { DepartmentContextType } from "@/types/department-context";
+import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 const DepartmentContext = createContext<DepartmentContextType | null>(null);
 
-export function DepartmentProvider({ children }: { children: ReactNode }) {
-   const { data: courses = [] } = useFetchCourses();
+export function DepartmentProvider({ children, departmentName }: { children: ReactNode; departmentName?: string }) {
+  const { data: courses = [] } = useFetchCourses();
 
-   const [courseId, setCourseId] = useState<string | null>(null); // Keeyps track of selected course
-   const [sectionId, setSectionId] = useState<string | null>(null); // Keeps trck of selected section
-   const [clearanceId, setClearanceId] = useState<string[]>([]); // Manages the selected student (stored via clearance id)
+  const [courseId, setCourseId] = useState<string | null>(null); // Keeyps track of selected course
+  const [sectionId, setSectionId] = useState<string | null>(null); // Keeps trck of selected section
+  const [clearanceId, setClearanceId] = useState<string[]>([]); // Manages the selected student (stored via clearance id)
 
-   // filter-button states
-   const [statusFilter, setStatusFilter] = useState<string>('All');
-   const [orderFilter, setOrderFilter] = useState<string>('A-Z');
+  // filter-button states
+  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [orderFilter, setOrderFilter] = useState<string>("A-Z");
 
-   const activeCourseId = courseId ?? String(courses[0]?.course_id);
-   const selectedCourse = useMemo(
-      () =>
-         courses.find(
-            (course) => String(course.course_id) === activeCourseId,
-         ) ?? courses[0],
-      [courses, activeCourseId],
-   );
+  const activeCourseId = courseId ?? (courses?.[0]?.course_id ? String(courses[0].course_id) : null);
 
-   const activeSectionId =
-      sectionId ?? String(selectedCourse.course_sections[0].section_id);
+  const selectedCourse = useMemo(
+    () =>
+      courses?.find((course) => String(course.course_id) === activeCourseId) ??
+      courses?.[0],
+    [courses, activeCourseId],
+  );
 
-   const { data: students = [], isFetching: fetchingStudents } =
-      useFethStudents(activeSectionId); // Hook to fetch students
+  const activeSectionId =
+    sectionId ?? (selectedCourse?.course_sections?.[0]?.section_id ? String(selectedCourse.course_sections[0].section_id) : "");
 
-   const selectedIds = useMemo(() => new Set(clearanceId), [clearanceId]);
+  const { data: students = [], isFetching: fetchingStudents } =
+    useFethStudents(activeSectionId); // Hook to fetch students
 
-   const selectedStudents = useMemo(
-      () =>
-         students.filter((student) =>
-            selectedIds.has(student.student_clearances?.[0].clearance_id),
-         ),
-      [students, selectedIds],
-   );
+  const selectedIds = useMemo(() => new Set(clearanceId), [clearanceId]);
 
-   const effectiveStatus = useMemo(() => {
-      if (selectedStudents.length === 0) return '';
+  const selectedStudents = useMemo(
+    () =>
+      students.filter((student) =>
+        selectedIds.has(student.clearance_records?.[0].clearance_id),
+      ),
+    [students, selectedIds],
+  );
 
-      return selectedStudents.every(
-         (s) => s.student_clearances?.[0].status === 'Signed',
-      )
-         ? 'Signed'
-         : 'Pending';
-   }, [selectedStudents]);
+  const effectiveStatus = useMemo(() => {
+    if (selectedStudents.length === 0) return "";
 
-   const filteredStudents = useMemo(() => {
-      const sortViaStatus = students.filter((student) => {
-         const studentStatus = student.student_clearances[0].status;
-         const matchesStatus =
-            statusFilter === 'All' || studentStatus === statusFilter;
+    return selectedStudents.every(
+      (s) => s.clearance_records?.[0].status === "Signed",
+    )
+      ? "Signed"
+      : "Pending";
+  }, [selectedStudents]);
 
-         return matchesStatus;
+  const filteredStudents = useMemo(() => {
+    const sortViaStatus = students.filter((student) => {
+      const studentStatus = student.clearance_records[0].status;
+      const matchesStatus =
+        statusFilter === "All" || studentStatus === statusFilter;
+
+      return matchesStatus;
+    });
+
+    const sortViaOrder = [...sortViaStatus].sort((a, b) => {
+      const nameA = a.student_name;
+      const nameB = b.student_name;
+      if (orderFilter === "A-Z") {
+        return nameA.localeCompare(nameB, undefined, {
+          sensitivity: "base",
+          numeric: true,
+        });
+      }
+      return nameB.localeCompare(nameA, undefined, {
+        sensitivity: "base",
+        numeric: true,
       });
+    });
 
-      const sortViaOrder = [...sortViaStatus].sort((a, b) => {
-         const nameA = a.student_name;
-         const nameB = b.student_name;
-         if (orderFilter === 'A-Z') {
-            return nameA.localeCompare(nameB, undefined, {
-               sensitivity: 'base',
-               numeric: true,
-            });
-         }
-         return nameB.localeCompare(nameA, undefined, {
-            sensitivity: 'base',
-            numeric: true,
-         });
-      });
+    return sortViaOrder;
+  }, [students, statusFilter, orderFilter]);
 
-      return sortViaOrder;
-   }, [students, statusFilter, orderFilter]);
-
-   const value = {
-      courses,
-      students,
-      filteredStudents,
-      fetchingStudents,
-      courseId,
-      setCourseId,
-      sectionId,
-      setSectionId,
-      activeCourseId,
-      selectedCourse,
-      activeSectionId,
-      clearanceId,
-      setClearanceId,
-      selectedStudents,
-      effectiveStatus,
-      statusFilter,
-      setStatusFilter,
-      orderFilter,
-      setOrderFilter,
-   };
-   return (
-      <DepartmentContext.Provider value={value}>
-         {children}
-      </DepartmentContext.Provider>
-   );
+  const value = {
+    courses,
+    students,
+    filteredStudents,
+    fetchingStudents,
+    courseId,
+    setCourseId,
+    sectionId,
+    setSectionId,
+    activeCourseId,
+    selectedCourse,
+    activeSectionId,
+    clearanceId,
+    setClearanceId,
+    selectedStudents,
+    effectiveStatus,
+    statusFilter,
+    setStatusFilter,
+    orderFilter,
+    setOrderFilter,
+    departmentName,
+  };
+  return (
+    <DepartmentContext.Provider value={value}>
+      {children}
+    </DepartmentContext.Provider>
+  );
 }
 
 export function useDepartmentContext() {
-   const context = useContext(DepartmentContext);
+  const context = useContext(DepartmentContext);
 
-   if (!context) {
-      throw new Error('Context is only usable within the "Department"');
-   }
+  if (!context) {
+    throw new Error('Context is only usable within the "Department"');
+  }
 
-   return context;
+  return context;
 }

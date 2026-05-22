@@ -139,6 +139,12 @@
   object-fit: contain;
 }
 
+.logoBox img {
+    width: 120px !important;
+    height: 120px !important;
+    object-fit: contain;
+}
+
 /* ── Heading ───────────────────────────────────────────── */
 .heading {
   text-align: center;
@@ -151,6 +157,7 @@
   color: #111827;
   margin: 0 0 6px;
   letter-spacing: -0.02em;
+  text-align: center;
 }
 
 .subtitle {
@@ -217,10 +224,9 @@
 /* ── Footer ────────────────────────────────────────────── */
 .footer {
   text-align: center;
-  margin-top: 28px;
-  font-size: 11px;
-  color: #9ca3af;
-  letter-spacing: 0.03em;
+  margin-top: 32px;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 /* ── Animations ────────────────────────────────────────── */

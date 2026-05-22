@@ -1,9 +1,11 @@
-import { createClient } from '@/lib/supabase-config'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient()
 
 export async function GET() {
+
+  const supabase = await createClient()
+
   const { data, error } = await supabase
     .from('courses')
     .select('course_id, course_name')
@@ -18,6 +20,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+
+  const supabase = await createClient()
 
   const { course_name } = await req.json()
 
@@ -47,6 +51,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
 
+  const supabase = await createClient()
+
   try {
     const { course_id, course_name } = await req.json()
 
@@ -75,6 +81,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+
+  const supabase = await createClient()
 
   try {
     const { course_id } = await req.json()

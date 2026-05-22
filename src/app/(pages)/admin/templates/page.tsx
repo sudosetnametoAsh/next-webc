@@ -6,6 +6,7 @@ import { useFetchCourses } from '@/hooks/admin/courses'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { ToastContainer } from '@/components/admin/toast'
 import CourseTemplatesList from '@/components/admin/course-templates-list'
+import StaffTemplatesList from '@/components/admin/staff-templates-list'
 import CreateTemplateModal from '@/components/admin/create-template-modal'
 import ManageDepartmentsModal from '@/components/admin/handle-department-modal'
 import DeleteAllTemplateModal from '@/components/admin/delete-template-modal'
@@ -19,7 +20,8 @@ export default function Templates() {
   // ————————————————————————————————————————
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [isTemplateModalOpen, setTemplateModalOpen] = useState(false)
+  const [isStudentTemplateModalOpen, setStudentTemplateModalOpen] = useState(false)
+  const [isStaffTemplateModalOpen, setStaffTemplateModalOpen] = useState(false)
   const [isCoursesModalOpen, setCoursesModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false)
@@ -70,9 +72,6 @@ export default function Templates() {
     duration: 4000,
   })
 
-  // console.log(`CourseIds (${selectedCourses.length}): ${selectedCourses}`)
-  // console.log(`DeptIds (${selectedDepartments.length}): ${selectedDepartments}`,)
-
   return (
     <>
       <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
@@ -80,18 +79,27 @@ export default function Templates() {
       <section>
         <div className='flex flex-col xl:flex-row gap-4 justify-between mb-8'>
           <div>
-            <h2 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2'>Course Templates</h2>
-            <p className='text-sm text-gray-600'>Manage clearance templates for each course</p>
+            <h2 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2'>Clearance Templates</h2>
+            <p className='text-sm text-gray-600'>Manage clearance templates for students and staff</p>
           </div>
 
           <div className="flex items-center flex-wrap gap-2">
-            {/* Create Template button */}
+            {/* Create Template button for students */}
             <button
-              onClick={() => setTemplateModalOpen(true)}
+              onClick={() => setStudentTemplateModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
             >
               <Plus className="h-4 w-4" />
-              Create Template
+              Create student templates
+            </button>
+
+            {/* Create Template button for staff */}
+            <button
+              onClick={() => setStaffTemplateModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Create staff templates
             </button>
 
             {/* Manage Courses button */}
@@ -132,22 +140,35 @@ export default function Templates() {
               onChange={(e) => setSearchQuery(e.target.value)}
               value={searchQuery}
               maxLength={255}
-              placeholder='Search by course name...'
+              placeholder='Search templates...'
               className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             />
           </div>
-          {/* TODO: EDIT (optional) */}
-          {/* <button onClick={() => console.log('Filter button clicked!')} className='p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'>
-            <Filter className='w-4 h-4 text-gray-500' />
-          </button> */}
         </div>
 
+        <StaffTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
         <CourseTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
       </section>
 
-      <CreateTemplateModal 
-        open={isTemplateModalOpen} 
-        onOpenChange={setTemplateModalOpen}
+      <CreateTemplateModal
+        mode={"student"}
+        open={isStudentTemplateModalOpen} 
+        onOpenChange={setStudentTemplateModalOpen}
+        selectedCourses={selectedCourses}
+        setSelectedCourses={setSelectedCourses}
+        selectedDepartments={selectedDepartments}
+        setSelectedDepartments={setSelectedDepartments}
+        courses={courses}
+        departments={departments}
+        courseIds={courseIds}
+        deptIds={deptIds}
+        toastSuccess={success} 
+        toastError={error} />
+      
+      <CreateTemplateModal
+        mode={"staff"}
+        open={isStaffTemplateModalOpen} 
+        onOpenChange={setStaffTemplateModalOpen}
         selectedCourses={selectedCourses}
         setSelectedCourses={setSelectedCourses}
         selectedDepartments={selectedDepartments}

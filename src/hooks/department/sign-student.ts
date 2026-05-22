@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 type Payload = {
   ids: string[];
   status: string;
+  signed_at: string | null;
 };
 export function useSignStudent() {
   const queryClient = useQueryClient();
@@ -17,7 +18,7 @@ export function useSignStudent() {
 
       if (!response.ok) throw new Error("Unable to sign student");
 
-      return response.json;
+      return response.json();
     },
   });
 }

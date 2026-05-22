@@ -1,22 +1,28 @@
-'use client';
-import SignOutButton from '../auth/sign-out-button';
-import StudentList from './student-list';
-import Toolbar from './toolbar';
-import { DepartmentProvider } from '@/context/deparment';
+"use client";
+import Header from "./header";
+import MainContent from "./main-content";
+import StatCard from "./stat-card";
+import StudentList from "./student-list";
+import Toolbar from "./toolbar";
+import { DepartmentProvider } from "@/context/deparment";
 
 export default function DepartmentContainer() {
-   return (
-      <>
-         <DepartmentProvider>
-            <section className="flex justify-center">
-               <Toolbar />
-            </section>
-            <main className="flex justify-center">
-               <StudentList />
-            </main>
-         </DepartmentProvider>
+  return (
+    <DepartmentProvider>
+      <header className="flex bg-[] mb-10 h-16 justify-center border-b border-[#E7E5E2]">
+        <Header />
+      </header>
 
-         <SignOutButton />
-      </>
-   );
+      <section className="mb-5">
+        <StatCard />
+      </section>
+
+      <main className="flex items-center flex-col">
+        {/* <Toolbar />
+        <StudentList /> */}
+        <MainContent />
+      </main>
+
+    </DepartmentProvider>
+  );
 }

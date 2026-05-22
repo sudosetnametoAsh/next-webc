@@ -13,7 +13,7 @@ export default function SignToggleButton({ clearanceId, currentStatus }: Props) 
     const targetStatus = isSigned ? "Pending" : "Signed"
 
     const btnText = isPending
-        ? (isSigned ? "Reverting..." : "Signing...")
+        ? (isSigned ? "Signing..." : "Signing...")
         : (isSigned ? "Undo" : "Sign")
 
     const btnStyle = isSigned
@@ -21,7 +21,14 @@ export default function SignToggleButton({ clearanceId, currentStatus }: Props) 
         : "bg-blue-600 hover:bg-blue-700 text-white"
 
     const handleToggle = () => {
-        mutate({ ids: clearanceId, status: targetStatus })
+        // Generate the current timestamp if signing, or null if reverting
+        const dateNow = targetStatus === "Signed" ? new Date().toISOString() : null;
+
+        mutate({
+            ids: clearanceId,
+            status: targetStatus,
+            signed_at: dateNow
+        })
     }
 
     return (

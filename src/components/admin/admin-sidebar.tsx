@@ -3,28 +3,11 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, LayoutDashboard, Newspaper, User, Sheet } from "lucide-react";
+import { GraduationCap, LayoutDashboard, User, Sheet } from "lucide-react";
 import { useMsal } from "@azure/msal-react";
+import AzureSignOutButton from "../auth/azure-sign-out-button";
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
-
-// const IconDashboard = () => (
-//   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
-//     <rect x="3" y="3" width="7" height="7" rx="1" />
-//     <rect x="14" y="3" width="7" height="7" rx="1" />
-//     <rect x="3" y="14" width="7" height="7" rx="1" />
-//     <rect x="14" y="14" width="7" height="7" rx="1" />
-//   </svg>
-// );
-
-// const IconStudents = () => (
-//   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
-//     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-//     <circle cx="9" cy="7" r="4" />
-//     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-//     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-//   </svg>
-// );
 
 const IconSignOut = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0">
@@ -83,7 +66,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard /> },
   { label: "Students",  href: "/admin/students",  icon: <User /> },
   { label: "Templates", href: "/admin/templates", icon: <Sheet /> },
-  // { label: "Reports", href: "/admin/reports", icon: <Newspaper /> },
 ];
 
 const STORAGE_KEY = "admin_sidebar_collapsed";
@@ -182,16 +164,6 @@ export default function AdminSidebar({
 
   const { instance } = useMsal()
 
-  const handleSignOut = async () => {
-    // onSignOut?.();
-    try {
-      await fetch("/api/session", { method: "DELETE" });
-      await instance.logoutRedirect();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   // Prevent body scroll when mobile drawer open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -214,9 +186,6 @@ export default function AdminSidebar({
             {/* Logo mark */}
             <div className="w-8 h-8 rounded-lg bg-[#ffb900] flex items-center justify-center shrink-0 shadow-md shadow-[#ffb900]/40">
               <GraduationCap />
-              {/* <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              </svg> */}
             </div>
             <div className="leading-tight overflow-hidden">
               <p className="text-[18px] font-bold text-[#f1f5f9] tracking-tight whitespace-nowrap">STI College</p>
@@ -233,7 +202,6 @@ export default function AdminSidebar({
             className={`
               p-1.5 rounded-lg text-[#475569] hover:bg-[#111c3a] hover:text-[#94a3b8] cursor-pointer
               transition-all duration-200 shrink-0
-              ${collapsed ? "" : ""}
             `}
           >
             <IconChevron collapsed={!collapsed} />
@@ -292,37 +260,7 @@ export default function AdminSidebar({
         )}
 
         {/* Sign out */}
-        {collapsed && !isMobile ? (
-          <Tooltip label="Sign Out">
-            <button
-              onClick={handleSignOut}
-              className="w-full flex justify-center items-center p-2.5 rounded-xl text-[#64748b] cursor-pointer
-                hover:bg-[#1e293b] hover:text-red-400 transition-all duration-200 group"
-              aria-label="Sign Out"
-            >
-              <IconSignOut />
-            </button>
-          </Tooltip>
-        ) : (
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#64748b] text-sm font-medium cursor-pointer
-              hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
-          >
-            <IconSignOut />
-            <span>Sign Out</span>
-          </button>
-        )}
-        {/* {signOutSlot ?? (
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#64748b] text-sm font-medium
-              hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
-          >
-            <IconSignOut />
-            <span>Sign Out</span>
-          </button>
-        )} */}
+        < AzureSignOutButton />
       </div>
     </div>
   );

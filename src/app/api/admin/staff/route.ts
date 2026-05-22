@@ -1,9 +1,11 @@
-import { createClient } from '@/lib/supabase-config'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextResponse } from 'next/server'
 
-const supabase = createClient()
 
 export async function GET() {
+
+  const supabase = await createClient()
+
   const { data, error } = await supabase
     .from('staffs')
     .select('staff_id, staff_name')

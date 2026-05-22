@@ -1,10 +1,12 @@
-import { createClient } from '@/lib/supabase-config'
+import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient()
 
 // --- GET: Fetch Course Templates & Stats ---
 export async function GET() {
+
+  const supabase = await createClient()
+
   try {
     // 1. Get all courses
     const { data, error: coursesError } = await supabase
@@ -15,7 +17,7 @@ export async function GET() {
         clearance_templates (
           template_id,
           dept_id,
-          departments ( dept_name ),
+          clearance_departments ( dept_name ),
           staffs ( staff_name )
         )
       `)
@@ -52,16 +54,16 @@ export async function GET() {
 
         if (templateIds.length > 0 && studentsEnrolled > 0) {
           const { data: clearances } = await supabase
-            .from('student_clearances')
-            .select('student_id, status')
+            .from('clearance_records')
+            .select('user_id, status')
             .in('template_id', templateIds)
           
           if (clearances && clearances.length > 0) {
             const studentStatusMap = new Map<string, string[]>()
             clearances.forEach((c: any) => {
-                const list = studentStatusMap.get(c.student_id) || []
+                const list = studentStatusMap.get(c.user_id) || []
                 list.push(c.status)
-                studentStatusMap.set(c.student_id, list)
+                studentStatusMap.set(c.user_id, list)
             })
             let fullyClearedCount = 0
             for (const [, statuses] of studentStatusMap) {
@@ -80,7 +82,7 @@ export async function GET() {
           students_enrolled: studentsEnrolled,
           departments: course.clearance_templates?.map((t: any) => ({
             dept_id: t.dept_id,
-            dept_name: t.departments?.dept_name || 'Unknown',
+            dept_name: t.clearance_departments?.dept_name || 'Unknown',
             staff_name: t.staffs?.staff_name || null
           })) || [],
           updated_at: new Date().toISOString()
@@ -98,6 +100,9 @@ export async function GET() {
 
 // POST: Create templates
 export async function POST(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { courses, assignments } = await req.json()
 
@@ -145,34 +150,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE: Remove templates per course per department
-// export async function DELETE(req: NextRequest) {
-//   try {
-//     const { template_id } = await req.json()
-  
-//     if (!template_id) {
-//       return NextResponse.json({ error: 'Template ID is required' }, { status: 400 })
-//     }
-  
-//     const { error } = await supabase
-//       .from('clearance_templates')
-//       .delete()
-//       .eq('template_id', template_id)
-  
-//     if (error) {
-//       return NextResponse.json({ error: 'Error deleting a template' }, { status: 500 })
-//     }
-  
-//     return NextResponse.json({ success: true }, { status: 200 })
-
-  // } catch (error) {
-  //   console.error('Delete template error', error)
-  //   return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  // }
-// }
-
 // DELETE: Remove templates based on course
 export async function DELETE(req: NextRequest) {
+
+  const supabase = await createClient()
+
   try {
     const { course_id } = await req.json()
 

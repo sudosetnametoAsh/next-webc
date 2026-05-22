@@ -22,4 +22,5 @@ export type DepartmentContextType = {
    setStatusFilter: Dispatch<SetStateAction<string>>;
    orderFilter: string;
    setOrderFilter: Dispatch<SetStateAction<string>>;
+   departmentName?: string;
 };

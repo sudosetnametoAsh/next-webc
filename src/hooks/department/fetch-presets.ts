@@ -8,6 +8,7 @@ type FetchedData = {
 type Preset = {
   task_id: string;
   description: string
+  title: string;
 }
 
 
