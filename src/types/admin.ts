@@ -36,7 +36,7 @@ export type DepartmentTag = {
 }
 
 export type CourseTemplateStats = {
-  course_id: number;
+  course_id: number | null;
   course_name: string;
   completion_rate: number;
   students_enrolled: number;

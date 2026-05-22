@@ -1,4 +1,4 @@
-import { StaffAssignment } from '@/types/admin'
+import { CourseTemplateStats, StaffAssignment } from '@/types/admin'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useFetchStaffTemplates() {
@@ -85,16 +85,12 @@ async function deleteStaffTemplates(deptIds: number[]): Promise<void> {
   return json
 }
 
-type StaffTemplates = {
-  dept_id: number;
-}
-
-async function fetchStaffTemplates(): Promise<StaffTemplates[]> {
+async function fetchStaffTemplates(): Promise<CourseTemplateStats[]> {
   const response = await fetch('/api/admin/staff-templates')
   const json = await response.json()
 
   if (!response.ok) {
-    throw new Error('Failed to fetch course templates')
+    throw new Error('Failed to fetch staff templates')
   }
 
   return json.data

@@ -6,6 +6,7 @@ import { useFetchCourses } from '@/hooks/admin/courses'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { ToastContainer } from '@/components/admin/toast'
 import CourseTemplatesList from '@/components/admin/course-templates-list'
+import StaffTemplatesList from '@/components/admin/staff-templates-list'
 import CreateTemplateModal from '@/components/admin/create-template-modal'
 import ManageDepartmentsModal from '@/components/admin/handle-department-modal'
 import DeleteAllTemplateModal from '@/components/admin/delete-template-modal'
@@ -81,8 +82,8 @@ export default function Templates() {
       <section>
         <div className='flex flex-col xl:flex-row gap-4 justify-between mb-8'>
           <div>
-            <h2 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2'>Course Templates</h2>
-            <p className='text-sm text-gray-600'>Manage clearance templates for each course</p>
+            <h2 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2'>Clearance Templates</h2>
+            <p className='text-sm text-gray-600'>Manage clearance templates for students and staff</p>
           </div>
 
           <div className="flex items-center flex-wrap gap-2">
@@ -142,7 +143,7 @@ export default function Templates() {
               onChange={(e) => setSearchQuery(e.target.value)}
               value={searchQuery}
               maxLength={255}
-              placeholder='Search by course name...'
+              placeholder='Search templates...'
               className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             />
           </div>
@@ -152,6 +153,7 @@ export default function Templates() {
           </button> */}
         </div>
 
+        <StaffTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
         <CourseTemplatesList searchQuery={searchQuery} toastSuccess={success} toastError={error} />
       </section>
 

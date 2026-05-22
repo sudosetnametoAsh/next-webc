@@ -2,10 +2,8 @@
 
 import { useState } from 'react'
 import ConfirmationModal from './confirmation-modal'
-import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
-import { useDeleteTemplates } from '@/hooks/admin/course-templates'
+import { useFetchStaffTemplates, useDeleteStaffTemplates } from '@/hooks/admin/staff-templates'
 import { CourseTemplateStats } from '@/types/admin'
-import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Trash } from 'lucide-react'
 
 type Props = {
@@ -14,7 +12,7 @@ type Props = {
   toastError: (message: string, title?: string) => number;
 }
 
-export default function CourseTemplatesList({ 
+export default function StaffTemplatesList({ 
   searchQuery,
   toastSuccess,
   toastError
@@ -23,74 +21,66 @@ export default function CourseTemplatesList({
   // State for confirmation modal
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isConfirmLoading, setIsConfirmLoading] = useState(false)
-  const [selectedCourseId, setSelectedCourseId] = useState(0)
+  const [selectedDeptIds, setSelectedDeptIds] = useState<number[]>([])
 
-  const { data: templates = [], isLoading } = useFetchCourseTemplates()
-  const deleteTemplate = useDeleteTemplates()
+  const { data: templates = [], isLoading } = useFetchStaffTemplates()
+  const deleteTemplate = useDeleteStaffTemplates()
 
   const filteredTemplates = templates.filter(template => {
-    if (!searchQuery.trim()) { return templates }
-
+    if (!searchQuery.trim()) { return true }
     const query = searchQuery.trim().toLowerCase()
-
-    // Filter by course abbreviation (e.g., BSCS, BSIT)
-    if (
-      template.course_name.toLowerCase().includes(query) || shrinkCourseName(template.course_name).toLowerCase().includes(query)
-    ) { return true }
-    // Filter by full course name
-    if (expandCourseAbbreviation(template.course_name).toLowerCase().includes(query)) { return true }
+    return template.course_name.toLowerCase().includes(query)
   })
 
-  const handleDelete = async (course_id?: number) => {
+  const handleDelete = async (deptIds: number[]) => {
     setIsConfirmLoading(true)
 
     try {
-      await deleteTemplate.mutateAsync(course_id)
+      await deleteTemplate.mutateAsync(deptIds)
+      toastSuccess("Staff template removed successfully!")
     } catch(error) {
       console.error('Failed to delete template', error)
-      toastError("Please try again.", "Failed to delete course template.")
+      toastError("Please try again.", "Failed to delete staff template.")
     }
 
     setIsConfirmLoading(false)
     setIsConfirmOpen(false)
-    toastSuccess("Course template removed successfully!")
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return null // Parent handles loading or we show a skeleton
   }
 
   if (templates.length === 0) {
-    return (
-      <div className='border border-slate-200 rounded-lg p-32 text-center'>
-        <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
-      </div>
-    )
+    return null // Don't show anything if no staff templates
   }
 
   if (filteredTemplates.length === 0) {
-    return (
-      <div className='border border-gray-200 rounded-lg p-32 text-center'>
-        <p className='text-gray-500'>No results found for "{searchQuery}"</p>
-      </div>
-    )
+    return null
   }
   
   return (
     <>
-      <h3 className='text-xl font-bold text-gray-900 mb-4'>Student Templates</h3>
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {filteredTemplates.map(template => (
-          <CourseTemplateCard key={template.course_id as number} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
-        ))}
+      <div className='mb-8'>
+        <h3 className='text-xl font-bold text-gray-900 mb-4'>Staff Templates</h3>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {filteredTemplates.map((template, idx) => (
+            <StaffTemplateCard 
+              key={idx} 
+              template={template} 
+              setIsConfirmOpen={setIsConfirmOpen} 
+              setSelectedDeptIds={setSelectedDeptIds} 
+            />
+          ))}
+        </div>
       </div>
       <ConfirmationModal 
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
-        onConfirm={() => handleDelete(selectedCourseId)}
+        onConfirm={() => handleDelete(selectedDeptIds)}
         variant="destructive"
-        title="Are you sure you want to delete this course template?"
-        description="This action irreversible."
+        title="Are you sure you want to delete the staff template?"
+        description="This action is irreversible."
         confirmLabel="Yes, delete it"
         isLoading={isConfirmLoading}
       />
@@ -98,18 +88,18 @@ export default function CourseTemplatesList({
   )
 }
 
-function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:  
+function StaffTemplateCard({ template, setIsConfirmOpen, setSelectedDeptIds }:  
   { 
     template: CourseTemplateStats;
     setIsConfirmOpen: (isConfirmOpen: boolean) => void;
-    setSelectedCourseId: (selectedCourseId: number) => void;
+    setSelectedDeptIds: (deptIds: number[]) => void;
   }) {
     return (
       <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
         {/* Header */}
         <div className='mb-6'>
-          <h3 className='text-lg font-bold text-gray-900 mb-1'>{shrinkCourseName(template.course_name) || template.course_name}</h3>
-          <p className='text-sm text-gray-600'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
+          <h3 className='text-lg font-bold text-gray-900 mb-1'>{template.course_name}</h3>
+          <p className='text-sm text-gray-600'>Clearance requirements for all staff members</p>
         </div>
 
         {/* Completion Rate */}
@@ -126,9 +116,9 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
           </div>
         </div>
 
-        {/* Total Students */}
+        {/* Total Staff */}
         <div className='flex items-center justify-between mb-6'>
-          <span className='text-sm text-gray-600'>Students Enrolled: </span>
+          <span className='text-sm text-gray-600'>Staff Members: </span>
           <span className='text-base font-bold text-gray-900'>{template.students_enrolled}</span>
         </div>
 
@@ -153,19 +143,13 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <button 
             className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
-            onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id as number); }}
+            onClick={() => { 
+              setIsConfirmOpen(true); 
+              setSelectedDeptIds(template.departments.map(d => d.dept_id)); 
+            }}
           >
-            {/* {template.updated_at ? `Updated ${template.updated_at}` : "Updated a few hours ago"} */}
             <Trash className='w-4 h-4' />
           </button>
-          <span>&nbsp;</span>
-          {/* <button 
-            className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1 transition-colors cursor-pointer"
-            onClick={() => console.log(template.course_id)}
-          >
-            Manage
-            <ArrowRight className="w-4 h-4" />
-          </button> */}
         </div>
       </div>
     )
