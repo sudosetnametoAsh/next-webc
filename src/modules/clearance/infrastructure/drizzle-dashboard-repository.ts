@@ -13,14 +13,14 @@ import {
   clearanceTemplates,
   staffs,
 } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export class DrizzleDashBoardRepository implements DashBoardRepository {
   constructor(private readonly drizzle: DrizzleSupabaseClient) {}
 
-  async getClearanceRecords(): Promise<getClearanceRecordsPromise> {
-    const response = await this.drizzle.rls((tx) =>
-      tx
+  async getClearanceRecords(userId?: string): Promise<getClearanceRecordsPromise> {
+    const response = await this.drizzle.rls((tx) => {
+      const query = tx
         .select({
           clearance_id: clearanceRecords.clearanceId,
           staff_id: clearanceTemplates.staffId,
@@ -45,31 +45,42 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         .leftJoin(
           clearanceTasks,
           eq(clearanceRecords.clearanceId, clearanceTasks.clearanceId),
-        )
-        .groupBy(
-          staffs.staffName,
-          staffs.timeIn,
-          staffs.timeOut,
-          clearanceDepartments.deptName,
-          clearanceRecords.clearanceId,
-          clearanceTemplates.staffId,
-        ),
-    );
+        );
+
+      if (userId) {
+        query.where(eq(clearanceRecords.userId, userId));
+      }
+
+      return query.groupBy(
+        staffs.staffName,
+        staffs.timeIn,
+        staffs.timeOut,
+        clearanceDepartments.deptName,
+        clearanceRecords.clearanceId,
+        clearanceTemplates.staffId,
+      );
+    });
 
     return response;
   }
 
-  async getSummary(): Promise<getSummaryPromise> {
-    const response = await this.drizzle.rls((tx) =>
-      tx
+  async getSummary(userId?: string): Promise<getSummaryPromise> {
+    const response = await this.drizzle.rls((tx) => {
+      const query = tx
         .select({
           signed: sql<number>`count(*) filter (where ${clearanceRecords.status} = 'Signed')::int`,
           incomplete: sql<number>`count(*) filter (where ${clearanceRecords.status} = 'Incomplete')::int`,
           pending: sql<number>`count(*) filter (where ${clearanceRecords.status} = 'Pending')::int`,
           total: sql<number>`count(*)::int`,
         })
-        .from(clearanceRecords),
-    );
+        .from(clearanceRecords);
+
+      if (userId) {
+        query.where(eq(clearanceRecords.userId, userId));
+      }
+
+      return query;
+    });
 
     const result = response[0];
 
@@ -83,9 +94,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
     };
   }
 
-  async getDepartmentDetails(): Promise<getDepartmentDetailsPromise> {
-    const response = await this.drizzle.rls((tx) =>
-      tx
+  async getDepartmentDetails(userId?: string): Promise<getDepartmentDetailsPromise> {
+    const response = await this.drizzle.rls((tx) => {
+      const query = tx
         .select({
           assigned_task_id: clearanceTasks.assignedTaskId,
           title: clearanceTasks.title,
@@ -109,15 +120,21 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         .innerJoin(
           clearanceDepartments,
           eq(clearanceTemplates.deptId, clearanceDepartments.deptId),
-        ),
-    );
+        );
+
+      if (userId) {
+        query.where(eq(clearanceRecords.userId, userId));
+      }
+
+      return query;
+    });
 
     return response;
   }
 
-  async getOfficeHours(): Promise<getOfficeHoursPromise> {
-    const response = await this.drizzle.rls((tx) =>
-      tx
+  async getOfficeHours(userId?: string): Promise<getOfficeHoursPromise> {
+    const response = await this.drizzle.rls((tx) => {
+      const query = tx
         .select({
           dept_id: clearanceDepartments.deptId,
           dept_name: clearanceDepartments.deptName,
@@ -134,15 +151,20 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           clearanceDepartments,
           eq(clearanceTemplates.deptId, clearanceDepartments.deptId),
         )
-        .innerJoin(staffs, eq(clearanceTemplates.staffId, staffs.staffId))
-        .groupBy(
-          clearanceDepartments.deptId,
-          clearanceDepartments.deptName,
-          staffs.staffName,
-          staffs.timeIn,
-          staffs.timeOut,
-        ),
-    );
+        .innerJoin(staffs, eq(clearanceTemplates.staffId, staffs.staffId));
+
+      if (userId) {
+        query.where(eq(clearanceRecords.userId, userId));
+      }
+
+      return query.groupBy(
+        clearanceDepartments.deptId,
+        clearanceDepartments.deptName,
+        staffs.staffName,
+        staffs.timeIn,
+        staffs.timeOut,
+      );
+    });
 
     return response;
   }

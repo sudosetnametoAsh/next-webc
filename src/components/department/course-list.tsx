@@ -2,7 +2,7 @@ import { Button } from "../ui/button";
 
 type Props = {
     courses: Course[];
-    activeCourseId: string;
+    activeCourseId: string | null;
     setCourseId: React.Dispatch<React.SetStateAction<string | null>>
     setSectionId: React.Dispatch<React.SetStateAction<string | null>>
 }

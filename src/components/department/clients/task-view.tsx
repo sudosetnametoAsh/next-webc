@@ -17,11 +17,12 @@ import {
   UserCheck,
   X,
   RotateCcw,
+  XCircle,
 } from "lucide-react";
 import SubmissionModal, { SubmittedFile } from "./sumission-modal";
 import { createClient } from "@/lib/db/supabase-client";
 
-type TaskStatus = "Cleared" | "Pending" | "Flagged" | "Submitted" | "Resubmit";
+type TaskStatus = "Cleared" | "Pending" | "Flagged" | "Submitted" | "Rejected";
 
 const getStatusConfig = (status: TaskStatus) => {
   switch (status) {
@@ -33,8 +34,8 @@ const getStatusConfig = (status: TaskStatus) => {
       return { bg: "bg-amber-50", text: "text-amber-600", border: "border-transparent", label: "Pending" };
     case "Submitted":
       return { bg: "bg-blue-50", text: "text-blue-600", border: "border-transparent", label: "Needs Review" };
-    case "Resubmit":
-      return { bg: "bg-orange-50", text: "text-orange-600", border: "border-transparent", label: "Resubmit Required" };
+    case "Rejected":
+      return { bg: "bg-red-50", text: "text-red-600", border: "border-transparent", label: "Rejected" };
     default:
       return { bg: "bg-slate-50", text: "text-slate-600", border: "border-transparent", label: status };
   }
@@ -62,12 +63,14 @@ export default function TaskView({
   studentId,
   currentDepartment = "Cashier",
   onBack,
+  viewType = "students",
 }: {
   studentTasks: Tasks[];
   studentName: string;
   studentId: string;
   currentDepartment?: string;
   onBack?: () => void;
+  viewType?: "students" | "staff";
 }) {
   const supabase = useMemo(() => createClient(), []);
 
@@ -127,14 +130,14 @@ export default function TaskView({
   };
 
   const hasDropbox = (task: Tasks) => {
-    return task.dropbox && task.dropbox.trim() !== "" && task.dropbox !== "null";
+    return task.dropbox && task.dropbox.trim() !== "" && task.dropbox.toLowerCase() !== "null";
   };
 
   /** Whether this task originally required a dropbox upload.
-   *  Tasks with "Resubmit" status were previously submitted via dropbox,
+   *  Tasks with "Rejected" status were previously submitted via dropbox,
    *  so they should always be treated as requiring re-upload (not in-person). */
   const originallyRequiredDropbox = (task: Tasks) => {
-    return hasDropbox(task) || task.status === "Resubmit";
+    return hasDropbox(task) || task.status === "Rejected";
   };
 
   const handleOpenSubmission = async (taskId: number) => {
@@ -223,11 +226,11 @@ export default function TaskView({
   const handleRejectWithResubmit = async (comment: string) => {
     if (activeTaskId === null) return;
 
-    // Optimistic update: set to Resubmit and clear dropbox
+    // Optimistic update: set to Rejected and clear dropbox
     setTasks((prev) =>
       prev.map((t) =>
         t.assigned_task_id === activeTaskId
-          ? { ...t, status: "Resubmit" as TaskStatus, dropbox: "", comments: comment }
+          ? { ...t, status: "Rejected" as TaskStatus, dropbox: "", comments: comment }
           : t
       )
     );
@@ -237,7 +240,7 @@ export default function TaskView({
       const { error } = await supabase
         .from("clearance_tasks")
         .update({
-          status: "Resubmit",
+          status: "Rejected",
           dropbox: null,
           comments: comment,
           uploaded_at: null,
@@ -281,46 +284,48 @@ export default function TaskView({
     return !originallyRequiredDropbox(task) && task.status === "Pending";
   };
 
+  const personLabel = viewType === "students" ? "student" : "staff";
+
   return (
-    <div className="relative flex h-full min-h-screen w-full max-w-3xl flex-col bg-white font-sans mx-auto border-x border-slate-100">
+    <div className="relative flex h-full min-h-screen w-full flex-col bg-white font-sans mx-auto border-x border-slate-100 overflow-x-hidden">
 
       {/* HEADER */}
-      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-6">
+      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-6 w-full">
         <div className="flex items-center gap-4">
           {onBack && (
             <button onClick={onBack} className="p-2 -ml-2 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-800 transition-colors">
               <ChevronLeft size={20} />
             </button>
           )}
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Clearance Details</h1>
-            <p className="text-sm text-slate-500 mt-1">Review requirements and submissions</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight truncate">Clearance Details</h1>
+            <p className="text-sm text-slate-500 mt-1 truncate">Review requirements and submissions</p>
           </div>
         </div>
 
-        {/* Student Mini-Profile */}
-        <div className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 p-4 bg-slate-50/50">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+        {/* Profile */}
+        <div className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 p-4 bg-slate-50/50 w-full overflow-hidden">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
             {studentName.split(" ").map((n) => n[0]).join("").slice(0, 2)}
           </div>
-          <div className="flex-1">
-            <h2 className="text-base font-bold text-slate-900">{studentName}</h2>
-            <p className="text-xs font-medium text-slate-500 mt-0.5">{studentId}</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-bold text-slate-900 truncate">{studentName}</h2>
+            <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">{studentId}</p>
           </div>
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10">
+      <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10 w-full overflow-x-hidden">
 
         {/* Department Progress Section */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
+        <section className="w-full">
+          <div className="flex items-center justify-between mb-4 w-full">
             <h3 className="text-sm font-bold text-slate-900">Department Status</h3>
             <span className="text-xs font-medium text-slate-500">{progress.filter(p => p.status === 'Signed').length} / {progress.length} Cleared</span>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full">
             {progress.length === 0 ? (
               <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-400">
                 No clearance records found.
@@ -334,24 +339,24 @@ export default function TaskView({
                 return (
                   <div
                     key={item.dept_name}
-                    className={`relative flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${
+                    className={`relative flex items-center justify-between p-4 rounded-xl border transition-all duration-200 w-full overflow-hidden ${
                       isCurrent
                         ? "border-blue-200 bg-blue-50/30"
                         : "border-slate-100 bg-white hover:border-slate-200"
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded bg-slate-100">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-slate-100">
                         {getDeptIcon(item.dept_name)}
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-slate-800">{item.dept_name}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-slate-800 truncate">{item.dept_name}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 shrink-0">
                       {isCurrent && (
-                        <span className="text-xs font-medium text-blue-600">
+                        <span className="text-xs font-medium text-blue-600 hidden sm:inline">
                           Your Department
                         </span>
                       )}
@@ -377,10 +382,10 @@ export default function TaskView({
         </section>
 
         {/* Active Tasks Section */}
-        <section>
+        <section className="w-full overflow-hidden">
           <h3 className="mb-4 text-sm font-bold text-slate-900">Required Tasks</h3>
 
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             {tasks.length === 0 ? (
               <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-400">
                 No active tasks assigned.
@@ -390,57 +395,64 @@ export default function TaskView({
                 const statusCfg = getStatusConfig(task.status);
                 const isThisLoading = isLoading && activeTaskId === task.assigned_task_id;
                 const isApproving = approvingTaskId === task.assigned_task_id;
-                const isDirectApprove = isDirectApprovable(task);
+                const isDirectApp = isDirectApprovable(task);
                 const showConfirm = confirmApproveId === task.assigned_task_id;
-                const isResubmit = task.status === "Resubmit";
+                const isRejected = task.status === "Rejected";
                 const isInPerson = !originallyRequiredDropbox(task) && task.status !== "Cleared";
 
                 return (
-                  <div key={task.assigned_task_id} className="group rounded-xl border border-slate-200 bg-white">
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold text-slate-900">{task.title || "Untitled Task"}</h4>
+                  <div key={task.assigned_task_id} className="group rounded-xl border border-slate-200 bg-white overflow-hidden w-full max-w-full">
+                    <div className="p-5 w-full">
+                      <div className="flex items-start justify-between gap-4 w-full">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="grid grid-cols-[1fr_auto] gap-2 items-start mb-1 w-full">
+                            <h4 className="text-sm font-bold text-slate-900 break-words whitespace-normal min-w-0">{task.title || "Untitled Task"}</h4>
+                            <span className={`shrink-0 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold ${statusCfg.bg} ${statusCfg.text}`}>
+                              {statusCfg.label}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 mb-2">
                             {isInPerson && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600 shrink-0">
                                 <UserCheck size={10} />
                                 In-Person
                               </span>
                             )}
-                            {isResubmit && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold text-orange-600">
-                                <RotateCcw size={10} />
-                                Re-upload Required
+                            {isRejected && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 shrink-0">
+                                <X size={10} />
+                                Rejected
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">{task.description}</p>
+
+                          <p className="text-sm text-slate-500 leading-relaxed whitespace-normal break-all w-full overflow-hidden">{task.description}</p>
 
                           {/* In-person note */}
                           {isInPerson && (
-                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5 w-full overflow-hidden">
                               <UserCheck size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <p className="text-xs text-slate-500 leading-relaxed">
-                                No file upload required — student will complete this in person. You can approve directly.
+                              <p className="text-xs text-slate-500 leading-relaxed whitespace-normal break-words flex-1 min-w-0">
+                                No file upload required — {personLabel} will complete this in person. You can approve directly.
                               </p>
                             </div>
                           )}
 
-                          {/* Resubmit note with reviewer feedback */}
-                          {isResubmit && (
-                            <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-orange-50 border border-orange-100 p-3">
-                              <RotateCcw size={14} className="shrink-0 text-orange-500 mt-0.5" />
-                              <div className="flex-1">
-                                <p className="text-xs font-semibold text-orange-700">
-                                  Previous submission was rejected — student must re-upload via dropbox.
+                          {/* Rejected note with reviewer feedback */}
+                          {isRejected && (
+                            <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-100 p-3 w-full overflow-hidden">
+                              <X size={14} className="shrink-0 text-red-500 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-red-700 whitespace-normal break-words">
+                                  Previous submission was rejected — {personLabel} must re-upload via dropbox.
                                 </p>
                                 {task.comments && (
-                                  <div className="mt-2 rounded-md bg-white/70 border border-orange-100 p-2">
+                                  <div className="mt-2 rounded-md bg-white/70 border border-red-100 p-2 w-full overflow-hidden">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                                       Reviewer Feedback
                                     </p>
-                                    <p className="text-xs text-slate-700 leading-relaxed">
+                                    <p className="text-xs text-slate-700 leading-relaxed whitespace-normal break-words">
                                       {task.comments}
                                     </p>
                                   </div>
@@ -449,82 +461,81 @@ export default function TaskView({
                             </div>
                           )}
                         </div>
-                        <span className={`shrink-0 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold ${statusCfg.bg} ${statusCfg.text}`}>
-                          {statusCfg.label}
-                        </span>
                       </div>
 
                       {task.status === "Flagged" && task.comments && (
-                        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-100 p-3">
+                        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-100 p-3 w-full overflow-hidden">
                           <AlertTriangle size={16} className="shrink-0 text-red-500" />
-                          <p className="text-xs font-medium text-red-700 leading-relaxed">{task.comments}</p>
+                          <p className="text-xs font-medium text-red-700 leading-relaxed whitespace-normal break-words flex-1 min-w-0">{task.comments}</p>
                         </div>
                       )}
                     </div>
 
-                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50 rounded-b-xl">
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50 rounded-b-xl w-full overflow-hidden">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400 truncate flex-1 min-w-0">
                         <Calendar size={14} />
                         Assigned {formatDate(task.assigned_at)}
                       </span>
 
-                      {canViewSubmission(task.status) ? (
-                        <button
-                          onClick={() => handleOpenSubmission(task.assigned_task_id)}
-                          disabled={isThisLoading}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-                        >
-                          {isThisLoading ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
-                          {isThisLoading ? "Loading..." : task.status === "Flagged" ? "Review" : "Review File"}
-                        </button>
-                      ) : isDirectApprove ? (
-                        <div className="flex items-center gap-2">
-                          {showConfirm ? (
-                            <>
-                              <span className="text-xs font-medium text-slate-500">Approve this task?</span>
+                      <div className="flex shrink-0 ml-2">
+                        {canViewSubmission(task.status) ? (
+                          <button
+                            onClick={() => handleOpenSubmission(task.assigned_task_id)}
+                            disabled={isThisLoading}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                          >
+                            {isThisLoading ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
+                            {isThisLoading ? "Loading..." : task.status === "Flagged" ? "Review" : "Review File"}
+                          </button>
+                        ) : isDirectApp ? (
+                          <div className="flex items-center gap-2">
+                            {showConfirm ? (
+                              <>
+                                <span className="text-xs font-medium text-slate-500 hidden lg:inline">Approve?</span>
+                                <button
+                                  onClick={() => setConfirmApproveId(null)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                                >
+                                  <X size={12} />
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleDirectApprove(task.assigned_task_id)}
+                                  disabled={isApproving}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                                >
+                                  {isApproving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                                  {isApproving ? "Approving..." : "Confirm"}
+                                </button>
+                              </>
+                            ) : (
                               <button
-                                onClick={() => setConfirmApproveId(null)}
-                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                                onClick={() => setConfirmApproveId(task.assigned_task_id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
                               >
-                                <X size={12} />
-                                Cancel
+                                <CheckCircle2 size={14} />
+                                Approve
                               </button>
-                              <button
-                                onClick={() => handleDirectApprove(task.assigned_task_id)}
-                                disabled={isApproving}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
-                              >
-                                {isApproving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-                                {isApproving ? "Approving..." : "Confirm"}
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => setConfirmApproveId(task.assigned_task_id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
-                            >
-                              <CheckCircle2 size={14} />
-                              Approve
-                            </button>
-                          )}
-                        </div>
-                      ) : isResubmit ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-500">
-                          <RotateCcw size={14} />
-                          Awaiting Re-submission
-                        </span>
-                      ) : (
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${task.status === "Cleared" ? "text-emerald-600" : "text-slate-400"}`}>
-                          {task.status === "Cleared" ? (
-                            <>
-                              <CheckCircle2 size={14} />
-                              Approved
-                            </>
-                          ) : (
-                            "Awaiting Submission"
-                          )}
-                        </span>
-                      )}
+                            )}
+                          </div>
+                        ) : isRejected ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-500">
+                            <XCircle size={14} />
+                            Rejected
+                          </span>
+                        ) : (
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${task.status === "Cleared" ? "text-emerald-600" : "text-slate-400"}`}>
+                            {task.status === "Cleared" ? (
+                              <>
+                                <CheckCircle2 size={14} />
+                                Approved
+                              </>
+                            ) : (
+                              "Awaiting Submission"
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -535,8 +546,8 @@ export default function TaskView({
       </div>
 
       {/* FOOTER */}
-      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-end gap-6 pr-4">
+      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 w-full overflow-hidden">
+        <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-2 pr-4 w-full">
            <div className="flex items-center gap-2">
              <span className="text-xs font-medium text-slate-500">Pending</span>
              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 text-xs font-bold text-amber-600">
@@ -544,9 +555,9 @@ export default function TaskView({
              </span>
            </div>
            <div className="flex items-center gap-2">
-             <span className="text-xs font-medium text-slate-500">Resubmit</span>
-             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-xs font-bold text-orange-600">
-               {tasks.filter((t) => t.status === "Resubmit").length}
+             <span className="text-xs font-medium text-slate-500">Rejected</span>
+             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-50 text-xs font-bold text-red-600">
+               {tasks.filter((t) => t.status === "Rejected").length}
              </span>
            </div>
            <div className="flex items-center gap-2">

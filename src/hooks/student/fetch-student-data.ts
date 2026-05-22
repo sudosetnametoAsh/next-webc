@@ -1,4 +1,4 @@
-import { FetchedData, FetchedDataSchema } from "@/types/student/student-data";
+import { FetchedData, FetchedDataSchema } from "@/types/client/student-data";
 import { useQuery } from "@tanstack/react-query";
 
 export function useFetchRecords() {

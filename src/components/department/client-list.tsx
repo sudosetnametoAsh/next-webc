@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@radix-ui/react-accordion";
-import { StudentTaskList } from "./student-task";
+import { ClientTaskList } from "./client-task";
 import { Checkbox } from "../ui/checkbox";
 import { useDepartmentContext } from "@/context/deparment";
 
@@ -72,7 +72,7 @@ export default function StudentList() {
 
             {/* Content */}
             <AccordionContent className="flex justify-start">
-              <StudentTaskList
+              <ClientTaskList
                 clearanceId={student.clearance_records?.[0].clearance_id}
               />
             </AccordionContent>

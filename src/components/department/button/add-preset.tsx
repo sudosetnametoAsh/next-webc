@@ -11,7 +11,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { useAddStudentTasks } from "@/hooks/department/add-student-tasks";
+import { useAddClientTasks } from "@/hooks/department/add-client-tasks";
 import { Clipboard, CheckCircle, Upload } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
@@ -46,7 +46,7 @@ export default function AddPreset({
   description,
   sectionId,
 }: Props) {
-  const { mutate } = useAddStudentTasks(clearanceId[0] || null, sectionId);
+  const { mutate } = useAddClientTasks(clearanceId[0] || null, sectionId);
   const [dropboxTasks, setDropboxTasks] = useState<string[]>([]);
 
   if (!preset) return <div>No preset available</div>;
@@ -128,7 +128,7 @@ export default function AddPreset({
         </DialogTrigger>
 
         <DialogContent className="p-0 overflow-hidden sm:max-w-125 border-none shadow-2xl">
-          <DialogHeader className="bg-[#0b3b75] px-6 py-5 text-white">
+          <DialogHeader className="bg-[#0a1128] px-6 py-5 text-white">
             <DialogTitle className="flex items-center gap-2 text-lg font-bold tracking-wide">
               <Clipboard className="h-5 w-5" />
               Assign Preset Tasks
@@ -234,7 +234,7 @@ export default function AddPreset({
               <Button
                 onClick={addTask}
                 disabled={!taskId || taskId.length === 0}
-                className="bg-[#c22d2d] font-semibold text-white hover:bg-[#a32222] gap-2 px-5 disabled:opacity-50"
+                className="bg-[#0b3b75] font-semibold text-white hover:bg-[#0b3b75] gap-2 px-5 disabled:opacity-50"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign Presets

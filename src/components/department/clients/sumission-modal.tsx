@@ -32,6 +32,7 @@ export interface SubmissionModalProps {
   onUpdateStatus: (newStatus: 'Cleared' | 'Flagged', comment: string) => Promise<void>;
   /** New prop: Rejects the submission, clears the student's files, and sets status back to Pending */
   onRejectWithResubmit?: (comment: string) => Promise<void>;
+  viewType?: 'students' | 'staff';
 }
 
 // --- Component ---
@@ -43,6 +44,7 @@ export default function SubmissionModal({
   files,
   onUpdateStatus,
   onRejectWithResubmit,
+  viewType = 'students',
 }: SubmissionModalProps) {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,6 +106,8 @@ export default function SubmissionModal({
 
   if (!isOpen) return null;
 
+  const personLabel = viewType === 'students' ? 'student' : 'staff';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-2xl rounded-xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -119,7 +123,7 @@ export default function SubmissionModal({
                 Submission — {studentName}
               </h2>
               <p className="text-sm text-gray-400 mt-1">
-                Review and manage student file submissions
+                Review and manage {personLabel} file submissions
               </p>
             </div>
           </div>
@@ -240,7 +244,7 @@ export default function SubmissionModal({
                   Reject this submission?
                 </p>
                 <p className="text-xs text-red-600/80 mt-0.5 leading-relaxed">
-                  The student will be notified and required to re-submit their files. Their current submission will be cleared.
+                  The {personLabel} will be notified and required to re-submit their files. Their current submission will be cleared.
                 </p>
               </div>
             </div>
@@ -249,7 +253,7 @@ export default function SubmissionModal({
             {comment.trim() && (
               <div className="mb-3 rounded-lg bg-white border border-red-100 p-3">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Feedback sent to student
+                  Feedback sent to {personLabel}
                 </p>
                 <p className="text-xs text-slate-700 leading-relaxed line-clamp-3">
                   {comment}

@@ -38,7 +38,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
   const [activeTask, setActiveTask] = useState<SingleTask | null>(null);
 
   const formatDateInfo = (dateString: string | null) => {
-    if (!dateString) return { formatted: "", isOverdue: false };
+    if (!dateString) return { formatted: "" };
     const date = new Date(dateString);
 
     const formatted = new Intl.DateTimeFormat("en-US", {
@@ -47,21 +47,14 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
       year: "numeric"
     }).format(date);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const taskDate = new Date(date);
-    taskDate.setHours(0, 0, 0, 0);
-
-    const isOverdue = taskDate < today;
-
-    return { formatted, isOverdue };
+    return { formatted };
   };
 
   return (
     <div className="flex w-full flex-col gap-4 p-4 md:p-6">
       {tasks && tasks.length > 0 ? (
         tasks.map((t) => {
-          const { formatted: dateText, isOverdue } = formatDateInfo(t.assigned_at);
+          const { formatted: dateText } = formatDateInfo(t.assigned_at);
 
           // Confidential check based on title/description
           const isConfidential =
@@ -75,15 +68,20 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
           const isSubmitted = effectiveStatus === "Submitted";
           const isRejected = effectiveStatus === "Rejected";
 
-          const isPhysical = t.dropbox === null;
-          const isDigital = t.dropbox !== null;
+          const hasDropbox =
+            t.dropbox &&
+            t.dropbox.trim() !== "" &&
+            t.dropbox.toLowerCase() !== "null";
+
+          const originallyRequiredDropbox = hasDropbox || isRejected;
+          const isInPerson = !hasDropbox && !isRejected && !isCleared;
+          const isDigital = originallyRequiredDropbox;
+          const isPhysical = !isDigital;
 
           return (
             <div
               key={t.assigned_task_id}
-              className={`flex flex-col gap-4 rounded-xl border bg-white p-5 shadow-sm transition-all hover:shadow-md ${
-                isOverdue && isPending ? "border-red-200" : "border-gray-200"
-              }`}
+              className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md"
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row">
 
@@ -99,6 +97,14 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                   <p className="max-w-4xl text-[13px] leading-relaxed text-gray-500">
                     {t.description}
                   </p>
+                  {isInPerson && (
+                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+                      <User size={14} className="shrink-0 text-slate-400 mt-0.5" />
+                      <p className="text-[12px] text-slate-500 leading-relaxed">
+                        No file upload required — please complete this requirement in person at the department office.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="mt-2 flex items-center gap-4 text-xs font-medium">
                     <div className="flex items-center gap-1.5 text-gray-500">
@@ -107,9 +113,9 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                     </div>
 
                     {t.assigned_at && (
-                      <div className={`flex items-center gap-1.5 ${isOverdue && isPending ? "text-red-600" : "text-gray-500"}`}>
+                      <div className="flex items-center gap-1.5 text-gray-500">
                         <Calendar size={14} />
-                        <span>{dateText} {isOverdue && isPending && "(Overdue)"}</span>
+                        <span>{dateText}</span>
                       </div>
                     )}
                   </div>
@@ -124,7 +130,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                       isRejected ? "bg-red-50 text-red-700" :
                       isCleared ? "bg-green-50 text-green-700" :
                       isSubmitted ? "bg-blue-50 text-blue-700" :
-                      "bg-amber-50 text-amber-700" // Pending styling from screenshot
+                      "bg-amber-50 text-amber-700"
                     }`}
                   >
                     {isCleared && <CheckCircle2 size={14} className="stroke-[2.5px]" />}
@@ -134,8 +140,14 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                     <span>{effectiveStatus}</span>
                   </div>
 
-                  {/* Actions (Inherited from your Sidebar logic) */}
+                  {/* Actions */}
                   <div className="flex items-center gap-2 mt-auto">
+                    {isInPerson && (
+                      <div className="flex items-center gap-1.5 rounded border border-gray-200 bg-gray-50 px-3 py-1.5 text-[11px] font-semibold text-gray-600">
+                        <User size={14} />
+                        <span>In-person</span>
+                      </div>
+                    )}
                     {isPending && isDigital && (
                       <button
                         onClick={() => setActiveTask(t)}
@@ -143,12 +155,6 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                       >
                         Submit
                       </button>
-                    )}
-                    {isPending && isPhysical && (
-                      <div className="flex items-center gap-1.5 rounded border border-gray-200 bg-gray-50 px-3 py-1.5 text-[11px] font-semibold text-gray-600">
-                        <User size={14} />
-                        <span>In-person</span>
-                      </div>
                     )}
                     {isRejected && (
                       <button
@@ -173,7 +179,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                 </div>
               </div>
 
-              {/* Rejection Comments (if applicable) */}
+              {/* Rejection Comments */}
               {isRejected && t.comments && (
                 <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-100 bg-red-50 p-3 text-sm">
                   <MessageSquareWarning size={16} className="mt-0.5 shrink-0 text-red-500" />

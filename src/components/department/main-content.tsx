@@ -10,7 +10,7 @@ import { useDepartmentContext } from "@/context/deparment";
 import { useState } from "react";
 import FilterButton from "./button/filter-button";
 import ManagePresetButton from "./button/manage-preset-button";
-import StudentList from "./student-list";
+import StudentList from "./client-list";
 import { Button } from "../ui/button";
 
 export default function MainContent() {
@@ -31,6 +31,7 @@ export default function MainContent() {
 
   const [taskId, setTaskId] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
 
   if (!preset) return null;
 
@@ -81,6 +82,8 @@ export default function MainContent() {
             taskId={taskId}
             description={description}
             setDescription={setDescription}
+            title={title}
+            setTitle={setTitle}
           />
 
           <AddPreset

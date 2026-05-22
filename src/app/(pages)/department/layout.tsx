@@ -2,7 +2,7 @@ import BreadCrumb from "@/components/department/bread-crumb";
 import Sidebar from "@/components/department/sidebar";
 import { DepartmentProvider } from "@/context/deparment";
 import { fetchCourseServer } from "@/lib/api/courses";
-import { fetchStudentsServer } from "@/lib/api/students";
+import { fetchClientsServer } from "@/lib/api/clients";
 import { getSession } from "@/lib/auth/get-session";
 import {
   dehydrate,
@@ -30,14 +30,14 @@ export default async function DepartmentRoot({
 
   if (initialSectionId) {
     await queryClient.prefetchQuery({
-      queryKey: ["students", initialSectionId],
-      queryFn: () => fetchStudentsServer(initialSectionId),
+      queryKey: ["clients", initialSectionId],
+      queryFn: () => fetchClientsServer(initialSectionId),
     });
   }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DepartmentProvider departmentName={session.department}>
+      <DepartmentProvider departmentName={session.department} userId={session.user_id}>
         <div className="flex h-screen w-screen overflow-hidden">
           <Sidebar department={session.department} user_name={session.user_name} />
           <section className="flex w-full flex-1 flex-col">

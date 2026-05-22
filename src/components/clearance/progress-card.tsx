@@ -15,7 +15,7 @@ export default function ProgressCard({ summary }: { summary: getSummaryPromise }
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           {/* Swapped yellow-500 to amber-500 for consistent STI branding */}
-          <ShieldCheck className="text-amber-500" size={22} />
+          <ShieldCheck className="text-black" size={22} />
           <h3 className="text-xl font-bold">Clearance Progress</h3>
         </div>
         <p className="text-sm text-slate-500">
@@ -28,7 +28,7 @@ export default function ProgressCard({ summary }: { summary: getSummaryPromise }
           <span className="text-sm font-medium text-slate-600">
             {`${summary.cleared_department} of ${summary.department_count} departments cleared`}
           </span>
-          <span className="text-3xl font-black text-[#ffb900]">
+          <span className="text-3xl font-black text-black">
             {`${percentage}%`}
           </span>
         </div>
@@ -38,7 +38,7 @@ export default function ProgressCard({ summary }: { summary: getSummaryPromise }
           <div
             // Removed the glowing shadow effect for a cleaner flat UI
             className={`h-full transition-all duration-500 ${
-              isCompleted ? "bg-green-500" : "bg-[#ffb900]"
+              isCompleted ? "bg-green-500" : "bg-black"
             }`}
             style={{ width: `${percentage}%` }}
           />

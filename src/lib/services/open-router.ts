@@ -68,7 +68,7 @@ export default async function OpenRouterAI({
 
       // Use Regex to find the first array [...] in the response
       // This prevents crashing if the AI says "Here is the JSON: [...] "
-      const jsonArrayMatch = trimmedResponse.match(/\[.*\]/s);
+      const jsonArrayMatch = trimmedResponse.match(/\[[\s\S]*\]/);
 
       if (!jsonArrayMatch) {
         throw new Error("No valid JSON array found in AI response.");

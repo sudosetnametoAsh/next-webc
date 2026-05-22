@@ -5,13 +5,13 @@ import { NotFoundError } from "@/modules/staff/application/error";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { id } = await getSession();
+  const { user_id } = await getSession();
 
   // const useCase = new GetSchedule(new StaffRepository());
   const use_case = makeGetSchedule()
 
   try {
-    const response = await use_case.execute(id);
+    const response = await use_case.execute(user_id);
 
     return NextResponse.json(
       {
@@ -22,9 +22,10 @@ export async function GET() {
   } catch (error) {
 
     if (error instanceof NotFoundError) {
+      // Return empty schedule instead of 404 to avoid frontend crash/error
       return NextResponse.json(
-        { message: error.message },
-        { status: 404 },
+        { data: { time_in: null, time_out: null } },
+        { status: 200 },
       );
     }
 
@@ -36,14 +37,14 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { id } = await getSession();
+  const { user_id, user_name } = await getSession();
   const { time_in, time_out } = await req.json();
 
   // const useCase = new SetSchedule(new StaffRepository());
   const use_case = makeSetSchedule()
 
   try {
-    await use_case.execute(id, time_in, time_out);
+    await use_case.execute(user_id, time_in, time_out, user_name);
 
     return NextResponse.json({ message: "Success" }, { status: 200 });
   } catch (error) {

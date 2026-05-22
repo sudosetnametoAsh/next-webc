@@ -70,13 +70,12 @@ export default function OfficeHours({
   });
 
   return (
-    // Swapped to light mode container
     <div className="w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm">
 
       {/* Header Section */}
       <div className="mb-6 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-lg font-bold text-slate-900">
-          <Clock className="text-amber-500" size={20} />
+          <Clock className="text-black" size={20} />
           <h2>Department Office Hours</h2>
         </div>
         <p className="text-sm text-slate-500">
@@ -91,8 +90,9 @@ export default function OfficeHours({
       {/* List Section */}
       <div className="flex flex-col gap-3">
         {sortedDepartments.map((dept) => {
+          const isWeekend = currentDay === "Saturday" || currentDay === "Sunday";
           const hasSchedule = dept.time_in !== null && dept.time_out !== null;
-          const isOpen = checkIsOpen(dept.time_in, dept.time_out);
+          const isOpen = !isWeekend && checkIsOpen(dept.time_in, dept.time_out);
 
           return (
             <div
@@ -103,22 +103,24 @@ export default function OfficeHours({
                   : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100/50"
               }`}
             >
-              {/* Left: Avatar + Details */}
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-100 text-xs font-bold tracking-wider text-amber-700">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-xs font-bold tracking-wider ${
+                  isOpen 
+                    ? "border-green-200 bg-green-100 text-green-700" 
+                    : "border-amber-200 bg-amber-100 text-amber-700"
+                }`}>
                   {getAbbreviation(dept.dept_name)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-slate-900">
+                  <span className={`font-bold ${isOpen ? "text-green-800" : "text-slate-900"}`}>
                     {dept.dept_name}
                   </span>
-                  <span className="text-xs font-medium text-slate-500">
+                  <span className={`text-xs font-medium ${isOpen ? "text-green-600/80" : "text-slate-500"}`}>
                     {dept.staff_name || "No assigned staff"}
                   </span>
                 </div>
               </div>
 
-              {/* Right: Status Badge & Time */}
               <div className="flex items-center gap-4 sm:ml-auto">
                 <div className="flex items-center gap-3">
                   {!hasSchedule ? (
@@ -130,15 +132,14 @@ export default function OfficeHours({
                       <CheckCircle2 size={14} strokeWidth={2.5} />
                       <span>Open Now</span>
                     </div>
-                  ) : (
+                  ) : isWeekend ? (
                     <div className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
                       Closed Today
                     </div>
-                  )}
+                  ) : null}
 
-                  {/* Time Range */}
                   {hasSchedule && (
-                    <span className="w-32 text-right text-sm font-semibold text-slate-600">
+                    <span className={`w-32 text-right text-sm font-semibold ${isOpen ? "text-green-700" : "text-slate-600"}`}>
                       {formatTime(dept.time_in)} - {formatTime(dept.time_out)}
                     </span>
                   )}

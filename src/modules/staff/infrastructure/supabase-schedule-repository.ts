@@ -27,7 +27,7 @@ export class SupabaseStaffRepository implements ScheduleRepository {
       const data = result[0];
 
       if (!data) {
-        throw new DatabaseError("Failed to fetch schedule");
+        return { time_in: null, time_out: null };
       }
 
       return data;
@@ -43,22 +43,28 @@ export class SupabaseStaffRepository implements ScheduleRepository {
     id: string,
     time_in: string,
     time_out: string,
+    name?: string,
   ): Promise<void> {
     try {
-      const { error } = await this.supabase
-        .from("staffs")
-        .update({ time_in: time_in, time_out: time_out })
-        .eq("staff_id", id);
-
-      if (error) {
-        console.error("Supabase Error:", error);
-        throw new DatabaseError("Failed to update schedule");
-      }
+      await db
+        .insert(staffs)
+        .values({
+          staffId: id,
+          staffName: name || "Unknown Staff",
+          timeIn: time_in,
+          timeOut: time_out,
+        })
+        .onConflictDoUpdate({
+          target: staffs.staffId,
+          set: {
+            timeIn: time_in,
+            timeOut: time_out,
+            ...(name ? { staffName: name } : {}),
+          },
+        });
     } catch (error) {
-      if (error instanceof DatabaseError) throw error;
-
-      console.error("Unexpected error:", error);
-      throw new DatabaseError("An unexpected error occured");
+      console.error("Drizzle Error:", error);
+      throw new DatabaseError("Failed to update schedule");
     }
   }
 }

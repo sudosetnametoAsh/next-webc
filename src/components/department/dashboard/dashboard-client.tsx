@@ -32,7 +32,8 @@ export default function DashboardClient({
       <RealtimeDashboardListener />
 
       {/* Banner Container */}
-      <div className="overflow-hidden rounded-xl bg-linear-to-r from-[#0a1128] via-[#1c3a76] to-[#c4323b] text-white shadow-md">
+      {/* <div className="overflow-hidden rounded-xl bg-linear-to-r from-[#0a1128] via-[#1c3a76] to-[#c4323b] text-white shadow-md"> */}
+      <div className="overflow-hidden rounded-xl bg-[#0a1128] text-white shadow-md">
         <div className="px-8 py-8">
           <span className="text-sm font-medium text-slate-300">
             Good Morning,
@@ -55,8 +56,8 @@ export default function DashboardClient({
         {/* Total Students */}
         <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">Total Students</p>
-            <Users className="h-5 w-5 text-blue-500" />
+            <p className="text-sm font-medium text-slate-500">Total Clients</p>
+            <Users className="h-5 w-5 text-black" />
           </div>
           <div>
             <p className="mt-2 text-3xl font-bold text-slate-800">
@@ -70,10 +71,10 @@ export default function DashboardClient({
         <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-slate-500">Cleared</p>
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <CheckCircle2 className="h-5 w-5 text-black" />
           </div>
           <div>
-            <p className="mt-2 text-3xl font-bold text-green-600">
+            <p className="mt-2 text-3xl font-bold text-black">
               {stats.signed}
             </p>
             <p className="mt-1 text-xs text-slate-400">
@@ -86,13 +87,13 @@ export default function DashboardClient({
         <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-slate-500">Pending</p>
-            <Clock className="h-5 w-5 text-amber-500" />
+            <Clock className="h-5 w-5 text-black" />
           </div>
           <div>
-            <p className="mt-2 text-3xl font-bold text-amber-500">
+            <p className="mt-2 text-3xl font-bold text-black">
               {stats.pending}
             </p>
-            <p className="mt-1 text-xs text-slate-400">Awaiting your review</p>
+            <p className="mt-1 text-xs text-slate-400">Awaiting review</p>
           </div>
         </div>
 
@@ -100,14 +101,14 @@ export default function DashboardClient({
         <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-slate-500">Incomplete</p>
-            <AlertCircle className="h-5 w-5 text-red-500" />
+            <AlertCircle className="h-5 w-5 text-black" />
           </div>
           <div>
-            <p className="mt-2 text-3xl font-bold text-red-600">
+            <p className="mt-2 text-3xl font-bold text-black">
               {stats.incomplete}
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              Students with pending tasks
+              Client with pending tasks
             </p>
           </div>
         </div>

@@ -1,10 +1,12 @@
 "use client";
+import React from "react";
 import Header from "./header";
 import MainContent from "./main-content";
 import StatCard from "./stat-card";
-import StudentList from "./student-list";
+import StudentList from "./client-list";
 import Toolbar from "./toolbar";
 import { DepartmentProvider } from "@/context/deparment";
+
 
 export default function DepartmentContainer() {
   return (

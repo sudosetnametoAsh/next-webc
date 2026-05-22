@@ -1,4 +1,4 @@
-import { Students } from "@/types/student/student-data";
+import { Students } from "@/types/client/student-data";
 import {
   Accordion,
   AccordionContent,

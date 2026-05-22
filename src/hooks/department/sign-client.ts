@@ -5,18 +5,18 @@ type Payload = {
   status: string;
   signed_at: string | null;
 };
-export function useSignStudent() {
+export function useSignClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Payload) => {
-      const response = await fetch(`/api/department/students/sign`, {
+      const response = await fetch(`/api/department/clients/sign`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Unable to sign student");
+      if (!response.ok) throw new Error("Unable to sign client");
 
       return response.json();
     },

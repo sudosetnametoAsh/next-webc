@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea"; // Make sure to install this
-import { useAddStudentTasks } from "@/hooks/department/add-student-tasks";
+import { useAddClientTasks } from "@/hooks/department/add-client-tasks";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 import { Plus, Upload, CheckCircle } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -47,7 +47,7 @@ export default function AddTask({
   setTitle,
   sectionId,
 }: Props) {
-  const { mutate } = useAddStudentTasks(clearanceId[0] || null, sectionId);
+  const { mutate } = useAddClientTasks(clearanceId[0] || null, sectionId);
 
   const [hasDropBox, setHasDropBox] = useState<boolean>(false);
   // Optional: Add a state for the detailed description if needed in the future.
@@ -113,7 +113,7 @@ export default function AddTask({
 
         <DialogContent className="overflow-hidden border-none p-0 shadow-2xl sm:max-w-125">
           {/* Deep Blue Header */}
-          <DialogHeader className="bg-[#0b3b75] px-6 py-5 text-white">
+          <DialogHeader className="bg-[#0a1128] px-6 py-5 text-white">
             <DialogTitle className="flex items-center gap-2 text-lg font-bold tracking-wide">
               <Plus className="h-5 w-5" />
               Assign New Task

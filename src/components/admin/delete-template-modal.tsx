@@ -33,8 +33,8 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
   const { data: courseTemplates = [] } = useFetchCourseTemplates()
   const { data: staffTemplates = [] } = useFetchStaffTemplates()
 
-  const courseIds = courseTemplates.map(cT => cT.course_id) ?? []
-  const deptIds = staffTemplates.map(sT => sT.dept_id) ?? []
+  const courseIds = (courseTemplates.map(cT => cT.course_id).filter(id => id !== null) as number[]) ?? []
+  const deptIds = staffTemplates.flatMap(sT => sT.departments.map(d => d.dept_id)) ?? []
 
   const deleteAllTemplates = useDeleteAllTemplates()
   const deleteAllStaffTemplates = useDeleteStaffTemplates()

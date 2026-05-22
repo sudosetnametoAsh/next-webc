@@ -10,7 +10,7 @@ export async function logActivity(
   console.log("executed")
 
   const { error } = await supabase
-    .from("activity_logs")
+    .from("clearance_logs")
     .insert({
       staff_id: staffId,
       actions: actions,

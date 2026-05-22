@@ -41,8 +41,8 @@ export type getOfficeHoursPromise = {
 }[]
 
 export interface DashBoardRepository {
-    getSummary(): Promise<getSummaryPromise>;
-    getClearanceRecords(): Promise<getClearanceRecordsPromise>;
-    getDepartmentDetails(): Promise<getDepartmentDetailsPromise>;
-    getOfficeHours() : Promise<getOfficeHoursPromise>
+    getSummary(userId?: string): Promise<getSummaryPromise>;
+    getClearanceRecords(userId?: string): Promise<getClearanceRecordsPromise>;
+    getDepartmentDetails(userId?: string): Promise<getDepartmentDetailsPromise>;
+    getOfficeHours(userId?: string) : Promise<getOfficeHoursPromise>
 }

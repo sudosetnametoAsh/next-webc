@@ -43,8 +43,8 @@ export const clearanceLogs = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
     }),
   ],
 );
@@ -101,7 +101,7 @@ export const clearanceTasks = pgTable(
       as: "permissive",
       for: "select",
       to: authenticatedRole,
-      using: sql`(clearance_id IN (SELECT clearance_id FROM public.clearance_records WHERE user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))) OR ((auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+      using: sql`(clearance_id IN (SELECT clearance_id FROM public.clearance_records WHERE user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))) OR ((auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
     }),
     pgPolicy("clearance client can submit work", {
       as: "permissive",
@@ -114,8 +114,8 @@ export const clearanceTasks = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
     }),
   ],
 );
@@ -140,8 +140,8 @@ export const staffPredefinedTasks = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
     }),
   ],
 );
@@ -182,8 +182,8 @@ export const clearanceTemplates = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
     }),
   ],
 );
@@ -248,8 +248,8 @@ export const clearanceDepartments = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
     }),
   ],
 );
@@ -304,6 +304,13 @@ export const staffs = pgTable(
       to: authenticatedRole,
       using: sql`true`,
     }),
+    pgPolicy("staff can manage own record", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
   ],
 );
 
@@ -319,8 +326,8 @@ export const clearanceRecords = pgTable(
   (table) => [
     foreignKey({
       columns: [table.userId],
-      foreignColumns: [students.studentId],
-      name: "studentclearances_student_id_fkey",
+      foreignColumns: [users.userId],
+      name: "clearance_records_user_id_fkey",
     }).onDelete("cascade"),
     foreignKey({
       columns: [table.templateId],
@@ -343,21 +350,21 @@ export const clearanceRecords = pgTable(
       as: "permissive",
       for: "select",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
     }),
     pgPolicy("department staff can update clearance records", {
       as: "permissive",
       for: "update",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department' AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff'] AND template_id IN (SELECT template_id FROM public.clearance_templates WHERE staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid()))`,
     }),
     pgPolicy("admin can manage clearance records", {
       as: "permissive",
       for: "all",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Admin'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
     }),
   ],
 );
@@ -386,7 +393,7 @@ export const students = pgTable(
       as: "permissive",
       for: "select",
       to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles' ->> 0 ) = 'Department'`,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
     }),
   ],
 );
@@ -398,9 +405,11 @@ export const notifications = pgTable(
     userId: varchar("user_id").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    type: text("type").notNull(), // system, warning, info
+    type: text("type").notNull(), // System, Warning, Info
     isRead: boolean("is_read").default(false).notNull(),
     refUrl: text("ref_url").notNull(),
+    sectionId: integer("section_id"),
+    courseId: integer("course_id"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()
       .notNull(),
@@ -411,10 +420,33 @@ export const notifications = pgTable(
       foreignColumns: [users.userId],
       name: "notif_user_id_fkey",
     }),
+    foreignKey({
+      columns: [table.sectionId],
+      foreignColumns: [courseSections.sectionId],
+      name: "notif_section_id_fkey",
+    }),
+    foreignKey({
+      columns: [table.courseId],
+      foreignColumns: [courses.courseId],
+      name: "notif_course_id_fkey",
+    }),
     check(
       "type_check",
       sql`${table.type}::text IN ('System', 'Warning', 'Info')`,
     ),
+    pgPolicy("users can view own notifications", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
+    pgPolicy("users can update own notifications", {
+      as: "permissive",
+      for: "update",
+      to: authenticatedRole,
+      using: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
   ],
 );
 
@@ -434,6 +466,19 @@ export const users = pgTable(
       for: "select",
       to: authenticatedRole,
       using: sql`auth_id = auth.uid()`,
+    }),
+    pgPolicy("department staff can view users", {
+      as: "permissive",
+      for: "select",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
+    }),
+    pgPolicy("admin can manage users", {
+      as: "permissive",
+      for: "all",
+      to: authenticatedRole,
+      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
+      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
     }),
   ],
 );

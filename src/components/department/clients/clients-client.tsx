@@ -41,7 +41,9 @@ export interface ClearanceRecord {
 export const checkPrerequisites = (
   clearances: ClearanceRecord[],
   currentDeptName: string | undefined,
+  isStaff: boolean = false,
 ): boolean => {
+  if (isStaff) return true;
   if (!clearances || clearances.length === 0 || !currentDeptName) return false;
 
   const dept = currentDeptName.toLowerCase();
@@ -86,6 +88,8 @@ export default function StudentsClient() {
     selectedStudents,
     departmentName,
     activeSectionId,
+    viewType,
+    prereqStatus,
   } = useDepartmentContext();
 
   const supabase = useMemo(() => createClient(), []);
@@ -97,92 +101,8 @@ export default function StudentsClient() {
   const [description, setDescription] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [prereqStatus, setPrereqStatus] = useState<Map<string, boolean>>(
-    new Map(),
-  );
 
   // --- REALTIME CHECKBOX SYNC FIX ---
-  useEffect(() => {
-    setClearanceId((prev) => {
-      if (prev.length === 0) return prev;
-
-      const isSelectedGroupSigned = effectiveStatus === "Signed";
-
-      const currentValidIds = new Set(
-        students
-          .filter((s) => {
-            const isStudentSigned =
-              s.clearance_records?.[0]?.status === "Signed";
-            return isStudentSigned === isSelectedGroupSigned;
-          })
-          .map((s) => s.clearance_records?.[0]?.clearance_id)
-          .filter(Boolean),
-      );
-
-      const filtered = prev.filter((id) => currentValidIds.has(id));
-      return filtered.length === prev.length ? prev : filtered;
-    });
-  }, [students, effectiveStatus, setClearanceId]);
-
-  useEffect(() => {
-    async function fetchPrereqStatus() {
-      if (students.length === 0) return;
-      const studentIds = students.map((s) => s.student_id);
-
-      const { data: allClearances } = await supabase
-        .from("clearance_records")
-        .select(
-          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, departments:clearance_departments(dept_name))",
-        )
-        .in("user_id", studentIds);
-
-      if (!allClearances) return;
-
-      type ClearanceRecord = NonNullable<typeof allClearances>[number];
-
-      const deptMap = new Map<string, string>();
-
-      for (const c of allClearances) {
-        const template = Array.isArray(c.clearance_templates)
-          ? c.clearance_templates[0]
-          : c.clearance_templates;
-
-        const department = Array.isArray(template?.departments)
-          ? template.departments[0]
-          : template?.departments;
-
-        const name = department?.dept_name?.toLowerCase();
-
-        if (name) deptMap.set(c.clearance_id, name);
-      }
-
-      const studentClearancesMap = new Map<string, ClearanceRecord[]>();
-
-      for (const c of allClearances) {
-        if (!studentClearancesMap.has(c.student_id)) {
-          studentClearancesMap.set(c.student_id, []);
-        }
-        studentClearancesMap.get(c.student_id)!.push(c);
-      }
-
-      const newStatus = new Map<string, boolean>();
-      for (const s of students) {
-        const cId = s.clearance_records?.[0]?.clearance_id;
-        if (!cId) continue;
-        const currentDept = deptMap.get(cId);
-        const allStudentClearances =
-          studentClearancesMap.get(s.student_id) || [];
-        newStatus.set(
-          cId,
-          checkPrerequisites(allStudentClearances, currentDept),
-        );
-      }
-      setPrereqStatus(newStatus);
-    }
-    fetchPrereqStatus();
-  }, [students, supabase]);
-
-  // --- REALTIME SUBSCRIPTION ---
   useEffect(() => {
     const channel = supabase
       .channel("clearance-management-updates")
@@ -191,6 +111,7 @@ export default function StudentsClient() {
         { event: "*", schema: "public", table: "clearance_records" },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ["students"] });
+          queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });
         },
       )
       .on(
@@ -198,6 +119,7 @@ export default function StudentsClient() {
         { event: "*", schema: "public", table: "clearance_tasks" },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ["students"] });
+          queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });
         },
       )
       .subscribe();
@@ -251,19 +173,19 @@ export default function StudentsClient() {
             Clearance Management
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Review and sign off on student requirements
+            Review and sign off on {viewType === 'students' ? 'student' : 'staff'} requirements
           </p>
         </header>
 
         <div className="flex flex-wrap items-center justify-between gap-4 px-6 pb-6">
-          <div className="flex w-full max-w-md items-center gap-2">
+          <div className="flex w-full max-md:max-w-none max-w-md items-center gap-2">
             <div className="relative w-full">
               <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name or ID..."
+                placeholder={`Search by name or ${viewType === 'students' ? 'ID' : 'Staff ID'}...`}
                 className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-4 pl-10 text-sm text-slate-700 shadow-sm transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
@@ -313,7 +235,7 @@ export default function StudentsClient() {
               effectiveStatus={effectiveStatus}
             />
           </div>
-          <div className="flex-1">Student Info</div>
+          <div className="flex-1">{viewType === 'students' ? 'Student Info' : 'Staff Info'}</div>
           <div className="w-48">Clearance Status</div>
           <div className="w-48">Active Tasks</div>
           <div className="w-10"></div>
@@ -470,13 +392,14 @@ export default function StudentsClient() {
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
             onClick={() => setStudent(null)}
           />
-          <div className="fixed top-0 right-0 z-50 flex h-full flex-col border-l border-slate-200 bg-white shadow-2xl">
-            <div className="flex-1 overflow-y-auto">
+          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               <TaskView
                 studentTasks={student.clearance_records[0].clearance_tasks}
                 studentId={student.student_id}
                 studentName={student.student_name}
                 currentDepartment={departmentName}
+                viewType={viewType}
               />
             </div>
           </div>

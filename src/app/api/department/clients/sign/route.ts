@@ -25,26 +25,32 @@ export async function PATCH(req: NextRequest) {
     const {
       data,
       error,
-    }: { data: Data[] | null; error: PostgrestError | null } = await supabase
+    }: { data: any[] | null; error: PostgrestError | null } = await supabase
       .from("clearance_records")
       .update({ status: status, signed_at: signed_at })
       .in("clearance_id", ids)
-      .select(`students(phone_number)`);
+      .select(`users(students(phone_number))`);
 
     if (error) {
       console.error("Supabase update error:", error);
       return NextResponse.json(
-        { error: error.message || "Failed to update student clearances" },
+        { error: error.message || "Failed to update clearances" },
         { status: 500 },
       );
     }
 
     if (status === "Signed" && data) {
-      const sms_promise = data.map((signed_students) => {
-        const phone_number = signed_students.students?.phone_number;
+      const sms_promise = data
+        .filter((record) => {
+           const userData = Array.isArray(record.users) ? record.users[0] : record.users;
+           return userData?.students?.phone_number;
+        })
+        .map((record) => {
+          const userData = Array.isArray(record.users) ? record.users[0] : record.users;
+          const phone_number = userData?.students?.phone_number;
 
-        return smsGateWay({ phone_number: "+639453853772", department: "Academic Head" });
-      });
+          return smsGateWay({ phone_number: phone_number || "+639453853772", department: "Academic Head" });
+        });
 
       await Promise.allSettled(sms_promise);
     }
@@ -52,11 +58,11 @@ export async function PATCH(req: NextRequest) {
     await logActivity(
       user_id,
       "Sign Clearance",
-      `Signed off on clearances for ${ids.length} student(s).`,
+      `Signed off on clearances for ${ids.length} user(s).`,
     );
 
     return NextResponse.json(
-      { data, message: "Students signed successfully" },
+      { data, message: "Clearances signed successfully" },
       { status: 200 },
     );
   } catch (error) {
