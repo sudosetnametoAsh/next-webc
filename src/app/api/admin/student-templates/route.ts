@@ -8,20 +8,22 @@ export async function GET() {
   const supabase = await createClient()
 
   try {
-    // Get all enrolled students
-    const { data: enrolledStudents, error: enrolledStudentsError } = await supabase
-      .from('enrollments')
-      .select('student_id')
-    
-    if (enrolledStudentsError) { throw enrolledStudentsError }
-
-    const enrolledStudentIds = enrolledStudents?.map(eS => eS.student_id) || []
-    
-    const { data, error: studentsError } = await supabase
-      .from('students')
+    // Fetch all users who are students with their enrollments and clearance records
+    const { data: users, error: usersError } = await supabase
+      .from('users')
       .select(`
-        student_id,
-        student_name,
+        user_id,
+        students!inner (
+          student_name,
+          enrollments!inner (
+            course_sections (
+              year,
+              courses (
+                course_name
+              )
+            )
+          )
+        ),
         clearance_records (
           status,
           clearance_templates (
@@ -32,55 +34,42 @@ export async function GET() {
           )
         )
       `)
-      .in('student_id', enrolledStudentIds)
 
-    if (studentsError) { throw studentsError }
+    if (usersError) {
+      throw usersError
+    }
 
-    const students = data.filter(student => student.clearance_records. length > 0)
+    const activeStudents = users.filter((user: any) => user.clearance_records && user.clearance_records.length > 0)
 
-    const studentTemplates = await Promise.all(
-      (students).map(async (student: any) => {
-        
-        // Identify status (incomplete, pending, signed)
-        const overallStatus = student.clearance_records.every((sC: any) => sC.status === 'Signed') ? 'Signed'
-            : student.clearance_records.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
+    const studentTemplates = activeStudents.map((user: any) => {
+      // Identify status (incomplete, pending, signed)
+      const overallStatus = user.clearance_records.every((sC: any) => sC.status === 'Signed') ? 'Signed'
+          : user.clearance_records.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
 
-        // Get pending departments
-        const pendingDepts = []
-        for (const clearance of student.clearance_records) {
-          
-          if (clearance.status !== 'Signed') { 
-            pendingDepts.push(clearance.clearance_templates.clearance_departments) 
-          }
+      // Get pending departments
+      const pendingDepts = []
+      for (const clearance of user.clearance_records) {
+        if (clearance.status !== 'Signed') { 
+          pendingDepts.push(clearance.clearance_templates.clearance_departments) 
         }
+      }
 
-        // Get course name & year
-        const { data: enrollments } = await supabase
-          .from('enrollments')
-          .select('student_id, course_sections ( year, courses ( course_name ))')
-          .in('student_id', students.map(s => s.student_id))
-        
-        const enrollmentMap = new Map(enrollments?.map(e => [e.student_id, e])) 
+      // Extract course details from nested students -> enrollments join
+      const student = user.students
+      const enrollment = Array.isArray(student?.enrollments) ? student.enrollments[0] : student?.enrollments
+      const course_section = enrollment?.course_sections
+      const course_name = course_section?.courses?.course_name
+      const course_year = course_section?.year
 
-        type CourseSection = {
-          year: string;
-          courses: { course_name: string };
-        }
-
-        const course_section = enrollmentMap.get(student.student_id)?.course_sections as CourseSection | undefined
-        const course_name = course_section?.courses?.course_name
-        const course_year = course_section?.year
-
-        return {
-          student_id: student.student_id,
-          student_name: student.student_name,
-          course_name,
-          course_year,
-          overallStatus,
-          pending_departments: pendingDepts
-        }
-      })
-    )
+      return {
+        student_id: user.user_id,
+        student_name: student?.student_name,
+        course_name,
+        course_year,
+        overallStatus,
+        pending_departments: pendingDepts
+      }
+    })
 
     return NextResponse.json({ data: studentTemplates }, { status: 200 })
 
@@ -89,3 +78,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 } 
+

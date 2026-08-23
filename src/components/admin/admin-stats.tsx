@@ -20,7 +20,7 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 overflow-hiddentransition-all duration-500
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />

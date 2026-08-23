@@ -41,7 +41,7 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 overflow-hiddentransition-all duration-500
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
@@ -185,9 +185,9 @@ export default function StudentListView({ setAdminPage }: Props) {
   // Hooks
   const { data: stats, isLoading: isLoadingAdminStats } = useFetchAdminStats()
   const { data: courseTemplates = [], isLoading: isLoadingCourseTemplates } = useFetchCourseTemplates()
-  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates, isFetching: isFetchingStudentTemplates } = useFetchStudentTemplates()
+  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates } = useFetchStudentTemplates()
 
-  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates || isFetchingStudentTemplates) {
+  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates) {
     return <div>Loading...</div>
   }
 

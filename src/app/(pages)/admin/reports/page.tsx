@@ -1,13 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import dynamic from 'next/dynamic'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
 import { useFetchDepartments } from '@/hooks/admin/departments'
-import { shrinkCourseName } from '@/utils/formatters'
-import { StudentTemplates } from '@/types/admin'
+
+const ClearanceBarChart = dynamic(() => import('@/components/admin/clearance-bar-chart'), {
+  ssr: false,
+  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold'>Loading Clearance Rate...</div>
+})
+
+const DonutChart = dynamic(() => import('@/components/admin/donut-chart'), {
+  ssr: false,
+  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold'>Loading Overall Status...</div>
+})
 
 interface StatCard {
   label: string;
@@ -59,21 +67,6 @@ function getDeptRateColor(rate: number | null): string {
   return "text-red-600";
 }
 
-// ———— Custom Tooltip ————————————————————————————————————————————————————————————————————————————————————————————————
-
-const CustomBarTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className='bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-sm'>
-        <p className='font-semibold text-slate-700'>{label}</p>
-        <p className='text-[#1e3a6e]'>{payload[0].value}% completion</p>
-      </div>
-    )
-  }
-
-  return null
-}
-
 // ———— Sub components ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function StatCardItem({ card, index }: { card: StatCard, index: number }) {
@@ -86,140 +79,13 @@ function StatCardItem({ card, index }: { card: StatCard, index: number }) {
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 overflow-hiddentransition-all duration-500 
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500 
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
         <p className='text-sm text-slate-500 font-medium mb-2'>{card.label}</p>
         <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800'>{card.value}</p>
-        {/* <span 
-          className={`nline-block text-xs font-semibold px-2.5 py-1 rounded-full ${card.badgeColor}`}
-        >
-          {card.badge}
-        </span> */}
-      </div>
-    </div>
-  )
-}
-
-function ClearanceBarChart() {
-
-  // ———— Hooks ————————————————————————————————————————
-
-  const { data: courseTemplates = [] } = useFetchCourseTemplates()
-
-  // ———— Data ————————————————————————————————————————
-
-  const courseData: CourseBar[] = courseTemplates.map((cT) => ({
-    course: shrinkCourseName(cT.course_name) || cT.course_name,
-    completion: cT.completion_rate,
-  }))
-
-  return (
-    <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6'>
-      <h2 className='text-base font-bold text-slate-800'>Clearance rate by course</h2>
-      <p className='text-xs text-slate-400 mt-0.5 mb-5'>Based on enrolled students</p>
-
-      {/* Legend */}
-      <div className='flex items-center gap-2 mb-4'>
-        <span className='inline-block w-3 h-3 rounded-sm bg-[#1e3a6e]' />
-        <span className='text-xs text-slate-500'>Completion %</span>
-      </div>
-
-      <ResponsiveContainer width='100%' height={300}>
-        <BarChart data={courseData} margin={{ top: 4, right: 8, left: -16, bottom: 0, }} barSize={48}>
-          <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' vertical={false} />
-          <XAxis 
-            dataKey='course'
-            tick={{ fontSize: 12, fill: '#94a3b8' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis 
-            domain={[0, 100]}
-            tickFormatter={(v) => `${v}%`}
-            tick={{ fontSize: 11, fill: '#94a3b8' }}
-            axisLine={false}
-            tickLine={false}
-            ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-          />
-          <Tooltip content={<CustomBarTooltip />} cursor={{ fill: '#f8fafc' }} />
-          <Bar dataKey='completion' fill='#1e3a6e' radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
-const RADIAN = Math.PI / 180
-
-function DonutChart() {
-
-  // ———— Hooks ————————————————————————————————————————
-
-  const { data: adminStats } = useFetchAdminStats()
-  const { data: studentTemplates = [] } = useFetchStudentTemplates()
-
-  // ———— Data ————————————————————————————————————————
-
-  const clearedPercent = Math.round(((adminStats?.signed ?? 0) / (studentTemplates.length || 1)) * 100)
-  const inProgressPercent = Math.round(((adminStats?.incomplete ?? 0) / (studentTemplates.length || 1)) * 100)
-  const pendingPercent = Math.round(((adminStats?.pending ?? 0) / (studentTemplates.length || 1)) * 100)
-
-  const donutData: DonutEntry[] = [
-    { name: "Cleared", value: clearedPercent, color: "#009966" },
-    { name: "In progress", value: inProgressPercent, color: '#f54900' },
-    { name: "Pending", value: pendingPercent, color: "#e7000b" },
-  ];
-
-  const total = donutData.reduce((sum, d) => sum + d.value, 0)
-
-  return (
-    <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col'>
-      <h2 className='text-base font-bold text-slate-800'>Overall clearance status</h2>
-      <p className='text-xs text-slate-400 mt-0.5 mb-4'>All students combined</p>
-
-      {/* Legend */}
-      <div className='flex flex-wrap gap-4 mb-4'>
-        {donutData.map((d) => (
-          <div key={d.name} className='flex items-center gap-1.5'>
-            <span className='w-2.5 h-2.5 rounded-full inline-block' style={{ background: d.color }} />
-            <span className='text-xs text-slate-500'>
-              {d.name} {d.value}%
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className='flex-1 flex items-center justify-center'>
-        <ResponsiveContainer width='100%' height={260}>
-          <PieChart>
-            <Pie
-              data={donutData}
-              cx='50%'
-              cy='50%'
-              innerRadius={65}
-              outerRadius={100}
-              paddingAngle={2}
-              dataKey='value'
-              startAngle={90}
-              endAngle={-270}
-            >
-              {donutData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} stroke='none' />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value) => [`${value}%`, '']}
-              contentStyle={{
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                fontSize: '12px',
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
       </div>
     </div>
   )
