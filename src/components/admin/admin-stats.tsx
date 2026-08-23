@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
 
 type StatCard = {
@@ -21,7 +21,7 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
   return (
     <div
       className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
@@ -35,9 +35,9 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
 export default function AdminStats() {
   const { data: stats, isLoading  } = useFetchAdminStats()
 
-  // ———— Data ————————————————————————————————————————
+  // ———— Data (Memoized) ————————————————————————————————————————
 
-  const statCards: StatCard[] = [
+  const statCards: StatCard[] = useMemo(() => [
     {
       label: 'Total Students',
       value: stats?.totalStudents ?? 0,
@@ -58,7 +58,7 @@ export default function AdminStats() {
       value: stats?.pending ?? 0,
       accentColor: 'bg-red-600',
     },
-  ]
+  ], [stats])
 
   if (isLoading) {
     return (

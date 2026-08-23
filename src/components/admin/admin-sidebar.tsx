@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, LayoutDashboard, User, Sheet } from "lucide-react";
+import { GraduationCap, LayoutDashboard, User, Sheet, LogOut } from "lucide-react";
 import { useMsal } from "@azure/msal-react";
 import AzureSignOutButton from "../auth/azure-sign-out-button";
 
@@ -260,7 +260,20 @@ export default function AdminSidebar({
         )}
 
         {/* Sign out */}
-        < AzureSignOutButton />
+        {collapsed && !isMobile ? (
+          <Tooltip label="Sign Out">
+            <div className="flex justify-center w-full mt-2">
+              <AzureSignOutButton color="#94a3b8" />
+            </div>
+          </Tooltip>
+        ) : (
+          <AzureSignOutButton className="w-full">
+            <div className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#94a3b8] hover:bg-[#111c3a] hover:text-[#e2e8f0] transition-all duration-200 cursor-pointer mt-1">
+              <LogOut size={18} />
+              <span>Sign Out</span>
+            </div>
+          </AzureSignOutButton>
+        )}
       </div>
     </div>
   );

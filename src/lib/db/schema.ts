@@ -236,6 +236,7 @@ export const clearanceDepartments = pgTable(
   {
     deptId: serial("dept_id").primaryKey().notNull(),
     deptName: varchar("dept_name", { length: 100 }).notNull().unique(),
+    signingOrder: integer("signing_order").default(2).notNull(),
   },
   () => [
     pgPolicy("users can view departments", {

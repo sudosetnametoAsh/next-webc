@@ -69,53 +69,48 @@ export function DepartmentProvider({ children, departmentName, userId }: { child
       const { data: allClearances } = await supabase
         .from("clearance_records")
         .select(
-          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, departments:clearance_departments(dept_name))",
+          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, departments:clearance_departments(dept_name, signing_order))",
         )
         .in("user_id", studentIds);
 
       if (!allClearances) return;
 
       const studentClearancesMap = new Map<string, any[]>();
-      const cIdToDeptMap = new Map<string, string>();
+      const cIdToRecordMap = new Map<string, any>();
 
       for (const c of allClearances) {
         if (!studentClearancesMap.has(c.student_id)) {
           studentClearancesMap.set(c.student_id, []);
         }
         studentClearancesMap.get(c.student_id)!.push(c);
-
-        const template = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
-        const department = Array.isArray(template?.departments) ? template.departments[0] : template?.departments;
-        const name = department?.dept_name;
-        if (name) cIdToDeptMap.set(c.clearance_id, name);
+        cIdToRecordMap.set(c.clearance_id, c);
       }
+
+      const getDeptInfo = (c: any): { name?: string; order: number } => {
+        const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
+        const d = Array.isArray(t?.departments) ? t.departments[0] : t?.departments;
+        const name = d?.dept_name?.toLowerCase();
+        const defaultOrder = name?.includes("cashier") ? 1 : name?.includes("registrar") ? 99 : 2;
+        const order = d?.signing_order ?? defaultOrder;
+        return { name, order };
+      };
 
       const newStatus = new Map<string, boolean>();
       for (const s of students) {
         const cId = s.clearance_records?.[0]?.clearance_id;
         if (!cId) continue;
 
-        const currentDept = cIdToDeptMap.get(cId)?.toLowerCase();
+        const currentRec = cIdToRecordMap.get(cId);
+        const currentOrder = currentRec ? getDeptInfo(currentRec).order : 2;
         const allStudentClearances = studentClearancesMap.get(s.student_id) || [];
 
-        const isSigned = (deptName: string) => 
-          allStudentClearances.some(c => {
-            const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
-            const d = Array.isArray(t?.departments) ? t.departments[0] : t?.departments;
-            return d?.dept_name?.toLowerCase() === deptName.toLowerCase() && c.status === "Signed";
-          });
-
         let eligible = true;
-        if (currentDept === "cashier") {
-          eligible = true;
-        } else if (currentDept === "registrar") {
-          eligible = allStudentClearances.every(c => {
-            const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
-            const d = Array.isArray(t?.departments) ? t.departments[0] : t?.departments;
-            return d?.dept_name?.toLowerCase() === "registrar" || c.status === "Signed";
-          });
-        } else {
-          eligible = isSigned("cashier");
+        for (const c of allStudentClearances) {
+          const info = getDeptInfo(c);
+          if (info.order < currentOrder && c.status !== "Signed") {
+            eligible = false;
+            break;
+          }
         }
 
         newStatus.set(cId, eligible);

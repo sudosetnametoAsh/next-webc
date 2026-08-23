@@ -1,81 +1,114 @@
-import { createClient } from '@/lib/db/supabase-server'
+import { db } from '@/lib/db'
+import { 
+  students, 
+  enrollments, 
+  courseSections, 
+  courses, 
+  clearanceRecords, 
+  clearanceTemplates, 
+  clearanceDepartments 
+} from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-
 
 // GET: Fetch student templates & statuses
 export async function GET() {
-  
-  const supabase = await createClient()
-
   try {
-    // Fetch all users who are students with their enrollments and clearance records
-    const { data: users, error: usersError } = await supabase
-      .from('users')
-      .select(`
-        user_id,
-        students!inner (
-          student_name,
-          enrollments!inner (
-            course_sections (
-              year,
-              courses (
-                course_name
-              )
-            )
-          )
-        ),
-        clearance_records (
-          status,
-          clearance_templates (
-            clearance_departments ( 
-              dept_id,
-              dept_name
-            )
-          )
-        )
-      `)
+    const rawRows = await db
+      .select({
+        student_id: students.studentId,
+        student_name: students.studentName,
+        course_name: courses.courseName,
+        course_year: courseSections.year,
+        clearance_id: clearanceRecords.clearanceId,
+        status: clearanceRecords.status,
+        dept_id: clearanceDepartments.deptId,
+        dept_name: clearanceDepartments.deptName,
+        signing_order: clearanceDepartments.signingOrder,
+      })
+      .from(students)
+      .leftJoin(enrollments, eq(students.studentId, enrollments.studentId))
+      .leftJoin(courseSections, eq(enrollments.sectionId, courseSections.sectionId))
+      .leftJoin(courses, eq(courseSections.courseId, courses.courseId))
+      .leftJoin(clearanceRecords, eq(students.studentId, clearanceRecords.userId))
+      .leftJoin(clearanceTemplates, eq(clearanceRecords.templateId, clearanceTemplates.templateId))
+      .leftJoin(clearanceDepartments, eq(clearanceTemplates.deptId, clearanceDepartments.deptId))
 
-    if (usersError) {
-      throw usersError
-    }
+    // Group flat joined rows by student_id
+    const studentMap = new Map<string, {
+      student_id: string;
+      student_name: string;
+      course_name: string;
+      course_year: number | null;
+      clearances: Array<{
+        clearance_id: number;
+        status: string;
+        dept_id: number | null;
+        dept_name: string | null;
+        signing_order: number | null;
+      }>;
+    }>()
 
-    const activeStudents = users.filter((user: any) => user.clearance_records && user.clearance_records.length > 0)
-
-    const studentTemplates = activeStudents.map((user: any) => {
-      // Identify status (incomplete, pending, signed)
-      const overallStatus = user.clearance_records.every((sC: any) => sC.status === 'Signed') ? 'Signed'
-          : user.clearance_records.every((sC: any) => sC.status === 'Pending') ? 'Pending' : 'Incomplete'
-
-      // Get pending departments
-      const pendingDepts = []
-      for (const clearance of user.clearance_records) {
-        if (clearance.status !== 'Signed') { 
-          pendingDepts.push(clearance.clearance_templates.clearance_departments) 
-        }
+    for (const row of rawRows) {
+      if (!studentMap.has(row.student_id)) {
+        studentMap.set(row.student_id, {
+          student_id: row.student_id,
+          student_name: row.student_name || 'Unknown Student',
+          course_name: row.course_name || 'General',
+          course_year: row.course_year,
+          clearances: [],
+        })
       }
 
-      // Extract course details from nested students -> enrollments join
-      const student = user.students
-      const enrollment = Array.isArray(student?.enrollments) ? student.enrollments[0] : student?.enrollments
-      const course_section = enrollment?.course_sections
-      const course_name = course_section?.courses?.course_name
-      const course_year = course_section?.year
+      if (row.clearance_id) {
+        studentMap.get(row.student_id)!.clearances.push({
+          clearance_id: row.clearance_id,
+          status: row.status || 'Pending',
+          dept_id: row.dept_id,
+          dept_name: row.dept_name,
+          signing_order: row.signing_order,
+        })
+      }
+    }
+
+    // Filter students who have active clearance records
+    const activeStudents = Array.from(studentMap.values()).filter(s => s.clearances.length > 0)
+
+    const studentTemplates = activeStudents.map((user) => {
+      const clearances = user.clearances
+
+      // Identify status (incomplete, pending, signed)
+      const overallStatus = clearances.every((sC) => sC.status === 'Signed')
+        ? 'Signed'
+        : clearances.every((sC) => sC.status === 'Pending')
+        ? 'Pending'
+        : 'Incomplete'
+
+      // Get pending departments
+      const pendingDepts = clearances
+        .filter((clearance) => clearance.status !== 'Signed')
+        .map((clearance) => ({
+          dept_id: clearance.dept_id,
+          dept_name: clearance.dept_name,
+          signing_order: clearance.signing_order,
+        }))
 
       return {
-        student_id: user.user_id,
-        student_name: student?.student_name,
-        course_name,
-        course_year,
+        student_id: user.student_id,
+        student_name: user.student_name,
+        course_name: user.course_name,
+        course_year: user.course_year,
         overallStatus,
-        pending_departments: pendingDepts
+        pending_departments: pendingDepts,
       }
     })
 
     return NextResponse.json({ data: studentTemplates }, { status: 200 })
 
-  } catch (error) {
-    console.error('Fetch student templates error', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Fetch student templates error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
-} 
+}
+ 
 

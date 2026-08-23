@@ -7,6 +7,7 @@ import {
   getStatCardValuePromise,
 } from "@/modules/staff/application/repository/dashboard-repository";
 import RealtimeDashboardListener from "../dashboard-listener";
+import PrioritySignQueue from "./priority-sign-queue";
 
 export default function DashboardClient({
   user_name,
@@ -50,6 +51,9 @@ export default function DashboardClient({
           </span>
         </div>
       </div>
+
+      {/* Early Bird Priority Sign-Off Queue */}
+      <PrioritySignQueue />
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">

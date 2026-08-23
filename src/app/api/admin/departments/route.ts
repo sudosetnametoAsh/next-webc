@@ -1,92 +1,102 @@
-import { createClient } from '@/lib/db/supabase-server'
+import { db } from '@/lib/db'
+import { clearanceDepartments } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from "next/server"
-
 
 // Get all departments
 export async function GET() {
+  try {
+    const data = await db
+      .select({
+        dept_id: clearanceDepartments.deptId,
+        dept_name: clearanceDepartments.deptName,
+        signing_order: clearanceDepartments.signingOrder,
+      })
+      .from(clearanceDepartments)
+      .orderBy(clearanceDepartments.signingOrder, clearanceDepartments.deptName)
 
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('clearance_departments')
-    .select('dept_id, dept_name')
-  
-  if (error) {
+    return NextResponse.json({ data }, { status: 200 })
+  } catch (error: any) {
     console.error('Error fetching departments:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Error fetching departments' }, { status: 500 })
   }
-
-  return NextResponse.json({ data }, { status: 200})
 }
 
 // Create a new department
 export async function POST(req: NextRequest) {
-
-  const supabase = await createClient()
-
   try {
-    const { dept_name } = await req.json()
+    const { dept_name, signing_order } = await req.json()
 
     if (!dept_name || typeof dept_name !== 'string' || dept_name.trim() === '') {
       return NextResponse.json({ error: 'Department name is required' }, { status: 400 }) 
     }
 
-    const { data, error } = await supabase
-      .from('clearance_departments')
-      .insert({ dept_name: dept_name.trim() })
-      .select()
-      .single()
+    const [newDept] = await db
+      .insert(clearanceDepartments)
+      .values({ 
+        deptName: dept_name.trim(),
+        signingOrder: signing_order ?? 2
+      })
+      .returning({
+        dept_id: clearanceDepartments.deptId,
+        dept_name: clearanceDepartments.deptName,
+        signing_order: clearanceDepartments.signingOrder,
+      })
 
-    if (error) {
-      console.error('Error creating department:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ data }, { status: 201 })
-
-  } catch (error) {
+    return NextResponse.json({ data: newDept }, { status: 201 })
+  } catch (error: any) {
     console.error('Create department error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 
-// Update an existing department
+// Update existing department(s) or batch signing order
 export async function PATCH(req: NextRequest) {
-
-  const supabase = await createClient()
-
   try {
-    const { dept_id, dept_name } = await req.json()
+    const body = await req.json()
 
-    if (!dept_id || !dept_name || dept_name.trim() === '') {
-      return NextResponse.json({ error: 'Department ID and name are required' }, { status: 400 })
+    // Batch update sequence orders: [{ dept_id: 1, signing_order: 1 }, ...]
+    if (Array.isArray(body)) {
+      const updates = body.map((item: { dept_id: number; signing_order: number }) => {
+        return db
+          .update(clearanceDepartments)
+          .set({ signingOrder: item.signing_order })
+          .where(eq(clearanceDepartments.deptId, item.dept_id))
+      })
+
+      await Promise.all(updates)
+      return NextResponse.json({ message: "Hierarchy updated successfully" }, { status: 200 })
     }
 
-    const { data, error } = await supabase
-      .from('clearance_departments')
-      .update({ dept_name: dept_name.trim() })
-      .eq('dept_id', dept_id)
-      .select()
-      .single()
+    const { dept_id, dept_name, signing_order } = body
 
-    if (error) {
-      console.error('Error updating department:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!dept_id) {
+      return NextResponse.json({ error: 'Department ID is required' }, { status: 400 })
     }
 
-    return NextResponse.json({ data }, { status: 200 })
+    const updatePayload: Record<string, any> = {}
+    if (dept_name && dept_name.trim() !== '') updatePayload.deptName = dept_name.trim()
+    if (signing_order !== undefined) updatePayload.signingOrder = signing_order
 
-  } catch (error) {
+    const [updated] = await db
+      .update(clearanceDepartments)
+      .set(updatePayload)
+      .where(eq(clearanceDepartments.deptId, dept_id))
+      .returning({
+        dept_id: clearanceDepartments.deptId,
+        dept_name: clearanceDepartments.deptName,
+        signing_order: clearanceDepartments.signingOrder,
+      })
+
+    return NextResponse.json({ data: updated }, { status: 200 })
+  } catch (error: any) {
     console.error('Update department error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 
 // Delete a department
 export async function DELETE(req: NextRequest) {
-
-  const supabase = await createClient()
-
   try {
     const { dept_id } = await req.json()
 
@@ -94,18 +104,13 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Department ID is required' }, { status: 400 })
     }
 
-    const { error } = await supabase
-      .from('clearance_departments')
-      .delete()
-      .eq('dept_id', dept_id)
-    
-    if (error) {
-      console.error('Error deleting department:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-  return NextResponse.json({ success: true }, { status: 200 })
-  } catch (error) {
+    await db
+      .delete(clearanceDepartments)
+      .where(eq(clearanceDepartments.deptId, dept_id))
+
+    return NextResponse.json({ success: true }, { status: 200 })
+  } catch (error: any) {
     console.error('Delete department error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

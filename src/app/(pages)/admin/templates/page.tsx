@@ -11,7 +11,8 @@ import CreateTemplateModal from '@/components/admin/create-template-modal'
 import ManageDepartmentsModal from '@/components/admin/handle-department-modal'
 import DeleteAllTemplateModal from '@/components/admin/delete-template-modal'
 import ManageCoursesModal from "@/components/admin/handle-courses-modal"
-import { Plus, Building2, BookOpenText, Search, Trash } from 'lucide-react'
+import ManageHierarchyModal from "@/components/admin/handle-hierarchy-modal"
+import { Plus, Building2, BookOpenText, Search, Trash, GitFork } from 'lucide-react'
 
 export default function Templates() {
 
@@ -24,6 +25,7 @@ export default function Templates() {
   const [isStaffTemplateModalOpen, setStaffTemplateModalOpen] = useState(false)
   const [isCoursesModalOpen, setCoursesModalOpen] = useState(false)
   const [isDepartmentsModalOpen, setDepartmentsModalOpen] = useState(false)
+  const [isHierarchyModalOpen, setHierarchyModalOpen] = useState(false)
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false)
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
@@ -120,6 +122,15 @@ export default function Templates() {
               Manage Departments
             </button>
 
+            {/* Manage Hierarchy button */}
+            <button
+              onClick={() => setHierarchyModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <GitFork className="h-4 w-4 text-amber-500" />
+              Manage Hierarchy
+            </button>
+
             {/* Delete All button */}
             <button
               onClick={() => setIsDeleteAllModalOpen(true)}
@@ -195,6 +206,10 @@ export default function Templates() {
         deptIds={deptIds}
         toastSuccess={success}
         toastError={error} />
+
+      <ManageHierarchyModal
+        open={isHierarchyModalOpen}
+        onOpenChange={setHierarchyModalOpen} />
 
       <DeleteAllTemplateModal 
         open={isDeleteAllModalOpen}

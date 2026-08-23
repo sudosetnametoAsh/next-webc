@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
@@ -80,7 +80,7 @@ function StatCardItem({ card, index }: { card: StatCard, index: number }) {
   return (
     <div
       className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500 
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
@@ -101,34 +101,37 @@ function DeptSigningRate() {
   const { data: courseTemplates = [], isLoading } = useFetchCourseTemplates()
   const { data: fetchDepts = [] } = useFetchDepartments()
 
-  // ———— Data ————————————————————————————————————————
+  // ———— Data (Memoized with Set lookups) ————————————————————————————————————————
 
-  const courseTDepts = courseTemplates.flatMap((t) => t.departments)
-  const courseTDeptIds = courseTDepts.map((tDept) => tDept.dept_id)
-  const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.includes(fDept.dept_id)) ?? []
-  const pendingDepts = studentTemplates.map((sT) => sT.pending_departments.map((pD) => pD.dept_name)) ?? []
-
-  const signedCount = (deptName: string) => {
-    let count = 0
-  
-    for (const pD of pendingDepts) {
-      
-      if (!pD.some((d) => d.trim().toLowerCase() === deptName.trim().toLowerCase())) {
-        count++
-      }
-    }
+  const sortedDeptData: DeptRow[] = useMemo(() => {
+    const courseTDeptIds = new Set(courseTemplates.flatMap((t) => t.departments.map((d) => d.dept_id)))
+    const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.has(fDept.dept_id))
     
-    return count
-  }
+    // Pre-process pending departments into lowercase Sets for O(1) checks
+    const pendingSets = studentTemplates.map(
+      (sT) => new Set(sT.pending_departments.map((pD) => pD.dept_name.trim().toLowerCase()))
+    )
+    const totalStudents = studentTemplates.length || 1
 
-  const finalTemplateDepts = templateDepts.map((obj) => ({
-    ...obj,
-    rate: Math.round(signedCount(obj.dept_name) / (studentTemplates.length || 1) * 100) || null,
-    priority: obj.dept_name.trim().toLowerCase().includes('cashier') ? 1 
-      : obj.dept_name.trim().toLowerCase().includes('registrar') ? fetchDepts.length : 3
-  }))
+    const finalTemplateDepts: DeptRow[] = templateDepts.map((obj) => {
+      const lowerName = obj.dept_name.trim().toLowerCase()
+      let signedCount = 0
+      for (const pSet of pendingSets) {
+        if (!pSet.has(lowerName)) {
+          signedCount++
+        }
+      }
 
-  const sortedDeptData: DeptRow[] = finalTemplateDepts.toSorted((a, b) => a.priority - b.priority)
+      return {
+        ...obj,
+        rate: Math.round((signedCount / totalStudents) * 100) || null,
+        priority: lowerName.includes('cashier') ? 1 
+          : lowerName.includes('registrar') ? fetchDepts.length : 3
+      }
+    })
+
+    return finalTemplateDepts.toSorted((a, b) => a.priority - b.priority)
+  }, [courseTemplates, fetchDepts, studentTemplates])
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 300)

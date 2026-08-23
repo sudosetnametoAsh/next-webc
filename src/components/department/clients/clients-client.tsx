@@ -20,6 +20,7 @@ type CheckedState = boolean | "indeterminate";
 // 1. Define the deepest nested level (departments)
 export interface Department {
   dept_name?: string | null;
+  signing_order?: number | null;
 }
 
 // 2. Define the middle level (clearance_templates)
@@ -37,7 +38,7 @@ export interface ClearanceRecord {
   clearance_templates?: ClearanceTemplate | ClearanceTemplate[] | null;
 }
 
-// 4. Update your function to use the new type
+// 4. Dynamic prerequisites check based on signing_order sequence
 export const checkPrerequisites = (
   clearances: ClearanceRecord[],
   currentDeptName: string | undefined,
@@ -46,9 +47,9 @@ export const checkPrerequisites = (
   if (isStaff) return true;
   if (!clearances || clearances.length === 0 || !currentDeptName) return false;
 
-  const dept = currentDeptName.toLowerCase();
+  const currentDeptLower = currentDeptName.trim().toLowerCase();
 
-  const getDeptName = (c: ClearanceRecord): string | undefined => {
+  const getDeptInfo = (c: ClearanceRecord): { name?: string; order: number } => {
     const template = Array.isArray(c.clearance_templates)
       ? c.clearance_templates[0]
       : c.clearance_templates;
@@ -57,22 +58,27 @@ export const checkPrerequisites = (
       ? template.departments[0]
       : template?.departments;
 
-    return department?.dept_name?.toLowerCase();
+    const name = department?.dept_name?.trim().toLowerCase();
+    
+    // Default fallback order if signing_order is omitted
+    const defaultOrder = name?.includes("cashier") ? 1 : name?.includes("registrar") ? 99 : 2;
+    const order = department?.signing_order ?? defaultOrder;
+
+    return { name, order };
   };
 
-  const isSigned = (targetDept: string) => {
-    return clearances.some(
-      (c) => getDeptName(c) === targetDept && c.status === "Signed",
-    );
-  };
+  // Find current department's sequence order
+  const currentRecord = clearances.find((c) => getDeptInfo(c).name === currentDeptLower);
+  const currentOrder = currentRecord ? getDeptInfo(currentRecord).order : (currentDeptLower.includes("cashier") ? 1 : currentDeptLower.includes("registrar") ? 99 : 2);
 
-  if (dept === "cashier") return true;
-  if (!isSigned("cashier")) return false;
-
-  if (dept === "registrar") {
-    return clearances.every(
-      (c) => getDeptName(c) === "registrar" || c.status === "Signed",
-    );
+  // Dynamic Rule: All departments with an order strictly LESS than current department must be "Signed"
+  for (const c of clearances) {
+    const info = getDeptInfo(c);
+    if (info.order < currentOrder) {
+      if (c.status !== "Signed") {
+        return false;
+      }
+    }
   }
 
   return true;

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
@@ -78,36 +78,38 @@ export default function AdminDashboard() {
   }, [])
 
   // ————————————————————————————————————————
-  // Data
+  // Data (Memoized with Set lookups)
   // ————————————————————————————————————————
 
-  const courseTDepts = courseTemplates.flatMap((t) => t.departments)
-  const courseTDeptIds = courseTDepts.map((tDept) => tDept.dept_id)
-  const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.includes(fDept.dept_id)) ?? []
-  const pendingDepts = studentTemplates.map((sT) => sT.pending_departments.map((pD) => pD.dept_name)) ?? []
-
-  const signedCount = (deptName: string) => {
-
-    let count = 0
-  
-    for (const pD of pendingDepts) {
-      
-      if (!pD.some((d) => d.trim().toLowerCase() === deptName.trim().toLowerCase())) {
-        count++
-      }
-    }
+  const sortedTemplateDepts = useMemo(() => {
+    const courseTDeptIds = new Set(courseTemplates.flatMap((t) => t.departments.map((d) => d.dept_id)))
+    const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.has(fDept.dept_id))
     
-    return count
-  }
+    // Pre-process pending departments into lowercase Sets for O(1) checks
+    const pendingSets = studentTemplates.map(
+      (sT) => new Set(sT.pending_departments.map((pD) => pD.dept_name.trim().toLowerCase()))
+    )
+    const totalStudents = studentTemplates.length || 1
 
-  const finalTemplateDepts: DeptRow[] = templateDepts.map((obj) => ({
-    ...obj,
-    rate: Math.round(signedCount(obj.dept_name) / (studentTemplates.length || 1) * 100) || null,
-    priority: obj.dept_name.trim().toLowerCase().includes('cashier') ? 1 
-      : obj.dept_name.trim().toLowerCase().includes('registrar') ? fetchDepts.length : 3
-  }))
+    const finalTemplateDepts: DeptRow[] = templateDepts.map((obj) => {
+      const lowerName = obj.dept_name.trim().toLowerCase()
+      let signedCount = 0
+      for (const pSet of pendingSets) {
+        if (!pSet.has(lowerName)) {
+          signedCount++
+        }
+      }
 
-  const sortedTemplateDepts = finalTemplateDepts.toSorted((a, b) => a.priority - b.priority)
+      return {
+        ...obj,
+        rate: Math.round((signedCount / totalStudents) * 100) || null,
+        priority: lowerName.includes('cashier') ? 1 
+          : lowerName.includes('registrar') ? fetchDepts.length : 3
+      }
+    })
+
+    return finalTemplateDepts.toSorted((a, b) => a.priority - b.priority)
+  }, [courseTemplates, fetchDepts, studentTemplates])
 
   return (
     <>

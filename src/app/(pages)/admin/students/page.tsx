@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useDeferredValue } from 'react'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
@@ -28,6 +28,12 @@ type SortType = 'name-a-z' | 'name-z-a'
 
 const PAGE_SIZE = 8
 
+const STATUS_CONFIG: Record<'Incomplete' | 'Pending' | 'Signed', { container: string; text: string }> = {
+  Incomplete: { container: 'bg-amber-50 border-amber-200', text: 'text-amber-600' },
+  Pending: { container: 'bg-red-50 border-red-200', text: 'text-red-600' },
+  Signed: { container: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-600' },
+};
+
 // ———— SUB COMPONENTS ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function StatCard({ card, index }: { card: StatCard, index: number }) {
@@ -42,7 +48,7 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
   return (
     <div
       className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-4'}`}
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
@@ -54,19 +60,12 @@ function StatCard({ card, index }: { card: StatCard, index: number }) {
 }
 
 function StatusBadge({ status }: { status: 'Incomplete' | 'Pending' | 'Signed' }) {
-
-  const color = () => {
-    
-    if (status === 'Incomplete') { return 'amber' }
-    if (status === 'Pending') { return 'red' }
-    if (status === 'Signed') { return 'emerald' }
-  }
-
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.Pending;
   return (
-    <div className={`flex justify-center items-center bg-${color()}-50 border border-${color()}-200 rounded-full px-3 py-1`}>
-      <p className={`text-sm text-${color()}-600 font-mono font-bold`}>{status}</p>
+    <div className={`flex justify-center items-center border rounded-full px-3 py-1 ${config.container}`}>
+      <p className={`text-sm font-mono font-bold ${config.text}`}>{status}</p>
     </div>
-  )
+  );
 }
 
 function Pagination({
@@ -177,6 +176,7 @@ export default function StudentListView({ setAdminPage }: Props) {
   // State
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [search, setSearch] = useState('')
+  const deferredSearch = useDeferredValue(search)
   const [courseFilter, setCourseFilter] = useState<string>('All')
   const [deptFilter, setDeptFilter] = useState<string>('All departments')
   const [sort, setSort] = useState<SortType>('name-a-z')
@@ -187,13 +187,9 @@ export default function StudentListView({ setAdminPage }: Props) {
   const { data: courseTemplates = [], isLoading: isLoadingCourseTemplates } = useFetchCourseTemplates()
   const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates } = useFetchStudentTemplates()
 
-  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates) {
-    return <div>Loading...</div>
-  }
+  // ———— Data (Memoized) ————————————————————————————————————————
 
-  // ———— Data ————————————————————————————————————————
-
-  const statCards: StatCard[] = [
+  const statCards: StatCard[] = useMemo(() => [
     {
       label: 'Total Non-Cleared',
       value: stats?.totalNonCleared ?? 0,
@@ -214,28 +210,29 @@ export default function StudentListView({ setAdminPage }: Props) {
       value: stats?.averageCompletion ?? 0,
       accentColor: 'bg-cyan-600',
     },
-  ]
+  ], [stats])
 
   const totalStudentTemplates = studentTemplates.length
   const incompleteCount = stats?.incomplete
   const pendingCount = stats?.pending
   const signedCount = stats?.signed
-  const courses = courseTemplates.map(cT => shrinkCourseName(cT.course_name) || cT.course_name)
-  const maxDeptNum = Math.max(...courseTemplates.map(cT => cT.departments.length) ?? [])
-  const courseTemplate = courseTemplates.filter(cT => cT.departments.length === maxDeptNum)[0]
-  const departments = courseTemplate?.departments.map(d => d.dept_name)
+  const courses = useMemo(() => courseTemplates.map(cT => shrinkCourseName(cT.course_name) || cT.course_name), [courseTemplates])
+  const departments = useMemo(() => {
+    const maxDeptNum = Math.max(0, ...courseTemplates.map(cT => cT.departments.length))
+    const courseTemplate = courseTemplates.find(cT => cT.departments.length === maxDeptNum)
+    return courseTemplate?.departments.map(d => d.dept_name) ?? []
+  }, [courseTemplates])
 
-  const getFilteredStudents = (students: StudentTemplates[]) => {
-
-    let data = students
+  const filteredStudents = useMemo(() => {
+    let data = studentTemplates
 
     if (activeTab === 'incomplete') { data = data.filter(s => s.overallStatus === 'Incomplete') }
     if (activeTab === 'pending') { data = data.filter(s => s.overallStatus === 'Pending') }
     if (activeTab === 'signed') { data = data.filter(s => s.overallStatus === 'Signed') }
 
-    // search filter by student or course
-    if (search.trim()) {
-      const q = search.trim().toLowerCase()
+    // search filter by student or course (deferred to keep typing non-blocking)
+    if (deferredSearch.trim()) {
+      const q = deferredSearch.trim().toLowerCase()
 
       data = data.filter(d => (
         d.student_name.toLowerCase().includes(q) ||
@@ -246,32 +243,35 @@ export default function StudentListView({ setAdminPage }: Props) {
     }
 
     // filter by course
-    data = data?.filter(d => 
-      courseFilter.toLowerCase() === 'all' ||
-      shrinkCourseName(d.course_name).toLowerCase().includes(courseFilter.toLowerCase()) || 
-      d.course_name.toLowerCase().includes(courseFilter.toLowerCase())
-    )
+    if (courseFilter.toLowerCase() !== 'all') {
+      const cFilter = courseFilter.toLowerCase()
+      data = data.filter(d => 
+        shrinkCourseName(d.course_name).toLowerCase().includes(cFilter) || 
+        d.course_name.toLowerCase().includes(cFilter)
+      )
+    }
 
     // filter by pending department
-    data = data.filter(d => (
-      deptFilter.toLowerCase() === 'all departments' ||
-      d.pending_departments.map(pD => pD.dept_name.toLowerCase()).includes(deptFilter.toLowerCase())
-    ))
+    if (deptFilter.toLowerCase() !== 'all departments') {
+      const dFilter = deptFilter.toLowerCase()
+      data = data.filter(d => 
+        d.pending_departments.some(pD => pD.dept_name.toLowerCase() === dFilter)
+      )
+    }
 
-    // sort
-    data = sort === 'name-a-z' 
-      ? data.sort((a, b) => a.student_name.localeCompare(b.student_name))
-      : sort === 'name-z-a' 
-        ? data.sort((a, b) => b.student_name.localeCompare(a.student_name))
-        : data
-
-    return data ?? []
-  }
-
-  const filteredStudents = getFilteredStudents(studentTemplates ?? [])
+    // sort without mutating original array
+    return [...data].sort((a, b) => {
+      if (sort === 'name-a-z') return a.student_name.localeCompare(b.student_name)
+      if (sort === 'name-z-a') return b.student_name.localeCompare(a.student_name)
+      return 0
+    })
+  }, [studentTemplates, activeTab, deferredSearch, courseFilter, deptFilter, sort])
 
   const totalPages = Math.ceil(filteredStudents.length / PAGE_SIZE)
-  const paginated = filteredStudents.slice((studentPage - 1) * PAGE_SIZE, studentPage * PAGE_SIZE)
+  const paginated = useMemo(() => 
+    filteredStudents.slice((studentPage - 1) * PAGE_SIZE, studentPage * PAGE_SIZE),
+    [filteredStudents, studentPage]
+  )
 
 
   const handleTabChange = (tab: TabType) => {

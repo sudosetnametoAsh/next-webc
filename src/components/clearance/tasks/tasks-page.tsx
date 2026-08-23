@@ -34,20 +34,19 @@ interface TasksPageProps {
   studentId?: string;
 }
 
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric"
+});
+
 export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProps) {
   const [activeTask, setActiveTask] = useState<SingleTask | null>(null);
 
   const formatDateInfo = (dateString: string | null) => {
     if (!dateString) return { formatted: "" };
     const date = new Date(dateString);
-
-    const formatted = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    }).format(date);
-
-    return { formatted };
+    return { formatted: DATE_FORMATTER.format(date) };
   };
 
   return (
