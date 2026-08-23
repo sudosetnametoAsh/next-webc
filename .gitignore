@@ -45,3 +45,6 @@ webc_full_backup.sql
 
 # documentation
 GEMINI.md
+
+# agents & custom skills
+/.agent/
