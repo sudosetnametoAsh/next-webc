@@ -122,38 +122,38 @@ export default function PrioritySignQueue() {
       </div>
 
       {/* List */}
-      <div className="divide-y divide-amber-100/60 p-2">
+      <div className="flex flex-col gap-2 p-3">
         {priorityStudents.map((student) => {
           const isThisSigning = signingIds.includes(student.clearance_id);
 
           return (
             <div
               key={student.clearance_id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-lg p-3 transition hover:bg-amber-100/40"
+              className="group flex flex-wrap items-center justify-between gap-4 rounded-xl border border-amber-100 bg-white/80 p-3.5 pl-4 shadow-2xs border-l-4 border-l-amber-400 transition-all duration-200 hover:bg-amber-50/70 hover:shadow-xs"
             >
               {/* Left Student Info */}
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-amber-400 shrink-0 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0A1128] text-xs font-bold text-amber-400 shrink-0 shadow-xs ring-1 ring-amber-400/20">
                   {student.student_name.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-bold text-slate-900 group-hover:text-amber-950">
                       {student.student_name}
                     </p>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600 font-mono font-medium">
                       #{student.student_id}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500">
-                    {student.course_name} {student.section_label ? `• ${student.section_label}` : ""}
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {student.course_name} {student.section_label ? `· ${student.section_label}` : ""}
                   </p>
                 </div>
               </div>
 
               {/* Middle Badge & Action */}
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-200">
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200/80 shadow-2xs">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                   <span>All {student.completed_tasks_count} tasks completed</span>
                 </div>
@@ -161,7 +161,7 @@ export default function PrioritySignQueue() {
                 <button
                   onClick={() => handleSignSingle(student.clearance_id)}
                   disabled={isThisSigning || isSigningAny}
-                  className="flex items-center gap-1.5 rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-[#0A1128] shadow-xs transition hover:bg-amber-300 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#0A1128] px-3.5 py-1.5 text-xs font-bold text-amber-400 shadow-xs transition hover:bg-[#162145] hover:text-white active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isThisSigning ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />

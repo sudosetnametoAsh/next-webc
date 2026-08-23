@@ -411,18 +411,18 @@ export default function StudentListView({ setAdminPage }: Props) {
         <div className='hidden md:block overflow-x-auto'>
           <table className='w-full'>
             <thead>
-              <tr className='border-b border-gray-50'>
+              <tr className='border-b border-slate-100 bg-slate-50/50'>
                 {['Student', 'ID', 'Course / Year', 'Status', 'Pending Departments'].map((h) => (
                   <th
                     key={h}
-                    className='px-6 py-3 text-left text-[12px] font-semibold tracking-widest uppercase text-gray-500'
+                    className='px-6 py-3.5 text-left text-[11px] font-bold tracking-wider uppercase text-slate-500'
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className='divide-y divide-gray-50'>
+            <tbody className='divide-y divide-slate-100'>
                 {paginated.length === 0 ? (
                   <tr>
                     <td colSpan={5} className='px-6 py-16 text-center text-sm text-slate-400'>
@@ -430,42 +430,64 @@ export default function StudentListView({ setAdminPage }: Props) {
                     </td>
                   </tr>
                 ) : (
-                  paginated?.map((s) => (
-                    <tr key={s.student_id} className='hover:bg-gray-50/60 transition-colors'>
-                      <td className='px-6 py-4'>
-                        <span className='font-semibold text-gray-800'>{s.student_name}</span>
-                      </td>
-                      <td className='px-6 py-4 text-gray-700 font-mono'>{s.student_id}</td>
-                      <td className="px-6 py-4">
-                          <span className="text-base font-semibold text-gray-700">{shrinkCourseName(s.course_name) || s.course_name}</span>
-                          <br />
-                          <span className="text-sm text-gray-500">
-                            {s.course_year === 1 ? (
-                              `${s.course_year}st Year`
-                            ) : s.course_year === 2 ? (
-                              `${s.course_year}nd Year`
-                            ) : s.course_year === 3 ? (
-                              `${s.course_year}rd Year`
-                            ) : `${s.course_year}th Year`}
+                  paginated?.map((s) => {
+                    const courseAbbr = shrinkCourseName(s.course_name) || s.course_name;
+                    const courseBadgeColor = 
+                      courseAbbr.includes('CS') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                      courseAbbr.includes('IT') ? 'bg-cyan-50 text-cyan-700 border-cyan-200' :
+                      courseAbbr.includes('CPE') ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                      'bg-slate-100 text-slate-700 border-slate-200';
+
+                    return (
+                      <tr key={s.student_id} className='group hover:bg-slate-50/80 transition-all duration-150'>
+                        <td className='px-6 py-4'>
+                          <span className='font-bold text-slate-900 group-hover:text-amber-950 transition-colors'>
+                            {s.student_name}
                           </span>
+                        </td>
+                        <td className='px-6 py-4 font-mono text-xs text-slate-600 font-semibold'>
+                          <span className='bg-slate-100/80 px-2 py-1 rounded-md border border-slate-200/60'>
+                            {s.student_id}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-md text-xs font-bold border ${courseBadgeColor}`}>
+                              {courseAbbr}
+                            </span>
+                            <span className="text-xs font-medium text-slate-500">
+                              {s.course_year === 1 ? '1st Yr' :
+                               s.course_year === 2 ? '2nd Yr' :
+                               s.course_year === 3 ? '3rd Yr' : `${s.course_year}th Yr`}
+                            </span>
+                          </div>
                         </td>
                         <td className='px-6 py-4'>
                           <StatusBadge status={s.overallStatus} />
                         </td>
                         <td className='px-6 py-4'>
-                          <div className='flex flex-wrap gap-1.5 max-w-xs'>
-                            {s.pending_departments.map((d) => (
-                              <span 
-                                key={d.dept_name}
-                                className='p-2 bg-[#e7e7ea] text-[#3b4153] text-xs font-medium rounded-lg border border-gray-300'
-                              >
-                                  {d.dept_name}
+                          <div className='flex flex-wrap gap-1.5 max-w-sm'>
+                            {s.pending_departments.length === 0 ? (
+                              <span className='inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200/80'>
+                                <span className='h-1.5 w-1.5 rounded-full bg-emerald-500'></span>
+                                All Cleared
                               </span>
-                            ))}
+                            ) : (
+                              s.pending_departments.map((d) => (
+                                <span 
+                                  key={d.dept_name}
+                                  className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 hover:bg-slate-200/80 transition-colors'
+                                >
+                                  <span className='h-1.5 w-1.5 rounded-full bg-amber-500'></span>
+                                  {d.dept_name}
+                                </span>
+                              ))
+                            )}
                           </div>
                         </td>
-                    </tr>
-                  )))}
+                      </tr>
+                    );
+                  }))}
             </tbody>
           </table>
         </div>

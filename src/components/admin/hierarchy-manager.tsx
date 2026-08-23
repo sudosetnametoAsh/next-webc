@@ -196,12 +196,20 @@ export default function HierarchyManager() {
                   </div>
                 </div>
 
-                {/* Tier Selector Dropdown */}
-                <div className="flex items-center gap-3">
+                {/* Tier Selector Controls */}
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold border ${
+                    currentTier === 1 ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                    currentTier === 3 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                    'bg-slate-100 text-slate-700 border-slate-200'
+                  }`}>
+                    {currentTier === 1 ? 'Step 1' : currentTier === 3 ? 'Step 3' : 'Step 2'}
+                  </span>
+
                   <select
                     value={currentTier}
                     onChange={(e) => handleOrderChange(dept.dept_id, Number(e.target.value))}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition focus:border-[#0A1128] focus:outline-none cursor-pointer"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition focus:border-[#0A1128] focus:outline-none cursor-pointer"
                   >
                     {TIER_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>

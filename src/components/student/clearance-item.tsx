@@ -105,18 +105,19 @@ export default function ClearanceItem({
 
                 <div className="flex items-center gap-3">
                   {pendingTask.Task !== 0 && (
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600">
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
                       {pendingTask.Task} Tasks
                     </span>
                   )}
                   <span
-                    className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold shadow-2xs ${
                       isSigned
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                         : "border-slate-200 bg-white text-slate-600"
                     }`}
                   >
-                    {isSigned ? "Signed" : "Pending"}
+                    {isSigned && <CircleCheck className="h-3.5 w-3.5 text-emerald-600" />}
+                    {isSigned ? "Officially Cleared" : "Pending"}
                   </span>
                 </div>
               </AccordionTrigger>
