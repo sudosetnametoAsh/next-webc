@@ -1,0 +1,1 @@
+ALTER TABLE "clearance_departments" ADD COLUMN "signing_order" integer DEFAULT 2 NOT NULL;

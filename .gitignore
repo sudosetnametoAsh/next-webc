@@ -21,7 +21,10 @@ notes.txt
 
 # production
 /build
-/supabase
+
+# supabase local temp files (migrations are tracked)
+/supabase/.temp
+/supabase/.branches
 # misc
 .DS_Store
 *.pem
