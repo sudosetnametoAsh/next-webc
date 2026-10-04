@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth/session-token";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Handle /clearance redirect to /student
@@ -9,9 +9,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/student", request.url), 301);
   }
 
-  // Public, static, and auth callback routes
+  // Public, static, error, and auth callback routes
   if (
-    pathname === "/" ||
     pathname === "/auth-error" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/session") ||
@@ -23,8 +22,26 @@ export async function middleware(request: NextRequest) {
 
   // Extract session token
   const token = request.cookies.get("session_token")?.value;
+
+  // If user is at root / and has a valid session token, redirect directly to their dashboard
+  if (pathname === "/") {
+    if (token) {
+      const session = await verifySessionToken(token);
+      if (session) {
+        if (session.role === "Admin") {
+          return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+        } else if (session.role === "Staff" || session.role === "Department") {
+          return NextResponse.redirect(new URL("/department/dashboard", request.url));
+        } else {
+          return NextResponse.redirect(new URL("/student", request.url));
+        }
+      }
+    }
+    return NextResponse.next();
+  }
+
+  // Protected routes require token
   if (!token) {
-    // If API route, return 401 JSON
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized: Missing session token" }, { status: 401 });
     }
@@ -76,6 +93,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/admin/:path*",
     "/department/:path*",
     "/student/:path*",

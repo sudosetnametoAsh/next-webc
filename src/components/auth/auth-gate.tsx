@@ -17,12 +17,23 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     if (!data) return;
 
     const { role } = data;
+    const roleStr = Array.isArray(role)
+      ? role[0] || ""
+      : typeof role === "string"
+      ? role
+      : "";
 
-    if (role.includes("Admin")) {
+    if (roleStr.toLowerCase().includes("admin")) {
       router.replace("/admin/dashboard");
-    } else if (role.includes("Staff")) {
+    } else if (
+      roleStr.toLowerCase().includes("staff") ||
+      roleStr.toLowerCase().includes("department")
+    ) {
       router.replace("/department/dashboard");
-    } else if (role.includes("Student")) {
+    } else if (
+      roleStr.toLowerCase().includes("student") ||
+      roleStr.toLowerCase().includes("client")
+    ) {
       router.replace("/student");
     } else {
       router.replace("/");

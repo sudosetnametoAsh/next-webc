@@ -1,14 +1,24 @@
 const routes: Record<string, string> = {
-  Admin: "/admin",
+  Admin: "/admin/dashboard",
   Department: "/department/dashboard",
-  Client: "/clearance",
+  Staff: "/department/dashboard",
+  Student: "/student",
+  Client: "/student",
 };
 
 export class RoleRouter {
   static resolvePath(role: string, defaultPath: string) {
-    if (defaultPath === "/" && role && routes[role]) {
-      return routes[role];
+    if (!role) return defaultPath;
+    
+    // Normalize role string
+    const normalized = Object.keys(routes).find(
+      (k) => k.toLowerCase() === role.toLowerCase()
+    );
+
+    if (normalized && routes[normalized]) {
+      return routes[normalized];
     }
+
     return defaultPath;
   }
 }
