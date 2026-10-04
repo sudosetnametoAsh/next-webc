@@ -1,9 +1,10 @@
 import { createDrizzle } from "./create-drizzle-rls";
 import { createClient } from "./supabase-server";
-import { drizzle } from "drizzle-orm/postgres-js"; // FIX 1: Use the postgres-js driver
+import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "@/lib/db/schema";
 import postgres from "postgres";
 import { jwtDecode } from "jwt-decode";
+import { redirect } from "next/navigation";
 
 type SupabaseToken = {
   sub?: string;
@@ -21,17 +22,12 @@ const admin = drizzle(postgres(process.env.ADMIN_DATABASE_URL!, { prepare: false
 // Protected by RLS
 const client = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }), config);
 
-// This extracts the specific type of the object returned by your function
-
 export async function createDrizzleSupabaseClient() {
-  // FIX 2: Instantiate Supabase inside the function execution, during the actual request
   const supabase = await createClient();
-
-  // FIX 3: Call getSession on the instantiated client
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
-    throw new Error("No session found");
+    redirect("/");
   }
 
   const token = jwtDecode<SupabaseToken>(session.access_token);

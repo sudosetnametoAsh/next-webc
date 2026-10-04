@@ -7,7 +7,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  let session;
+  try {
+    session = await getSession();
+  } catch {
+    redirect("/");
+  }
+
   if (session.role !== "Admin") {
     redirect("/auth-error?reason=admin_required");
   }

@@ -14,24 +14,40 @@ import { Students } from "@/types/client/student-data";
 import { ShieldCheck, FileText, Clock, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { redirect } from "next/navigation";
+
 interface StudentPageProps {
   searchParams?: Promise<{ tab?: string }> | { tab?: string };
 }
 
 export default async function StudentPage({ searchParams }: StudentPageProps) {
-  const { user_id } = await getSession();
+  let user_id: string;
+  try {
+    const session = await getSession();
+    user_id = session.user_id;
+  } catch {
+    redirect("/");
+  }
 
-  const getClearanceRecords = await makeGetClearanceRecords();
-  const getSummary = await makeGetSummary();
-  const getDepartmentDetailsServer = await makeGetDepartmentDetailsServer();
-  const getOfficeHours = await makeGetOfficeHours();
+  let summary: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetSummary>>["execute"]>>;
+  let records: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetClearanceRecords>>["execute"]>> = [];
+  let tasks: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetDepartmentDetailsServer>>["execute"]>> = [];
+  let departments: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetOfficeHours>>["execute"]>> = [];
+  try {
+    const getClearanceRecords = await makeGetClearanceRecords();
+    const getSummary = await makeGetSummary();
+    const getDepartmentDetailsServer = await makeGetDepartmentDetailsServer();
+    const getOfficeHours = await makeGetOfficeHours();
 
-  const [summary, records, tasks, departments] = await Promise.all([
-    getSummary.execute(user_id),
-    getClearanceRecords.execute(user_id),
-    getDepartmentDetailsServer.execute(user_id),
-    getOfficeHours.execute(user_id),
-  ]);
+    [summary, records, tasks, departments] = await Promise.all([
+      getSummary.execute(user_id),
+      getClearanceRecords.execute(user_id),
+      getDepartmentDetailsServer.execute(user_id),
+      getOfficeHours.execute(user_id),
+    ]);
+  } catch (err) {
+    redirect("/");
+  }
 
   const params = searchParams ? await searchParams : {};
   const activeTab = params?.tab || "departments";

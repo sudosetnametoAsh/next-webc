@@ -16,7 +16,13 @@ export default async function DepartmentRoot({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  let session;
+  try {
+    session = await getSession();
+  } catch {
+    redirect("/");
+  }
+
   if (!["Staff", "Department", "Admin"].includes(session.role)) {
     redirect("/auth-error?reason=faculty_required");
   }
