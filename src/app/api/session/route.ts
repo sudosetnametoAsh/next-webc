@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import { createClient } from "@/lib/db/supabase-client";
+import { createSessionToken, Role } from "@/lib/auth/session-token";
 
 declare module "jose" {
   interface JWTPayload {
     roles?: string[];
     preferred_username?: string;
-    name: string;
+    name?: string;
   }
 }
 
@@ -17,8 +18,6 @@ const supabase = createClient();
 const jwks = createRemoteJWKSet(
   new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`),
 );
-
-const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,9 +38,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Extract user information from the token payload
-    const email = payload.preferred_username;
-    const role = payload.roles?.[0];
-    const name = payload.name;
+    const email = payload.preferred_username || (payload as Record<string, unknown>).email as string || "";
+    const rawRole = payload.roles?.[0] || (payload as Record<string, unknown>).role as string;
+    const name = payload.name || "";
 
     // Insert email into Supabase if non-existent
     const { data, error } = await supabase
@@ -50,33 +49,54 @@ export async function POST(req: NextRequest) {
       .select("user_id")
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("Supabase upsert error:", error);
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
+    let userRole: Role = "Student";
+    if (rawRole) {
+      if (rawRole.toLowerCase().includes("admin")) userRole = "Admin";
+      else if (rawRole.toLowerCase().includes("staff") || rawRole.toLowerCase().includes("department")) userRole = "Staff";
+      else userRole = "Student";
+    }
+
+    // Fetch department if staff/department
+    let department = ((payload as Record<string, unknown>).department as string) || "";
+    if (!department && (userRole === "Staff" || (userRole as string) === "Department")) {
+      const { data: template } = await supabase
+        .from("clearance_templates")
+        .select("clearance_departments(dept_name)")
+        .eq("staff_id", data.user_id)
+        .limit(1)
+        .maybeSingle();
+
+      if (template?.clearance_departments) {
+        const dept = template.clearance_departments as unknown as
+          | { dept_name: string }
+          | { dept_name: string }[];
+        department = Array.isArray(dept) ? dept[0]?.dept_name || "" : dept?.dept_name || "";
+      }
+    }
+
     // Create token
-    // Mint email, role, and name into token
-    const session_token = await new SignJWT({
-      email,
-      role: role,
-      name,
-      id: data.user_id,
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("1h")
-      .sign(SESSION_SECRET);
+    const session_token = await createSessionToken({
+      user_id: data.user_id,
+      user_email: email,
+      user_name: name,
+      role: userRole,
+      department: department || "",
+    });
 
     // Set the session token in cookies
-    const response = NextResponse.json({ success: true, role });
+    const response = NextResponse.json({ success: true, role: userRole, department });
 
     response.cookies.set("session_token", session_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60,
+      maxAge: 24 * 60 * 60,
     });
 
     return response;
@@ -91,6 +111,7 @@ export async function DELETE() {
   res.cookies.set("session_token", "", {
     path: "/",
     expires: new Date(0),
+    maxAge: 0,
   });
   return res;
 }
