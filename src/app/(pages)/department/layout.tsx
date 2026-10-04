@@ -1,9 +1,10 @@
-import BreadCrumb from "@/components/department/bread-crumb";
-import Sidebar from "@/components/department/sidebar";
+import { CourseSectionNav } from "@/components/department/course-section-nav";
 import { DepartmentProvider } from "@/context/deparment";
 import { fetchCourseServer } from "@/lib/api/courses";
 import { fetchClientsServer } from "@/lib/api/clients";
 import { getSession } from "@/lib/auth/get-session";
+import { PersistentAppShell } from "@/components/shell/persistent-app-shell";
+import { redirect } from "next/navigation";
 import {
   dehydrate,
   HydrationBoundary,
@@ -16,6 +17,10 @@ export default async function DepartmentRoot({
   children: React.ReactNode;
 }) {
   const session = await getSession();
+  if (!["Staff", "Department", "Admin"].includes(session.role)) {
+    redirect("/auth-error?reason=faculty_required");
+  }
+
   const queryClient = new QueryClient();
 
   const courses = await fetchCourseServer();
@@ -38,13 +43,12 @@ export default async function DepartmentRoot({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <DepartmentProvider departmentName={session.department} userId={session.user_id}>
-        <div className="flex h-screen w-screen overflow-hidden">
-          <Sidebar department={session.department} user_name={session.user_name} />
-          <section className="flex w-full flex-1 flex-col">
-            <BreadCrumb />
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
-          </section>
-        </div>
+        <PersistentAppShell
+          session={session}
+          sidebarExtra={<CourseSectionNav />}
+        >
+          {children}
+        </PersistentAppShell>
       </DepartmentProvider>
     </HydrationBoundary>
   );
