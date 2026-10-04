@@ -16,22 +16,28 @@ export class SupabaseAuthRepository implements AuthRepository {
   async getUserRole(): Promise<string> {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.getUser();
-    if (error) {
-      console.error(error);
+    if (error || !data?.user) {
+      console.error("Failed to retrieve user:", error);
       throw new Error("Failed to retrieve user");
     }
 
-    const role = data.user.user_metadata.custom_claims.roles[0];
+    const customClaims = data.user.user_metadata?.custom_claims;
+    const roles =
+      customClaims?.roles ||
+      data.user.user_metadata?.roles ||
+      data.user.app_metadata?.roles ||
+      [];
+    const role = Array.isArray(roles) ? roles[0] : roles;
 
-    return role;
+    return role || "Student";
   }
 
   async clearAzureSession(): Promise<string> {
-    const supabase = await createClient()
+    const supabase = await createClient();
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-        throw new Error ("Error occured logging out");
+      throw new Error("Error occured logging out");
     }
 
     const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_APP_URL!);

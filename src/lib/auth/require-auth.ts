@@ -1,22 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, AppSession, Role } from "./session-token";
+import { createClient } from "@/lib/db/supabase-server";
 
 export async function requireAuth(
   req: NextRequest,
   allowedRoles?: Role[]
 ): Promise<AppSession> {
+  let session: AppSession | null = null;
+
+  // 1. Try session_token cookie
   const token = req.cookies.get("session_token")?.value;
-  if (!token) {
-    throw new Response(
-      JSON.stringify({ error: "Unauthorized: Missing session token" }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
-    );
+  if (token) {
+    session = await verifySessionToken(token);
   }
 
-  const session = await verifySessionToken(token);
+  // 2. Try proxy-injected headers
+  if (!session) {
+    const headerUserId = req.headers.get("x-user-id");
+    const headerRole = req.headers.get("x-user-role") as Role | null;
+    const headerDept = req.headers.get("x-user-department") || "";
+    if (headerUserId && headerRole) {
+      session = {
+        user_id: headerUserId,
+        user_email: "",
+        user_name: "",
+        role: headerRole,
+        department: headerDept,
+      };
+    }
+  }
+
+  // 3. Fallback to Supabase server auth
+  if (!session) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const customClaims = user.user_metadata?.custom_claims;
+        const roles =
+          customClaims?.roles ||
+          user.user_metadata?.roles ||
+          user.app_metadata?.roles ||
+          [];
+        const rawRole = Array.isArray(roles) ? roles[0] : String(roles || "");
+        let appRole: Role = "Student";
+        if (rawRole.toLowerCase().includes("admin")) appRole = "Admin";
+        else if (
+          rawRole.toLowerCase().includes("staff") ||
+          rawRole.toLowerCase().includes("department")
+        )
+          appRole = "Staff";
+        else appRole = "Student";
+
+        let userId = user.id;
+        const { data: userData } = await supabase
+          .from("users")
+          .select("user_id")
+          .eq("auth_id", user.id)
+          .maybeSingle();
+
+        if (userData?.user_id) {
+          userId = userData.user_id;
+        }
+
+        session = {
+          user_id: userId,
+          user_email: user.email || "",
+          user_name: user.user_metadata?.full_name || user.email || "",
+          role: appRole,
+          department: "",
+        };
+      }
+    } catch (err) {
+      console.error("Supabase fallback in requireAuth failed:", err);
+    }
+  }
+
   if (!session) {
     throw new Response(
-      JSON.stringify({ error: "Unauthorized: Invalid or expired session" }),
+      JSON.stringify({ error: "Unauthorized: Missing session" }),
       { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
