@@ -1,12 +1,15 @@
-import { getSession } from "@/lib/auth/get-session";
+import { authenticateRequest } from "@/lib/auth/require-auth";
 import { createClient } from "@/lib/db/supabase-server";
 import { logActivity } from "@/lib/log-activity";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Staff", "Department", "Admin"]);
+  if ("errorResponse" in auth) return auth.errorResponse;
+
   try {
     const supabase = await createClient();
-    const { user_id, department } = await getSession();
+    const { user_id, department } = auth.session;
 
     // 1. Get all templates belonging to this staff member
     const { data: templates, error: templateError } = await supabase
@@ -99,9 +102,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Staff", "Department", "Admin"]);
+  if ("errorResponse" in auth) return auth.errorResponse;
+
   try {
     const supabase = await createClient();
-    const { user_id, user_name } = await getSession();
+    const { user_id, user_name } = auth.session;
     const { clearance_ids } = await req.json();
 
     if (!Array.isArray(clearance_ids) || clearance_ids.length === 0) {

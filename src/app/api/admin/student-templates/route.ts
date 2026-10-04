@@ -9,10 +9,14 @@ import {
   clearanceDepartments 
 } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { authenticateRequest } from '@/lib/auth/require-auth'
 
 // GET: Fetch student templates & statuses
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Admin"])
+  if ("errorResponse" in auth) return auth.errorResponse
+
   try {
     const rawRows = await db
       .select({
@@ -110,5 +114,3 @@ export async function GET() {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
- 
-

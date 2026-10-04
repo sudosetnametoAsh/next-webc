@@ -2,9 +2,13 @@ import { db } from '@/lib/db'
 import { clearanceDepartments } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from "next/server"
+import { authenticateRequest } from '@/lib/auth/require-auth'
 
 // Get all departments
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Admin"])
+  if ("errorResponse" in auth) return auth.errorResponse
+
   try {
     const data = await db
       .select({
@@ -24,6 +28,9 @@ export async function GET() {
 
 // Create a new department
 export async function POST(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Admin"])
+  if ("errorResponse" in auth) return auth.errorResponse
+
   try {
     const { dept_name, signing_order } = await req.json()
 
@@ -52,6 +59,9 @@ export async function POST(req: NextRequest) {
 
 // Update existing department(s) or batch signing order
 export async function PATCH(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Admin"])
+  if ("errorResponse" in auth) return auth.errorResponse
+
   try {
     const body = await req.json()
 
@@ -95,8 +105,13 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+export const PUT = PATCH
+
 // Delete a department
 export async function DELETE(req: NextRequest) {
+  const auth = await authenticateRequest(req, ["Admin"])
+  if ("errorResponse" in auth) return auth.errorResponse
+
   try {
     const { dept_id } = await req.json()
 
