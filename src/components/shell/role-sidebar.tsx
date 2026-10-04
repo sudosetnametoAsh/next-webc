@@ -225,6 +225,7 @@ export function RoleSidebar({
                 alt="STI College Logo"
                 width={32}
                 height={32}
+                style={{ width: "auto", height: "auto" }}
                 className="object-contain"
                 priority
                 onError={() => setLogoError(true)}

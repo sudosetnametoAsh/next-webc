@@ -1,3 +1,5 @@
+"use client";
+
 import { Students } from "@/types/client/student-data";
 import {
   Accordion,
