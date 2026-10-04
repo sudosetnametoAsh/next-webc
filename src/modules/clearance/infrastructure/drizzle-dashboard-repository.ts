@@ -27,6 +27,7 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           staff: staffs.staffName,
           status: clearanceRecords.status,
           department: clearanceDepartments.deptName,
+          signing_order: clearanceDepartments.signingOrder,
           task_count: sql<number>`count(${clearanceTasks.assignedTaskId})::int`,
           cleared_task: sql<number>`COUNT(*) FILTER (WHERE ${clearanceTasks.status} IN ('Cleared', 'Flagged'))::int`,
           time_in: staffs.timeIn,
@@ -51,14 +52,17 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         query.where(eq(clearanceRecords.userId, userId));
       }
 
-      return query.groupBy(
-        staffs.staffName,
-        staffs.timeIn,
-        staffs.timeOut,
-        clearanceDepartments.deptName,
-        clearanceRecords.clearanceId,
-        clearanceTemplates.staffId,
-      );
+      return query
+        .groupBy(
+          staffs.staffName,
+          staffs.timeIn,
+          staffs.timeOut,
+          clearanceDepartments.deptName,
+          clearanceDepartments.signingOrder,
+          clearanceRecords.clearanceId,
+          clearanceTemplates.staffId,
+        )
+        .orderBy(clearanceDepartments.signingOrder, clearanceDepartments.deptName);
     });
 
     return response;

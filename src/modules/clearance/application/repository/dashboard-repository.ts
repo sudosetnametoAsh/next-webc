@@ -9,6 +9,7 @@ export type getClearanceRecordsPromise = {
     cleared_task: number;
     time_in: string | null;
     time_out: string | null;
+    signing_order?: number;
 }[]
 
 export type getSummaryPromise = {

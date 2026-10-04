@@ -61,25 +61,30 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
     summary?.signed ??
     records.filter((r) => r.status.toLowerCase() === "signed").length;
 
-  const isRegistrar = (name: string) => name.toLowerCase().includes("registrar");
-  const isCashier = (name: string) => name.toLowerCase().includes("cashier");
+  // Sort records dynamically by database signing_order, then department name
+  const sortedRecords = [...records].sort((a, b) => {
+    const orderA = a.signing_order ?? 2;
+    const orderB = b.signing_order ?? 2;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.department.localeCompare(b.department);
+  });
 
-  const sealDepartments = records.map((r, index) => {
+  const sealDepartments = sortedRecords.map((r, index) => {
     const pendingTasks = Math.max(0, r.task_count - r.cleared_task);
     const isSigned = r.status.toLowerCase() === "signed";
+    const currentOrder = r.signing_order ?? 2;
 
-    let order = 2;
-    if (isCashier(r.department)) order = 1;
-    else if (isRegistrar(r.department)) order = 999;
-    else order = index + 2;
+    // Prerequisite check: any department with lower order must be signed first
+    const isBlocked = sortedRecords.some(
+      (other) =>
+        (other.signing_order ?? 2) < currentOrder &&
+        other.status.toLowerCase() !== "signed"
+    );
 
     let status: "Signed" | "Pending" | "Incomplete" | "Locked" = "Pending";
     if (isSigned) {
       status = "Signed";
-    } else if (
-      isRegistrar(r.department) &&
-      signedDepartments < Math.max(1, totalDepartments - 1)
-    ) {
+    } else if (isBlocked) {
       status = "Locked";
     } else if (r.status.toLowerCase() === "incomplete") {
       status = "Incomplete";
@@ -91,13 +96,15 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
       dept_name: r.department,
       status,
       staff_name: r.staff,
-      signing_order: order,
+      signing_order: currentOrder,
+      step_number: index + 1,
       pendingTasksCount: pendingTasks,
     };
   });
 
-  const studentsData: Students = records.map((record) => ({
+  const studentsData: Students = sortedRecords.map((record) => ({
     clearance_id: record.clearance_id,
+    signing_order: record.signing_order ?? 2,
     status: (
       record.status === "Signed" ||
       record.status === "Pending" ||
@@ -106,7 +113,10 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         : "Pending"
     ) as "Signed" | "Pending" | "Incomplete",
     clearance_templates: {
-      departments: { dept_name: record.department },
+      departments: {
+        dept_name: record.department,
+        signing_order: record.signing_order ?? 2,
+      },
       staffs: { staff_name: record.staff },
     },
     clearance_tasks: tasks

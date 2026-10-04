@@ -14,10 +14,14 @@ const ClearanceRecordSchema = z.object({
   clearance_id: z.number(),
   status: z.enum(["Signed", "Pending", "Incomplete"]),
   clearance_templates: z.object({
-    departments: z.object({ dept_name: z.string() }),
+    departments: z.object({
+      dept_name: z.string(),
+      signing_order: z.number().optional(),
+    }),
     staffs: z.object({ staff_name: z.string() }),
   }),
   clearance_tasks: z.array(TasksSchema),
+  signing_order: z.number().optional(),
 });
 
 

@@ -27,20 +27,11 @@ export default function ClearanceItem({
   students: Students;
   id: string;
 }) {
-  const getDeptPriority = (deptName: string): number => {
-    const lowerName = deptName.toLowerCase();
-    if (lowerName === "cashier") return 0;
-    if (lowerName === "registrar") return 999;
-    return 1;
-  };
-
   const sortedStudents = [...students].sort((a, b) => {
-    const deptA = a.clearance_templates.departments.dept_name;
-    const deptB = b.clearance_templates.departments.dept_name;
-    const priorityA = getDeptPriority(deptA);
-    const priorityB = getDeptPriority(deptB);
-    if (priorityA !== priorityB) return priorityA - priorityB;
-    return deptA.toLowerCase().localeCompare(deptB.toLowerCase());
+    const orderA = a.signing_order ?? a.clearance_templates.departments.signing_order ?? 2;
+    const orderB = b.signing_order ?? b.clearance_templates.departments.signing_order ?? 2;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.clearance_templates.departments.dept_name.localeCompare(b.clearance_templates.departments.dept_name);
   });
 
   return (

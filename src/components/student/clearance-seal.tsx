@@ -20,6 +20,7 @@ export interface ClearanceSealProps {
     status: "Signed" | "Pending" | "Incomplete" | "Locked";
     staff_name?: string;
     signing_order?: number;
+    step_number?: number;
     pendingTasksCount: number;
   }>;
 }
@@ -43,20 +44,12 @@ export function ClearanceSeal({
   const strokeDashoffset =
     circumference - (percentage / 100) * circumference;
 
-  // Sort departments by signing_order, then cashier first / registrar last convention
+  // Sort departments by signing_order, preserving dynamic DB hierarchy
   const sortedDepartments = [...departments].sort((a, b) => {
-    if (a.signing_order !== undefined && b.signing_order !== undefined) {
-      if (a.signing_order !== b.signing_order) {
-        return a.signing_order - b.signing_order;
-      }
-    }
-    const nameA = a.dept_name.toLowerCase();
-    const nameB = b.dept_name.toLowerCase();
-    if (nameA === "cashier") return -1;
-    if (nameB === "cashier") return 1;
-    if (nameA === "registrar") return 1;
-    if (nameB === "registrar") return -1;
-    return nameA.localeCompare(nameB);
+    const orderA = a.signing_order ?? 2;
+    const orderB = b.signing_order ?? 2;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.dept_name.localeCompare(b.dept_name);
   });
 
   return (
@@ -227,7 +220,7 @@ export function ClearanceSeal({
                 const isPendingOrIncomplete = !isSigned && !isLocked;
                 const hasPendingTasks = dept.pendingTasksCount > 0;
 
-                const stepNumber = dept.signing_order ?? idx + 1;
+                const stepNumber = dept.step_number ?? idx + 1;
 
                 return (
                   <div
