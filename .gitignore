@@ -51,6 +51,9 @@ GEMINI.md
 
 # agents & custom skills
 /.agent/
+/.agents/
+/agent/
+/.claude
 
 # superpowers skills
 /docs/
