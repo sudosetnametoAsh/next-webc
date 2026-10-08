@@ -86,7 +86,7 @@ export default function Landing() {
         <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-6">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-slate-300">Academic Year 2025–2026 Clearance Active</span>
+            <span className="font-semibold text-slate-300">Academic Year 2026–2027 Clearance Active</span>
           </div>
           <span className="font-mono text-[11px] text-slate-400">Build v2.4</span>
         </div>
