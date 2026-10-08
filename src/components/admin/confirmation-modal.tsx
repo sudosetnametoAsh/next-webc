@@ -132,12 +132,12 @@ export default function ConfirmationModal({
  
   /* Variant styles */
   const iconWrapClass = isDestructive
-    ? "bg-red-50 text-red-500"
-    : "bg-blue-50 text-blue-500";
- 
+    ? "bg-red-50 text-red-500 dark:bg-rose-950/40 dark:text-rose-400"
+    : "bg-blue-50 text-blue-500 dark:bg-amber-500/10 dark:text-amber-400";
+
   const confirmBtnClass = isDestructive
-    ? "bg-red-600 hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500"
-    : "bg-gray-900 hover:bg-gray-700 active:bg-gray-900 focus-visible:ring-gray-500";
+    ? "bg-red-600 hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500 dark:bg-rose-600 dark:hover:bg-rose-500 text-white"
+    : "bg-gray-900 hover:bg-gray-700 active:bg-gray-900 focus-visible:ring-gray-500 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-white";
  
   const backdropAnim = animOut
     ? "opacity-0 transition-opacity duration-[180ms]"
@@ -162,7 +162,7 @@ export default function ConfirmationModal({
         aria-modal="true"
         aria-labelledby="cm-title"
         aria-describedby="cm-desc"
-        className={`relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden ${modalAnim}`}
+        className={`relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden dark:bg-slate-900 dark:border dark:border-slate-800 ${modalAnim}`}
       >
         {/* Body */}
         <div className="px-6 pt-6 pb-5">
@@ -176,13 +176,13 @@ export default function ConfirmationModal({
             <div className="flex-1 pt-0.5">
               <h2
                 id="cm-title"
-                className="text-[15px] font-semibold text-gray-900 leading-snug mb-1"
+                className="text-[15px] font-semibold text-gray-900 dark:text-slate-100 leading-snug mb-1"
               >
                 {title}
               </h2>
               <p
                 id="cm-desc"
-                className="text-sm text-gray-500 leading-relaxed"
+                className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed"
               >
                 {description}
               </p>
@@ -191,7 +191,7 @@ export default function ConfirmationModal({
         </div>
  
         {/* Divider */}
-        <div className="h-px bg-gray-100 mx-6" />
+        <div className="h-px bg-gray-100 dark:bg-slate-800 mx-6" />
  
         {/* Footer */}
         <div className="px-6 py-4 flex items-center justify-end gap-3">
@@ -204,7 +204,8 @@ export default function ConfirmationModal({
                        hover:bg-gray-50 active:bg-gray-100
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300
                        transition-colors duration-150
-                       disabled:opacity-40 cursor-pointer"
+                       disabled:opacity-40 cursor-pointer
+                       dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-750"
           >
             {cancelLabel}
           </button>

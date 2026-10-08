@@ -16,10 +16,10 @@ export default function StatCard({
   bgClass,
 }: StatCardProps) {
   return (
-    <div className="flex items-center justify-between rounded-xl border bg-white p-6 shadow-sm">
+    <div className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900/90">
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-500">{label}</span>
-        <span className="text-3xl font-bold text-gray-900">{value}</span>
+        <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</span>
+        <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">{value}</span>
       </div>
       <div
         className={`flex items-center justify-center rounded-xl p-2.5 ${bgClass} ${colorClass}`}

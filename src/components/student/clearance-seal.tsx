@@ -7,8 +7,9 @@ import {
   Clock,
   AlertCircle,
   Lock,
-  ChevronRight,
   GraduationCap,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,13 +38,6 @@ export function ClearanceSeal({
 
   const isComplete = percentage === 100 && totalDepartments > 0;
 
-  // Circular gauge calculations
-  const radius = 72;
-  const strokeWidth = 10;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset =
-    circumference - (percentage / 100) * circumference;
-
   // Sort departments by signing_order, preserving dynamic DB hierarchy
   const sortedDepartments = [...departments].sort((a, b) => {
     const orderA = a.signing_order ?? 2;
@@ -52,279 +46,236 @@ export function ClearanceSeal({
     return a.dept_name.localeCompare(b.dept_name);
   });
 
+  // Identify current bottleneck/active department
+  const activeDept = sortedDepartments.find(
+    (d) => d.status !== "Signed" && d.status !== "Locked"
+  );
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
-      {/* Top Collegiate Accent Strip */}
-      <div className="h-1.5 w-full bg-gradient-to-r from-[#0B192C] via-[#F59E0B] to-[#10B981]" />
+    <section className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs dark:bg-slate-900/90 dark:border-slate-800 dark:shadow-2xs">
+      {/* Top Accent Strip */}
+      <div
+        className={cn(
+          "h-1 w-full",
+          isComplete
+            ? "bg-emerald-600"
+            : "bg-linear-to-r from-[#0B192C] via-amber-500 to-emerald-600 dark:from-amber-400 dark:via-amber-500 dark:to-emerald-500"
+        )}
+      />
 
       <div className="p-6 sm:p-8">
-        {/* Header Badge & Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0B192C] text-[#F59E0B] shadow-xs">
-              <GraduationCap className="h-5 w-5" />
+        {/* Certificate Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0B192C] text-amber-400 shadow-xs border border-transparent dark:border-amber-500/40 dark:bg-amber-950/20">
+              <GraduationCap className="h-6 w-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
-                  Clearance Seal & Approval Chain
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                  Institutional Clearance Verification
                 </h2>
-                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 tabular-nums dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
                   AY 2024–2025
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
-                Official institutional clearance certification and sequential approval pipeline
+              <p className="text-xs text-slate-500 mt-0.5 dark:text-slate-400">
+                Official graduation & semester endorsement pipeline
               </p>
             </div>
           </div>
 
-          {/* Quick Status Tag */}
-          <div className="flex items-center gap-2">
+          {/* Verdict Badge */}
+          <div className="shrink-0">
             {isComplete ? (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 shadow-2xs">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                <span>Clearance Fully Approved</span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-1.5 text-xs font-bold text-emerald-800 shadow-2xs dark:bg-emerald-950/40 dark:border-emerald-800/80 dark:text-emerald-300">
+                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+                <span>Officially Cleared for Graduation</span>
               </div>
             ) : (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-xs font-bold text-amber-800 shadow-2xs">
-                <Clock className="h-3.5 w-3.5 text-[#F59E0B]" strokeWidth={2.5} />
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50 px-3.5 py-1.5 text-xs font-semibold text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-300">
+                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" strokeWidth={2.2} />
                 <span>
-                  {signedDepartments} of {totalDepartments} Offices Cleared
+                  <strong className="tabular-nums font-bold">{signedDepartments}</strong> of{" "}
+                  <strong className="tabular-nums font-bold">{totalDepartments}</strong> Offices Cleared
                 </span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Main Content Grid: Seal / Meter + Pipeline */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* SEAL / METER (Left Column on Desktop) */}
-          <div className="lg:col-span-4 flex flex-col items-center justify-center p-4">
-            <div className="relative flex items-center justify-center">
-              {/* Embossed Outer Subtle Ring Shadow */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-100/80 to-transparent blur-xs -z-10" />
-
-              <svg
-                width={190}
-                height={190}
-                viewBox="0 0 190 190"
-                className="transform -rotate-90 drop-shadow-xs"
-              >
-                <defs>
-                  {/* STI Gold to Verified Emerald Gradient */}
-                  <linearGradient id="sealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#F59E0B" />
-                    <stop offset="60%" stopColor="#10B981" />
-                    <stop offset="100%" stopColor="#059669" />
-                  </linearGradient>
-
-                  {/* Complete 100% Emerald Gradient */}
-                  <linearGradient id="completeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#10B981" />
-                    <stop offset="100%" stopColor="#047857" />
-                  </linearGradient>
-                </defs>
-
-                {/* Outer Decorative Academic Embossed Border */}
-                <circle
-                  cx={95}
-                  cy={95}
-                  r={87}
-                  fill="none"
-                  stroke="#E2E8F0"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 3"
-                />
-
-                {/* Inner Decorative Subtle Ring */}
-                <circle
-                  cx={95}
-                  cy={95}
-                  r={60}
-                  fill="none"
-                  stroke="#F1F5F9"
-                  strokeWidth="1"
-                />
-
-                {/* Background Ring Track */}
-                <circle
-                  cx={95}
-                  cy={95}
-                  r={radius}
-                  fill="none"
-                  stroke="#F1F5F9"
-                  strokeWidth={strokeWidth}
-                />
-
-                {/* Active Progress Ring with STI Gold and Verified Emerald */}
-                <circle
-                  cx={95}
-                  cy={95}
-                  r={radius}
-                  fill="none"
-                  stroke={isComplete ? "url(#completeGradient)" : "url(#sealGradient)"}
-                  strokeWidth={strokeWidth}
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out"
-                />
-              </svg>
-
-              {/* Center Text */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-                <span className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">
-                  {percentage}%
-                </span>
-                <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Clearance Progress
-                </span>
-                <span className="mt-0.5 text-xs font-semibold text-slate-700">
-                  {signedDepartments} of {totalDepartments} Signed
-                </span>
-              </div>
+        {/* Executive Progress & Action Strip */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          {/* Progress Indicator */}
+          <div className="md:col-span-5 flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-4 dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Clearance Progress
+              </span>
+              <span className="text-2xl font-black tracking-tight text-slate-900 tabular-nums dark:text-slate-100">
+                {percentage}%
+              </span>
             </div>
 
-            {/* Verification Stamp Badge when 100% complete */}
+            {/* Segmented Progress Track */}
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 flex gap-0.5 p-0.5 dark:bg-slate-800">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-[width] duration-500 ease-out",
+                  isComplete ? "bg-emerald-600" : "bg-[#0B192C] dark:bg-amber-400"
+                )}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+
+            <p className="text-[11px] text-slate-500 flex items-center justify-between dark:text-slate-400">
+              <span>{totalDepartments - signedDepartments} endorsements remaining</span>
+              <span className="font-medium text-slate-700 tabular-nums dark:text-slate-300">
+                {signedDepartments}/{totalDepartments}
+              </span>
+            </p>
+          </div>
+
+          {/* Contextual Action Banner */}
+          <div className="md:col-span-7">
             {isComplete ? (
-              <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-400 bg-emerald-50 px-4 py-1.5 text-xs font-black tracking-wider text-emerald-800 shadow-sm uppercase animate-in fade-in zoom-in-95 duration-500">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                <span>Official Clearance Verified</span>
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 dark:bg-emerald-950/30 dark:border-emerald-800/60 dark:text-emerald-200">
+                <Sparkles className="h-5 w-5 text-emerald-600 shrink-0 dark:text-emerald-400" />
+                <div className="text-xs">
+                  <p className="font-bold text-emerald-900 dark:text-emerald-100">
+                    All department endorsements verified!
+                  </p>
+                  <p className="text-emerald-700 mt-0.5 dark:text-emerald-300">
+                    Your institutional record is fully certified with the Registrar and Dean.
+                  </p>
+                </div>
+              </div>
+            ) : activeDept ? (
+              <div className="flex items-start sm:items-center justify-between gap-3 rounded-xl border border-amber-200/80 bg-amber-50/50 p-3.5 sm:p-4 dark:bg-amber-950/30 dark:border-amber-800/60 dark:text-amber-200">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5 dark:text-amber-400" />
+                  <div className="text-xs">
+                    <p className="font-bold text-amber-950 dark:text-amber-100">
+                      Next Step: {activeDept.dept_name}
+                    </p>
+                    <p className="text-amber-800/90 mt-0.5 dark:text-amber-300/90">
+                      {activeDept.pendingTasksCount > 0
+                        ? `${activeDept.pendingTasksCount} requirement${activeDept.pendingTasksCount === 1 ? "" : "s"} required before sign-off.`
+                        : "Requirements submitted. Awaiting officer review and endorsement."}
+                    </p>
+                  </div>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-1 rounded-md bg-amber-200/60 px-2 py-1 text-[11px] font-bold text-amber-900 shrink-0 dark:bg-amber-900/60 dark:text-amber-200">
+                  Step {activeDept.step_number || 1}
+                  <ArrowRight className="h-3 w-3" />
+                </span>
               </div>
             ) : (
-              <div className="mt-4 text-center">
-                <span className="text-xs font-medium text-slate-400">
-                  {totalDepartments - signedDepartments} department{totalDepartments - signedDepartments === 1 ? "" : "s"} remaining
-                </span>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+                Endorsements in progress. Please review individual department guidelines below.
               </div>
             )}
           </div>
+        </div>
 
-          {/* APPROVAL CHAIN FLOW (Right Column on Desktop) */}
-          <div className="lg:col-span-8 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Approval Chain Pipeline
-              </span>
-              <span className="text-xs text-slate-400 hidden sm:inline">
-                Sequential Signing Sequence
-              </span>
-            </div>
+        {/* Sequential Pipeline Stepper */}
+        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Sequential Sign-off Pipeline
+            </h3>
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+              Signing order enforced by institutional policy
+            </span>
+          </div>
 
-            {/* Pipeline Cards Grid / Horizontal Wrap */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
-              {sortedDepartments.map((dept, idx) => {
-                const isSigned = dept.status === "Signed";
-                const isLocked = dept.status === "Locked";
-                const isPendingOrIncomplete = !isSigned && !isLocked;
-                const hasPendingTasks = dept.pendingTasksCount > 0;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+            {sortedDepartments.map((dept, idx) => {
+              const isSigned = dept.status === "Signed";
+              const isLocked = dept.status === "Locked";
+              const isPending = !isSigned && !isLocked;
+              const stepNumber = dept.step_number ?? idx + 1;
 
-                const stepNumber = dept.step_number ?? idx + 1;
-
-                return (
-                  <div
-                    key={`${dept.dept_name}-${idx}`}
-                    className={cn(
-                      "relative flex flex-col justify-between rounded-xl border p-4 transition-all duration-200",
-                      isSigned &&
-                        "border-emerald-200/90 bg-emerald-50/30 hover:border-emerald-300 hover:shadow-xs",
-                      isPendingOrIncomplete &&
-                        "border-amber-300 bg-white ring-2 ring-amber-400/25 shadow-xs hover:border-amber-400",
-                      isLocked &&
-                        "border-slate-200 bg-slate-50/70 text-slate-400 opacity-80"
-                    )}
-                  >
-                    {/* Top Row: Step Tag & Connector indicator */}
-                    <div className="flex items-center justify-between text-[11px] font-bold">
+              return (
+                <div
+                  key={`${dept.dept_name}-${idx}`}
+                  className={cn(
+                    "flex flex-col justify-between rounded-xl border p-3.5 transition-colors duration-150 dark:bg-slate-800/40 dark:border-slate-700/60",
+                    isSigned && "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800/60 dark:bg-emerald-950/20",
+                    isPending && "border-amber-300 bg-white ring-1 ring-amber-400/30 shadow-2xs dark:border-amber-500/50 dark:bg-slate-800/60 dark:ring-amber-500/20",
+                    isLocked && "border-slate-200 bg-slate-50/60 text-slate-400 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-500"
+                  )}
+                >
+                  <div>
+                    {/* Step & Status Tag */}
+                    <div className="flex items-center justify-between text-[10px] font-bold">
                       <span
                         className={cn(
-                          "rounded px-2 py-0.5 text-[10px] uppercase tracking-wide",
-                          isSigned && "bg-emerald-100 text-emerald-800",
-                          isPendingOrIncomplete && "bg-amber-100 text-amber-900",
-                          isLocked && "bg-slate-200 text-slate-600"
+                          "rounded px-1.5 py-0.5 uppercase tracking-wide",
+                          isSigned && "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:border dark:border-emerald-800/80 dark:text-emerald-300",
+                          isPending && "bg-amber-100 text-amber-900 dark:bg-amber-950/40 dark:border dark:border-amber-800/80 dark:text-amber-300",
+                          isLocked && "bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                         )}
                       >
                         Step {stepNumber}
                       </span>
 
-                      {idx < sortedDepartments.length - 1 && (
-                        <ChevronRight
-                          className={cn(
-                            "h-4 w-4 hidden lg:block absolute -right-2.5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white border shadow-2xs",
-                            isSigned
-                              ? "border-emerald-200 text-emerald-600"
-                              : "border-slate-200 text-slate-300"
-                          )}
-                        />
+                      {isSigned && (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      )}
+                      {isPending && (
+                        <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                      )}
+                      {isLocked && (
+                        <Lock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                       )}
                     </div>
 
-                    {/* Department Name & Staff */}
-                    <div className="mt-3 flex flex-col gap-0.5">
+                    {/* Department Title */}
+                    <div className="mt-2.5">
                       <h4
                         className={cn(
-                          "text-sm font-bold tracking-tight line-clamp-1",
-                          isSigned && "text-slate-900",
-                          isPendingOrIncomplete && "text-slate-900 font-extrabold",
-                          isLocked && "text-slate-600"
+                          "text-sm font-bold tracking-tight truncate",
+                          isSigned && "text-slate-900 dark:text-slate-100",
+                          isPending && "text-slate-900 font-extrabold dark:text-slate-100",
+                          isLocked && "text-slate-500 font-medium dark:text-slate-400"
                         )}
                         title={dept.dept_name}
                       >
                         {dept.dept_name}
                       </h4>
-                      <p className="text-[11px] font-medium text-slate-500 line-clamp-1">
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5 dark:text-slate-400">
                         {dept.staff_name || "Assigned Officer"}
                       </p>
                     </div>
-
-                    {/* Distinct Status State Badge */}
-                    <div className="mt-4 pt-3 border-t border-slate-100/80">
-                      {isSigned && (
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2.5} />
-                          <span>Cleared</span>
-                        </div>
-                      )}
-
-                      {isPendingOrIncomplete && (
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-900">
-                          {hasPendingTasks ? (
-                            <>
-                              <AlertCircle className="h-3.5 w-3.5 text-[#F59E0B]" strokeWidth={2.5} />
-                              <span>Action Needed</span>
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="h-3.5 w-3.5 text-[#F59E0B]" strokeWidth={2.5} />
-                              <span>In Review</span>
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                      {isLocked && (
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">
-                          <Lock className="h-3.5 w-3.5 text-slate-400" strokeWidth={2.5} />
-                          <span>Prerequisite Pending</span>
-                        </div>
-                      )}
-
-                      {/* Pending Tasks Count Helper */}
-                      {hasPendingTasks && !isSigned && (
-                        <p className="mt-1 text-[10px] font-medium text-amber-700">
-                          {dept.pendingTasksCount} task{dept.pendingTasksCount === 1 ? "" : "s"} required
-                        </p>
-                      )}
-                    </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Status Indicator Footnote */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold block truncate",
+                        isSigned && "text-emerald-700 dark:text-emerald-400",
+                        isPending && "text-amber-800 dark:text-amber-400",
+                        isLocked && "text-slate-400 dark:text-slate-500"
+                      )}
+                    >
+                      {isSigned
+                        ? "Cleared"
+                        : isPending
+                        ? dept.pendingTasksCount > 0
+                          ? `${dept.pendingTasksCount} Tasks Pending`
+                          : "Awaiting Officer"
+                        : "Prerequisite Locked"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

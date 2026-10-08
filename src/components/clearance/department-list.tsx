@@ -62,41 +62,41 @@ export default function DepartmenList({
             <div
               key={item.clearance_id}
               onClick={() => item.task_count > 0 && getDepartmentTasks(item)}
-              className={`group flex flex-col gap-5 rounded-[2rem] border bg-white p-7 shadow-sm transition-all ${item.task_count > 0
-                  ? `cursor-pointer hover:-translate-y-0.5 hover:shadow-xl ${isSigned
-                    ? "border-green-200 hover:border-green-400"
+              className={`group flex flex-col gap-5 rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-slate-900/90 ${item.task_count > 0
+                  ? `cursor-pointer hover:-translate-y-0.5 hover:shadow-lg ${isSigned
+                    ? "border-emerald-200 hover:border-emerald-400 dark:border-emerald-800/60 dark:hover:border-emerald-700"
                     : (isPending || isIncomplete)
-                      ? "border-amber-200 hover:border-amber-400"
-                      : "border-slate-200 hover:border-slate-300"
+                      ? "border-amber-200 hover:border-amber-400 dark:border-amber-800/60 dark:hover:border-amber-700"
+                      : "border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700"
                   }`
-                  : "cursor-not-allowed border-slate-100"
+                  : "cursor-not-allowed border-slate-100 dark:border-slate-800/60"
                 }`}
             >
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4">
                   <div
-                    className={`flex h-16 w-16 flex-none items-center justify-center rounded-[1.25rem] transition-colors ${isSigned
-                        ? "bg-green-50 group-hover:bg-green-100"
+                    className={`flex h-14 w-14 flex-none items-center justify-center rounded-xl transition-colors ${isSigned
+                        ? "bg-emerald-50 group-hover:bg-emerald-100 dark:bg-emerald-950/40 dark:group-hover:bg-emerald-900/50"
                         : (isPending || isIncomplete)
-                          ? "bg-amber-50 group-hover:bg-amber-100"
-                          : "bg-slate-50 group-hover:bg-slate-100"
+                          ? "bg-amber-50 group-hover:bg-amber-100 dark:bg-amber-950/40 dark:group-hover:bg-amber-900/50"
+                          : "bg-slate-50 group-hover:bg-slate-100 dark:bg-slate-800 dark:group-hover:bg-slate-750"
                       }`}
                   >
                     <ShieldCheck
-                      className={`h-8 w-8 ${isSigned
-                          ? "text-green-600"
+                      className={`h-7 w-7 ${isSigned
+                          ? "text-emerald-600 dark:text-emerald-400"
                           : (isPending || isIncomplete)
-                            ? "text-amber-500"
-                            : "text-slate-400"
+                            ? "text-amber-500 dark:text-amber-400"
+                            : "text-slate-400 dark:text-slate-500"
                         }`}
                       strokeWidth={1.5}
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl leading-tight font-extrabold text-gray-950">
+                    <span className="text-lg leading-tight font-extrabold text-slate-900 dark:text-slate-100">
                       {item.department}
                     </span>
-                    <span className="text-sm font-medium text-gray-500">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                       {item.staff}
                     </span>
                   </div>
@@ -104,11 +104,11 @@ export default function DepartmenList({
 
                 {/* Dynamic Status Badge */}
                 {isSigned ? (
-                  <span className="flex-none rounded-full bg-green-100 px-3 py-1 text-xs font-bold tracking-wide text-green-700">
+                  <span className="flex-none rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold tracking-wide text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border dark:border-emerald-800/60">
                     Signed
                   </span>
                 ) : (isPending || isIncomplete) ? (
-                  <span className="flex-none rounded-full bg-amber-100 px-3 py-1 text-xs font-bold tracking-wide text-amber-700">
+                  <span className="flex-none rounded-full bg-amber-100 px-3 py-1 text-xs font-bold tracking-wide text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 dark:border dark:border-amber-800/60">
                     {isIncomplete ? "Incomplete" : "Pending"}
                   </span>
                 ) : null}
@@ -117,27 +117,27 @@ export default function DepartmenList({
               {hasTasks ? (
                 <div className="flex flex-col gap-2.5">
                   <div className="flex items-baseline justify-between">
-                    <span className="text-sm font-medium text-gray-400">
+                    <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
                       {item.cleared_task}/{item.task_count} tasks
                     </span>
                     <span
-                      className={`text-xl font-bold text-gray-950 ${allCompleted ? "text-green-600" : ""
+                      className={`text-lg font-bold text-slate-900 dark:text-slate-100 ${allCompleted ? "text-emerald-600 dark:text-emerald-400" : ""
                         }`}
                     >
                       {percentage}%
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${allCompleted ? "bg-green-500" : "bg-amber-400"
+                      className={`h-full rounded-full transition-all duration-300 ${allCompleted ? "bg-emerald-500" : "bg-amber-500"
                         }`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
                 </div>
               ) : (
-                <div className="mt-2 flex h-10 items-center justify-center border-t border-dashed border-gray-200">
-                  <p className="text-sm font-medium text-gray-500 italic">
+                <div className="mt-2 flex h-10 items-center justify-center border-t border-dashed border-slate-200 dark:border-slate-800">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 italic">
                     No tasks assigned.
                   </p>
                 </div>

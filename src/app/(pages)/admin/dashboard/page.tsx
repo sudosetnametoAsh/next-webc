@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import Link from 'next/link'
 import AdminStats from '@/components/admin/admin-stats'
 import { shrinkCourseName, expandCourseAbbreviation } from '@/utils/formatters'
+import { ArrowUpRight, BookOpenText, Building2 } from 'lucide-react'
 
 // ———— TYPES ————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -20,38 +21,30 @@ type DeptRow = {
 // ———— HELPERS ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function getDeptBarColor(rate: number | null): string {
-
   if (rate === null) return "bg-slate-200";
   if (rate >= 70) return "bg-emerald-600";
   if (rate >= 40) return "bg-amber-500";
-  if (rate >= 20) return "bg-orange-500";
-
-  return "bg-red-600";
+  if (rate >= 20) return "bg-amber-600";
+  return "bg-rose-600";
 }
 
 function getDeptRateLabel(rate: number | null): string {
-
   if (rate === null) return "—";
-
   return `${rate}%`;
 }
 
 function getDeptRateColor(rate: number | null): string {
-
   if (rate === null) return "text-slate-400";
-  if (rate >= 70) return "text-emerald-600";
-  if (rate >= 40) return "text-amber-500";
-  if (rate >= 20) return "text-orange-500";
-
-  return "text-red-600";
+  if (rate >= 70) return "text-emerald-700";
+  if (rate >= 40) return "text-amber-700";
+  if (rate >= 20) return "text-amber-800";
+  return "text-rose-700";
 }
-
-// ———— SUB COMPONENTS ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function CourseBadge({ children }: { children: React.ReactNode }) {
   return (
-    <div className='min-w-[70px] flex justify-center items-center bg-blue-100 px-2 py-4 rounded-lg'>
-      <p className='text-xs sm:text-sm font-medium text-blue-900'>{children}</p>
+    <div className='min-w-[60px] flex justify-center items-center bg-[#0B192C] px-2.5 py-3 rounded-xl shadow-2xs dark:bg-[#0B192C] dark:border dark:border-slate-700'>
+      <p className='text-xs font-bold text-amber-400 font-mono'>{children}</p>
     </div>
   )
 }
@@ -59,33 +52,22 @@ function CourseBadge({ children }: { children: React.ReactNode }) {
 // ———— MAIN COMPONENT ————————————————————————————————————————————————————————————————————————————————————————————————
 
 export default function AdminDashboard() {
-
-  // ———— State —————————————————————————————
-
   const [animated, setAnimated] = useState(false)
-
-  // ————————————————————————————————————————
-  // Hooks
-  // ————————————————————————————————————————
 
   const { data: courseTemplates = [] } = useFetchCourseTemplates()
   const { data: fetchDepts = [] } = useFetchDepartments()
   const { data: studentTemplates = [] } = useFetchStudentTemplates()
 
   useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), 300)
+    const t = setTimeout(() => setAnimated(true), 150)
     return () => clearTimeout(t)
   }, [])
 
-  // ————————————————————————————————————————
-  // Data (Memoized with Set lookups)
-  // ————————————————————————————————————————
-
+  // Data memoization with Set lookups
   const sortedTemplateDepts = useMemo(() => {
     const courseTDeptIds = new Set(courseTemplates.flatMap((t) => t.departments.map((d) => d.dept_id)))
     const templateDepts = fetchDepts.filter((fDept) => courseTDeptIds.has(fDept.dept_id))
     
-    // Pre-process pending departments into lowercase Sets for O(1) checks
     const pendingSets = studentTemplates.map(
       (sT) => new Set(sT.pending_departments.map((pD) => pD.dept_name.trim().toLowerCase()))
     )
@@ -112,50 +94,83 @@ export default function AdminDashboard() {
   }, [courseTemplates, fetchDepts, studentTemplates])
 
   return (
-    <>
-      <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-6">Dashboard</h1>
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Dashboard Title & Executive Summary */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+            Institutional Clearance Governance
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Campus-wide clearance progression, department completion rates, and curriculum templates
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/templates"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0B192C] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 dark:hover:bg-slate-700 dark:border dark:border-slate-700 transition-colors"
+          >
+            <span>Manage Templates</span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-amber-400" />
+          </Link>
+        </div>
+      </div>
+
+      {/* KPI Ribbon */}
       <AdminStats />
 
-      <div className='flex flex-col 3xl:flex-row justify-evenly gap-4 mt-12'>
+      {/* Analytics Matrix Grid */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
 
-        {/* Course Templates */}
-        <div className='min-w-sm 3xl:min-w-3xl border border-gray-300 rounded-lg p-6'>
-          <div className='flex items-center justify-between border-b pb-4'>
-            <p className='text-lg font-medium'>Course Templates</p>
+        {/* 1. Course Templates Breakdown */}
+        <div className='flex flex-col rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100'>
+          <div className='flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4'>
+            <div className="flex items-center gap-2">
+              <BookOpenText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <h2 className='text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight'>
+                Academic Program Clearance Rates
+              </h2>
+            </div>
             <Link
               href='/admin/templates'
-              className='text-sm text-blue-700 hover:text-blue-800 shadow-[inset_0_-1px_0_0_var(--color-blue-400)] hover:shadow-none'
+              className='text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-amber-400 dark:hover:text-amber-300 inline-flex items-center gap-1'
             >
-              View all
+              <span>View all</span>
+              <ArrowUpRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className='pt-4'>
+          <div className='pt-4 flex-1'>
             {courseTemplates.length === 0 ? (
-              <div className='flex min-h-[300px] justify-center items-center'>
-                <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
+              <div className='flex min-h-[240px] justify-center items-center'>
+                <p className='text-slate-400 dark:text-slate-500 text-xs'>No clearance templates configured. Create one in Templates.</p>
               </div>
-            ): (
-
-              <ul className='divide-y divide-gray-200'>
+            ) : (
+              <ul className='divide-y divide-slate-100 dark:divide-slate-800'>
                 {courseTemplates.map((template) => (
-                  
-                  <li key={template.course_name} className='flex items-center gap-4 py-3'>
+                  <li key={template.course_name} className='flex items-center gap-4 py-3.5 first:pt-1 last:pb-1'>
                     <CourseBadge>
                       {shrinkCourseName(template.course_name) || template.course_name}
                     </CourseBadge>
 
-                    <div className='w-full flex justify-between'>
-                      <div className='flex flex-col gap-1'>
-                        <p className='text-sm sm:text-base font-medium'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
-                        <p className='text-xs sm:text-sm text-gray-500'>{template.students_enrolled} students enrolled</p>
+                    <div className='w-full flex items-center justify-between gap-4'>
+                      <div className='flex flex-col gap-0.5 min-w-0'>
+                        <p className='text-sm font-bold text-slate-900 dark:text-slate-100 truncate'>
+                          {expandCourseAbbreviation(template.course_name) || template.course_name}
+                        </p>
+                        <p className='text-xs text-slate-500 dark:text-slate-400 tabular-nums'>
+                          {template.students_enrolled} enrolled candidate{template.students_enrolled === 1 ? '' : 's'}
+                        </p>
                       </div>
 
-                      <div className='min-w-[100px] flex flex-col justify-between'>
-                        <p className='flex justify-end'>{template.completion_rate}%</p>
-                        <div className='h-1.5 bg-gray-200 rounded-full overflow-hidden'>
+                      <div className='min-w-[110px] flex flex-col items-end gap-1 shrink-0'>
+                        <span className='text-xs font-bold text-slate-800 dark:text-slate-200 tabular-nums'>
+                          {template.completion_rate}% Cleared
+                        </span>
+                        <div className='h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden'>
                           <div 
-                            className='h-full bg-blue-900 transition-all duration-300'
+                            className='h-full bg-emerald-600 rounded-full transition-[width] duration-500 ease-out'
                             style={{ width: `${template.completion_rate}%` }}
                           />
                         </div>
@@ -168,46 +183,48 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Department Status */}
-        <div className='min-w-sm 3xl:min-w-3xl border border-gray-300 rounded-lg p-6'>
-          <div className='border-b pb-4'>
-            <p className='text-lg font-medium'>Department Status</p>
+        {/* 2. Department Bottleneck & Completion Matrix */}
+        <div className='flex flex-col rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100'>
+          <div className='flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4'>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <h2 className='text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight'>
+                Department Completion Pipeline
+              </h2>
+            </div>
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">Campus-wide rate</span>
           </div>
 
-          <div className='pt-6'>
-
+          <div className='pt-4 flex-1'>
             {sortedTemplateDepts.length === 0 ? (
-              <div className='flex min-h-[300px] justify-center items-center'>
-                <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
+              <div className='flex min-h-[240px] justify-center items-center'>
+                <p className='text-slate-400 dark:text-slate-500 text-xs'>No active department pipelines discovered.</p>
               </div>
-            ): (
-
-              <ul className='space-y-6'>
-
+            ) : (
+              <ul className='space-y-4'>
                 {sortedTemplateDepts.map((dept, i) => (
-
-                  <li key={dept.dept_name} className='flex justify-between items-center gap-2'>
-
-                    {/* Name */}
-                    <span className='min-w-[64px] text-sm sm:text-base font-medium truncate'>{dept.dept_name}</span>
-
-                    <div className='min-w-[150px] flex items-center gap-2'>
-                      {/* Back track */}
-                      <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
+                  <li key={dept.dept_name} className='flex items-center justify-between gap-3'>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className='text-xs font-bold text-slate-800 dark:text-slate-200 truncate'>
+                          {dept.dept_name}
+                        </span>
+                        <span className={`text-xs font-bold tabular-nums ${getDeptRateColor(dept.rate)}`}>
+                          {getDeptRateLabel(dept.rate)}
+                        </span>
+                      </div>
+                      <div className='h-2 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden'>
                         {dept.rate !== null && (
                           <div 
-                            className={`h-full rounded-full transition-all duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
-                            style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 80}ms`, }}
+                            className={`h-full rounded-full transition-[width] duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
+                            style={{
+                              width: animated ? `${dept.rate}%` : '0%',
+                              transitionDelay: `${i * 60}ms`,
+                            }}
                           />
                         )}
                       </div>
-
-                      {/* Rate label */}
-                      <span className={`w-8 text-sm font-semibold text-right shrink-0 ${getDeptRateColor(dept.rate)}`}>
-                        {getDeptRateLabel(dept.rate)}
-                      </span>
                     </div>
-
                   </li>
                 ))}
               </ul>
@@ -216,6 +233,6 @@ export default function AdminDashboard() {
         </div>
 
       </div>
-    </>
+    </div>
   )
 }

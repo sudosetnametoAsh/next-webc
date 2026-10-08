@@ -106,12 +106,12 @@ export default function AddTask({
     <div className="">
       <Dialog>
         <DialogTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white cursor-pointer">
             <Plus className="h-4 w-4" /> Task
           </button>
         </DialogTrigger>
 
-        <DialogContent className="overflow-hidden border-none p-0 shadow-2xl sm:max-w-125">
+        <DialogContent className="overflow-hidden border-none p-0 shadow-2xl sm:max-w-125 dark:bg-slate-900 dark:border dark:border-slate-800">
           {/* Deep Blue Header */}
           <DialogHeader className="bg-[#0a1128] px-6 py-5 text-white">
             <DialogTitle className="flex items-center gap-2 text-lg font-bold tracking-wide">
@@ -124,19 +124,19 @@ export default function AddTask({
             </p>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 p-6">
+          <div className="flex flex-col gap-6 p-6 dark:bg-slate-900">
             {/* Student Target Indicator Card */}
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                 {clearanceId.length > 1 ? "👥" : "👤"}
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {clearanceId.length > 1
                     ? `${clearanceId.length} Students Selected`
                     : `Clearance ID: ${clearanceId[0] || "None Selected"}`}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {clearanceId.length > 1
                     ? "Bulk assignment"
                     : "Targeted assignment"}
@@ -146,11 +146,11 @@ export default function AddTask({
 
             {/* Task Title (Mapped to existing 'description' state) */}
             <div className="space-y-2">
-              <Label className="text-sm font-bold text-slate-700">
+              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Task Title <span className="text-red-500">*</span>
               </Label>
               <Input
-                className="focus-visible:ring-blue-600"
+                className="focus-visible:ring-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Submit Library Clearance Form"
@@ -159,17 +159,11 @@ export default function AddTask({
 
             {/* Task Description */}
             <div className="space-y-2">
-              <Label className="text-sm font-bold text-slate-700">
+              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Description
               </Label>
-              {/* <Input
-                className="focus-visible:ring-blue-600"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g., Submit Library Clearance Form"
-              /> */}
               <Textarea
-                className="min-h-25 resize-none placeholder:text-slate-400 focus-visible:ring-blue-600"
+                className="min-h-25 resize-none placeholder:text-slate-400 focus-visible:ring-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Provide details about this task..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -177,17 +171,17 @@ export default function AddTask({
             </div>
 
             {/* Dropbox Toggle Panel */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-4 shadow-sm transition-colors hover:bg-slate-50">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-4 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-850 dark:hover:bg-slate-800">
               <div className="flex items-start gap-3">
-                <Upload className="mt-0.5 h-5 w-5 text-blue-600" />
+                <Upload className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <div className="space-y-1">
                   <Label
                     htmlFor="dropbox-switch"
-                    className="cursor-pointer text-sm font-bold text-slate-900"
+                    className="cursor-pointer text-sm font-bold text-slate-900 dark:text-slate-100"
                   >
                     Enable Dropbox Submission
                   </Label>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Allow students to upload files
                   </p>
                 </div>
@@ -202,12 +196,11 @@ export default function AddTask({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-100 px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-100 px-6 py-4 dark:border-slate-800 dark:bg-slate-850">
             <DialogClose asChild>
               <Button
                 variant="outline"
-                className="font-semibold text-slate-700 cursor-pointer"
-
+                className="font-semibold text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-750 cursor-pointer"
               >
                 Cancel
               </Button>
@@ -215,7 +208,7 @@ export default function AddTask({
             <DialogClose asChild>
               <Button
                 onClick={addTask}
-                className="gap-2 bg-[#0b3b75] px-5 font-semibold text-white cursor-pointer hover:bg-[#1d5ead]"
+                className="gap-2 bg-[#0b3b75] px-5 font-semibold text-white cursor-pointer hover:bg-[#1d5ead] dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign Task

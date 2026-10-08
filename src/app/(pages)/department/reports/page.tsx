@@ -248,8 +248,8 @@ export default async function Reports() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Reports</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             Daily clearance performance and student breakdown
           </p>
         </div>
@@ -261,55 +261,55 @@ export default async function Reports() {
           label="Cleared Today"
           value={clearedToday}
           icon={<CheckCircleIcon />}
-          iconBg="border-emerald-100 bg-gray-50 text-black"
-          valueColor="text-black"
+          iconBg="border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-400"
+          valueColor="text-slate-900 dark:text-slate-100"
         />
         <StatCard
           label="Clearances Pending"
           value={counts.Pending}
           icon={<ClockIcon />}
-          iconBg="border-emerald-100 bg-gray-50 text-black"
-          valueColor="text-black"
+          iconBg="border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-amber-400"
+          valueColor="text-slate-900 dark:text-slate-100"
           subtitle="Awaiting student action"
-          subtitleColor="text-gray-500"
+          subtitleColor="text-gray-500 dark:text-slate-400"
         />
         <StatCard
           label="Tasks to Review"
           value={tasksToReview}
           icon={<ClipboardIcon />}
-          iconBg="border-emerald-100 bg-gray-50 text-black"
-          valueColor="text-black"
+          iconBg="border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-sky-400"
+          valueColor="text-slate-900 dark:text-slate-100"
           subtitle={tasksToReview > 0 ? "Requires your review" : "All caught up"}
-          subtitleColor={tasksToReview > 0 ? "text-gray-500" : "text-gray-500"}
+          subtitleColor="text-gray-500 dark:text-slate-400"
         />
         <StatCard
           label="Total Cleared"
           value={counts.Signed}
           icon={<TrendUpIcon />}
-          iconBg="border-emerald-100 bg-gray-50 text-black"
-          valueColor="text-black"
+          iconBg="border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-amber-400"
+          valueColor="text-slate-900 dark:text-slate-100"
           subtitle={`${clearedPct}% of ${total} total`}
-          subtitleColor="text-gray-400"
+          subtitleColor="text-gray-400 dark:text-slate-400"
         />
       </div>
 
       {/* ── Charts Row ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Throughput */}
-        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-xl p-6 shadow-sm dark:bg-slate-900/90 dark:border-slate-800">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+              <h2 className="font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <BarChartIcon />
                 Daily Throughput
               </h2>
-              <p className="text-xs text-gray-500 mt-1">Students cleared per day (last 7 days)</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Students cleared per day (last 7 days)</p>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs font-medium border border-gray-200 rounded px-2 py-1 bg-gray-50">
+              <span className="text-xs font-medium border border-gray-200 rounded px-2 py-1 bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                 Last 7 Days
               </span>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" /> Cleared
               </div>
             </div>
@@ -319,8 +319,8 @@ export default async function Reports() {
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8">
               {yAxisLabels.map((val, i) => (
                 <div key={i} className="flex items-center w-full">
-                  <span className="text-xs text-gray-400 w-6 text-right mr-3">{val}</span>
-                  <div className="flex-1 border-b border-dashed border-gray-200" />
+                  <span className="text-xs text-gray-400 dark:text-slate-500 w-6 text-right mr-3">{val}</span>
+                  <div className="flex-1 border-b border-dashed border-gray-200 dark:border-slate-800" />
                 </div>
               ))}
             </div>
@@ -336,7 +336,7 @@ export default async function Reports() {
                       }}
                     />
                   </div>
-                  <span className="text-xs text-gray-500 absolute bottom-0">{d.day}</span>
+                  <span className="text-xs text-gray-500 dark:text-slate-400 absolute bottom-0">{d.day}</span>
                 </div>
               ))}
             </div>
@@ -344,13 +344,13 @@ export default async function Reports() {
         </div>
 
         {/* Overall Status Donut */}
-        <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm flex flex-col h-full">
+        <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm flex flex-col h-full dark:bg-slate-900/90 dark:border-slate-800">
           <div className="mb-2">
-            <h2 className="font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
               <ClockDashboardIcon />
               Overall Status
             </h2>
-            <p className="text-xs text-gray-500 mt-1">Distribution of your clearances</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Distribution of your clearances</p>
           </div>
 
           <div className="flex-1 flex flex-col justify-center items-center">
@@ -358,7 +358,7 @@ export default async function Reports() {
               <svg viewBox="-3 -3 42 42" className="w-48 h-48 transform -rotate-90">
                 {/* Background ring (Pending) */}
                 <path
-                  className="text-slate-100"
+                  className="text-slate-100 dark:text-slate-800"
                   strokeDasharray="100, 100"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
@@ -388,30 +388,30 @@ export default async function Reports() {
                 )}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">{clearedPct}%</span>
-                <span className="text-[10px] text-gray-500 font-medium">Cleared</span>
+                <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">{clearedPct}%</span>
+                <span className="text-[10px] text-gray-500 dark:text-slate-400 font-medium">Cleared</span>
               </div>
             </div>
 
             <div className="flex justify-center gap-4 text-[11px] font-medium w-full">
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-gray-500">
-                  Cleared <span className="text-gray-900 font-bold ml-1">{counts.Signed}</span>
+                <span className="text-gray-500 dark:text-slate-400">
+                  Cleared <span className="text-gray-900 dark:text-slate-100 font-bold ml-1">{counts.Signed}</span>
                 </span>
               </div>
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-gray-500">
+                <span className="text-gray-500 dark:text-slate-400">
                   Incomplete{" "}
-                  <span className="text-gray-900 font-bold ml-1">{counts.Incomplete}</span>
+                  <span className="text-gray-900 dark:text-slate-100 font-bold ml-1">{counts.Incomplete}</span>
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-slate-300" />
-                <span className="text-gray-500">
+                <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <span className="text-gray-500 dark:text-slate-400">
                   Pending{" "}
-                  <span className="text-gray-900 font-bold ml-1">{counts.Pending}</span>
+                  <span className="text-gray-900 dark:text-slate-100 font-bold ml-1">{counts.Pending}</span>
                 </span>
               </div>
             </div>
@@ -420,20 +420,20 @@ export default async function Reports() {
       </div>
 
       {/* ── Students Breakdown by Program ────────────────────────────── */}
-      <div className="bg-white border border-gray-100 rounded-xl shadow-sm">
-        <div className="p-6 pb-4 border-b border-gray-100">
-          <h2 className="font-bold text-gray-900 flex items-center gap-2">
+      <div className="bg-white border border-gray-100 rounded-xl shadow-sm dark:bg-slate-900/90 dark:border-slate-800">
+        <div className="p-6 pb-4 border-b border-gray-100 dark:border-slate-800">
+          <h2 className="font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
             <PulseIcon />
             Students Breakdown by Program
           </h2>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
             Clearance status grouped by program — click to expand sections
           </p>
         </div>
 
         <div className="overflow-x-auto">
           {/* Column headers — using grid so they align with the rows below */}
-          <div className="min-w-[700px] grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 border-b border-gray-100 px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="min-w-[700px] grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 border-b border-gray-100 dark:border-slate-800 px-6 py-3 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider dark:bg-slate-850/60">
             <span>Program</span>
             <span className="text-center">Total</span>
             <span className="text-center">Cleared</span>
@@ -444,7 +444,7 @@ export default async function Reports() {
 
           <div className="min-w-[700px]">
             {programs.length === 0 && (
-              <div className="px-6 py-12 text-center text-gray-400 text-sm">
+              <div className="px-6 py-12 text-center text-gray-400 dark:text-slate-500 text-sm">
                 No clearance data yet for your assigned templates.
               </div>
             )}
@@ -454,11 +454,11 @@ export default async function Reports() {
               return (
                 <details key={p.program} className="group">
                   {/* Program row (acts as the clickable summary) */}
-                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer hover:bg-gray-50/50 transition-colors">
-                    <div className="grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 items-center px-6 py-4 border-b border-gray-50">
+                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer hover:bg-gray-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                    <div className="grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 items-center px-6 py-4 border-b border-gray-50 dark:border-slate-800/60">
                       <div className="flex items-center gap-2 min-w-0">
                         <svg
-                          className="w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 group-open:rotate-90"
+                          className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 shrink-0 transition-transform duration-200 group-open:rotate-90"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           fill="none"
@@ -469,20 +469,20 @@ export default async function Reports() {
                         >
                           <polyline points="9 18 15 12 9 6" />
                         </svg>
-                        <span className="font-medium text-gray-900 truncate">{p.program}</span>
+                        <span className="font-medium text-gray-900 dark:text-slate-100 truncate">{p.program}</span>
                       </div>
-                      <span className="text-center text-gray-700">{p.total}</span>
-                      <span className="text-center font-medium text-emerald-600">{p.signed}</span>
-                      <span className="text-center text-gray-500">{p.pending}</span>
-                      <span className="text-center text-amber-500">{p.incomplete}</span>
+                      <span className="text-center text-gray-700 dark:text-slate-300">{p.total}</span>
+                      <span className="text-center font-medium text-emerald-600 dark:text-emerald-400">{p.signed}</span>
+                      <span className="text-center text-gray-500 dark:text-slate-400">{p.pending}</span>
+                      <span className="text-center text-amber-500 dark:text-amber-400">{p.incomplete}</span>
                       <div className="flex items-center gap-2 px-2">
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-emerald-500 rounded-full transition-all"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="text-xs font-semibold text-gray-500 w-9 text-right">
+                        <span className="text-xs font-semibold text-gray-500 dark:text-slate-400 w-9 text-right">
                           {pct}%
                         </span>
                       </div>
@@ -490,9 +490,9 @@ export default async function Reports() {
                   </summary>
 
                   {/* Expanded section rows */}
-                  <div className="bg-gray-50/40 border-b border-gray-100">
+                  <div className="bg-gray-50/40 border-b border-gray-100 dark:bg-slate-850/40 dark:border-slate-800">
                     {p.sections.length === 0 && (
-                      <div className="px-6 pl-14 py-3 text-sm text-gray-400 italic">
+                      <div className="px-6 pl-14 py-3 text-sm text-gray-400 dark:text-slate-500 italic">
                         No section enrollment data found
                       </div>
                     )}
@@ -502,25 +502,25 @@ export default async function Reports() {
                       return (
                         <div
                           key={s.label}
-                          className="grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 items-center px-6 pl-14 py-3 border-b border-gray-100/60 last:border-b-0 hover:bg-white/60 transition-colors"
+                          className="grid grid-cols-[1fr_72px_72px_72px_88px_1fr] gap-0 items-center px-6 pl-14 py-3 border-b border-gray-100/60 dark:border-slate-800/40 last:border-b-0 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
                         >
-                          <span className="text-sm text-gray-500 truncate">{s.label}</span>
-                          <span className="text-center text-sm text-gray-600">{s.total}</span>
-                          <span className="text-center text-sm font-medium text-emerald-600">
+                          <span className="text-sm text-gray-500 dark:text-slate-400 truncate">{s.label}</span>
+                          <span className="text-center text-sm text-gray-600 dark:text-slate-300">{s.total}</span>
+                          <span className="text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
                             {s.signed}
                           </span>
-                          <span className="text-center text-sm text-gray-400">{s.pending}</span>
+                          <span className="text-center text-sm text-gray-400 dark:text-slate-500">{s.pending}</span>
                           <span className="text-center text-sm text-amber-400">
                             {s.incomplete}
                           </span>
                           <div className="flex items-center gap-2 px-2">
-                            <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="flex-1 h-1.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-emerald-400 rounded-full transition-all"
                                 style={{ width: `${sPct}%` }}
                               />
                             </div>
-                            <span className="text-xs font-medium text-gray-400 w-9 text-right">
+                            <span className="text-xs font-medium text-gray-400 dark:text-slate-500 w-9 text-right">
                               {sPct}%
                             </span>
                           </div>
@@ -559,9 +559,9 @@ function StatCard({
   subtitleColor?: string;
 }) {
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm flex justify-between items-start">
+    <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm flex justify-between items-start dark:bg-slate-900/90 dark:border-slate-800">
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</h3>
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-slate-400">{label}</h3>
         <div className={`text-3xl font-bold ${valueColor}`}>{value}</div>
         {subtitle && <span className={`text-xs font-medium ${subtitleColor}`}>{subtitle}</span>}
       </div>

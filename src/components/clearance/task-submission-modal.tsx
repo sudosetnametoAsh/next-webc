@@ -58,16 +58,16 @@ export default function TaskSubmissionModal({
         }
       }}
     >
-      <DialogContent className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl [&>button]:hidden">
+      <DialogContent className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl [&>button]:hidden dark:border dark:border-slate-800 dark:bg-slate-900">
         <div className="mb-2">
-          <DialogTitle className="text-lg font-bold text-gray-900">
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-slate-100">
             Submit Requirement
           </DialogTitle>
         </div>
 
         <div className="mb-6 flex flex-col gap-2">
-          <span className="text-sm font-medium text-gray-500">Task:</span>
-          <p className="rounded-lg border bg-gray-50 p-3 text-sm font-semibold text-gray-900">
+          <span className="text-sm font-medium text-gray-500 dark:text-slate-400">Task:</span>
+          <p className="rounded-lg border border-slate-200 bg-gray-50 p-3 text-sm font-semibold text-gray-900 dark:border-slate-750 dark:bg-slate-800 dark:text-slate-100">
             {taskTitle}
           </p>
         </div>
@@ -93,25 +93,25 @@ export default function TaskSubmissionModal({
                   htmlFor="file-upload"
                   className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors ${
                     field.state.meta.errors
-                      ? "border-red-400 bg-red-50 hover:bg-red-100"
-                      : "border-gray-300 bg-gray-50 hover:border-blue-500 hover:bg-blue-50"
+                      ? "border-red-400 bg-red-50 hover:bg-red-100 dark:border-rose-900 dark:bg-rose-950/40"
+                      : "border-gray-300 bg-gray-50 hover:border-blue-500 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-amber-400 dark:hover:bg-slate-800"
                   }`}
                 >
                   {field.state.value ? (
                     <div className="flex flex-col items-center text-center">
-                      <FileText className="mb-2 text-blue-500" size={32} />
-                      <p className="text-sm font-medium text-gray-900">
+                      <FileText className="mb-2 text-blue-500 dark:text-amber-400" size={32} />
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                         {field.state.value.name}
                       </p>
-                      <p className="mt-1 text-xs text-gray-500">Click to change file</p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">Click to change file</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center text-center">
-                      <Upload className="mb-2 text-gray-400" size={32} />
-                      <p className="text-sm font-medium text-gray-600">
+                      <Upload className="mb-2 text-gray-400 dark:text-slate-500" size={32} />
+                      <p className="text-sm font-medium text-gray-600 dark:text-slate-300">
                         Click to upload or drag and drop
                       </p>
-                      <p className="mt-1 text-xs text-gray-400">PDF, PNG, JPG (max. 5MB)</p>
+                      <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">PDF, PNG, JPG (max. 5MB)</p>
                     </div>
                   )}
 
@@ -127,7 +127,7 @@ export default function TaskSubmissionModal({
                 </label>
 
                 {field.state.meta.errors ? (
-                  <em className="text-sm font-medium text-red-500">
+                  <em className="text-sm font-medium text-red-500 dark:text-rose-400">
                     {field.state.meta.errors}
                   </em>
                 ) : null}
@@ -140,7 +140,7 @@ export default function TaskSubmissionModal({
           <DialogClose asChild>
             <button
               type="button"
-              className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-750 cursor-pointer"
             >
               Cancel
             </button>
@@ -149,7 +149,7 @@ export default function TaskSubmissionModal({
             type="submit"
             form="task-submission-form"
             disabled={isPending || form.state.isSubmitting}
-            className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 cursor-pointer"
           >
             {isPending ? "Submitting..." : "Confirm Submission"}
           </button>

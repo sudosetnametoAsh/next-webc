@@ -76,7 +76,7 @@ export function PersistentAppShell({
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC]">
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       {/* Desktop Sidebar (hidden on screens < lg) */}
       <div
         className={cn(
@@ -103,13 +103,13 @@ export function PersistentAppShell({
           />
 
           {/* Drawer Slide-over */}
-          <div className="fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-[#0B192C] shadow-2xl transition-transform animate-in slide-in-from-left duration-200 flex flex-col">
+          <div className="fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white dark:bg-[#0B192C] border-r border-slate-200 dark:border-white/10 shadow-2xl transition-transform animate-in slide-in-from-left duration-200 flex flex-col">
             {/* Close button */}
             <div className="absolute top-4 right-3 z-10">
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
                 aria-label="Close navigation menu"
               >
                 <X className="w-5 h-5" />
@@ -136,7 +136,7 @@ export function PersistentAppShell({
         />
 
         {/* Scrollable Content Canvas */}
-        <main className="flex-1 overflow-y-auto bg-[#F8FAFC] p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

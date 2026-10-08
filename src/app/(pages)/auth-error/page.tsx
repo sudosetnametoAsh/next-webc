@@ -78,7 +78,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between text-[#0B192C]">
+    <div className="min-h-screen bg-background flex flex-col justify-between text-foreground">
       {/* Top Institutional Header */}
       <header className="w-full bg-[#0B192C] text-white border-b border-[#0B192C]/80 px-6 py-4 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -108,7 +108,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
 
       {/* Main Error Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+        <div className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden">
           {/* Header Banner */}
           <div className="bg-[#0B192C] px-8 pt-8 pb-7 text-white relative">
             <div className="flex items-start justify-between">
@@ -125,32 +125,32 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
 
           <div className="px-8 py-6 space-y-6">
             {/* Description */}
-            <p className="text-slate-700 leading-relaxed text-sm sm:text-base">
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
               {currentConfig.description}
             </p>
 
             {/* User Session Info (if logged in) */}
             {session && (
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#0B192C] text-white flex items-center justify-center font-bold text-sm">
                     {session.user_name ? session.user_name.charAt(0).toUpperCase() : "U"}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#0B192C] leading-none mb-1">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none mb-1">
                       {session.user_name || session.user_email}
                     </p>
-                    <p className="text-xs text-slate-500 font-mono">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                       {session.user_email}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F59E0B]/20 text-[#0B192C] border border-[#F59E0B]/40">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F59E0B]/20 text-slate-900 dark:text-amber-300 border border-[#F59E0B]/40">
                     Role: {session.role}
                   </span>
                   {session.department && (
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                       {session.department}
                     </p>
                   )}
@@ -159,10 +159,10 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
             )}
 
             {/* Guidance Alert */}
-            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 flex gap-3 text-xs sm:text-sm text-amber-900 leading-relaxed">
+            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-4 flex gap-3 text-xs sm:text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
               <HelpCircle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-amber-950 block mb-0.5">Recommended Action:</span>
+                <span className="font-semibold text-amber-950 dark:text-amber-100 block mb-0.5">Recommended Action:</span>
                 <span>{currentConfig.guidance}</span>
               </div>
             </div>
@@ -178,7 +178,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
 
-              <AzureSignOutButton className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium text-sm transition-colors cursor-pointer">
+              <AzureSignOutButton className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium text-sm transition-colors cursor-pointer">
                 <span>Sign Out / Switch</span>
               </AzureSignOutButton>
             </div>

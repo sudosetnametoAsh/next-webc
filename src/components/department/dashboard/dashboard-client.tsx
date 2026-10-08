@@ -1,6 +1,16 @@
 "use client";
 
-import { Users, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import React from "react";
+import {
+  Users,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  FileText,
+  Activity,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
 import {
   getRecentActivityPromise,
   getRecentSubmissionsPromise,
@@ -8,6 +18,7 @@ import {
 } from "@/modules/staff/application/repository/dashboard-repository";
 import RealtimeDashboardListener from "../dashboard-listener";
 import PrioritySignQueue from "./priority-sign-queue";
+import Link from "next/link";
 
 export default function DashboardClient({
   user_name,
@@ -27,131 +38,178 @@ export default function DashboardClient({
     day: "numeric",
   });
 
-  return (
-    <section className="flex h-full flex-col gap-6">
+  const completionRate =
+    stats.total > 0 ? Math.round((stats.signed / stats.total) * 100) : 0;
 
+  return (
+    <section className="flex h-full flex-col gap-6 max-w-7xl mx-auto">
       <RealtimeDashboardListener />
 
-      {/* Banner Container */}
-      {/* <div className="overflow-hidden rounded-xl bg-linear-to-r from-[#0a1128] via-[#1c3a76] to-[#c4323b] text-white shadow-md"> */}
-      <div className="overflow-hidden rounded-xl bg-[#0a1128] text-white shadow-md">
-        <div className="px-8 py-8">
-          <span className="text-sm font-medium text-slate-300">
-            Good Morning,
-          </span>
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            {user_name}
-          </h1>
-          <span className="flex items-center gap-1 pt-1 text-sm text-slate-300">
-            {today} — You have
-            <span className="mr-1 ml-1 font-semibold text-[#ffcc00]">
-              {stats.pending} pending clearances
+      {/* 1. Executive Faculty Header & Command Strip */}
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-800/80 dark:border-slate-700 dark:text-slate-200">
+                <Sparkles className="h-3 w-3 text-amber-500" />
+                <span>Faculty Workspace</span>
+              </span>
+              <span className="text-xs text-slate-400 dark:text-slate-600">•</span>
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                {today}
+              </span>
+            </div>
+            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+              Welcome back, {user_name}
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Review submissions, verify student requirements, and issue official department clearance endorsements.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/department/clients"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0B192C] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs transition-colors hover:bg-slate-800 active:scale-[0.98] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
+            >
+              <span>View Client Queue</span>
+              <ArrowUpRight className="h-4 w-4 text-amber-400 dark:text-slate-950" />
+            </Link>
+          </div>
+        </div>
+
+        {/* 2. Integrated Operational Metrics Ribbon */}
+        <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800/80">
+          {/* Metric 1: Total Enrolled */}
+          <div className="flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-transparent dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400" />
+              <span>Assigned Clients</span>
             </span>
-            today
-          </span>
+            <div className="mt-2">
+              <span className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100 tabular-nums">
+                {stats.total}
+              </span>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                Total students in clearance roster
+              </p>
+            </div>
+          </div>
+
+          {/* Metric 2: Cleared & Endorsed */}
+          <div className="flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-transparent dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Endorsed ({completionRate}%)</span>
+            </span>
+            <div className="mt-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black tracking-tight text-emerald-700 dark:text-emerald-400 tabular-nums">
+                  {stats.signed}
+                </span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 tabular-nums">
+                  / {stats.total}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-700/60 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-600 dark:bg-emerald-500 transition-[width] duration-500 ease-out"
+                  style={{ width: `${completionRate}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Metric 3: Pending Endorsement */}
+          <div className="flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-transparent dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Pending Review</span>
+            </span>
+            <div className="mt-2">
+              <span className="text-3xl font-black tracking-tight text-amber-700 dark:text-amber-400 tabular-nums">
+                {stats.pending}
+              </span>
+              <p className="mt-0.5 text-[11px] text-amber-800/80 dark:text-amber-300/80">
+                Awaiting officer endorsement
+              </p>
+            </div>
+          </div>
+
+          {/* Metric 4: Incomplete / Action Required */}
+          <div className="flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-transparent dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-100">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
+              <span>Incomplete Tasks</span>
+            </span>
+            <div className="mt-2">
+              <span className="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-100 tabular-nums">
+                {stats.incomplete}
+              </span>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                Students with missing files
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Early Bird Priority Sign-Off Queue */}
+      {/* 3. Priority Sign-Off Action Desk */}
       <PrioritySignQueue />
 
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        {/* Total Students */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">Total Clients</p>
-            <Users className="h-5 w-5 text-black" />
+      {/* 4. Split Operational Canvas: Submissions & Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: Recent Submissions */}
+        <div className="lg:col-span-7 flex flex-col rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden dark:bg-slate-900/90 dark:border-slate-800">
+          <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Recent Document Submissions
+              </h2>
+            </div>
+            <Link
+              href="/department/clients"
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              View all
+            </Link>
           </div>
-          <div>
-            <p className="mt-2 text-3xl font-bold text-slate-800">
-              {stats.total}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">Currently enrolled</p>
-          </div>
-        </div>
 
-        {/* Cleared */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">Cleared</p>
-            <CheckCircle2 className="h-5 w-5 text-black" />
-          </div>
-          <div>
-            <p className="mt-2 text-3xl font-bold text-black">
-              {stats.signed}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-              Completed requirements
-            </p>
-          </div>
-        </div>
-
-        {/* Pending */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">Pending</p>
-            <Clock className="h-5 w-5 text-black" />
-          </div>
-          <div>
-            <p className="mt-2 text-3xl font-bold text-black">
-              {stats.pending}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">Awaiting review</p>
-          </div>
-        </div>
-
-        {/* Incomplete */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">Incomplete</p>
-            <AlertCircle className="h-5 w-5 text-black" />
-          </div>
-          <div>
-            <p className="mt-2 text-3xl font-bold text-black">
-              {stats.incomplete}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-              Client with pending tasks
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom portion */}
-      <div className="grid flex-1 grid-cols-1 gap-6 overflow-y-auto lg:grid-cols-3">
-        {/* Submissions */}
-        <div className="overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
-          <h2 className="flex items-center border-b border-slate-200 px-6 py-4 text-lg font-semibold text-slate-800">
-            Recent Submissions
-          </h2>
-
-          <div className="p-0">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+              <thead className="bg-slate-50/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:bg-slate-800/70 dark:text-slate-400 dark:border-slate-800">
                 <tr>
-                  <th className="px-6 py-3">Student Name</th>
-                  <th className="px-6 py-3">ID Number</th>
-                  <th className="px-6 py-3">Program</th>
-                  {/* <th className="px-6 py-3 text-right">Action</th> */}
+                  <th className="px-6 py-3">Student</th>
+                  <th className="px-4 py-3">ID Number</th>
+                  <th className="px-4 py-3">Program</th>
+                  <th className="px-6 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {recentSubmissions.length > 0 ? (
-                  recentSubmissions.map((submission) => (
+                  recentSubmissions.map((sub) => (
                     <tr
-                      key={submission.assignedTaskId}
-                      className="border-b border-slate-100 hover:bg-slate-50"
+                      key={sub.assignedTaskId}
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition-colors"
                     >
-                      <td className="px-6 py-4 font-medium text-slate-800">
-                        {submission.studentName || "Unknown Student"}
+                      <td className="px-6 py-3.5 font-semibold text-slate-900 dark:text-slate-100">
+                        {sub.studentName || "Student"}
                       </td>
-                      <td className="px-6 py-4">{submission.studentId}</td>
-                      <td className="px-6 py-4">{submission.course}</td>
-                      <td className="px-6 py-4 text-right">
-                        {/* <button className="rounded bg-[#1c3a76] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0a1128]">
-                          Review
-                        </button> */}
+                      <td className="px-4 py-3.5 font-mono text-slate-600 dark:text-slate-400">
+                        #{sub.studentId}
+                      </td>
+                      <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400">
+                        {sub.course}
+                      </td>
+                      <td className="px-6 py-3.5 text-right">
+                        <Link
+                          href={`/department/clients?search=${sub.studentId}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0B192C] hover:underline dark:text-amber-400 dark:hover:text-amber-300"
+                        >
+                          <span>Review</span>
+                          <ArrowUpRight className="h-3 w-3" />
+                        </Link>
                       </td>
                     </tr>
                   ))
@@ -159,9 +217,9 @@ export default function DashboardClient({
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-6 py-8 text-center text-slate-400"
+                      className="px-6 py-8 text-center text-xs text-slate-400 dark:text-slate-500"
                     >
-                      No recent submissions found.
+                      No recent submissions recorded.
                     </td>
                   </tr>
                 )}
@@ -170,57 +228,44 @@ export default function DashboardClient({
           </div>
         </div>
 
-        {/* Right Column: Recent Activity */}
-        <div className="flex flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-slate-800">
-              Recent Activity
-            </h2>
+        {/* Right: Recent Endorsements & Activity */}
+        <div className="lg:col-span-5 flex flex-col rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden dark:bg-slate-900/90 dark:border-slate-800">
+          <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Clearance Activity Feed
+              </h2>
+            </div>
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Real-time</span>
           </div>
-          <div className="flex-1 p-6">
-            <ul className="space-y-4 text-sm text-slate-600">
-              {recentActivity.length > 0 ? (
-                recentActivity.map((activity, index) => {
-                  const isApproved =
-                    activity.actions?.toLowerCase() === "sign clearance" ||
-                    activity.actions?.toLowerCase() === "signed";
 
-                  const timeDate = new Date(activity.created_at);
-                  const formattedTime = timeDate.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-
-                  return (
-                    <li key={index} className="flex gap-3">
-                      <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                          isApproved
-                            ? "bg-green-100 text-green-600"
-                            : "bg-red-100 text-red-600"
-                        }`}
-                      >
-                        {isApproved ? "✓" : "!"}
-                      </span>
-                      <div>
-                        <p>
-                          <span className="font-medium text-slate-800">
-                            {activity.message}
-                          </span>
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          Today at {formattedTime}
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })
-              ) : (
-                <li className="py-4 text-center text-slate-400">
-                  No recent activity to display.
-                </li>
-              )}
-            </ul>
+          <div className="p-4 sm:p-6 divide-y divide-slate-100 overflow-y-auto max-h-[360px] dark:divide-slate-800 dark:bg-slate-900/70 dark:text-slate-100">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((act, idx) => (
+                <div
+                  key={`${act.actions}-${act.created_at}-${idx}`}
+                  className="py-3 first:pt-0 last:pb-0 flex items-start gap-3"
+                >
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                      {act.actions}
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      {act.message}
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0 tabular-nums">
+                    {act.created_at ? new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                No recent activity logged for this session.
+              </div>
+            )}
           </div>
         </div>
       </div>

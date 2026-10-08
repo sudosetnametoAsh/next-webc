@@ -145,20 +145,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         departments={sealDepartments}
       />
 
-      {/* 2. Collegiate Modernist Tab Navigation */}
-      <nav className="flex flex-wrap items-center gap-1.5 rounded-xl bg-slate-100 p-1.5 border border-slate-200">
+      {/* 2. Responsive Tab Navigation */}
+      <nav className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 rounded-xl bg-slate-100/90 p-1.5 border border-slate-200/80 dark:bg-slate-900/90 dark:border-slate-800">
         <Link
           href="?tab=departments"
           className={cn(
-            "flex flex-1 min-w-[170px] items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-all",
+            "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-colors duration-150 active:scale-[0.99]",
             isDepartmentsTab
-              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200 font-bold"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/80 font-bold dark:bg-slate-800 dark:text-white dark:ring-slate-700"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50"
           )}
         >
           <ShieldCheck
             size={18}
-            className={isDepartmentsTab ? "text-[#10B981]" : "text-slate-400"}
+            className={isDepartmentsTab ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}
           />
           <span>Clearance Departments</span>
         </Link>
@@ -166,19 +166,19 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         <Link
           href="?tab=tasks"
           className={cn(
-            "flex flex-1 min-w-[170px] items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-all",
+            "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-colors duration-150 active:scale-[0.99]",
             activeTab === "tasks"
-              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200 font-bold"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/80 font-bold dark:bg-slate-800 dark:text-white dark:ring-slate-700"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50"
           )}
         >
           <FileText
             size={18}
-            className={activeTab === "tasks" ? "text-[#F59E0B]" : "text-slate-400"}
+            className={activeTab === "tasks" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"}
           />
           <span>Tasks & Requirements</span>
           {pendingTasksTotal > 0 && (
-            <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold">
+            <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold tabular-nums dark:bg-amber-950/60 dark:text-amber-300">
               {pendingTasksTotal}
             </span>
           )}
@@ -187,16 +187,16 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
         <Link
           href="?tab=office-hours"
           className={cn(
-            "flex flex-1 min-w-[170px] items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-all",
+            "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-xs sm:text-sm font-semibold transition-colors duration-150 active:scale-[0.99]",
             activeTab === "office-hours"
-              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200 font-bold"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+              ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/80 font-bold dark:bg-slate-800 dark:text-white dark:ring-slate-700"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50"
           )}
         >
           <Clock
             size={18}
             className={
-              activeTab === "office-hours" ? "text-indigo-600" : "text-slate-400"
+              activeTab === "office-hours" ? "text-[#0B192C] dark:text-amber-400" : "text-slate-400 dark:text-slate-500"
             }
           />
           <span>Office Hours & Faculty</span>
@@ -207,17 +207,17 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
       <DashBoardRealtimeProvider>
         {isDepartmentsTab && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4 dark:border-slate-800">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   Clearance Departments & Requirements
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Review specific clearing criteria, faculty instructions, and submit required documents for each office.
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                   {records.length} Department{records.length === 1 ? "" : "s"} Assigned
                 </span>
               </div>
@@ -226,12 +226,12 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
             {records.length > 0 ? (
               <ClearanceItem students={studentsData} id={user_id} />
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center">
-                <Building2 className="h-10 w-10 text-slate-300 mb-3" />
-                <h4 className="text-sm font-bold text-slate-800">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center dark:bg-slate-900/80 dark:border-slate-800">
+                <Building2 className="h-10 w-10 text-slate-300 mb-3 dark:text-slate-600" />
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                   No Clearance Departments Assigned
                 </h4>
-                <p className="text-xs text-slate-500 max-w-sm mt-1">
+                <p className="text-xs text-slate-500 max-w-sm mt-1 dark:text-slate-400">
                   Your clearance record does not have any active departments currently assigned. Please contact the registrar if you believe this is an error.
                 </p>
               </div>
@@ -241,12 +241,12 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
 
         {activeTab === "tasks" && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4 dark:border-slate-800">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   Tasks & Document Requirements
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   All assigned clearance tasks requiring document submissions, in-person verification, or resubmissions.
                 </p>
               </div>

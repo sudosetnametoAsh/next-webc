@@ -38,16 +38,16 @@ export default async function Clearance({
       // Updated wrapper to take full width and height of the parent container
       <div className="flex h-full min-h-[80vh] w-full flex-col items-center justify-center gap-6 p-8 text-center">
         {/* Playful Icon Container */}
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 text-blue-500 shadow-sm ring-8 ring-blue-50/50">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 text-blue-500 shadow-sm ring-8 ring-blue-50/50 dark:bg-blue-950/40 dark:text-blue-400 dark:ring-blue-900/30">
           <Sparkles className="h-10 w-10" />
         </div>
 
         {/* Friendly Copy */}
         <div className="max-w-md space-y-3">
-          <h2 className="text-2xl font-bold tracking-tight text-slate-800">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
             No active clearance right now!
           </h2>
-          <p className="text-[15px] leading-relaxed text-slate-500">
+          <p className="text-[15px] leading-relaxed text-slate-500 dark:text-slate-400">
             It looks like you don't have any clearance requirements assigned to
             you at the moment. Take a breather, or reach out to your
             administrator if you think this is a mix-up.
@@ -58,25 +58,25 @@ export default async function Clearance({
   }
 
   const activeClass =
-    "bg-white text-[#0A1128] font-bold shadow-sm ring-1 ring-slate-200";
+    "bg-white text-slate-900 font-bold shadow-xs ring-1 ring-slate-200/80 dark:bg-slate-800 dark:text-white dark:ring-slate-700";
   const inactiveClass =
-    "text-slate-500 font-medium hover:text-slate-800 hover:bg-slate-200/50 transition-colors";
+    "text-slate-600 font-medium hover:text-slate-900 hover:bg-white/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50 transition-colors";
   const baseTabClass =
-    "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm transition-all";
+    "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs sm:text-sm font-semibold transition-all";
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pt-6">
       <ProfileCard summary={summary} />
 
       {/* TAB NAVIGATION */}
-      <nav className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1.5">
+      <nav className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1.5 dark:border-slate-800 dark:bg-slate-900/90">
         <Link
           href="?tab=overview"
           className={`${baseTabClass} ${activeTab === "overview" ? activeClass : inactiveClass}`}
         >
           <ShieldCheck
             size={18}
-            className={activeTab === "overview" ? "text-black" : ""}
+            className={activeTab === "overview" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"}
           />
           Overview
         </Link>
@@ -87,7 +87,7 @@ export default async function Clearance({
         >
           <Send
             size={18}
-            className={activeTab === "tasks" ? "text-black" : ""}
+            className={activeTab === "tasks" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"}
           />
           Tasks
         </Link>
@@ -98,7 +98,7 @@ export default async function Clearance({
         >
           <Clock
             size={18}
-            className={activeTab === "office-hours" ? "text-black" : ""}
+            className={activeTab === "office-hours" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"}
           />
           Office Hours
         </Link>

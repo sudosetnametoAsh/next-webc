@@ -187,10 +187,10 @@ export default function CreateTemplateModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max:w-lg'>
+      <DialogContent className='sm:max-w-lg dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100'>
         <DialogHeader>
-          <DialogTitle>{dialogTitle}</DialogTitle>
-          <p className='text-gray-500 text-sm'>{dialogDescription}</p>
+          <DialogTitle className="dark:text-slate-100">{dialogTitle}</DialogTitle>
+          <p className='text-gray-500 dark:text-slate-400 text-sm'>{dialogDescription}</p>
         </DialogHeader>
 
         {step === 'select' ? (
@@ -221,11 +221,11 @@ export default function CreateTemplateModal({
           />
         )}
 
-        <div className='flex justify-end gap-2 border-t pt-4'>
+        <div className='flex justify-end gap-2 border-t pt-4 dark:border-slate-800'>
           {step === 'assign' && activeDeptId === null && (
             <button
               onClick={handleBack}
-              className='px-4 py-2 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors cursor-pointer'
+              className='px-4 py-2 text-gray-700 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer'
             >
               Back
             </button>
@@ -233,7 +233,7 @@ export default function CreateTemplateModal({
 
           <button
             onClick={handleClose}
-            className='px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer'
+            className='px-4 py-2 border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-slate-750 transition-colors cursor-pointer'
           >
             Cancel
           </button>
@@ -242,7 +242,7 @@ export default function CreateTemplateModal({
             <button
               onClick={handleNext}
               disabled={nextDisabled}
-              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer'
+              className='px-4 py-2 bg-blue-500 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-semibold'
             >
               Next
             </button>
@@ -250,7 +250,7 @@ export default function CreateTemplateModal({
             <button
               onClick={() => setIsConfirmOpen(true)}
               disabled={isPending}
-              className='px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer'
+              className='px-4 py-2 bg-blue-500 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer font-semibold'
             >
               {isPending ? 'Saving...' : 'Save'}
             </button>
@@ -287,19 +287,19 @@ function SelectionStep({
       {/* Course selection — hidden for staff mode */}
       {mode === 'student' && (
         <div>
-          <h4 className='text-gray-900 font-medium mb-2'>Assign to Sections</h4>
+          <h4 className='text-gray-900 dark:text-slate-100 font-medium mb-2'>Assign to Sections</h4>
           <div className='grid grid-cols-2 gap-2'>
             {courses.map((course) => (
               <label
                 key={course.course_id}
-                className='flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer'
+                className='flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800/60 cursor-pointer'
               >
                 <Checkbox
-                  className='w-6 h-6 border-gray-500 rounded-sm'
+                  className='w-5 h-5 border-gray-400 dark:border-slate-600 rounded-sm'
                   checked={selectedCourses.includes(course.course_id)}
                   onCheckedChange={() => toggleCourse(course.course_id)}
                 />
-                <p className='text-sm text-gray-900'>
+                <p className='text-sm text-gray-900 dark:text-slate-200 truncate'>
                   {expandCourseAbbreviation(course.course_name) || course.course_name}
                 </p>
               </label>
@@ -310,19 +310,19 @@ function SelectionStep({
 
       {/* Department selection — same for both modes */}
       <div>
-        <h4 className='text-gray-900 font-medium mb-2'>Include Departments</h4>
+        <h4 className='text-gray-900 dark:text-slate-100 font-medium mb-2'>Include Departments</h4>
         <div className='grid grid-cols-2 gap-2'>
           {departments.map((department) => (
             <label
               key={department.dept_id}
-              className='flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer'
+              className='flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800/60 cursor-pointer'
             >
               <Checkbox
-                className='w-6 h-6 border-gray-500 rounded-sm'
+                className='w-5 h-5 border-gray-400 dark:border-slate-600 rounded-sm'
                 checked={selectedDepartments.includes(department.dept_id)}
                 onCheckedChange={() => toggleDepartment(department.dept_id)}
               />
-              <p className='text-sm text-gray-900'>{department.dept_name}</p>
+              <p className='text-sm text-gray-900 dark:text-slate-200 truncate'>{department.dept_name}</p>
             </label>
           ))}
         </div>
@@ -359,18 +359,18 @@ function AssignmentStep({
           <button
             key={assignment.dept_id}
             onClick={() => onSelectDepartment(assignment.dept_id)}
-            className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left cursor-pointer'
+            className='w-full flex items-center justify-between p-3 bg-gray-50 border border-transparent rounded-lg hover:bg-gray-100 dark:bg-slate-850 dark:border-slate-800 dark:hover:bg-slate-800 transition-colors text-left cursor-pointer'
           >
             <div className='flex items-center gap-3'>
-              <GripVertical className='w-8 h-8 text-gray-400' />
-              <div className='flex flex-col gap-1'>
-                <p className='text-l font-medium text-gray-900'>{assignment.dept_name}</p>
-                <p className='text-xs text-gray-500'>
+              <GripVertical className='w-6 h-6 text-gray-400 dark:text-slate-500' />
+              <div className='flex flex-col gap-0.5'>
+                <p className='text-sm font-semibold text-gray-900 dark:text-slate-100'>{assignment.dept_name}</p>
+                <p className='text-xs text-gray-500 dark:text-slate-400'>
                   {assignment.staff_name ?? 'No Staff Assigned'}
                 </p>
               </div>
             </div>
-            <ChevronRight className='w-8 h-8 text-gray-400' />
+            <ChevronRight className='w-5 h-5 text-gray-400 dark:text-slate-500' />
           </button>
         ))}
       </div>
@@ -406,22 +406,22 @@ function StaffSelectionStep({
     <div className='space-y-2'>
       <button
         onClick={onCancel}
-        className='flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4 cursor-pointer'
+        className='flex items-center gap-1 text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 mb-4 cursor-pointer'
       >
         <X className='w-4 h-4' />
         Back to departments
       </button>
       {staffList.length === 0 ? (
-        <p>No staff available</p>
+        <p className='text-sm text-gray-400 dark:text-slate-500'>No staff available</p>
       ) : (
         staffList.map((s) => (
           <button
             key={s.staff_id}
             onClick={() => onSelect(s.staff_id, s.staff_name)}
-            className='w-full flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-blue-50 hover:text-blue-700 transition-colors text-left cursor-pointer'
+            className='w-full flex items-center gap-3 p-3 bg-gray-50 border border-slate-200 rounded-lg hover:bg-blue-50 hover:text-blue-700 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-amber-400 transition-colors text-left cursor-pointer'
           >
             <div className='flex items-center justify-center gap-3'>
-              <User className='w-8 h-8' />
+              <User className='w-6 h-6 text-slate-400 dark:text-slate-500' />
               <span className='text-sm font-medium'>{s.staff_name}</span>
             </div>
           </button>

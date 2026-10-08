@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Students } from "@/types/client/student-data";
 import {
   Accordion,
@@ -9,16 +10,17 @@ import {
 } from "../ui/accordion";
 import {
   ChevronDown,
-  Circle,
-  CircleAlert,
-  CircleCheck,
-  CircleCheckBig,
-  Minus,
-  Upload,
-  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  FileCheck2,
+  ExternalLink,
+  MessageSquareWarning,
+  FileText,
 } from "lucide-react";
 import DropBox from "./dropbox";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export default function ClearanceItem({
   students,
@@ -28,10 +30,14 @@ export default function ClearanceItem({
   id: string;
 }) {
   const sortedStudents = [...students].sort((a, b) => {
-    const orderA = a.signing_order ?? a.clearance_templates.departments.signing_order ?? 2;
-    const orderB = b.signing_order ?? b.clearance_templates.departments.signing_order ?? 2;
+    const orderA =
+      a.signing_order ?? a.clearance_templates.departments.signing_order ?? 2;
+    const orderB =
+      b.signing_order ?? b.clearance_templates.departments.signing_order ?? 2;
     if (orderA !== orderB) return orderA - orderB;
-    return a.clearance_templates.departments.dept_name.localeCompare(b.clearance_templates.departments.dept_name);
+    return a.clearance_templates.departments.dept_name.localeCompare(
+      b.clearance_templates.departments.dept_name
+    );
   });
 
   return (
@@ -42,19 +48,16 @@ export default function ClearanceItem({
         const taskTotal = item.clearance_tasks.length;
         const isSigned = item.status === "Signed";
 
-        const pendingTask = item.clearance_tasks.reduce(
-          (acc, curr) => {
-            if (
-              curr.dropbox === "pending" ||
-              curr.dropbox === null ||
-              curr.status === "Resubmit" ||
-              curr.status === "Flagged"
-            ) {
-              acc.Task++;
-            }
-            return acc;
-          },
-          { Task: 0 },
+        const pendingCount = item.clearance_tasks.filter(
+          (t) =>
+            t.dropbox === "pending" ||
+            t.dropbox === null ||
+            t.status === "Resubmit" ||
+            t.status === "Flagged"
+        ).length;
+
+        const hasActionNeeded = item.clearance_tasks.some(
+          (t) => t.status === "Resubmit" || t.status === "Flagged"
         );
 
         return (
@@ -62,264 +65,223 @@ export default function ClearanceItem({
             type="multiple"
             key={item.clearance_id}
             className="w-full"
-            defaultValue={
-              deptName === "Cashier" ? [item.clearance_id.toString()] : []
-            }
+            defaultValue={[item.clearance_id.toString()]}
           >
             <AccordionItem
               value={item.clearance_id.toString()}
-              className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+              className={cn(
+                "group overflow-hidden rounded-2xl border bg-white shadow-xs transition-colors duration-150 dark:bg-slate-900/80 dark:border-slate-800",
+                isSigned
+                  ? "border-emerald-200/90 dark:border-emerald-900/60"
+                  : hasActionNeeded
+                  ? "border-rose-300 dark:border-rose-900/60"
+                  : "border-slate-200/90 dark:border-slate-800"
+              )}
             >
-              {/* Outer Trigger: Department */}
-              <AccordionTrigger
-                className={`flex w-full cursor-pointer flex-row items-center justify-between p-6 transition-colors hover:bg-slate-50 hover:no-underline ${
-                  taskTotal === 0 ? "pointer-events-none" : ""
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex w-6 justify-center">
-                    {taskTotal !== 0 && (
-                      <ChevronDown
-                        className="transition-transform duration-200 group-data-[state=open]:rotate-180"
-                        color="#000000"
-                        size={20}
-                      />
+              {/* Department Header Trigger */}
+              <AccordionTrigger className="flex w-full cursor-pointer items-center justify-between px-5 py-4.5 sm:px-6 hover:bg-slate-50/70 hover:no-underline dark:hover:bg-slate-800/50">
+                <div className="flex items-center gap-3.5 text-left">
+                  <div
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-xs shadow-2xs",
+                      isSigned
+                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                        : hasActionNeeded
+                        ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+                        : "bg-[#0B192C] text-amber-400 dark:bg-[#0B192C] dark:text-amber-400"
                     )}
+                  >
+                    {deptName.slice(0, 2).toUpperCase()}
                   </div>
-                  <div className="flex flex-col text-left">
-                    <span className="text-base font-bold text-slate-900">
-                      {deptName}
-                    </span>
-                    <span className="text-xs font-medium text-[#60A5FA]">
-                      {staffName}
+
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-base font-bold text-slate-900 tracking-tight dark:text-slate-100">
+                        {deptName}
+                      </span>
+                      {hasActionNeeded && (
+                        <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">
+                          Correction Required
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium dark:text-slate-400">
+                      Officer: {staffName || "Department Representative"}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  {pendingTask.Task !== 0 && (
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
-                      {pendingTask.Task} Tasks
+                <div className="flex items-center gap-3 shrink-0">
+                  {/* Task Count Badge */}
+                  {taskTotal > 0 && !isSigned && (
+                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 tabular-nums dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      {pendingCount > 0
+                        ? `${pendingCount} of ${taskTotal} pending`
+                        : "All tasks submitted"}
                     </span>
                   )}
+
+                  {/* Status Pill */}
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold shadow-2xs ${
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold",
                       isSigned
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-white text-slate-600"
-                    }`}
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800/80 dark:text-emerald-300"
+                        : hasActionNeeded
+                        ? "bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300"
+                        : "bg-amber-100 text-amber-900 border border-amber-200/80 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-300"
+                    )}
                   >
-                    {isSigned && <CircleCheck className="h-3.5 w-3.5 text-emerald-600" />}
-                    {isSigned ? "Officially Cleared" : "Pending"}
+                    {isSigned ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <span>Officially Endorsed</span>
+                      </>
+                    ) : hasActionNeeded ? (
+                      <>
+                        <AlertCircle className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                        <span>Action Required</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                        <span>Pending Sign-off</span>
+                      </>
+                    )}
                   </span>
+
+                  <ChevronDown className="h-4 w-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </div>
               </AccordionTrigger>
 
-              {/* Outer Content: Task List */}
-              <AccordionContent className="border-t border-slate-100 bg-slate-50/30 p-6 pb-6">
-                <Accordion type="multiple" className="flex flex-col gap-4">
-                  {item.clearance_tasks.map((task) => {
-                    const isCompleted =
-                      task.status === "Completed" || task.status === "Cleared";
-                    const isResubmit =
-                      task.status === "Resubmit" || task.status === "Flagged";
-                    const needsUpload =
-                      task.dropbox === "pending" ||
-                      task.dropbox === "NULL" ||
-                      isResubmit;
+              {/* Requirements & Action Checklist */}
+              <AccordionContent className="border-t border-slate-100 bg-slate-50/40 p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-950/40">
+                {item.clearance_tasks.length === 0 ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300">
+                    <FileText className="h-4 w-4 text-slate-400 shrink-0" />
+                    <span>
+                      No specific file uploads required for this department. Verification is completed directly by the officer during office review.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {item.clearance_tasks.map((task) => {
+                      const isCompleted =
+                        task.status === "Completed" || task.status === "Cleared";
+                      const isResubmit =
+                        task.status === "Resubmit" || task.status === "Flagged";
+                      const needsUpload =
+                        task.dropbox === "pending" ||
+                        task.dropbox === "NULL" ||
+                        task.dropbox === null ||
+                        isResubmit;
 
-                    const displayTitle = task.title || "Untitled Task";
+                      const displayTitle = task.title || "Clearance Requirement";
 
-                    return (
-                      <AccordionItem
-                        key={task.assigned_task_id}
-                        value={task.assigned_task_id.toString()}
-                        className={`group/task rounded-lg border bg-white ${
-                          isResubmit ? "border-rose-200" : "border-slate-200"
-                        }`}
-                      >
-                        {/* Inner Trigger: Task Title */}
-                        <AccordionTrigger
-                          className={`flex w-full cursor-pointer flex-row items-center justify-between p-4 transition-all hover:bg-slate-50 hover:no-underline group-data-[state=open]/task:border-b group-data-[state=open]/task:border-slate-100 ${
-                            task.dropbox === "NULL" && !isResubmit
-                              ? "pointer-events-none"
-                              : ""
-                          }`}
+                      return (
+                        <div
+                          key={task.assigned_task_id}
+                          className={cn(
+                            "flex flex-col gap-3 rounded-xl border bg-white p-4 sm:p-5 shadow-2xs transition-colors dark:bg-slate-800/50 dark:border-slate-700/50 dark:text-slate-200",
+                            isResubmit
+                              ? "border-rose-200 bg-rose-50/30 dark:border-rose-900/60 dark:bg-rose-950/30"
+                              : isSigned || isCompleted
+                              ? "border-emerald-200/70 dark:border-emerald-900/50"
+                              : "border-slate-200/80"
+                          )}
                         >
-                          <div className="flex items-center gap-4">
-                            {task.dropbox === "NULL" && !isResubmit ? (
-                              isCompleted ? (
-                                <CircleCheckBig color="#06B6D4" size={20} />
-                              ) : (
-                                <Minus color="#94A3B8" size={20} />
-                              )
-                            ) : isResubmit ? (
-                              <CircleAlert
-                                className="text-rose-500"
-                                size={20}
-                              />
-                            ) : task.dropbox === "pending" ? (
-                              <Circle color="#94A3B8" size={20} />
-                            ) : (
-                              <CircleCheckBig color="#06B6D4" size={20} />
-                            )}
-
-                            <span
-                              className={`${
-                                isSigned || isCompleted
-                                  ? "line-through text-slate-400"
-                                  : isResubmit
-                                  ? "text-rose-700"
-                                  : "text-slate-800"
-                              } text-sm font-bold`}
-                            >
-                              {displayTitle}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-4">
-                            {isResubmit && (
-                              <span className="rounded bg-rose-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-600">
-                                Action Needed
-                              </span>
-                            )}
-                            {!needsUpload && !isResubmit && (
-                              <div className="flex items-center justify-center gap-1.5 rounded bg-emerald-500 px-3 py-1 text-[11px] font-semibold text-white">
-                                <Upload size={12} strokeWidth={3} />
-                                <span>Submitted</span>
+                          {/* Task Top Row */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="mt-0.5 shrink-0">
+                                {isSigned || isCompleted ? (
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                ) : isResubmit ? (
+                                  <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                                ) : (
+                                  <Clock className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+                                )}
                               </div>
-                            )}
-                            {(task.dropbox !== "NULL" || isResubmit) && (
-                              <ChevronDown
-                                className="text-slate-400 transition-transform duration-200 group-data-[state=open]/task:rotate-180"
-                                size={18}
-                              />
-                            )}
-                          </div>
-                        </AccordionTrigger>
 
-                        {/* Inner Content: Task Description & Details */}
-                        <AccordionContent>
-                          <div className="flex flex-col gap-6 p-5">
-                            {/* Staff Comment/Feedback Box for Resubmissions */}
-                            {isResubmit && task.comments && (
-                              <div className="flex items-start gap-3 rounded-lg border border-rose-100 bg-rose-50 p-4">
-                                <AlertTriangle
-                                  size={18}
-                                  className="mt-0.5 shrink-0 text-rose-500"
+                              <div>
+                                <h4
+                                  className={cn(
+                                    "text-sm font-bold tracking-tight",
+                                    isSigned || isCompleted
+                                      ? "text-slate-700 dark:text-slate-300"
+                                      : isResubmit
+                                      ? "text-rose-950 font-extrabold dark:text-rose-200"
+                                      : "text-slate-900 dark:text-slate-100"
+                                  )}
+                                >
+                                  {displayTitle}
+                                </h4>
+                                {task.description && (
+                                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed dark:text-slate-400">
+                                    {task.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Status Tag & Direct Action Button */}
+                            <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                              {needsUpload ? (
+                                <DropBox
+                                  task={displayTitle}
+                                  taskId={task.assigned_task_id}
+                                  deptName={deptName}
+                                  studentId={id}
+                                  dropbox={task.dropbox}
                                 />
-                                <div className="flex flex-col gap-1">
-                                  <span className="text-sm font-bold text-rose-900">
-                                    Staff Feedback
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800/80 dark:text-emerald-300">
+                                    <FileCheck2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                    Submitted
                                   </span>
-                                  <span className="text-sm leading-relaxed text-rose-700">
-                                    {task.comments}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
 
-                            {/* Actual Database Description */}
-                            {task.description && (
-                              <div className="flex flex-col gap-1.5 rounded-lg bg-slate-50/50 p-4 border border-slate-100">
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                  Instructions
-                                </span>
-                                <span className="text-sm leading-relaxed text-slate-700">
-                                  {task.description}
-                                </span>
-                              </div>
-                            )}
-
-                            {!needsUpload && task.uploaded_at && (
-                              <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
-                                  <CircleCheck size={18} />
-                                  Completed
-                                </span>
-                                <span className="text-xs text-slate-400">
-                                  • {task.uploaded_at}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* STRUCTURED UPLOAD / ACTION BANNER */}
-                            {needsUpload ? (
-                              <div
-                                className={`mt-2 flex items-center justify-between rounded-lg border p-4 shadow-sm ${
-                                  isResubmit
-                                    ? "border-rose-200 bg-rose-50/50"
-                                    : "border-blue-100 bg-blue-50/50"
-                                }`}
-                              >
-                                <div className="flex flex-col gap-1">
-                                  <span
-                                    className={`flex items-center gap-1.5 text-sm font-bold ${
-                                      isResubmit
-                                        ? "text-rose-700"
-                                        : "text-blue-700"
-                                    }`}
-                                  >
-                                    <CircleAlert size={16} />
-                                    {isResubmit
-                                      ? "Correction Required"
-                                      : "Upload Required"}
-                                  </span>
-                                  <span
-                                    className={`text-xs ${
-                                      isResubmit
-                                        ? "text-rose-600"
-                                        : "text-blue-600"
-                                    }`}
-                                  >
-                                    {isResubmit
-                                      ? "Please submit a revised file based on the feedback."
-                                      : "Please provide the requested document to proceed."}
-                                  </span>
-                                </div>
-                                <div className="shrink-0 pl-4">
-                                  <DropBox
-                                    task={displayTitle}
-                                    taskId={task.assigned_task_id}
-                                    deptName={deptName}
-                                    studentId={id}
-                                    dropbox={task.dropbox}
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="mt-2 flex items-center justify-between rounded-lg border border-emerald-100 bg-emerald-50/50 p-4 shadow-sm">
-                                <div className="flex flex-col gap-1">
-                                  <span className="flex items-center gap-1.5 text-sm font-bold text-emerald-700">
-                                    <CircleCheckBig size={16} />
-                                    Document Submitted
-                                  </span>
-                                  <span className="text-xs text-emerald-600">
-                                    Your file has been uploaded successfully.
-                                  </span>
-                                </div>
-                                <div className="shrink-0 pl-4">
-                                  <Button
-                                    className="w-24 rounded-md border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                                    asChild
-                                  >
-                                    <a
-                                      href={`${task.dropbox}`}
-                                      target="_blank"
-                                      rel="noreferrer"
+                                  {task.dropbox && task.dropbox !== "NULL" && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 dark:bg-[#1A2E46] dark:hover:bg-[#253D5C] dark:text-white dark:border-slate-700"
+                                      asChild
                                     >
-                                      View File
-                                    </a>
-                                  </Button>
+                                      <a
+                                        href={`${task.dropbox}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                      >
+                                        <span>View</span>
+                                        <ExternalLink className="h-3 w-3" />
+                                      </a>
+                                    </Button>
+                                  )}
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    );
-                  })}
-                </Accordion>
+
+                          {/* Staff Remarks / Resubmission Feedback Box */}
+                          {isResubmit && task.comments && (
+                            <div className="flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-xs dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200">
+                              <MessageSquareWarning className="h-4 w-4 text-rose-600 shrink-0 mt-0.5 dark:text-rose-400" />
+                              <div>
+                                <span className="font-bold text-rose-900 dark:text-rose-200">
+                                  Staff Remarks:
+                                </span>{" "}
+                                <span className="text-rose-800 leading-relaxed dark:text-rose-300">
+                                  {task.comments}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           </Accordion>

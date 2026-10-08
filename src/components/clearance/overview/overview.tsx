@@ -15,24 +15,23 @@ export default function Overview({ summary, records }: { summary: getSummaryProm
                     label="Signed"
                     value={summary.signed}
                     icon={Building}
-                    colorClass="text-black"
-                    bgClass="bg-gray-100"
+                    colorClass="text-slate-800 dark:text-slate-200"
+                    bgClass="bg-slate-100 dark:bg-slate-800"
                 />
                 <StatCard
                     label="Incomplete"
                     value={summary.incomplete}
                     icon={Users}
-                    colorClass="text-black"
-                    bgClass="bg-gray-100"
+                    colorClass="text-slate-800 dark:text-slate-200"
+                    bgClass="bg-slate-100 dark:bg-slate-800"
                 />
                 <StatCard
                     label="Pending"
                     value={summary.pending}
                     icon={Clock}
-                    colorClass="text-black"
-                    bgClass="bg-gray-100"
+                    colorClass="text-slate-800 dark:text-slate-200"
+                    bgClass="bg-slate-100 dark:bg-slate-800"
                 />
-                {/* <StatCard label="Completed" value="0" icon={CheckCircle} colorClass="text-green-600" bgClass="bg-green-50" /> */}
             </div>
 
             {/* PROGRESS CARD SECTION */}
@@ -40,8 +39,8 @@ export default function Overview({ summary, records }: { summary: getSummaryProm
 
             {/* DEPARTMENTS GRID */}
             <section className="flex flex-col gap-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                    <h2 className="text-center text-lg font-bold text-gray-800">
+                <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-2">
+                    <h2 className="text-center text-lg font-bold text-slate-900 dark:text-slate-100">
                         Department Status
                     </h2>
                     <span className="cursor-pointer text-xs font-semibold text-blue-600">

@@ -1,102 +1,121 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo } from 'react'
-import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
-
-type StatCard = {
-  label: string;
-  value: number;
-  accentColor: string;
-}
-
-function StatCard({ card, index }: { card: StatCard, index: number }) {
-
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), index * 100)
-    return () => clearTimeout(t)
-  }, [index])
-
-  return (
-    <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-    >
-      <div className={`h-1 w-full ${card.accentColor}`} />
-      <div className='flex flex-col gap-6 p-5'>
-        <p className='text-sm text-slate-500 font-medium mb-2'>{card.label}</p>
-        <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800'>{card.value}</p>
-      </div>
-    </div>
-  )
-}
+import React, { useMemo } from "react";
+import { useFetchAdminStats } from "@/hooks/admin/fetch-stats";
+import { Users, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function AdminStats() {
-  const { data: stats, isLoading  } = useFetchAdminStats()
+  const { data: stats, isLoading } = useFetchAdminStats();
 
-  // ———— Data (Memoized) ————————————————————————————————————————
+  const total = stats?.totalStudents ?? 0;
+  const signed = stats?.signed ?? 0;
+  const incomplete = stats?.incomplete ?? 0;
+  const pending = stats?.pending ?? 0;
 
-  const statCards: StatCard[] = useMemo(() => [
-    {
-      label: 'Total Students',
-      value: stats?.totalStudents ?? 0,
-      accentColor: 'bg-[#0a1128]',
-    },
-    {
-      label: 'Signed',
-      value: stats?.signed ?? 0,
-      accentColor: 'bg-emerald-600',
-    },
-    {
-      label: 'Incomplete',
-      value: stats?.incomplete ?? 0,
-      accentColor: 'bg-amber-600',
-    },
-    {
-      label: 'Pending',
-      value: stats?.pending ?? 0,
-      accentColor: 'bg-red-600',
-    },
-  ], [stats])
+  const clearanceRate = total > 0 ? Math.round((signed / total) * 100) : 0;
 
   if (isLoading) {
     return (
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-200 p-6 shadow-xs'>
-            <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
-            <div className='h-9 w-16 bg-gray-200 rounded animate-pulse' />
+          <div
+            key={i}
+            className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:bg-slate-900/90 dark:border-slate-800"
+          >
+            <div className="h-4 w-24 bg-slate-100 rounded animate-pulse dark:bg-slate-800" />
+            <div className="h-8 w-16 bg-slate-100 rounded animate-pulse dark:bg-slate-800" />
           </div>
         ))}
       </div>
-    )
+    );
   }
-  
+
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-      {statCards.map((card, i) => (
-        <StatCard key={card.label} card={card} index={i} />
-      ))}
-      {/* <div className='flex flex-col gap-8 justify-between bg-white rounded-xl border border-gray-300 p-6 shadow-xs'>
-        <div className='text-base text-gray-600'>Total Students</div>
-        <p className='text-4xl font-bold text-gray-700'>{stats?.totalStudents}</p>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 1. Total Enrolled */}
+      <div className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400" />
+            <span>Total Enrolled</span>
+          </span>
+          <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            Roster
+          </span>
+        </div>
+        <div className="mt-3">
+          <p className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100 tabular-nums">
+            {total}
+          </p>
+          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+            Active candidate students
+          </p>
+        </div>
       </div>
 
-      <div className='flex flex-col gap-8 justify-between bg-emerald-50 rounded-xl border border-emerald-300 p-6 shadow-xs'>
-        <div className='text-base text-emerald-600'>Signed</div>
-        <p className='text-4xl font-bold text-emerald-500'>{stats?.signed}</p>
+      {/* 2. Officially Cleared */}
+      <div className="flex flex-col justify-between rounded-2xl border border-emerald-200/90 bg-emerald-50/20 p-5 shadow-2xs dark:bg-emerald-950/20 dark:border-emerald-800/50 dark:text-emerald-300">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Fully Cleared</span>
+          </span>
+          <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 tabular-nums">
+            {clearanceRate}%
+          </span>
+        </div>
+        <div className="mt-3">
+          <p className="text-3xl font-black tracking-tight text-emerald-700 dark:text-emerald-300 tabular-nums">
+            {signed}
+          </p>
+          <p className="mt-0.5 text-[11px] text-emerald-800/80 dark:text-emerald-400/80">
+            All departments endorsed
+          </p>
+        </div>
       </div>
 
-      <div className='flex flex-col gap-8 justify-start bg-amber-50 rounded-xl border border-amber-300 p-6 shadow-xs'>
-        <div className='text-base text-amber-600'>Incomplete</div>
-        <p className='text-4xl font-bold text-amber-500'>{stats?.incomplete}</p>
+      {/* 3. Incomplete / Tasks Required */}
+      <div className="flex flex-col justify-between rounded-2xl border border-amber-200/90 bg-amber-50/20 p-5 shadow-2xs dark:bg-amber-950/20 dark:border-amber-800/50 dark:text-amber-300">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+            <span>Incomplete Tasks</span>
+          </span>
+          <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
+            Hold
+          </span>
+        </div>
+        <div className="mt-3">
+          <p className="text-3xl font-black tracking-tight text-amber-900 dark:text-amber-300 tabular-nums">
+            {incomplete}
+          </p>
+          <p className="mt-0.5 text-[11px] text-amber-800/80 dark:text-amber-400/80">
+            Pending document submission
+          </p>
+        </div>
       </div>
 
-      <div className='flex flex-col gap-8 justify-between bg-red-50 rounded-xl border border-red-300 p-6 shadow-xs'>
-        <div className='text-base text-red-600'>Pending</div>
-        <p className='text-4xl font-bold text-red-500'>{stats?.pending}</p>
-      </div> */}
+      {/* 4. Awaiting Office Review */}
+      <div className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400" />
+            <span>Pending Review</span>
+          </span>
+          <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            In Queue
+          </span>
+        </div>
+        <div className="mt-3">
+          <p className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100 tabular-nums">
+            {pending}
+          </p>
+          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+            Awaiting staff signature
+          </p>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

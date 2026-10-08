@@ -75,45 +75,44 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
           const originallyRequiredDropbox = hasDropbox || isRejected;
           const isInPerson = !hasDropbox && !isRejected && !isCleared;
           const isDigital = originallyRequiredDropbox;
-          const isPhysical = !isDigital;
 
           return (
             <div
               key={t.assigned_task_id}
-              className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md"
+              className="flex flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs dark:bg-slate-900/80 dark:border-slate-800 dark:hover:border-slate-700"
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row">
 
                 {/* --- Left Column: Text Content --- */}
                 <div className="flex flex-1 flex-col gap-1.5">
                   <div className="flex items-center gap-2">
-                    <h3 className={`text-[15px] font-bold ${isCleared ? "text-gray-500 line-through" : "text-gray-900"}`}>
+                    <h3 className={`text-base font-bold ${isCleared ? "text-slate-400 line-through dark:text-slate-500" : "text-slate-900 dark:text-slate-100"}`}>
                       {t.title}
                     </h3>
                     {isConfidential && <Lock size={14} className="stroke-[2.5px] text-amber-500" />}
                   </div>
 
-                  <p className="max-w-4xl text-[13px] leading-relaxed text-gray-500">
+                  <p className="max-w-4xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     {t.description}
                   </p>
                   {isInPerson && (
-                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
-                      <User size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                      <p className="text-[12px] text-slate-500 leading-relaxed">
-                        No file upload required — please complete this requirement in person at the department office.
+                    <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-slate-50 border border-slate-200/70 p-3 dark:bg-slate-800/60 dark:border-slate-700/60 dark:text-slate-300">
+                      <User size={15} className="shrink-0 text-slate-400 mt-0.5" />
+                      <p className="text-xs text-slate-600 leading-relaxed dark:text-slate-300">
+                        No digital upload required — please complete this requirement in person at the department office.
                       </p>
                     </div>
                   )}
 
-                  <div className="mt-2 flex items-center gap-4 text-xs font-medium">
-                    <div className="flex items-center gap-1.5 text-gray-500">
-                      <Building2 size={14} />
+                  <div className="mt-2 flex items-center gap-4 text-xs font-semibold">
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      <Building2 size={14} className="text-slate-400" />
                       <span>{t.department}</span>
                     </div>
 
                     {t.assigned_at && (
-                      <div className="flex items-center gap-1.5 text-gray-500">
-                        <Calendar size={14} />
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Calendar size={14} className="text-slate-400" />
                         <span>{dateText}</span>
                       </div>
                     )}
@@ -125,40 +124,40 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
 
                   {/* Status Badge */}
                   <div
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
-                      isRejected ? "bg-red-50 text-red-700" :
-                      isCleared ? "bg-green-50 text-green-700" :
-                      isSubmitted ? "bg-blue-50 text-blue-700" :
-                      "bg-amber-50 text-amber-700"
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold tracking-wide border ${
+                      isRejected ? "bg-rose-50 border-rose-200/80 text-rose-800 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300" :
+                      isCleared ? "bg-emerald-50 border-emerald-200/80 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800/80 dark:text-emerald-300" :
+                      isSubmitted ? "bg-sky-50 border-sky-200/80 text-sky-800 dark:bg-sky-950/40 dark:border-sky-800/80 dark:text-sky-300" :
+                      "bg-amber-50 border-amber-200/80 text-amber-800 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-300"
                     }`}
                   >
-                    {isCleared && <CheckCircle2 size={14} className="stroke-[2.5px]" />}
-                    {isRejected && <AlertCircle size={14} className="stroke-[2.5px]" />}
-                    {isSubmitted && <FileText size={14} className="stroke-[2.5px]" />}
-                    {isPending && <Clock size={14} className="stroke-[2.5px]" />}
+                    {isCleared && <CheckCircle2 size={14} className="stroke-[2.5px] text-emerald-600 dark:text-emerald-400" />}
+                    {isRejected && <AlertCircle size={14} className="stroke-[2.5px] text-rose-600 dark:text-rose-400" />}
+                    {isSubmitted && <FileText size={14} className="stroke-[2.5px] text-sky-600 dark:text-sky-400" />}
+                    {isPending && <Clock size={14} className="stroke-[2.5px] text-amber-600 dark:text-amber-400" />}
                     <span>{effectiveStatus}</span>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 mt-auto">
                     {isInPerson && (
-                      <div className="flex items-center gap-1.5 rounded border border-gray-200 bg-gray-50 px-3 py-1.5 text-[11px] font-semibold text-gray-600">
-                        <User size={14} />
+                      <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <User size={13} />
                         <span>In-person</span>
                       </div>
                     )}
                     {isPending && isDigital && (
                       <button
                         onClick={() => setActiveTask(t)}
-                        className="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
+                        className="rounded-xl bg-[#0B192C] px-4 py-2 text-xs font-bold text-white shadow-2xs transition hover:bg-[#1A2E46] cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
                       >
-                        Submit
+                        Submit Document
                       </button>
                     )}
                     {isRejected && (
                       <button
                         onClick={() => setActiveTask(t)}
-                        className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
+                        className="rounded-xl border border-rose-200 bg-rose-50/50 px-3.5 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100/70 cursor-pointer dark:bg-rose-950/50 dark:border-rose-800/80 dark:text-rose-200 dark:hover:bg-rose-900/50"
                       >
                         Fix & Resubmit
                       </button>
@@ -168,9 +167,9 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                         href={t.dropbox}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-50"
+                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
                       >
-                        <ExternalLink size={14} />
+                        <ExternalLink size={13} className="text-slate-400 dark:text-slate-400" />
                         <span>View Document</span>
                       </a>
                     )}
@@ -180,11 +179,11 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
 
               {/* Rejection Comments */}
               {isRejected && t.comments && (
-                <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-100 bg-red-50 p-3 text-sm">
-                  <MessageSquareWarning size={16} className="mt-0.5 shrink-0 text-red-500" />
+                <div className="mt-2 flex items-start gap-2.5 rounded-xl border border-rose-200/80 bg-rose-50/60 p-3.5 text-xs dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200">
+                  <MessageSquareWarning size={16} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />
                   <div className="flex flex-col">
-                    <span className="mb-0.5 text-xs font-bold uppercase text-red-600">Department Comment</span>
-                    <span className="text-red-800">{t.comments}</span>
+                    <span className="mb-0.5 text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300">Department Remark</span>
+                    <span className="text-rose-900 leading-relaxed font-medium dark:text-rose-200">{t.comments}</span>
                   </div>
                 </div>
               )}
@@ -192,8 +191,10 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
           );
         })
       ) : (
-        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-gray-300 text-sm text-gray-500">
-          No tasks available at the moment.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center dark:bg-slate-900/80 dark:border-slate-800 dark:text-slate-400">
+          <FileText className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No clearance tasks assigned</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">All departmental requirements will appear here once requested.</p>
         </div>
       )}
 

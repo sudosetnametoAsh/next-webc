@@ -20,16 +20,16 @@ import { getDepartmentDetailsPromise } from "@/modules/clearance/application/rep
 const getStatusConfig = (status: string) => {
   switch (status) {
     case "Cleared":
-      return { bg: "bg-emerald-50", text: "text-emerald-600", label: "Cleared" };
+      return { bg: "bg-emerald-50 dark:bg-emerald-950/50 dark:border dark:border-emerald-800/60", text: "text-emerald-600 dark:text-emerald-400", label: "Cleared" };
     case "Flagged":
     case "Submitted":
-      return { bg: "bg-blue-50", text: "text-blue-600", label: "Submitted" };
+      return { bg: "bg-blue-50 dark:bg-blue-950/50 dark:border dark:border-blue-800/60", text: "text-blue-600 dark:text-blue-400", label: "Submitted" };
     case "Pending":
-      return { bg: "bg-amber-50", text: "text-amber-600", label: "Pending" };
+      return { bg: "bg-amber-50 dark:bg-amber-950/50 dark:border dark:border-amber-800/60", text: "text-amber-600 dark:text-amber-400", label: "Pending" };
     case "Rejected":
-      return { bg: "bg-red-50", text: "text-red-600", label: "Rejected" };
+      return { bg: "bg-red-50 dark:bg-red-950/50 dark:border dark:border-red-800/60", text: "text-red-600 dark:text-red-400", label: "Rejected" };
     default:
-      return { bg: "bg-slate-50", text: "text-slate-600", label: status };
+      return { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-400", label: status };
   }
 };
 
@@ -60,44 +60,44 @@ export default function Sidebar({
   if (!selectedRecord) return null;
 
   return (
-    <section className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity">
+    <section className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity">
       <div
-        className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white border-l border-slate-200 shadow-2xl transition-transform duration-300 ease-in-out dark:bg-slate-900 dark:border-slate-800 ${
           selectedRecord ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <header className="flex items-center justify-between border-b p-6">
+        <header className="flex items-center justify-between border-b border-slate-200 p-6 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-              <ShieldCheck className="text-blue-600" size={24} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-amber-500/10 dark:border dark:border-amber-500/20">
+              <ShieldCheck className="text-blue-600 dark:text-amber-400" size={24} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-xl font-bold text-slate-900 truncate">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">
                 {selectedRecord.department}
               </h2>
-              <p className="text-sm font-medium text-slate-500 truncate">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
                 {selectedRecord.staff}
               </p>
             </div>
           </div>
           <button
             onClick={() => setSelectedRecord(null)}
-            className="rounded-full p-2 hover:bg-slate-100 transition-colors"
+            className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
-            <X className="text-slate-400" size={24} />
+            <X className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" size={24} />
           </button>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
           {/* Department Information */}
           <section>
-            <h3 className="mb-4 text-xs font-bold tracking-wider text-slate-400 uppercase">
+            <h3 className="mb-4 text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
               Department Information
             </h3>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-              <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-100">
-                  <Clock size={16} className="text-slate-400" />
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-850">
+              <div className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                  <Clock size={16} className="text-slate-400 dark:text-slate-400" />
                 </div>
                 {selectedRecord.time_in && selectedRecord.time_out ? (
                   <span>{`${selectedRecord.time_in}AM - ${selectedRecord.time_out}`}</span>
@@ -111,10 +111,10 @@ export default function Sidebar({
           {/* Assigned Tasks */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+              <h3 className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
                 Assigned Tasks
               </h3>
-              <span className="text-[10px] font-bold text-slate-400">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
                 {departmentTasks.length} {departmentTasks.length === 1 ? "TASK" : "TASKS"}
               </span>
             </div>
@@ -149,7 +149,7 @@ export default function Sidebar({
                 return (
                   <div
                     key={task.assigned_task_id}
-                    className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm transition-all hover:border-slate-300"
+                    className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm transition-all hover:border-slate-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:border-slate-700"
                   >
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-4">
@@ -157,7 +157,7 @@ export default function Sidebar({
                           <div className="flex items-center justify-between mb-2 gap-2">
                             <h4
                               className={`text-sm font-bold leading-tight break-words ${
-                                isCleared ? "text-slate-400 line-through" : "text-slate-900"
+                                isCleared ? "text-slate-400 line-through dark:text-slate-500" : "text-slate-900 dark:text-slate-100"
                               }`}
                             >
                               {task.title}
@@ -171,13 +171,13 @@ export default function Sidebar({
 
                           <div className="flex flex-wrap gap-2 mb-3">
                             {isInPerson && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600 dark:bg-violet-950/40 dark:text-violet-300 dark:border dark:border-violet-800/60">
                                 <UserCheck size={10} />
                                 In-Person
                               </span>
                             )}
                             {isRejected && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:bg-rose-950/40 dark:text-rose-300 dark:border dark:border-rose-800/60">
                                 <XCircle size={10} />
                                 Action Required
                               </span>
@@ -187,7 +187,7 @@ export default function Sidebar({
                           {task.description && (
                             <p
                               className={`text-xs leading-relaxed ${
-                                isCleared ? "text-slate-400" : "text-slate-500"
+                                isCleared ? "text-slate-400 dark:text-slate-500" : "text-slate-500 dark:text-slate-400"
                               }`}
                             >
                               {task.description}
@@ -196,9 +196,9 @@ export default function Sidebar({
 
                           {/* In-person note */}
                           {isInPerson && (
-                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5 dark:bg-slate-800/60 dark:border-slate-700/60">
                               <UserCheck size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <p className="text-xs text-slate-500 leading-relaxed">
+                              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 No file upload required — please complete this requirement in person at the department office.
                               </p>
                             </div>
@@ -206,16 +206,16 @@ export default function Sidebar({
 
                           {/* Rejection Note */}
                           {isRejected && task.comments && (
-                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 p-3">
+                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 p-3 dark:bg-rose-950/40 dark:border-rose-900/60">
                               <MessageSquareWarning
                                 size={14}
-                                className="shrink-0 text-red-500 mt-0.5"
+                                className="shrink-0 text-red-500 dark:text-rose-400 mt-0.5"
                               />
                               <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">
+                                <p className="text-[10px] font-bold text-red-600 dark:text-rose-300 uppercase tracking-wider mb-1">
                                   Feedback
                                 </p>
-                                <p className="text-xs text-red-700 leading-relaxed">
+                                <p className="text-xs text-red-700 dark:text-rose-200 leading-relaxed">
                                   {task.comments}
                                 </p>
                               </div>
@@ -225,8 +225,8 @@ export default function Sidebar({
                       </div>
                     </div>
 
-                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50">
-                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/60">
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">
                         <Calendar size={12} />
                         Assigned {formatDate(task.assigned_at)}
                       </span>
@@ -235,7 +235,7 @@ export default function Sidebar({
                         {isPending && isDigital && (
                           <button
                             onClick={() => setActiveTask(task)}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 cursor-pointer"
                           >
                             Submit
                           </button>
@@ -244,7 +244,7 @@ export default function Sidebar({
                         {isRejected && (
                           <button
                             onClick={() => setActiveTask(task)}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors dark:bg-rose-600 dark:hover:bg-rose-500 cursor-pointer"
                           >
                             <RotateCcw size={12} />
                             Resubmit
@@ -256,7 +256,7 @@ export default function Sidebar({
                             href={task.dropbox}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-slate-50 transition-colors"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-amber-400 dark:hover:bg-slate-750"
                           >
                             <Eye size={12} />
                             View
@@ -264,7 +264,7 @@ export default function Sidebar({
                         )}
 
                         {isCleared && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 uppercase tracking-tight">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tight">
                             <CheckCircle2 size={14} />
                              Cleared
                           </span>

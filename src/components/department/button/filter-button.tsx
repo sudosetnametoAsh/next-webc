@@ -20,13 +20,13 @@ export default function FilterButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={"outline"} className="p-2.5!">
+        <Button variant={"outline"} className="p-2.5! dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700">
           {/* Select Filter */}
-          <Funnel color="#000000" />
+          <Funnel className="h-4 w-4 text-slate-700 dark:text-slate-300" />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="p-2.5!">
+      <DropdownMenuContent className="p-2.5! dark:border-slate-800 dark:bg-slate-900">
         {/* <DropdownMenuLabel> Status</DropdownMenuLabel> */}
         <DropdownMenuCheckboxItem
           checked={statusFilter === "All"}

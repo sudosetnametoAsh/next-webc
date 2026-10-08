@@ -122,12 +122,12 @@ export default function AddPreset({
     <div>
       <Dialog onOpenChange={resetState}>
         <DialogTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white cursor-pointer">
             <Clipboard className="h-4 w-4" /> Preset
           </button>
         </DialogTrigger>
 
-        <DialogContent className="p-0 overflow-hidden sm:max-w-125 border-none shadow-2xl">
+        <DialogContent className="p-0 overflow-hidden sm:max-w-125 border-none shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-800">
           <DialogHeader className="bg-[#0a1128] px-6 py-5 text-white">
             <DialogTitle className="flex items-center gap-2 text-lg font-bold tracking-wide">
               <Clipboard className="h-5 w-5" />
@@ -138,28 +138,28 @@ export default function AddPreset({
             </p>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 p-6">
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+          <div className="flex flex-col gap-5 p-6 dark:bg-slate-900">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                 {clearanceId.length > 1 ? "👥" : "👤"}
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {clearanceId.length > 1
                     ? `${clearanceId.length} Students Selected`
                     : `Student ID: ${clearanceId[0] || "None Selected"}`}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {clearanceId.length > 1 ? "Bulk assignment" : "Targeted assignment"}
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-slate-700">Available Presets</h4>
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Available Presets</h4>
 
               {/* Added min-h-40 so the empty state has room to breathe */}
-              <div className="flex min-h-40 max-h-60 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-200 bg-slate-50/50 p-2">
+              <div className="flex min-h-40 max-h-60 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-200 bg-slate-50/50 p-2 dark:border-slate-800 dark:bg-slate-950/40">
 
                 {/* 3. Added the Conditional Fallback Rendering here */}
                 {preset?.data?.length > 0 ? (
@@ -172,8 +172,8 @@ export default function AddPreset({
                         key={item.task_id}
                         className={`flex flex-col gap-3 rounded-lg border p-3 transition-all ${
                           isSelected
-                            ? "border-blue-300 bg-blue-50/30 shadow-sm"
-                            : "border-slate-200 bg-white hover:border-slate-300"
+                            ? "border-blue-300 bg-blue-50/30 shadow-sm dark:border-blue-800 dark:bg-blue-950/30"
+                            : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-850 dark:hover:border-slate-700"
                         }`}
                       >
                         <div className="flex items-start gap-3">
@@ -188,18 +188,18 @@ export default function AddPreset({
                             className="cursor-pointer flex-1 space-y-1"
                           >
                             {/* 4. Display the Title and Description beautifully */}
-                            <div className="text-sm font-bold text-slate-800">
+                            <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
                               {item.title}
                             </div>
-                            <div className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                            <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                               {item.description}
                             </div>
                           </label>
                         </div>
 
                         {isSelected && (
-                          <div className="flex items-center justify-between pl-7 pr-1 pt-1 border-t border-slate-200/60 mt-1">
-                            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                          <div className="flex items-center justify-between pl-7 pr-1 pt-1 border-t border-slate-200/60 dark:border-slate-750 mt-1">
+                            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 font-medium">
                               <Upload className="h-3.5 w-3.5 text-slate-400" />
                               Require File Upload
                             </div>
@@ -215,7 +215,7 @@ export default function AddPreset({
                   })
                 ) : (
                   // Fallback Empty State
-                  <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 text-slate-400">
+                  <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
                     <Clipboard className="h-8 w-8 opacity-20" />
                     <p className="text-sm font-medium">No presets configured yet</p>
                   </div>
@@ -224,9 +224,9 @@ export default function AddPreset({
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-850">
             <DialogClose asChild>
-              <Button variant="outline" className="font-semibold text-slate-700">
+              <Button variant="outline" className="font-semibold text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-750 cursor-pointer">
                 Cancel
               </Button>
             </DialogClose>
@@ -234,7 +234,7 @@ export default function AddPreset({
               <Button
                 onClick={addTask}
                 disabled={!taskId || taskId.length === 0}
-                className="bg-[#0b3b75] font-semibold text-white hover:bg-[#0b3b75] gap-2 px-5 disabled:opacity-50"
+                className="bg-[#0b3b75] font-semibold text-white hover:bg-[#1d5ead] dark:bg-blue-600 dark:hover:bg-blue-500 gap-2 px-5 disabled:opacity-50 cursor-pointer"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign Presets

@@ -49,13 +49,13 @@ export default function DropBox({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-24 rounded-md bg-slate-900 text-sm font-medium text-white hover:bg-slate-800 cursor-pointer">
+        <Button className="w-24 rounded-md bg-slate-900 text-sm font-medium text-white hover:bg-slate-800 cursor-pointer dark:bg-[#1A2E46] dark:hover:bg-[#253D5C] dark:text-white">
           Upload
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="p-6">
-        <DialogTitle className="text-slate-900 font-bold mb-4">Submit Task</DialogTitle>
+      <DialogContent className="p-6 dark:bg-slate-900 dark:border-slate-800">
+        <DialogTitle className="text-slate-900 font-bold mb-4 dark:text-slate-100">Submit Task</DialogTitle>
         <form
           id="task-submission-form"
           className="flex flex-col gap-4"
@@ -74,7 +74,7 @@ export default function DropBox({
             {(field) => (
               <div className="flex flex-col gap-2">
                 <Input
-                  className="cursor-pointer file:text-slate-900"
+                  className="cursor-pointer file:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:file:text-slate-100"
                   type="file"
                   onChange={(e) => field.handleChange(e.target.files?.[0])}
                 />
@@ -91,7 +91,7 @@ export default function DropBox({
             <Button
               type="submit"
               form="task-submission-form"
-              className="bg-slate-900 text-white hover:bg-slate-800 rounded-md"
+              className="bg-slate-900 text-white hover:bg-slate-800 rounded-md dark:bg-[#1A2E46] dark:hover:bg-[#253D5C] dark:text-white"
             >
               Submit
             </Button>

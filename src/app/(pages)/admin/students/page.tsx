@@ -8,13 +8,9 @@ import { StudentTemplates } from '@/types/admin'
 import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Search } from 'lucide-react'
 
-// ———— TYPES ————————————————————————————————————————————————————————————————————————————————————————————————
+import AdminStats from '@/components/admin/admin-stats'
 
-type StatCard = {
-  label: string;
-  value: number;
-  accentColor: string;
-}
+// ———— TYPES ————————————————————————————————————————————————————————————————————————————————————————————————
 
 type Props = {
   setAdminPage: (adminPage: string) => void
@@ -28,42 +24,20 @@ type SortType = 'name-a-z' | 'name-z-a'
 
 const PAGE_SIZE = 8
 
-const STATUS_CONFIG: Record<'Incomplete' | 'Pending' | 'Signed', { container: string; text: string }> = {
-  Incomplete: { container: 'bg-amber-50 border-amber-200', text: 'text-amber-600' },
-  Pending: { container: 'bg-red-50 border-red-200', text: 'text-red-600' },
-  Signed: { container: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-600' },
+const STATUS_CONFIG: Record<'Incomplete' | 'Pending' | 'Signed', { container: string; text: string; dot: string }> = {
+  Incomplete: { container: 'bg-amber-50 border-amber-200/80 dark:bg-amber-950/30 dark:border-amber-800/50', text: 'text-amber-800 dark:text-amber-300', dot: 'bg-amber-500' },
+  Pending: { container: 'bg-rose-50 border-rose-200/80 dark:bg-rose-950/30 dark:border-rose-800/50', text: 'text-rose-800 dark:text-rose-300', dot: 'bg-rose-500' },
+  Signed: { container: 'bg-emerald-50 border-emerald-200/80 dark:bg-emerald-950/30 dark:border-emerald-800/50', text: 'text-emerald-800 dark:text-emerald-300', dot: 'bg-emerald-500' },
 };
 
 // ———— SUB COMPONENTS ————————————————————————————————————————————————————————————————————————————————————————————————
 
-function StatCard({ card, index }: { card: StatCard, index: number }) {
-
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), index * 100)
-    return () => clearTimeout(t)
-  }, [index])
-
-  return (
-    <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-    >
-      <div className={`h-1 w-full ${card.accentColor}`} />
-      <div className='flex flex-col gap-6 p-5'>
-        <p className='text-sm text-slate-500 font-medium mb-2'>{card.label}</p>
-        <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800'>{card.label !== 'Avg. Completion' ? card.value : `${card.value}%`}</p>
-      </div>
-    </div>
-  )
-}
-
 function StatusBadge({ status }: { status: 'Incomplete' | 'Pending' | 'Signed' }) {
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.Pending;
   return (
-    <div className={`flex justify-center items-center border rounded-full px-3 py-1 ${config.container}`}>
-      <p className={`text-sm font-mono font-bold ${config.text}`}>{status}</p>
+    <div className={`inline-flex items-center gap-1.5 border rounded-full px-2.5 py-0.5 ${config.container}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      <span className={`text-xs font-semibold ${config.text}`}>{status}</span>
     </div>
   );
 }
@@ -77,91 +51,72 @@ function Pagination({
   total: number;
   onChange: (page: number) => void;
 }) {
-
   const pages = Array.from({ length: total }, (_, i) => i + 1 )
   if (total <= 1) { return null }
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center gap-1.5'>
       <button
         onClick={() => onChange(current - 1)}
         disabled={current === 1}
-        className='px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer'
+        className='px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer'
       >
         ← Prev
       </button>
-      {total < 4 && pages.map((p) => (
+      {total <= 5 && pages.map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
-          className={`w-8 h-8 rounded-lg text-sm font-medium cursor-pointer ${
+          className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer transition ${
             current === p
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-500 hover:bg-gray-100'
+              ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950'
+              : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           {p}
         </button>
       ))}
-      {(current < 3 && total > 3) && pages.slice(0, 3).map((p) => (
-        <button
-          key={p}
-          onClick={() => onChange(p)}
-          className={`w-8 h-8 rounded-lg text-sm font-medium cursor-pointer ${
-            current === p
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
-      {(current > 2 && current < total - 2 && total > 3) && pages.slice(current - 2, current + 1).map((p) => (
-        <button
-          key={p}
-          onClick={() => onChange(p)}
-          className={`w-8 h-8 rounded-lg text-sm font-medium cursor-pointer ${
-            current === p
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
-      {(current < total - 2 && total > 3) && (
+      {total > 5 && (
         <>
-          <span className='text-gray-400 text-sm px-1'>...</span>
-          {pages.slice(total - 1).map((p) => (<button
-            key={p}
-            onClick={() => onChange(p)}
-            className={`w-8 h-8 rounded-lg text-sm font-medium cursor-pointer ${
-              current === p
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-500 hover:bg-gray-100'
+          <button
+            onClick={() => onChange(1)}
+            className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer transition ${
+              current === 1 ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
-            {p}
-          </button>))}
+            1
+          </button>
+          {current > 3 && <span className='text-slate-400 dark:text-slate-500 text-xs px-1'>...</span>}
+          {pages
+            .filter((p) => p !== 1 && p !== total && Math.abs(p - current) <= 1)
+            .map((p) => (
+              <button
+                key={p}
+                onClick={() => onChange(p)}
+                className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer transition ${
+                  current === p
+                    ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          {current < total - 2 && <span className='text-slate-400 dark:text-slate-500 text-xs px-1'>...</span>}
+          <button
+            onClick={() => onChange(total)}
+            className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer transition ${
+              current === total ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+            }`}
+          >
+            {total}
+          </button>
         </>
       )}
-      {(current >= total - 2 && total > 3) && pages.slice(total - 4, total).map((p) => (
-        <button
-          key={p}
-          onClick={() => onChange(p)}
-          className={`w-8 h-8 rounded-lg text-sm font-medium cursor-pointer ${
-            current === p
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
       <button
         onClick={() => onChange(current + 1)}
         disabled={current === total}
-        className='px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer'
+        className='px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer'
       >
         Next →
       </button>
@@ -189,33 +144,10 @@ export default function StudentListView({ setAdminPage }: Props) {
 
   // ———— Data (Memoized) ————————————————————————————————————————
 
-  const statCards: StatCard[] = useMemo(() => [
-    {
-      label: 'Total Non-Cleared',
-      value: stats?.totalNonCleared ?? 0,
-      accentColor: 'bg-[#0a1128]',
-    },
-    {
-      label: 'Incomplete',
-      value: stats?.incomplete ?? 0,
-      accentColor: 'bg-amber-600',
-    },
-    {
-      label: 'Pending',
-      value: stats?.pending ?? 0,
-      accentColor: 'bg-red-600',
-    },
-    {
-      label: 'Avg. Completion',
-      value: stats?.averageCompletion ?? 0,
-      accentColor: 'bg-cyan-600',
-    },
-  ], [stats])
-
   const totalStudentTemplates = studentTemplates.length
-  const incompleteCount = stats?.incomplete
-  const pendingCount = stats?.pending
-  const signedCount = stats?.signed
+  const incompleteCount = stats?.incomplete ?? 0
+  const pendingCount = stats?.pending ?? 0
+  const signedCount = stats?.signed ?? 0
   const courses = useMemo(() => courseTemplates.map(cT => shrinkCourseName(cT.course_name) || cT.course_name), [courseTemplates])
   const departments = useMemo(() => {
     const maxDeptNum = Math.max(0, ...courseTemplates.map(cT => cT.departments.length))
@@ -238,7 +170,8 @@ export default function StudentListView({ setAdminPage }: Props) {
         d.student_name.toLowerCase().includes(q) ||
         d.course_name.toLowerCase().includes(q) ||
         shrinkCourseName(d.course_name).toLowerCase().includes(q) || 
-        expandCourseAbbreviation(d.course_name).toLowerCase().includes(q)
+        expandCourseAbbreviation(d.course_name).toLowerCase().includes(q) ||
+        String(d.student_id).toLowerCase().includes(q)
       ))
     }
 
@@ -273,7 +206,6 @@ export default function StudentListView({ setAdminPage }: Props) {
     [filteredStudents, studentPage]
   )
 
-
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
     setStudentPage(1)
@@ -289,265 +221,292 @@ export default function StudentListView({ setAdminPage }: Props) {
     setStudentPage(1)
   }
 
-
   return (
-    <>
+    <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-2">
-          Student Clearance Status
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+          Student Clearance Registry
         </h1>
-        <p className="text-sm text-gray-500">
-          Track and manage students who haven&apos;t completed their clearance.
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Monitor individual clearance progression across degree programs, track bottlenecks, and review status.
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-        {statCards.map((card, i) => (
-          <StatCard key={card.label} card={card} index={i} />
-        ))}
-      </div>
+      {/* KPI Stats Ribbon */}
+      <AdminStats />
 
-      {/* Table Card */}
-      <div className='bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden'>
-        {/* Tabs */}
-        <div className='flex flex-wrap'>
+      {/* Registry Table & Filters Card */}
+      <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden dark:bg-slate-900/90 dark:border-slate-800'>
+        {/* Tab Strip */}
+        <div className='flex border-b border-slate-200 overflow-x-auto bg-slate-50/50 dark:bg-slate-850 dark:border-slate-800'>
           {(
             [
               { key: 'all', label: 'All Students', count: totalStudentTemplates },
               { key: 'incomplete', label: 'Incomplete', count: incompleteCount },
-              { key: 'pending', label: 'Pending', count: pendingCount },
-              { key: 'signed', label: 'Signed', count: signedCount },
+              { key: 'pending', label: 'Pending Review', count: pendingCount },
+              { key: 'signed', label: 'Fully Cleared', count: signedCount },
             ] as { key: TabType; label: string; count: number }[]
           ).map((tab) => (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`px-5 py-4 text-sm font-semibold flex items-center gap-2 whitespace-nowrap border-b-2 transition-colors cursor-pointer ${
+              className={`px-5 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 whitespace-nowrap border-b-2 transition-all cursor-pointer ${
                 activeTab === tab.key 
-                  ? 'border-gray-900 text-gray-900 bg-gray-900/[0.03]'
-                  : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'border-[#0B192C] text-[#0B192C] bg-white dark:border-amber-400 dark:text-amber-400 dark:bg-slate-900'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
               <span
-                  className={`text-sm px-2 py-0.5 rounded-full font-bold ${
-                    activeTab === tab.key
-                      ? "bg-gray-900 text-white"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {tab.count}
-                </span>
+                className={`text-[11px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                  activeTab === tab.key
+                    ? "bg-[#0B192C] text-white dark:bg-amber-400 dark:text-slate-950"
+                    : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                }`}
+              >
+                {tab.count}
+              </span>
             </button>
           ))}
         </div>
 
-        {/* Filters */}
-        <div className='px-4 sm:px-6 py-4 flex flex-wrap gap-3 item-center border-b border-gray-500'>
-
+        {/* Filters Bar */}
+        <div className='p-4 sm:p-5 flex flex-wrap gap-3 items-center justify-between border-b border-slate-200/80 bg-white dark:bg-slate-900 dark:border-slate-800'>
           {/* Search */}
-          <div className='relative flex-1 min-w-[200px] max-w-xs'>
-            <Search className='w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-300' />
+          <div className='relative flex-1 min-w-[220px] max-w-sm'>
+            <Search className='w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500' />
             <input 
               type='text'
-              className='w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 placeholder:text-gray-300'
-              placeholder='Search by name, ID, or course...'
+              className='w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B192C]/10 focus:border-[#0B192C] placeholder:text-slate-400 transition-all text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 focus:dark:border-amber-400'
+              placeholder='Search by student name, ID, or degree...'
               onChange={(e) => handleSearch(e.target.value)}
               value={search}
             />
           </div>
 
-          {/* Courses */}
-          <div className='flex items-center gap-1.5 flex-wrap'>
-            {['All', ...courses ?? ''].map((c) => (
-              <button
-                key={c}
-                onClick={() => handleCourseFilter(c)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                  courseFilter === c
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                {c}
-              </button>
-            ))}
+          <div className='flex flex-wrap items-center gap-2.5 ml-auto'>
+            {/* Courses Filter Pills */}
+            <div className='flex items-center gap-1 overflow-x-auto max-w-xs sm:max-w-none pb-1 sm:pb-0'>
+              {['All', ...courses].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => handleCourseFilter(c)}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    courseFilter === c
+                      ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
+            {/* Department filter */}
+            <select
+              value={deptFilter}
+              onChange={(e) => { setDeptFilter(e.target.value); setStudentPage(1); }}
+              className='text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0B192C]/10 focus:border-[#0B192C] cursor-pointer dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:dark:border-amber-400'
+            >
+              {['All departments', ...departments].map(d => (
+                <option key={d} value={d} className="dark:bg-slate-800 dark:text-slate-200">{d}</option>
+              ))}
+            </select>
+
+            {/* Sort */}
+            <select
+              value={sort}
+              onChange={(e) => { setSort(e.target.value as SortType); setStudentPage(1) }}
+              className='text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0B192C]/10 focus:border-[#0B192C] cursor-pointer dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 focus:dark:border-amber-400'
+            >
+              {([
+                { label: 'Sort: Name (A-Z)', value: 'name-a-z' },
+                { label: 'Sort: Name (Z-A)', value: 'name-z-a' }
+              ] as { label: string; value: SortType}[]).map((o) => (
+                <option key={o.value} value={o.value} className="dark:bg-slate-800 dark:text-slate-200">{o.label}</option>
+              ))}
+            </select>
+
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-400 whitespace-nowrap tabular-nums pl-1">
+              {filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'}
+            </span>
           </div>
-
-          {/* Deparment filter */}
-          <select
-            value={deptFilter}
-            onChange={(e) => { setDeptFilter(e.target.value); setStudentPage(1); }}
-            className='text-sm border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-900/10 cursor-pointer'
-
-          >
-            {['All departments', ...departments ?? ''].map(d => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => { setSort(e.target.value as SortType); setStudentPage(1) }}
-            className='text-sm border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-900/10 cursor-pointer'
-          >
-            {([
-              { label: 'Sort: Name A-Z', value: 'name-a-z' },
-              { label: 'Sort: Name Z-A', value: 'name-z-a' }
-            ] as { label: string; value: SortType}[]).map((o) => (
-              <option key={o.value} value={o.value} >{o.label}</option>
-            ))}
-          </select>
-
-          <span className="text-xs text-gray-400 ml-auto whitespace-nowrap">
-              {filteredStudents.length}
-              {(filteredStudents.length ?? 0) > 1 ? ' results' : ' result'}
-          </span>
         </div>
 
-        {/* Table - desktop */}
+        {/* Table - Desktop View */}
         <div className='hidden md:block overflow-x-auto'>
           <table className='w-full'>
             <thead>
-              <tr className='border-b border-slate-100 bg-slate-50/50'>
-                {['Student', 'ID', 'Course / Year', 'Status', 'Pending Departments'].map((h) => (
+              <tr className='border-b border-slate-200/90 bg-slate-50/70 dark:bg-slate-800/60 dark:text-slate-400 dark:border-slate-800'>
+                {['Student Name', 'Student ID', 'Degree Program', 'Status', 'Pending Offices'].map((h) => (
                   <th
                     key={h}
-                    className='px-6 py-3.5 text-left text-[11px] font-bold tracking-wider uppercase text-slate-500'
+                    className='px-6 py-3.5 text-left text-[11px] font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400'
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className='divide-y divide-slate-100'>
-                {paginated.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className='px-6 py-16 text-center text-sm text-slate-400'>
-                      No students match your filters.
-                    </td>
-                  </tr>
-                ) : (
-                  paginated?.map((s) => {
-                    const courseAbbr = shrinkCourseName(s.course_name) || s.course_name;
-                    const courseBadgeColor = 
-                      courseAbbr.includes('CS') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                      courseAbbr.includes('IT') ? 'bg-cyan-50 text-cyan-700 border-cyan-200' :
-                      courseAbbr.includes('CPE') ? 'bg-amber-50 text-amber-800 border-amber-200' :
-                      'bg-slate-100 text-slate-700 border-slate-200';
+            <tbody className='divide-y divide-slate-100 dark:divide-slate-800'>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className='px-6 py-16 text-center text-sm text-slate-400 dark:text-slate-500'>
+                    No students match your selected filters.
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((s) => {
+                  const courseAbbr = shrinkCourseName(s.course_name) || s.course_name;
+                  const initials = s.student_name
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
 
-                    return (
-                      <tr key={s.student_id} className='group hover:bg-slate-50/80 transition-all duration-150'>
-                        <td className='px-6 py-4'>
-                          <span className='font-bold text-slate-900 group-hover:text-amber-950 transition-colors'>
+                  return (
+                    <tr key={s.student_id} className='group hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors'>
+                      <td className='px-6 py-4'>
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0B192C] text-xs font-bold text-amber-400 shadow-2xs dark:bg-[#0B192C] dark:text-amber-400 dark:border dark:border-slate-700">
+                            {initials}
+                          </div>
+                          <span className='font-bold text-slate-900 group-hover:text-amber-950 dark:text-slate-100 dark:group-hover:text-amber-400 transition-colors'>
                             {s.student_name}
                           </span>
-                        </td>
-                        <td className='px-6 py-4 font-mono text-xs text-slate-600 font-semibold'>
-                          <span className='bg-slate-100/80 px-2 py-1 rounded-md border border-slate-200/60'>
-                            {s.student_id}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 font-mono text-xs text-slate-600 font-semibold'>
+                        <span className='bg-slate-100 px-2 py-1 rounded-md border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'>
+                          {s.student_id}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span className='px-2.5 py-1 rounded-md text-xs font-bold border bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200'>
+                            {courseAbbr}
                           </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded-md text-xs font-bold border ${courseBadgeColor}`}>
-                              {courseAbbr}
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            {s.course_year === 1 ? '1st Year' :
+                             s.course_year === 2 ? '2nd Year' :
+                             s.course_year === 3 ? '3rd Year' : `${s.course_year}th Year`}
+                          </span>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <StatusBadge status={s.overallStatus} />
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex flex-wrap gap-1.5 max-w-sm'>
+                          {s.pending_departments.length === 0 ? (
+                            <span className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200/80 dark:bg-emerald-950/30 dark:border-emerald-800/50 dark:text-emerald-300'>
+                              <span className='h-1.5 w-1.5 rounded-full bg-emerald-500'></span>
+                              All Cleared
                             </span>
-                            <span className="text-xs font-medium text-slate-500">
-                              {s.course_year === 1 ? '1st Yr' :
-                               s.course_year === 2 ? '2nd Yr' :
-                               s.course_year === 3 ? '3rd Yr' : `${s.course_year}th Yr`}
-                            </span>
-                          </div>
-                        </td>
-                        <td className='px-6 py-4'>
-                          <StatusBadge status={s.overallStatus} />
-                        </td>
-                        <td className='px-6 py-4'>
-                          <div className='flex flex-wrap gap-1.5 max-w-sm'>
-                            {s.pending_departments.length === 0 ? (
-                              <span className='inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200/80'>
-                                <span className='h-1.5 w-1.5 rounded-full bg-emerald-500'></span>
-                                All Cleared
+                          ) : (
+                            s.pending_departments.map((d) => (
+                              <span 
+                                key={d.dept_name}
+                                className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'
+                              >
+                                <span className='h-1.5 w-1.5 rounded-full bg-amber-500'></span>
+                                {d.dept_name}
                               </span>
-                            ) : (
-                              s.pending_departments.map((d) => (
-                                <span 
-                                  key={d.dept_name}
-                                  className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 hover:bg-slate-200/80 transition-colors'
-                                >
-                                  <span className='h-1.5 w-1.5 rounded-full bg-amber-500'></span>
-                                  {d.dept_name}
-                                </span>
-                              ))
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  }))}
+                            ))
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Mobile view */}
-        <div className='md:hidden divide-y divide-gray-50'>
-            {paginated.length === 0 ? (
-              <div className='px-6 py-16 text-center text-sm text-gray-400'>
-                No students match your filters.
-              </div>
-            ) : (paginated.map((s) => (
-              <div key={s.student_id} className='px-4 py-4 space-y-3'>
-                <div className='flex items-center justify-between gap-2"'>
-                  {/* <div className='flex items-center gap-3'>
-                    <Avatar />
-                  </div> */}
-                  <div className='flex items-center gap-3'>
-                    <p className='text-lg font-semibold text-gray-800'>{s.student_name}</p>
-                    <p className='text-sm text-gray-700 font-mono'>{s.student_id}</p>
+        {/* Mobile View */}
+        <div className='md:hidden divide-y divide-slate-100 dark:divide-slate-800 dark:border-slate-800'>
+          {paginated.length === 0 ? (
+            <div className='px-6 py-16 text-center text-sm text-slate-400 dark:text-slate-500'>
+              No students match your selected filters.
+            </div>
+          ) : (
+            paginated.map((s) => {
+              const initials = s.student_name
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+
+              return (
+                <div key={s.student_id} className='p-4 space-y-3 bg-white dark:bg-slate-900'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <div className='flex items-center gap-2.5 min-w-0'>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0B192C] text-xs font-bold text-amber-400 dark:bg-[#0B192C] dark:text-amber-400 dark:border dark:border-slate-700">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className='text-sm font-bold text-slate-900 dark:text-slate-100 truncate'>{s.student_name}</p>
+                        <p className='text-xs text-slate-500 dark:text-slate-400 font-mono'>{s.student_id}</p>
+                      </div>
+                    </div>
+                    <StatusBadge status={s.overallStatus} />
                   </div>
-                </div>
-                <div className='text-sm flex items-start mb-3'>
-                  <StatusBadge status={s.overallStatus} />
-                </div>
-                <div className='flex items-center gap-4 text-xs text-gray-700'>
-                  <span className='text-sm font-semibold'>{shrinkCourseName(s.course_name) || s.course_name}</span>
-                  <span className="text-xs text-gray-500">
-                    {s.course_year === 1 ? (
-                      `${s.course_year}st Year`
-                    ) : s.course_year === 2 ? (
-                      `${s.course_year}nd Year`
-                    ) : s.course_year === 3 ? (
-                      `${s.course_year}rd Year`
-                    ) : `${s.course_year}th Year`}
-                  </span>
-                </div>
-                {s.pending_departments.length > 0 && (
-                  <div className='flex flex-wrap gap-1.5'>
-                    {s.pending_departments.map((d) => (
-                      <span 
-                        key={d.dept_name}
-                        className='p-2 bg-[#e7e7ea] text-[#3b4153] text-xs font-medium rounded-lg border border-gray-300'
-                      >
-                          {d.dept_name}
+
+                  <div className='flex items-center gap-2 text-xs'>
+                    <span className='px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200'>
+                      {shrinkCourseName(s.course_name) || s.course_name}
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">
+                      {s.course_year === 1 ? '1st Year' :
+                       s.course_year === 2 ? '2nd Year' :
+                       s.course_year === 3 ? '3rd Year' : `${s.course_year}th Year`}
+                    </span>
+                  </div>
+
+                  {s.pending_departments.length > 0 ? (
+                    <div className='pt-1'>
+                      <span className='text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1.5'>
+                        Pending Approvals
                       </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )))}
+                      <div className='flex flex-wrap gap-1.5'>
+                        {s.pending_departments.map((d) => (
+                          <span 
+                            key={d.dept_name}
+                            className='inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-medium rounded-md border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'
+                          >
+                            <span className='h-1 w-1 rounded-full bg-amber-500'></span>
+                            {d.dept_name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='pt-1'>
+                      <span className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200/80 dark:bg-emerald-950/30 dark:border-emerald-800/50 dark:text-emerald-300'>
+                        <span className='h-1.5 w-1.5 rounded-full bg-emerald-500'></span>
+                        All Cleared
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
 
-        <div className='px-4 sm:px-6 py-4 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3'>
-            <span className='text-gray-500'>
-              Showing {paginated.length === 0 ? 0 : (studentPage - 1) * PAGE_SIZE + 1}-
-              {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length} {filteredStudents.length > 1 ? 'students' : 'student'}
-            </span>
-            <Pagination current={studentPage} total={totalPages} onChange={setStudentPage} />
+        {/* Footer & Pagination */}
+        <div className='px-4 sm:px-6 py-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-400'>
+          <span className='text-xs font-semibold text-slate-500 dark:text-slate-400 tabular-nums'>
+            Showing {paginated.length === 0 ? 0 : (studentPage - 1) * PAGE_SIZE + 1}-
+            {Math.min(studentPage * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'}
+          </span>
+          <Pagination current={studentPage} total={totalPages} onChange={setStudentPage} />
         </div>
       </div>
-    </>
+    </div>
   )
 }

@@ -57,28 +57,28 @@ export default function CourseTemplatesList({
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div className="py-12 text-center text-slate-400 dark:text-slate-500">Loading...</div>
   }
 
   if (templates.length === 0) {
     return (
-      <div className='border border-slate-200 rounded-lg p-32 text-center'>
-        <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
+      <div className='border border-slate-200 dark:border-slate-800 rounded-lg p-32 text-center'>
+        <p className='text-slate-400 dark:text-slate-500 text-sm'>No clearance templates found. Create a new one.</p>
       </div>
     )
   }
 
   if (filteredTemplates.length === 0) {
     return (
-      <div className='border border-gray-200 rounded-lg p-32 text-center'>
-        <p className='text-gray-500'>No results found for &quot;{searchQuery}&quot;</p>
+      <div className='border border-gray-200 dark:border-slate-800 rounded-lg p-32 text-center'>
+        <p className='text-gray-500 dark:text-slate-400'>No results found for &quot;{searchQuery}&quot;</p>
       </div>
     )
   }
   
   return (
     <>
-      <h3 className='text-xl font-bold text-gray-900 mb-4'>Student Templates</h3>
+      <h3 className='text-xl font-bold text-gray-900 dark:text-slate-100 mb-4'>Student Templates</h3>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {filteredTemplates.map(template => (
           <CourseTemplateCard key={template.course_id as number} template={template} setIsConfirmOpen={setIsConfirmOpen} setSelectedCourseId={setSelectedCourseId} />
@@ -105,22 +105,22 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
     setSelectedCourseId: (selectedCourseId: number) => void;
   }) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-5 hover:shadow-md transition-shadow shadow-xs">
+      <div className="bg-white rounded-xl border border-slate-200/90 dark:border-slate-800 dark:bg-slate-900/90 p-5 hover:shadow-md transition-shadow shadow-xs">
         {/* Header */}
         <div className='mb-6'>
-          <h3 className='text-lg font-bold text-gray-900 mb-1'>{shrinkCourseName(template.course_name) || template.course_name}</h3>
-          <p className='text-sm text-gray-600'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
+          <h3 className='text-lg font-bold text-gray-900 dark:text-slate-100 mb-1'>{shrinkCourseName(template.course_name) || template.course_name}</h3>
+          <p className='text-sm text-gray-600 dark:text-slate-400'>{expandCourseAbbreviation(template.course_name) || template.course_name}</p>
         </div>
 
         {/* Completion Rate */}
         <div className='mb-4'>
-          <div className='flex item-center justify-between mb-1'>
-            <span className='text-sm text-gray-600 mb-1'>Completion Rate</span>
-            <span className='text-base font-bold text-gray-900'>{template.completion_rate}%</span>
+          <div className='flex items-center justify-between mb-1'>
+            <span className='text-sm text-gray-600 dark:text-slate-400 mb-1'>Completion Rate</span>
+            <span className='text-base font-bold text-gray-900 dark:text-slate-100'>{template.completion_rate}%</span>
           </div>
-          <div className='h-2 bg-gray-100 rounded-full overflow-hidden'>
+          <div className='h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden'>
             <div 
-              className='h-full bg-blue-900 transition-all duration-300'
+              className='h-full bg-[#0B192C] dark:bg-amber-500 transition-all duration-300'
               style={{ width: `${template.completion_rate}%` }}
             />
           </div>
@@ -128,31 +128,31 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
 
         {/* Total Students */}
         <div className='flex items-center justify-between mb-6'>
-          <span className='text-sm text-gray-600'>Students Enrolled: </span>
-          <span className='text-base font-bold text-gray-900'>{template.students_enrolled}</span>
+          <span className='text-sm text-gray-600 dark:text-slate-400'>Students Enrolled: </span>
+          <span className='text-base font-bold text-gray-900 dark:text-slate-100'>{template.students_enrolled}</span>
         </div>
 
         {/* Assigned Departments */}
         <div className='mb-4'>
-          <p className='text-sm font-bold text-gray-800 mb-2'>Assigned Departments</p>
+          <p className='text-sm font-bold text-gray-800 dark:text-slate-200 mb-2'>Assigned Departments</p>
           <div className='flex flex-wrap gap-2'>
             {template.departments.length > 0 ? (
               template.departments.map(dept => (
                 <span 
                   key={dept.dept_id}
-                  className='px-2 py-1 bg-[#e7e7ea] text-[#3b4153] font-medium text-xs rounded-lg border border-gray-300'
+                  className='px-2 py-1 bg-slate-100 text-slate-700 font-medium text-xs rounded-lg border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                 >{dept.dept_name}</span>
               ))
             ) : (
-              <span className='text-sm text-gray-400'>No departments assigned</span>
+              <span className='text-sm text-gray-400 dark:text-slate-500'>No departments assigned</span>
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-800">
           <button 
-            className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+            className="text-red-400 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300 transition-colors cursor-pointer"
             onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id as number); }}
           >
             <Trash className='w-4 h-4' />

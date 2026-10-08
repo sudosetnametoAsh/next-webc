@@ -171,14 +171,14 @@ export default function StudentsClient() {
   if (!preset) return null;
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/90">
       {/* TOP SECTION */}
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/90">
         <header className="px-6 pt-6 pb-4">
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Clearance Management
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Review and sign off on {viewType === 'students' ? 'student' : 'staff'} requirements
           </p>
         </header>
@@ -192,7 +192,7 @@ export default function StudentsClient() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={`Search by name or ${viewType === 'students' ? 'ID' : 'Staff ID'}...`}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-4 pl-10 text-sm text-slate-700 shadow-sm transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2 pr-4 pl-10 text-sm text-slate-800 shadow-2xs transition-colors focus:border-[#0B192C] focus:ring-1 focus:ring-[#0B192C]/20 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-amber-400"
               />
             </div>
             <FilterButton />
@@ -203,7 +203,7 @@ export default function StudentsClient() {
               clearanceId={signableClearanceIds}
               currentStatus={effectiveStatus}
             />
-            <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+            <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-2xs dark:border-slate-700 dark:bg-slate-800">
               <AddTask
                 preset={preset}
                 clearanceId={clearanceId}
@@ -214,7 +214,7 @@ export default function StudentsClient() {
                 setTitle={setTitle}
                 sectionId={activeSectionId}
               />
-              <div className="mx-1 h-4 w-px bg-slate-200"></div>
+              <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
               <AddPreset
                 preset={preset}
                 taskId={taskId}
@@ -223,7 +223,7 @@ export default function StudentsClient() {
                 description={description}
                 sectionId={activeSectionId}
               />
-              <div className="mx-1 h-4 w-px bg-slate-200"></div>
+              <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
               <ManagePresetButton preset={preset} />
             </div>
           </div>
@@ -231,8 +231,8 @@ export default function StudentsClient() {
       </div>
 
       {/* --- DATA LIST --- */}
-      <div className="flex-1 overflow-y-auto bg-white p-6">
-        <div className="mb-3 flex items-center px-4 text-xs font-bold tracking-wider text-slate-400 uppercase">
+      <div className="flex-1 overflow-y-auto bg-slate-50/50 p-4 sm:p-6 dark:bg-slate-950/40">
+        <div className="mb-2.5 flex items-center px-4 text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
           <div className="w-8">
             <SelectAll
               students={students}
@@ -241,9 +241,9 @@ export default function StudentsClient() {
               effectiveStatus={effectiveStatus}
             />
           </div>
-          <div className="flex-1">{viewType === 'students' ? 'Student Info' : 'Staff Info'}</div>
+          <div className="flex-1">{viewType === 'students' ? 'Student' : 'Staff'}</div>
           <div className="w-48">Clearance Status</div>
-          <div className="w-48">Active Tasks</div>
+          <div className="w-48">Tasks</div>
           <div className="w-10"></div>
         </div>
 
@@ -262,7 +262,7 @@ export default function StudentsClient() {
               if (isLocked && dbStatus !== "Signed") {
                 displayStatus = "Awaiting Prerequisite";
                 statusStyles =
-                  "border border-slate-200/50 bg-slate-50 text-slate-500";
+                  "border border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400";
               } else if (
                 dbStatus !== "Signed" &&
                 dbStatus !== "Flagged" &&
@@ -270,13 +270,13 @@ export default function StudentsClient() {
               ) {
                 displayStatus = "Incomplete";
                 statusStyles =
-                  "border border-blue-200/50 bg-blue-50 text-blue-700";
+                  "border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300";
               } else if (dbStatus === "Pending") {
                 statusStyles =
-                  "border border-amber-200/50 bg-amber-50 text-amber-700";
+                  "border border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300";
               } else if (dbStatus === "Signed") {
                 statusStyles =
-                  "border border-emerald-200/50 bg-emerald-50 text-emerald-700";
+                  "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300";
               }
 
               const isSelectedGroupSigned = effectiveStatus === "Signed";
@@ -289,7 +289,7 @@ export default function StudentsClient() {
                 <div
                   key={student.student_id}
                   onClick={() => setStudent(student)}
-                  className="group flex cursor-pointer items-center rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md"
+                  className="group flex cursor-pointer items-center rounded-xl border border-slate-200/90 bg-white px-4 py-3 shadow-2xs transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
                 >
                   <div className="w-8" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -302,19 +302,19 @@ export default function StudentsClient() {
                     />
                   </div>
 
-                  <div className="flex flex-1 items-center gap-4">
+                  <div className="flex flex-1 items-center gap-3">
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-slate-200 text-sm font-bold shadow-inner ${isLocked ? "bg-slate-100 text-slate-400" : "bg-slate-100 text-[#0b5793]"}`}
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isLocked ? "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500" : "bg-[#0B192C] text-amber-400 dark:bg-amber-950/40 dark:text-amber-300 dark:border dark:border-amber-800/50"}`}
                     >
                       {student.student_name[0]}
                     </div>
                     <div>
                       <h3
-                        className={`font-semibold ${isLocked ? "text-slate-500" : "text-slate-900"}`}
+                        className={`text-sm font-bold ${isLocked ? "text-slate-500 dark:text-slate-500" : "text-slate-900 dark:text-slate-100"}`}
                       >
                         {student.student_name}
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {student.student_id}
                       </p>
                     </div>
@@ -330,14 +330,14 @@ export default function StudentsClient() {
                   </div>
 
                   <div className="w-48">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       {taskCount !== 0 ? (
                         <>
-                          <ClipboardList className="h-4 w-4 text-slate-400" />
+                          <ClipboardList className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                           <span className="truncate">{taskCount}</span>
                         </>
                       ) : (
-                        <span className="text-slate-400 italic">
+                        <span className="text-slate-400 dark:text-slate-500 italic">
                           No active tasks
                         </span>
                       )}
@@ -346,7 +346,7 @@ export default function StudentsClient() {
 
                   <div className="flex w-10 justify-end">
                     <button
-                      className="rounded-lg p-2 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-700"
+                      className="rounded-lg p-2 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="h-4 w-4" />
@@ -356,8 +356,8 @@ export default function StudentsClient() {
               );
             })
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-              <Search className="mb-3 h-8 w-8 text-slate-300" />
+            <div className="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400">
+              <Search className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-600" />
               <p>{`No students found matching ${searchQuery}`}</p>
             </div>
           )}
@@ -365,25 +365,25 @@ export default function StudentsClient() {
       </div>
 
       {/* --- FOOTER --- */}
-      <footer className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-8 py-4">
-        <div className="text-sm font-semibold text-slate-600">
+      <footer className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-8 py-4 dark:border-slate-800 dark:bg-slate-900/90">
+        <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">
           Section Progress
         </div>
         <div className="flex items-center gap-6 text-sm font-medium">
-          <div className="flex items-center gap-2 text-emerald-700">
-            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-bold">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-bold dark:bg-emerald-950/60 dark:text-emerald-300">
               {progress.cleared}
             </div>
             Cleared
           </div>
-          <div className="flex items-center gap-2 text-amber-700">
-            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-[10px] font-bold">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-[10px] font-bold dark:bg-amber-950/60 dark:text-amber-300">
               {progress.pending}
             </div>
             Pending
           </div>
-          <div className="flex items-center gap-2 text-blue-700">
-            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 text-[10px] font-bold">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 text-[10px] font-bold dark:bg-blue-950/60 dark:text-blue-300">
               {progress.incomplete}
             </div>
             Incomplete
@@ -398,7 +398,7 @@ export default function StudentsClient() {
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
             onClick={() => setStudent(null)}
           />
-          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden">
+          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden dark:border-slate-800 dark:bg-slate-900">
             <div className="flex-1 overflow-y-auto overflow-x-hidden">
               <TaskView
                 studentTasks={student.clearance_records[0].clearance_tasks}

@@ -40,7 +40,7 @@ export default function StudentInterface() {
 
 
   return (
-    <section className="flex min-h-screen w-full flex-col bg-[#F8FAFC]">
+    <section className="flex min-h-screen w-full flex-col bg-background text-foreground">
       <div className="mx-auto w-full max-w-5xl flex-1 px-6 pb-12">
         <Header initial={initial} name={name} email={email} />
 

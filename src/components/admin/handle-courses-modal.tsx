@@ -46,12 +46,12 @@ function CourseRow({
 }) {
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 w-full px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+      <div className="flex items-center gap-2 w-full px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl dark:bg-slate-800 dark:border-slate-700">
         <input
           type="text"
           value={editingName}
           onChange={(e) => onEditingNameChange(e.target.value)}
-          className="flex-1 px-2.5 py-1.5 bg-white border border-blue-300 rounded-lg text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400/40"
+          className="flex-1 px-2.5 py-1.5 bg-white border border-blue-300 rounded-lg text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400/40 dark:bg-slate-900 dark:border-slate-600 dark:text-slate-100"
           autoFocus
           onKeyDown={(e) => {
             if (e.key === 'Enter') onSaveEdit()
@@ -68,7 +68,7 @@ function CourseRow({
         </button>
         <button
           onClick={onCancelEdit}
-          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 transition-colors cursor-pointer"
+          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
           title="Cancel"
         >
           <X className="w-3.5 h-3.5" />
@@ -78,15 +78,15 @@ function CourseRow({
   }
 
   return (
-    <div className="group flex items-center justify-between px-3 py-2.5 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all">
+    <div className="group flex items-center justify-between px-3 py-2.5 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all dark:bg-slate-850 dark:border-slate-800 dark:hover:border-slate-700">
       <div className="flex items-center gap-3 min-w-0">
-        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-500 shrink-0 group-hover:bg-slate-200 transition-colors">
+        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-500 shrink-0 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-750 transition-colors">
           <BookOpenText className="w-4 h-4" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-800 truncate">{course.course_name}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{course.course_name}</p>
           {course.email && (
-            <p className="text-xs text-slate-400 font-mono truncate">{course.email}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-mono truncate">{course.email}</p>
           )}
         </div>
       </div>
@@ -94,14 +94,14 @@ function CourseRow({
       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         <button
           onClick={onStartEdit}
-          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+          className="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-100/60 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           title="Edit"
         >
           <Pencil className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={onDelete}
-          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+          className="p-1.5 text-slate-500 hover:text-red-700 hover:bg-red-100/60 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           title="Delete"
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -229,20 +229,20 @@ export default function ManageCoursesModal({
   return (
     <>
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100">
 
           {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-800">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
-                <BookOpenText className="w-4 h-4 text-white" />
+              <div className="w-9 h-9 rounded-xl bg-slate-900 dark:bg-amber-500/10 dark:border dark:border-amber-500/20 flex items-center justify-center shrink-0">
+                <BookOpenText className="w-4 h-4 text-white dark:text-amber-400" />
               </div>
               <div>
-                <DialogTitle className="text-base font-bold text-slate-900 leading-tight">
+                <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">
                   Manage Programs
                 </DialogTitle>
-                <p className="text-xs text-slate-400 mt-0.5">Add, edit, or remove courses</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Add, edit, or remove courses</p>
               </div>
             </div>
           </DialogHeader>
@@ -250,20 +250,20 @@ export default function ManageCoursesModal({
 
         {/* Add input */}
 
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-850/60">
           <div className="flex gap-2">
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Course name..."
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-all"
+              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 focus:dark:border-amber-400"
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
             <button
               onClick={handleCreate}
               disabled={!newName.trim() || createCourse.isPending}
-              className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-700 disabled:opacity-40 transition-all cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 disabled:opacity-40 transition-all cursor-pointer shrink-0 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400"
             >
               {createCourse.isPending
                 ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -277,14 +277,14 @@ export default function ManageCoursesModal({
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12 text-slate-400 gap-2 text-sm">
+            <div className="flex justify-center items-center py-12 text-slate-400 dark:text-slate-500 gap-2 text-sm">
               <Loader2 className="w-4 h-4 animate-spin" />
               Loading courses...
             </div>
           ) : courses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                <BookOpenText className="w-5 h-5" />
+            <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500 gap-2">
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <BookOpenText className="w-5 h-5 text-slate-400 dark:text-slate-500" />
               </div>
               <p className="text-sm">No courses yet</p>
             </div>
@@ -322,8 +322,8 @@ export default function ManageCoursesModal({
         {/* Footer count */}
 
         {!isLoading && courses.length > 0 && (
-          <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/60">
-            <p className="text-xs text-slate-400">
+          <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-850/60">
+            <p className="text-xs text-slate-400 dark:text-slate-500">
               {courses.length} course{courses.length !== 1 ? 's' : ''}
             </p>
           </div>

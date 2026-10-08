@@ -38,12 +38,12 @@ export function CourseSectionNav() {
   };
 
   return (
-    <div className="flex flex-col w-full text-slate-300">
-      <span className="mb-2 px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+    <div className="flex flex-col w-full text-slate-700 dark:text-slate-300">
+      <span className="mb-2 px-3 text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
         Course & Section
       </span>
 
-      <div className="flex max-h-[35vh] flex-col gap-1 overflow-y-auto px-1 pr-1.5 pb-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent">
+      <div className="flex max-h-[35vh] flex-col gap-1 overflow-y-auto px-1 pr-1.5 pb-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent">
         {/* Staff Section Option */}
         {hasStaffTemplates && (
           <button
@@ -55,15 +55,15 @@ export function CourseSectionNav() {
             className={cn(
               "flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
               viewType === "staff"
-                ? "bg-white/10 font-semibold text-amber-400"
-                : "text-slate-300 hover:bg-white/5 hover:text-white"
+                ? "bg-amber-50 font-semibold text-amber-700 dark:bg-white/10 dark:text-amber-400"
+                : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white"
             )}
           >
             <div className="flex items-center gap-2.5 truncate">
               <Briefcase
                 className={cn(
                   "h-4 w-4 shrink-0",
-                  viewType === "staff" ? "text-amber-400" : "text-slate-400"
+                  viewType === "staff" ? "text-amber-600 dark:text-amber-400" : "text-slate-400"
                 )}
               />
               <span className="truncate">Staff</span>
@@ -89,15 +89,15 @@ export function CourseSectionNav() {
                 className={cn(
                   "group relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
                   isExpanded
-                    ? "bg-white/10 font-semibold text-amber-400"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-amber-50 font-semibold text-amber-700 dark:bg-white/10 dark:text-amber-400"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white"
                 )}
               >
                 <div className="flex items-center gap-2.5 truncate">
                   <BookOpen
                     className={cn(
                       "h-4 w-4 shrink-0",
-                      isExpanded ? "text-amber-400" : "text-slate-400"
+                      isExpanded ? "text-amber-600 dark:text-amber-400" : "text-slate-400"
                     )}
                   />
                   <span className="truncate">{course.course_name}</span>
@@ -109,7 +109,7 @@ export function CourseSectionNav() {
                       className={cn(
                         "h-3.5 w-3.5 transition-transform",
                         isExpanded
-                          ? "rotate-90 text-amber-400"
+                          ? "rotate-90 text-amber-600 dark:text-amber-400"
                           : "text-slate-400"
                       )}
                     />
@@ -119,7 +119,7 @@ export function CourseSectionNav() {
 
               {/* Sections List */}
               {isExpanded && course.course_sections.length > 0 && (
-                <div className="mt-1 mb-1.5 ml-4 flex flex-col gap-0.5 border-l border-white/10 pl-2.5">
+                <div className="mt-1 mb-1.5 ml-4 flex flex-col gap-0.5 border-l border-slate-200 dark:border-white/10 pl-2.5">
                   {course.course_sections.map((section) => {
                     const isActive =
                       String(section.section_id) === activeSectionId;
@@ -136,8 +136,8 @@ export function CourseSectionNav() {
                         className={cn(
                           "group relative flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors cursor-pointer",
                           isActive
-                            ? "bg-amber-400/10 font-semibold text-amber-400"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                            ? "bg-amber-50 font-semibold text-amber-700 dark:bg-amber-400/10 dark:text-amber-400"
+                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
                         )}
                       >
                         <span className="truncate">

@@ -177,7 +177,7 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+            className="h-8 w-8 text-slate-500 hover:bg-blue-100/60 hover:text-blue-700"
             onClick={() => triggerEditMode(item)}
           >
             <SquarePen className="h-4 w-4" />
@@ -185,7 +185,7 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 text-slate-400 hover:bg-red-50 hover:text-red-600"
+            className="h-8 w-8 text-slate-500 hover:bg-red-100/60 hover:text-red-700"
             onClick={() => deleteTaskPreset({ task_id: item.task_id })}
           >
             <Trash2 className="h-4 w-4" />
@@ -199,12 +199,12 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
     <div>
       <Dialog>
         <DialogTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 ">
+          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white cursor-pointer">
             <Settings className="h-4 w-4" /> Config
           </button>
         </DialogTrigger>
 
-        <DialogContent className="p-0 overflow-hidden sm:max-w-137.5 border-none shadow-2xl">
+        <DialogContent className="p-0 overflow-hidden sm:max-w-137.5 border-none shadow-2xl dark:bg-slate-900 dark:border dark:border-slate-800">
           <DialogDescription className="sr-only">
              Manage your office hours and task presets in this configuration modal.
           </DialogDescription>
@@ -219,31 +219,31 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
             </p>
           </DialogHeader>
 
-          <div className="flex max-h-[75vh] flex-col overflow-y-auto p-6 gap-6 bg-slate-50/30">
+          <div className="flex max-h-[75vh] flex-col overflow-y-auto p-6 gap-6 bg-slate-50/30 dark:bg-slate-900">
             {/* Staff Schedule Section */}
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-blue-600" /> My Availability
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" /> My Availability
               </h4>
-              <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Office Hours: Start</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400">Office Hours: Start</label>
                     <Input
                       type="time"
                       value={timeIn}
                       onChange={(e) => setTimeIn(e.target.value)}
-                      className="focus-visible:ring-blue-600 h-10 font-medium"
+                      className="focus-visible:ring-blue-600 h-10 font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                       disabled={loadingSchedule}
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Office Hours: End</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400">Office Hours: End</label>
                     <Input
                       type="time"
                       value={timeOut}
                       onChange={(e) => setTimeOut(e.target.value)}
-                      className="focus-visible:ring-blue-600 h-10 font-medium"
+                      className="focus-visible:ring-blue-600 h-10 font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                       disabled={loadingSchedule}
                     />
                   </div>
@@ -252,7 +252,7 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
                   <Button
                     onClick={handleUpdateSchedule}
                     disabled={updatingSchedule || loadingSchedule}
-                    className="bg-emerald-600 h-9 px-5 font-bold text-white hover:bg-emerald-700 shadow-sm transition-all"
+                    className="bg-emerald-600 h-9 px-5 font-bold text-white hover:bg-emerald-700 shadow-sm transition-all cursor-pointer"
                   >
                     {updatingSchedule ? "Saving..." : "Update Schedule"}
                   </Button>
@@ -261,25 +261,25 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
             </div>
 
             {/* Existing Presets List */}
-            <div className="space-y-3 border-t border-slate-200 pt-5">
-              <h4 className="text-sm font-bold text-slate-700">Existing Presets</h4>
+            <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-5">
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Existing Presets</h4>
 
-              <div className="flex h-56 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-200 bg-slate-100/50 p-2">
+              <div className="flex h-56 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-200 bg-slate-100/50 p-2 dark:border-slate-800 dark:bg-slate-950/40">
                 {preset.data.length !== 0 ? (
                   preset.data.map((item) => (
                     <div
                       key={item.task_id}
-                      className={`group flex items-start rounded-lg border bg-white px-3 py-2 transition-all shadow-sm ${
+                      className={`group flex items-start rounded-lg border bg-white px-3 py-2 transition-all shadow-sm dark:bg-slate-850 ${
                         editPresetId === item.task_id
-                          ? "border-blue-300 ring-1 ring-blue-100"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-blue-300 ring-1 ring-blue-100 dark:border-blue-800 dark:ring-blue-900/50"
+                          : "border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700"
                       }`}
                     >
                       {editPresetId === item.task_id ? editMode(item) : viewMode(item)}
                     </div>
                   ))
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
                     <Layers className="h-8 w-8 opacity-20" />
                     <p className="text-sm font-medium">No presets configured yet</p>
                   </div>
@@ -288,20 +288,20 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
             </div>
 
             {/* Create New Preset Form */}
-            <div className="space-y-3 border-t border-slate-200 pt-5">
-              <h4 className="text-sm font-bold text-slate-700">Create New Preset</h4>
-              <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-5">
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Create New Preset</h4>
+              <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
                 <Input
                   value={addTaskTitle}
                   onChange={(e) => setAddTaskTitle(e.target.value)}
                   placeholder="Task Title (e.g., Submit Library Form)"
-                  className="focus-visible:ring-blue-600 font-medium h-10"
+                  className="focus-visible:ring-blue-600 font-medium h-10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
                 <Textarea
                   value={addTaskDescription}
                   onChange={(e) => setAddTaskDescription(e.target.value)}
                   placeholder="Detailed task description..."
-                  className="min-h-20 resize-none focus-visible:ring-blue-600 text-sm leading-relaxed"
+                  className="min-h-20 resize-none focus-visible:ring-blue-600 text-sm leading-relaxed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -312,7 +312,7 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
                 <div className="flex justify-end">
                   <Button
                     onClick={submitTaskPreset}
-                    className="bg-[#0b3b75] h-9 px-5 font-bold text-white hover:bg-[#082a54] shadow-sm"
+                    className="bg-[#0b3b75] h-9 px-5 font-bold text-white hover:bg-[#082a54] dark:bg-blue-600 dark:hover:bg-blue-500 shadow-sm cursor-pointer"
                   >
                     <Plus className="mr-2 h-4 w-4" /> Add Preset
                   </Button>
@@ -322,9 +322,9 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end border-t border-slate-200 bg-white px-6 py-4">
+          <div className="flex items-center justify-end border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-850">
             <DialogClose asChild>
-              <Button variant="outline" className="font-semibold text-slate-700 w-full sm:w-auto">
+              <Button variant="outline" className="font-semibold text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-750 w-full sm:w-auto cursor-pointer">
                 Close Settings
               </Button>
             </DialogClose>

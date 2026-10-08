@@ -17,8 +17,8 @@ export default function SignToggleButton({ clearanceId, currentStatus }: Props) 
         : (isSigned ? "Undo" : "Sign")
 
     const btnStyle = isSigned
-        ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-        : "bg-blue-600 hover:bg-blue-700 text-white"
+        ? "bg-amber-600 hover:bg-amber-700 text-white"
+        : "bg-[#0B192C] hover:bg-slate-800 text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
 
     const handleToggle = () => {
         // Generate the current timestamp if signing, or null if reverting

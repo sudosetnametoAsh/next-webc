@@ -70,20 +70,22 @@ export default function OfficeHours({
   });
 
   return (
-    <div className="w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm">
+    <div className="w-full max-w-5xl rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 text-slate-900 shadow-2xs dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100">
 
       {/* Header Section */}
       <div className="mb-6 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-lg font-bold text-slate-900">
-          <Clock className="text-black" size={20} />
-          <h2>Department Office Hours</h2>
+        <div className="flex items-center gap-2.5 text-lg font-bold text-slate-900 dark:text-slate-100">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0B192C] text-amber-400 border border-transparent dark:border-amber-500/30 dark:bg-amber-950/20">
+            <Clock size={16} />
+          </div>
+          <h2>Department Operating Hours</h2>
         </div>
-        <p className="text-sm text-slate-500">
-          View the office hours, contact information, and clearance requirements for each department. Open departments are highlighted for your convenience.
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Directory of academic and administrative service windows. Offices currently in session are highlighted.
         </p>
-        <p className="mt-2 text-sm text-slate-500">
-          <Clock className="inline-block mr-1.5 pb-0.5 text-slate-400" size={14} />
-          Today is <span className="font-bold text-slate-700">{currentDay}</span>. Open departments are highlighted.
+        <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <Clock className="text-slate-400" size={13} />
+          Today is <span className="font-bold text-slate-800 dark:text-slate-200">{currentDay}</span>.
         </p>
       </div>
 
@@ -97,26 +99,26 @@ export default function OfficeHours({
           return (
             <div
               key={dept.dept_id}
-              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border p-4 transition-colors ${
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border p-4.5 transition-all ${
                 isOpen
-                  ? "border-green-200 bg-green-50"
-                  : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100/50"
+                  ? "border-emerald-300/80 bg-emerald-50/30 shadow-2xs dark:bg-emerald-950/30 dark:border-emerald-800/60 dark:text-emerald-200"
+                  : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50/50 dark:bg-slate-900/50 dark:border-slate-800/80 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800/50"
               }`}
             >
-              <div className="flex items-center gap-4">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-xs font-bold tracking-wider ${
+              <div className="flex items-center gap-3.5">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-xs font-bold tracking-wider font-mono shadow-2xs ${
                   isOpen 
-                    ? "border-green-200 bg-green-100 text-green-700" 
-                    : "border-amber-200 bg-amber-100 text-amber-700"
+                    ? "border-emerald-300 bg-emerald-600 text-white dark:border-emerald-700 dark:bg-emerald-900/80 dark:text-emerald-200" 
+                    : "border-slate-200 bg-[#0B192C] text-amber-400 dark:border-slate-700 dark:bg-[#0B192C] dark:text-amber-400"
                 }`}>
                   {getAbbreviation(dept.dept_name)}
                 </div>
                 <div className="flex flex-col">
-                  <span className={`font-bold ${isOpen ? "text-green-800" : "text-slate-900"}`}>
+                  <span className={`font-bold text-sm ${isOpen ? "text-emerald-950 dark:text-emerald-100" : "text-slate-900 dark:text-slate-100"}`}>
                     {dept.dept_name}
                   </span>
-                  <span className={`text-xs font-medium ${isOpen ? "text-green-600/80" : "text-slate-500"}`}>
-                    {dept.staff_name || "No assigned staff"}
+                  <span className={`text-xs font-medium ${isOpen ? "text-emerald-700/80 dark:text-emerald-300/80" : "text-slate-500 dark:text-slate-400"}`}>
+                    {dept.staff_name ? `Staff: ${dept.staff_name}` : "No assigned signatory staff"}
                   </span>
                 </div>
               </div>
@@ -124,23 +126,27 @@ export default function OfficeHours({
               <div className="flex items-center gap-4 sm:ml-auto">
                 <div className="flex items-center gap-3">
                   {!hasSchedule ? (
-                    <div className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
-                      No schedule set
+                    <div className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                      No schedule listed
                     </div>
                   ) : isOpen ? (
-                    <div className="flex items-center gap-1.5 rounded-full border border-green-200 bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                      <CheckCircle2 size={14} strokeWidth={2.5} />
+                    <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:border-emerald-800/80 dark:bg-emerald-950/60 dark:text-emerald-300">
+                      <CheckCircle2 size={13} strokeWidth={2.5} />
                       <span>Open Now</span>
                     </div>
                   ) : isWeekend ? (
-                    <div className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
-                      Closed Today
+                    <div className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                      Closed on Weekends
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400">
+                      Closed Now
+                    </div>
+                  )}
 
                   {hasSchedule && (
-                    <span className={`w-32 text-right text-sm font-semibold ${isOpen ? "text-green-700" : "text-slate-600"}`}>
-                      {formatTime(dept.time_in)} - {formatTime(dept.time_out)}
+                    <span className={`w-36 text-right text-xs font-bold tabular-nums ${isOpen ? "text-emerald-800 dark:text-emerald-300" : "text-slate-600 dark:text-slate-200"}`}>
+                      {formatTime(dept.time_in)} – {formatTime(dept.time_out)}
                     </span>
                   )}
                 </div>

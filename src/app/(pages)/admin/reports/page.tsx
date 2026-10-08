@@ -9,12 +9,12 @@ import { useFetchDepartments } from '@/hooks/admin/departments'
 
 const ClearanceBarChart = dynamic(() => import('@/components/admin/clearance-bar-chart'), {
   ssr: false,
-  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold'>Loading Clearance Rate...</div>
+  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-500'>Loading Clearance Rate...</div>
 })
 
 const DonutChart = dynamic(() => import('@/components/admin/donut-chart'), {
   ssr: false,
-  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold'>Loading Overall Status...</div>
+  loading: () => <div className='h-[380px] bg-slate-50 border border-slate-100 rounded-xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-semibold dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-500'>Loading Overall Status...</div>
 })
 
 interface StatCard {
@@ -47,11 +47,11 @@ interface DeptRow {
 // ———— Helpers ————————————————————————————————————————————————————————————————————————————————————————————————
 
 function getDeptBarColor(rate: number | null): string {
-  if (rate === null) return "bg-slate-200";
-  if (rate >= 70) return "bg-emerald-600";
-  if (rate >= 40) return "bg-amber-500";
-  if (rate >= 20) return "bg-orange-500";
-  return "bg-red-600";
+  if (rate === null) return "bg-slate-200 dark:bg-slate-700";
+  if (rate >= 70) return "bg-emerald-600 dark:bg-emerald-500";
+  if (rate >= 40) return "bg-amber-500 dark:bg-amber-400";
+  if (rate >= 20) return "bg-orange-500 dark:bg-orange-400";
+  return "bg-red-600 dark:bg-red-500";
 }
 
 function getDeptRateLabel(rate: number | null): string {
@@ -60,11 +60,11 @@ function getDeptRateLabel(rate: number | null): string {
 }
 
 function getDeptRateColor(rate: number | null): string {
-  if (rate === null) return "text-slate-400";
-  if (rate >= 70) return "text-emerald-600";
-  if (rate >= 40) return "text-amber-500";
-  if (rate >= 20) return "text-orange-500";
-  return "text-red-600";
+  if (rate === null) return "text-slate-400 dark:text-slate-500";
+  if (rate >= 70) return "text-emerald-600 dark:text-emerald-400";
+  if (rate >= 40) return "text-amber-500 dark:text-amber-400";
+  if (rate >= 20) return "text-orange-500 dark:text-orange-400";
+  return "text-red-600 dark:text-red-400";
 }
 
 // ———— Sub components ————————————————————————————————————————————————————————————————————————————————————————————————
@@ -79,13 +79,13 @@ function StatCardItem({ card, index }: { card: StatCard, index: number }) {
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500 
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500 dark:bg-slate-900/90 dark:border-slate-800 
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
-        <p className='text-sm text-slate-500 font-medium mb-2'>{card.label}</p>
-        <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800'>{card.value}</p>
+        <p className='text-sm text-slate-500 dark:text-slate-400 font-medium mb-2'>{card.label}</p>
+        <p className='text-5xl font-bold tracking-tight mb-3 text-gray-800 dark:text-slate-100'>{card.value}</p>
       </div>
     </div>
   )
@@ -139,15 +139,15 @@ function DeptSigningRate() {
   }, [])
 
   return (
-    <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6'>
-      <h2 className='text-base font-bold text-slate-800'>Department signing rate</h2>
-      <p className='text-xs text-slate-400 mt-0.5 mb-6'>
+    <div className='bg-white rounded-xl shadow-sm border border-slate-100 p-6 dark:bg-slate-900/90 dark:border-slate-800'>
+      <h2 className='text-base font-bold text-slate-800 dark:text-slate-100'>Department signing rate</h2>
+      <p className='text-xs text-slate-400 dark:text-slate-500 mt-0.5 mb-6'>
         How many students each department has cleared
       </p>
 
       {sortedDeptData.length === 0 ? (
         <div className='flex min-h-[300px] justify-center items-center'>
-          <p className='text-slate-400 text-sm'>No clearance templates found. Create a new one.</p>
+          <p className='text-slate-400 dark:text-slate-500 text-sm'>No clearance templates found. Create a new one.</p>
         </div>
       ): (
 
@@ -155,10 +155,10 @@ function DeptSigningRate() {
           {sortedDeptData.map((dept, i) => (
             <div key={dept.dept_name} className='flex items-center gap-4'>
               {/* Name */}
-              <span className='w-36 text-sm text-slate-600 shrink-0 truncate'>{dept.dept_name}</span>
+              <span className='w-36 text-sm text-slate-600 dark:text-slate-300 shrink-0 truncate'>{dept.dept_name}</span>
 
               {/* Back track */}
-              <div className='flex-1 h-3 bg-slate-100 rounded-full overflow-hidden'>
+              <div className='flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden'>
                 {dept.rate !== null && (
                   <div 
                     className={`h-full rounded-full transition-all duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
@@ -195,33 +195,33 @@ export default function Reports() {
       label: "Total students",
       value: studentTemplates.length,
       badge: "Enrolled",
-      badgeColor: "bg-blue-100 text-blue-700",
-      accentColor: "bg-[#0a1128]",
-      valueColor: "text-[#1e3a6e]",
+      badgeColor: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
+      accentColor: "bg-[#0a1128] dark:bg-sky-500",
+      valueColor: "text-[#1e3a6e] dark:text-sky-400",
     },
     {
       label: "Fully cleared",
       value: adminStats?.signed ?? 0,
       badge: "10% of total",
-      badgeColor: "bg-emerald-100 text-green-700",
-      accentColor: "bg-emerald-600",
-      valueColor: "text-emerald-600",
+      badgeColor: "bg-emerald-100 text-green-700 dark:bg-emerald-950/40 dark:text-emerald-300",
+      accentColor: "bg-emerald-600 dark:bg-emerald-500",
+      valueColor: "text-emerald-600 dark:text-emerald-400",
     },
     {
       label: "In progress",
       value: adminStats?.incomplete ?? 0,
       badge: "10% of total",
-      badgeColor: "bg-amber-100 text-amber-700",
-      accentColor: "bg-amber-600",
-      valueColor: "text-amber-600",
+      badgeColor: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
+      accentColor: "bg-amber-600 dark:bg-amber-500",
+      valueColor: "text-amber-600 dark:text-amber-400",
     },
     {
       label: "Not started",
       value: adminStats?.pending ?? 0,
       badge: "zero progress",
-      badgeColor: "bg-red-100 text-red-600",
-      accentColor: "bg-red-600",
-      valueColor: "text-red-600",
+      badgeColor: "bg-red-100 text-red-600 dark:bg-rose-950/40 dark:text-rose-300",
+      accentColor: "bg-red-600 dark:bg-rose-500",
+      valueColor: "text-red-600 dark:text-rose-400",
     },
   ];
 
@@ -231,8 +231,8 @@ export default function Reports() {
 
         {/* Header */}
         <div>
-          <h1 className='text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight'>Reports</h1>
-          <p className='text-sm text-slate-500 mt-0.5'>Clearance status overview</p>
+          <h1 className='text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight'>Reports</h1>
+          <p className='text-sm text-slate-500 dark:text-slate-400 mt-0.5'>Clearance status overview</p>
         </div>
 
         {/* Stat Cards */}
