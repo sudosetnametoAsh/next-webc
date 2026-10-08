@@ -34,7 +34,7 @@ export default function AzureLoginButton() {
       onClick={handleAzureLogin}
       disabled={isLoading}
       aria-label="Continue with Microsoft Entra ID"
-      className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition-all duration-150 hover:bg-slate-50 hover:border-slate-400 hover:shadow active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#0B192C]/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-750 dark:hover:border-slate-600 dark:focus:ring-amber-400/20 disabled:opacity-60 cursor-pointer"
+      className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:bg-slate-50 hover:border-slate-400 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#0B192C]/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-750 dark:hover:border-slate-600 dark:focus:ring-amber-400/20 disabled:opacity-60 cursor-pointer"
     >
       {isLoading ? (
         <Loader2 className="h-5 w-5 animate-spin text-slate-600 dark:text-slate-300" />

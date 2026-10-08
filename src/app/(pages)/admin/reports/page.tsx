@@ -79,8 +79,8 @@ function StatCardItem({ card, index }: { card: StatCard, index: number }) {
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-500 dark:bg-slate-900/90 dark:border-slate-800 
-        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+      className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-[transform,opacity] duration-300 ease-out dark:bg-slate-900/90 dark:border-slate-800 
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
     >
       <div className={`h-1 w-full ${card.accentColor}`} />
       <div className='flex flex-col gap-6 p-5'>
@@ -161,8 +161,8 @@ function DeptSigningRate() {
               <div className='flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden'>
                 {dept.rate !== null && (
                   <div 
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
-                    style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 80}ms`, }}
+                    className={`h-full rounded-full transition-[width] duration-500 ease-out ${getDeptBarColor(dept.rate)}`}
+                    style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 60}ms`, }}
                   />
                 )}
               </div>

@@ -251,7 +251,7 @@ export default function StudentListView({ setAdminPage }: Props) {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`px-5 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+              className={`px-5 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 whitespace-nowrap border-b-2 transition-[background-color,border-color,color] duration-150 ease-out cursor-pointer ${
                 activeTab === tab.key 
                   ? 'border-[#0B192C] text-[#0B192C] bg-white dark:border-amber-400 dark:text-amber-400 dark:bg-slate-900'
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50'
@@ -278,7 +278,7 @@ export default function StudentListView({ setAdminPage }: Props) {
             <Search className='w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500' />
             <input 
               type='text'
-              className='w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B192C]/10 focus:border-[#0B192C] placeholder:text-slate-400 transition-all text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 focus:dark:border-amber-400'
+              className='w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B192C]/10 focus:border-[#0B192C] placeholder:text-slate-400 transition-[border-color,box-shadow,background-color] duration-150 ease-out text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 focus:dark:border-amber-400'
               placeholder='Search by student name, ID, or degree...'
               onChange={(e) => handleSearch(e.target.value)}
               value={search}
@@ -292,7 +292,7 @@ export default function StudentListView({ setAdminPage }: Props) {
                 <button
                   key={c}
                   onClick={() => handleCourseFilter(c)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-[background-color,color,transform] duration-150 ease-out active:scale-95 cursor-pointer ${
                     courseFilter === c
                       ? 'bg-[#0B192C] text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'

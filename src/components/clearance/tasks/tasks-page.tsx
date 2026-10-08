@@ -79,7 +79,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
           return (
             <div
               key={t.assigned_task_id}
-              className="flex flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs dark:bg-slate-900/80 dark:border-slate-800 dark:hover:border-slate-700"
+              className="flex flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-2xs transition-[border-color,box-shadow] duration-150 ease-out hover:border-slate-300 hover:shadow-xs dark:bg-slate-900/80 dark:border-slate-800 dark:hover:border-slate-700"
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row">
 
@@ -149,7 +149,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                     {isPending && isDigital && (
                       <button
                         onClick={() => setActiveTask(t)}
-                        className="rounded-xl bg-[#0B192C] px-4 py-2 text-xs font-bold text-white shadow-2xs transition hover:bg-[#1A2E46] cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
+                        className="rounded-xl bg-[#0B192C] px-4 py-2 text-xs font-bold text-white shadow-2xs transition-[background-color,transform] duration-150 ease-out hover:bg-[#1A2E46] active:scale-[0.98] cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
                       >
                         Submit Document
                       </button>
@@ -157,7 +157,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                     {isRejected && (
                       <button
                         onClick={() => setActiveTask(t)}
-                        className="rounded-xl border border-rose-200 bg-rose-50/50 px-3.5 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100/70 cursor-pointer dark:bg-rose-950/50 dark:border-rose-800/80 dark:text-rose-200 dark:hover:bg-rose-900/50"
+                        className="rounded-xl border border-rose-200 bg-rose-50/50 px-3.5 py-1.5 text-xs font-bold text-rose-700 transition-[background-color,border-color,transform] duration-150 ease-out hover:bg-rose-100/70 active:scale-[0.98] cursor-pointer dark:bg-rose-950/50 dark:border-rose-800/80 dark:text-rose-200 dark:hover:bg-rose-900/50"
                       >
                         Fix & Resubmit
                       </button>
@@ -167,7 +167,7 @@ export default function TasksPage({ task: tasks, studentId = "" }: TasksPageProp
                         href={t.dropbox}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition-[background-color,border-color,transform] duration-150 ease-out hover:bg-slate-50 active:scale-[0.98] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
                       >
                         <ExternalLink size={13} className="text-slate-400 dark:text-slate-400" />
                         <span>View Document</span>

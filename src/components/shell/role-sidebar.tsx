@@ -154,7 +154,7 @@ function RoleSidebarNavList({
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              "group relative flex items-center gap-3 transition-colors duration-150 text-sm font-medium",
+              "group relative flex items-center gap-3 transition-[background-color,color,border-color,transform] duration-150 active:scale-[0.99] text-sm font-medium",
               collapsed
                 ? "justify-center h-11 w-11 mx-auto rounded-lg"
                 : "px-3.5 py-2.5 rounded-r-lg border-l-4",
@@ -211,7 +211,7 @@ export function RoleSidebar({
   return (
     <aside
       className={cn(
-        "h-full flex flex-col justify-between select-none bg-white dark:bg-[#0B192C] text-slate-900 dark:text-white border-r border-slate-200 dark:border-white/10 transition-[width] duration-200 ease-in-out shrink-0",
+        "h-full flex flex-col justify-between select-none bg-white dark:bg-[#0B192C] text-slate-900 dark:text-white border-r border-slate-200 dark:border-white/10 transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
@@ -315,7 +315,7 @@ export function RoleSidebar({
               type="button"
               onClick={onToggleCollapse}
               title="Expand sidebar"
-              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 active:scale-95 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer"
               aria-label="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4" />
@@ -342,7 +342,7 @@ export function RoleSidebar({
               type="button"
               onClick={onToggleCollapse}
               title="Collapse sidebar"
-              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 active:scale-95 transition-[transform,background-color,color] duration-150 ease-out shrink-0 cursor-pointer"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />

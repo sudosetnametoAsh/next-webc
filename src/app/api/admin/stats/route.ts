@@ -75,7 +75,7 @@ export async function GET() {
     }
 
     totalNonCleared = incomplete + pending
-    averageCompletion = Math.round((signed / totalStudents) * 100)
+    averageCompletion = totalStudents > 0 ? Math.round((signed / totalStudents) * 100) : 0
 
     return NextResponse.json({
       data: {

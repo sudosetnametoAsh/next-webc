@@ -109,8 +109,8 @@ export default function SubmissionModal({
   const personLabel = viewType === 'students' ? 'student' : 'staff';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border dark:border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in-0 duration-200">
+      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border dark:border-slate-800 animate-in fade-in-0 zoom-in-95 duration-200 ease-out">
 
         {/* Header Section */}
         <div className="bg-[#0b1026] text-white p-5 flex justify-between items-start dark:border-b dark:border-slate-800">

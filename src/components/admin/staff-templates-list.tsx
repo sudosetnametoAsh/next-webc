@@ -110,7 +110,7 @@ function StaffTemplateCard({ template, setIsConfirmOpen, setSelectedDeptIds }:
           </div>
           <div className='h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden'>
             <div 
-              className='h-full bg-emerald-600 dark:bg-emerald-500 transition-all duration-300'
+              className='h-full bg-emerald-600 dark:bg-emerald-500 transition-[width] duration-500 ease-out'
               style={{ width: `${template.completion_rate}%` }}
             />
           </div>

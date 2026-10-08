@@ -112,7 +112,7 @@ export default function PrioritySignQueue() {
         <button
           onClick={handleSignAll}
           disabled={isSigningAny}
-          className="flex items-center gap-2 rounded-xl bg-[#0B192C] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
+          className="flex items-center gap-2 rounded-xl bg-[#0B192C] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-[background-color,transform] duration-150 ease-out hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
         >
           {isSigningAny ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -164,7 +164,7 @@ export default function PrioritySignQueue() {
                 <button
                   onClick={() => handleSignSingle(student.clearance_id)}
                   disabled={isThisSigning || isSigningAny}
-                  className="flex items-center gap-1.5 rounded-lg bg-[#0B192C] px-3.5 py-1.5 text-xs font-bold text-amber-400 shadow-2xs transition hover:bg-slate-800 hover:text-amber-300 active:scale-[0.97] disabled:opacity-50 cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#0B192C] px-3.5 py-1.5 text-xs font-bold text-amber-400 shadow-2xs transition-[background-color,color,transform] duration-150 ease-out hover:bg-slate-800 hover:text-amber-300 active:scale-[0.97] disabled:opacity-50 cursor-pointer dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950"
                 >
                   {isThisSigning ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />

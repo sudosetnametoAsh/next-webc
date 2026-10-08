@@ -124,7 +124,7 @@ export default function Landing() {
 
         {/* Center Auth Card */}
         <div className="mx-auto w-full max-w-sm py-12 my-auto">
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/90 transition-all">
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/90 transition-[background-color,border-color,box-shadow] duration-200 animate-in fade-in-0 slide-in-from-bottom-2 duration-300 ease-out">
             <div className="flex items-center justify-center mb-6">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200/80 p-2 shadow-2xs dark:bg-slate-800 dark:border-slate-700">
                 <Image

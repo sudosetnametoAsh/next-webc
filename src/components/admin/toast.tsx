@@ -79,9 +79,9 @@ function ToastItem({ id, type, title, message, duration = 4000, onDismiss }: Toa
       aria-live="assertive"
       className={`
         relative w-full max-w-sm rounded-xl shadow-lg overflow-hidden
-        transition-all duration-300 ease-in-out
+        transition-[transform,opacity] duration-200 ease-out
         ${styles.container}
-        ${visible && !leaving ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
+        ${visible && !leaving ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-2 scale-95"}
       `}
     >
       <div className="flex items-start gap-3 px-4 py-3">

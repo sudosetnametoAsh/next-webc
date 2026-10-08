@@ -395,10 +395,10 @@ export default function StudentsClient() {
       {student !== null && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs animate-in fade-in-0 duration-200"
             onClick={() => setStudent(null)}
           />
-          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden dark:border-slate-800 dark:bg-slate-900">
+          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden dark:border-slate-800 dark:bg-slate-900 animate-in slide-in-from-right duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]">
             <div className="flex-1 overflow-y-auto overflow-x-hidden">
               <TaskView
                 studentTasks={student.clearance_records[0].clearance_tasks}

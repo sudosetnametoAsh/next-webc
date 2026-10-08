@@ -19,8 +19,12 @@ export async function POST(req: NextRequest) {
   const formObject = Object.fromEntries(form.entries());
   const formData = FormSchema.safeParse(formObject);
 
-  if (!formData.success) throw new Error("Invalid data");
-  console.log(formData.data);
+  if (!formData.success) {
+    return NextResponse.json(
+      { error: "Invalid submission data" },
+      { status: 400 }
+    );
+  }
 
   const { file, task, taskId, studentId, department } = formData.data;
 

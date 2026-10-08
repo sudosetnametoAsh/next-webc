@@ -140,18 +140,18 @@ export default function ConfirmationModal({
     : "bg-gray-900 hover:bg-gray-700 active:bg-gray-900 focus-visible:ring-gray-500 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-white";
  
   const backdropAnim = animOut
-    ? "opacity-0 transition-opacity duration-[180ms]"
-    : "opacity-100 transition-opacity duration-[180ms]";
+    ? "opacity-0 transition-opacity duration-[180ms] ease-out"
+    : "opacity-100 transition-opacity duration-[200ms] ease-out";
  
   const modalAnim = animOut
-    ? "opacity-0 scale-95 translate-y-1 transition-all duration-[180ms]"
-    : "opacity-100 scale-100 translate-y-0 transition-all duration-[220ms]";
+    ? "opacity-0 scale-95 translate-y-1 transition-[transform,opacity] duration-[180ms] ease-out"
+    : "opacity-100 scale-100 translate-y-0 transition-[transform,opacity] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)]";
  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/40 ${backdropAnim}`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-xs ${backdropAnim}`}
         onClick={handleBackdrop}
         aria-hidden="true"
       />

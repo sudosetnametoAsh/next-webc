@@ -124,7 +124,7 @@ function NotificationsMenu({ userId }: { userId?: string }) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer"
           aria-label="Notifications"
         >
           <Bell className="w-5 h-5" />
@@ -210,7 +210,7 @@ export function TopUtilityBar({ session, onOpenMobileMenu }: TopUtilityBarProps)
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer"
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
@@ -252,7 +252,7 @@ export function TopUtilityBar({ session, onOpenMobileMenu }: TopUtilityBarProps)
         {/* Sign Out Button */}
         <div className="pl-1">
           <AzureSignOutButton
-            className="p-2 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-100/70 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 transition-colors cursor-pointer flex items-center justify-center"
+            className="p-2 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-100/70 active:scale-95 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/40 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer flex items-center justify-center"
             color="currentColor"
           >
             <LogOut className="w-4 h-4" />

@@ -200,9 +200,9 @@ export function ClearanceSeal({
                 <div
                   key={`${dept.dept_name}-${idx}`}
                   className={cn(
-                    "flex flex-col justify-between rounded-xl border p-3.5 transition-colors duration-150 dark:bg-slate-800/40 dark:border-slate-700/60",
-                    isSigned && "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800/60 dark:bg-emerald-950/20",
-                    isPending && "border-amber-300 bg-white ring-1 ring-amber-400/30 shadow-2xs dark:border-amber-500/50 dark:bg-slate-800/60 dark:ring-amber-500/20",
+                    "flex flex-col justify-between rounded-xl border p-3.5 transition-[border-color,background-color,box-shadow] duration-150 ease-out hover:shadow-2xs dark:bg-slate-800/40 dark:border-slate-700/60",
+                    isSigned && "border-emerald-200 bg-emerald-50/30 hover:border-emerald-300 dark:border-emerald-800/60 dark:bg-emerald-950/20 dark:hover:border-emerald-700",
+                    isPending && "border-amber-300 bg-white ring-1 ring-amber-400/30 shadow-2xs hover:border-amber-400 dark:border-amber-500/50 dark:bg-slate-800/60 dark:ring-amber-500/20 dark:hover:border-amber-400",
                     isLocked && "border-slate-200 bg-slate-50/60 text-slate-400 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-500"
                   )}
                 >
