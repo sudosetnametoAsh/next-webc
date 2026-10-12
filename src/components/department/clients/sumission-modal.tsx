@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   FileText,
   Image as ImageIcon,
@@ -104,13 +105,11 @@ export default function SubmissionModal({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   const personLabel = viewType === 'students' ? 'student' : 'staff';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in-0 duration-200">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh] dark:bg-slate-900 dark:border dark:border-slate-800 animate-in fade-in-0 zoom-in-95 duration-200 ease-out">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !isSubmitting) resetAndClose(); }}>
+      <DialogContent showCloseButton={false} onEscapeKeyDown={(event) => { if (isSubmitting) event.preventDefault(); }} onInteractOutside={(event) => { if (isSubmitting) event.preventDefault(); }} className="max-w-2xl sm:max-w-2xl rounded-2xl bg-white overflow-hidden flex flex-col max-h-[90vh] p-0 gap-0 dark:bg-slate-900 dark:border-slate-800">
 
         {/* Header Section */}
         <div className="bg-[#0b1026] text-white p-5 flex justify-between items-start dark:border-b dark:border-slate-800">
@@ -119,15 +118,16 @@ export default function SubmissionModal({
               <FileBox size={20} className="text-gray-300" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold leading-tight">
+              <DialogTitle className="text-lg font-semibold leading-tight">
                 Submission — {studentName}
-              </h2>
-              <p className="text-sm text-gray-400 mt-1">
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-400 mt-1">
                 Review and manage {personLabel} file submissions
-              </p>
+              </DialogDescription>
             </div>
           </div>
           <button
+            aria-label="Close submission review"
             onClick={resetAndClose}
             disabled={isSubmitting}
             className="text-gray-400 hover:text-white transition-colors disabled:opacity-50"
@@ -177,7 +177,7 @@ export default function SubmissionModal({
                     href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 dark:bg-slate-700 dark:text-sky-300 dark:hover:bg-slate-600"
+                    className="opacity-100 [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 focus-visible:opacity-100 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-[opacity,background-color] duration-150 dark:bg-slate-700 dark:text-sky-300 dark:hover:bg-slate-600"
                     title="Preview File"
                   >
                     <ExternalLink size={16} />
@@ -284,7 +284,7 @@ export default function SubmissionModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -346,7 +346,7 @@ export default function TaskView({
                 return (
                   <div
                     key={item.dept_name}
-                    className={`relative flex items-center justify-between p-4 rounded-xl border transition-all duration-200 w-full overflow-hidden ${
+                    className={`relative flex items-center justify-between p-4 rounded-xl border transition-colors duration-150 w-full overflow-hidden ${
                       isCurrent
                         ? "border-[#0B192C]/30 bg-amber-50/20 shadow-2xs dark:border-amber-600/50 dark:bg-amber-950/20"
                         : "border-slate-200/80 bg-white hover:border-slate-300 dark:bg-slate-800/40 dark:border-slate-700/50 dark:hover:border-slate-600"

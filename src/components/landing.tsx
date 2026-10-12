@@ -11,21 +11,18 @@ export default function Landing() {
     <main className="relative flex min-h-screen w-full flex-col lg:flex-row bg-background text-foreground transition-colors duration-200">
       
       {/* ── Left Editorial Showcase (Desktop) ── */}
-      <section className="relative hidden lg:flex lg:w-7/12 flex-col justify-between overflow-hidden bg-[#071322] p-12 xl:p-16 text-white border-r border-slate-800/80">
+      <section className="relative hidden lg:flex lg:w-7/12 flex-col justify-between overflow-hidden bg-slate-50 p-12 xl:p-16 text-slate-900 border-r border-slate-200 dark:bg-[#071322] dark:text-white dark:border-slate-800/80">
         {/* Subtle Architectural Blueprint Grid */}
         <div 
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          className="absolute inset-0 text-slate-900 dark:text-white opacity-[0.04] pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
             backgroundSize: '24px 24px',
           }}
         />
-        {/* Ambient Gold Radial Flare */}
-        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-
         {/* Top Branding Strip */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md p-1.5 border border-white/15 shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white backdrop-blur-md p-1.5 border border-slate-200 dark:bg-white/10 dark:border-white/15 shadow-sm">
             <Image
               src="/stilogo.png"
               alt="STI Crest"
@@ -36,10 +33,10 @@ export default function Landing() {
             />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-400">
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
               STI College
             </p>
-            <h2 className="text-sm font-semibold tracking-tight text-slate-200">
+            <h2 className="text-sm font-semibold tracking-tight text-slate-700 dark:text-slate-200">
               Clearance & Credential Gateway
             </h2>
           </div>
@@ -47,48 +44,48 @@ export default function Landing() {
 
         {/* Center Narrative */}
         <div className="relative z-10 my-auto max-w-xl py-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-300 mb-6">
-            <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 dark:border-amber-400/30 dark:bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 mb-6">
+            <ShieldCheck className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
             <span>Official Institutional Protocol</span>
           </div>
 
-          <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             Centralized Clearance & Credential Verification Protocol
           </h1>
 
-          <p className="mt-4 text-base text-slate-300 leading-relaxed">
+          <p className="mt-4 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             A unified, prerequisite-enforced digital signing ecosystem connecting students, academic departments, and registrars for end-of-term graduation and enrollment clearance.
           </p>
 
           {/* Institutional Pillars */}
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xs">
-              <GitFork className="h-5 w-5 text-amber-400 mb-2" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Prerequisite Order</h3>
-              <p className="mt-1 text-xs text-slate-300 leading-relaxed">Hierarchical unlocking: Cashier to Department to Registrar.</p>
+            <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04] p-4 backdrop-blur-xs">
+              <GitFork className="h-5 w-5 text-amber-700 dark:text-amber-400 mb-2" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Prerequisite Order</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Hierarchical unlocking: Cashier to Department to Registrar.</p>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xs">
-              <Activity className="h-5 w-5 text-emerald-400 mb-2" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Live Audit</h3>
-              <p className="mt-1 text-xs text-slate-300 leading-relaxed">Instant status tracking, milestone certificates, and remarks.</p>
+            <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04] p-4 backdrop-blur-xs">
+              <Activity className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mb-2" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Live Audit</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Instant status tracking, milestone certificates, and remarks.</p>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xs">
-              <Lock className="h-5 w-5 text-sky-400 mb-2" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Campus SSO</h3>
-              <p className="mt-1 text-xs text-slate-300 leading-relaxed">Zero-trust single sign-on via Microsoft Entra ID.</p>
+            <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04] p-4 backdrop-blur-xs">
+              <Lock className="h-5 w-5 text-sky-700 dark:text-sky-400 mb-2" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Campus SSO</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Zero-trust single sign-on via Microsoft Entra ID.</p>
             </div>
           </div>
         </div>
 
         {/* Bottom Status Ticker */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-6">
+        <div className="relative z-10 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-white/10 pt-6">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-slate-300">Academic Year 2026–2027 Clearance Active</span>
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Academic Year 2026–2027 Clearance Active</span>
           </div>
-          <span className="font-mono text-[11px] text-slate-400">Build v2.4</span>
+          <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">Build v2.4</span>
         </div>
       </section>
 

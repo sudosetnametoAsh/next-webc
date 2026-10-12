@@ -184,7 +184,7 @@ function RoleSidebarNavList({
             {!collapsed && <span className="truncate">{item.label}</span>}
 
             {collapsed && (
-              <span className="pointer-events-none absolute left-full ml-3 hidden group-hover:flex items-center px-2.5 py-1 text-xs font-semibold text-white bg-slate-900 border border-slate-700 rounded-md whitespace-nowrap shadow-xl z-50 animate-in fade-in-0 duration-150">
+              <span className="pointer-events-none absolute left-full ml-3 hidden [@media(hover:hover)_and_(pointer:fine)]:group-hover:flex items-center px-2.5 py-1 text-xs font-semibold text-white bg-slate-900 border border-slate-700 rounded-md whitespace-nowrap shadow-xl z-50">
                 {item.label}
               </span>
             )}
@@ -211,7 +211,7 @@ export function RoleSidebar({
   return (
     <aside
       className={cn(
-        "h-full flex flex-col justify-between select-none bg-white dark:bg-[#0B192C] text-slate-900 dark:text-white border-r border-slate-200 dark:border-white/10 transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0",
+        "h-full flex flex-col justify-between select-none bg-white dark:bg-[#0B192C] text-slate-900 dark:text-white border-r border-slate-200 dark:border-white/10 shrink-0",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >

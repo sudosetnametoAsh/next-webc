@@ -80,7 +80,7 @@ export function PersistentAppShell({
       {/* Desktop Sidebar (hidden on screens < lg) */}
       <div
         className={cn(
-          "hidden lg:flex flex-col shrink-0 h-full transition-[width] duration-200 ease-in-out",
+          "hidden lg:flex flex-col shrink-0 h-full",
           collapsed ? "w-[72px]" : "w-[260px]"
         )}
       >
@@ -93,17 +93,20 @@ export function PersistentAppShell({
       </div>
 
       {/* Mobile Drawer (visible on screens < lg when mobileOpen) */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div
+          inert={!mobileOpen}
+          aria-hidden={!mobileOpen}
+          className={cn("fixed inset-0 z-50 lg:hidden transition-[visibility] duration-0", mobileOpen ? "visible" : "invisible delay-200 pointer-events-none")}
+        >
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in-0 duration-200"
+            className={cn("fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]", mobileOpen ? "opacity-100" : "opacity-0")}
             onClick={() => setMobileOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer Slide-over */}
-          <div className="fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white dark:bg-[#0B192C] border-r border-slate-200 dark:border-white/10 shadow-2xl transition-transform animate-in slide-in-from-left duration-200 flex flex-col">
+          <div className={cn("fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white dark:bg-[#0B192C] border-r border-slate-200 dark:border-white/10 shadow-2xl transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
             {/* Close button */}
             <div className="absolute top-4 right-3 z-10">
               <button
@@ -125,7 +128,6 @@ export function PersistentAppShell({
             />
           </div>
         </div>
-      )}
 
       {/* Main Viewport */}
       <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">

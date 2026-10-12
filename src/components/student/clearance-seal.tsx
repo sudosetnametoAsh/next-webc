@@ -53,16 +53,6 @@ export function ClearanceSeal({
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs dark:bg-slate-900/90 dark:border-slate-800 dark:shadow-2xs">
-      {/* Top Accent Strip */}
-      <div
-        className={cn(
-          "h-1 w-full",
-          isComplete
-            ? "bg-emerald-600"
-            : "bg-linear-to-r from-[#0B192C] via-amber-500 to-emerald-600 dark:from-amber-400 dark:via-amber-500 dark:to-emerald-500"
-        )}
-      />
-
       <div className="p-6 sm:p-8">
         {/* Certificate Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
@@ -121,7 +111,7 @@ export function ClearanceSeal({
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 flex gap-0.5 p-0.5 dark:bg-slate-800">
               <div
                 className={cn(
-                  "h-full rounded-full transition-[width] duration-500 ease-out",
+                  "h-full rounded-full",
                   isComplete ? "bg-emerald-600" : "bg-[#0B192C] dark:bg-amber-400"
                 )}
                 style={{ width: `${percentage}%` }}

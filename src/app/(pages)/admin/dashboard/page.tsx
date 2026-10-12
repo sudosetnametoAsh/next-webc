@@ -170,7 +170,7 @@ export default function AdminDashboard() {
                         </span>
                         <div className='h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden'>
                           <div 
-                            className='h-full bg-emerald-600 rounded-full transition-[width] duration-500 ease-out'
+                            className='h-full bg-emerald-600 rounded-full'
                             style={{ width: `${template.completion_rate}%` }}
                           />
                         </div>
@@ -216,10 +216,9 @@ export default function AdminDashboard() {
                       <div className='h-2 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden'>
                         {dept.rate !== null && (
                           <div 
-                            className={`h-full rounded-full transition-[width] duration-700 ease-out ${getDeptBarColor(dept.rate)}`}
+                            className={`h-full rounded-full ${getDeptBarColor(dept.rate)}`}
                             style={{
-                              width: animated ? `${dept.rate}%` : '0%',
-                              transitionDelay: `${i * 60}ms`,
+                              width: `${dept.rate}%`,
                             }}
                           />
                         )}

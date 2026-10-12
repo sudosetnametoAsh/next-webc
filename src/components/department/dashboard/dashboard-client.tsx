@@ -113,7 +113,7 @@ export default function DashboardClient({
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-700/60 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-emerald-600 dark:bg-emerald-500 transition-[width] duration-500 ease-out"
+                  className="h-full rounded-full bg-emerald-600 dark:bg-emerald-500"
                   style={{ width: `${completionRate}%` }}
                 />
               </div>

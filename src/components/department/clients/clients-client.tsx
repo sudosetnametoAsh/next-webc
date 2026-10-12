@@ -14,6 +14,7 @@ import ManagePresetButton from "../button/manage-preset-button";
 import SelectAll from "../button/select-all";
 import { Checkbox } from "@/components/ui/checkbox";
 import TaskView from "./task-view";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type CheckedState = boolean | "indeterminate";
 
@@ -103,6 +104,7 @@ export default function StudentsClient() {
   const queryClient = useQueryClient();
 
   const [student, setStudent] = useState<Students | null>(null);
+  const [taskPanelOpen, setTaskPanelOpen] = useState(false);
   const [taskId, setTaskId] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -288,7 +290,7 @@ export default function StudentsClient() {
               return (
                 <div
                   key={student.student_id}
-                  onClick={() => setStudent(student)}
+                  onClick={() => { setStudent(student); setTaskPanelOpen(true); }}
                   className="group flex cursor-pointer items-center rounded-xl border border-slate-200/90 bg-white px-4 py-3 shadow-2xs transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
                 >
                   <div className="w-8" onClick={(e) => e.stopPropagation()}>
@@ -391,26 +393,22 @@ export default function StudentsClient() {
         </div>
       </footer>
 
-      {/* Slide-out Sidebar for Tasks */}
-      {student !== null && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs animate-in fade-in-0 duration-200"
-            onClick={() => setStudent(null)}
-          />
-          <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-[480px] min-w-0 flex-col border-l border-slate-200 bg-white shadow-2xl overflow-x-hidden dark:border-slate-800 dark:bg-slate-900 animate-in slide-in-from-right duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]">
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <TaskView
-                studentTasks={student.clearance_records[0].clearance_tasks}
-                studentId={student.student_id}
-                studentName={student.student_name}
-                currentDepartment={departmentName}
-                viewType={viewType}
-              />
-            </div>
-          </div>
-        </>
-      )}
+      {/* Keep the selected content available while Dialog plays its exit. */}
+      <Dialog open={taskPanelOpen} onOpenChange={setTaskPanelOpen}>
+        <DialogContent showCloseButton={false} aria-describedby={undefined} className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[480px] max-w-full sm:max-w-[480px] rounded-none p-0 gap-0 flex flex-col overflow-hidden data-[state=open]:slide-in-from-bottom-0 data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100 ease-[cubic-bezier(0.32,0.72,0,1)]">
+          <DialogTitle className="sr-only">Tasks for {student?.student_name}</DialogTitle>
+          {student && <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <TaskView
+              studentTasks={student.clearance_records[0].clearance_tasks}
+              studentId={student.student_id}
+              studentName={student.student_name}
+              currentDepartment={departmentName}
+              viewType={viewType}
+              onBack={() => setTaskPanelOpen(false)}
+            />
+          </div>}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

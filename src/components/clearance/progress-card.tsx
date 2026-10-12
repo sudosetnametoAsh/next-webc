@@ -35,7 +35,7 @@ export default function ProgressCard({ summary }: { summary: getSummaryPromise }
         {/* Progress bar track updated to a soft slate */}
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
           <div
-            className={`h-full transition-[width] duration-500 ease-out ${
+            className={`h-full ${
               isCompleted ? "bg-emerald-500" : "bg-amber-500"
             }`}
             style={{ width: `${percentage}%` }}

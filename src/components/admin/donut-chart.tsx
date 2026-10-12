@@ -55,6 +55,7 @@ export default function DonutChart() {
         <ResponsiveContainer width='100%' height={260}>
           <PieChart>
             <Pie
+              isAnimationActive={false}
               data={donutData}
               cx='50%'
               cy='50%'

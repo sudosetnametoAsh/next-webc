@@ -69,7 +69,7 @@ export default function ClearanceBarChart() {
             ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
           />
           <Tooltip content={<CustomBarTooltip />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc' }} />
-          <Bar dataKey='completion' fill={isDark ? '#F59E0B' : '#1e3a6e'} radius={[4, 4, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey='completion' fill={isDark ? '#F59E0B' : '#1e3a6e'} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

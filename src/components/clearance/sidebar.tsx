@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   getClearanceRecordsPromise,
 } from "@/modules/clearance/application/repository/dashboard-repository";
@@ -45,14 +46,14 @@ const formatDate = (dateString: string | null) => {
 export default function Sidebar({
   selectedRecord,
   departmentTasks,
-  setSelectedRecord,
+  open,
+  onOpenChange,
   studentId,
 }: {
   selectedRecord: getClearanceRecordsPromise[0];
   departmentTasks: getDepartmentDetailsPromise;
-  setSelectedRecord: React.Dispatch<
-    React.SetStateAction<getClearanceRecordsPromise[0] | null>
-  >;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   studentId: string;
 }) {
   const [activeTask, setActiveTask] = useState<typeof departmentTasks[0] | null>(null);
@@ -60,28 +61,25 @@ export default function Sidebar({
   if (!selectedRecord) return null;
 
   return (
-    <section className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity">
-      <div
-        className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white border-l border-slate-200 shadow-2xl transition-transform duration-300 ease-in-out dark:bg-slate-900 dark:border-slate-800 ${
-          selectedRecord ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <Dialog open={open} onOpenChange={(next) => { if (!next) setActiveTask(null); onOpenChange(next); }}>
+      <DialogContent showCloseButton={false} className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-full max-w-md sm:max-w-md rounded-none p-0 gap-0 flex flex-col bg-white dark:bg-slate-900 dark:border-slate-800 data-[state=open]:slide-in-from-bottom-0 data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100 ease-[cubic-bezier(0.32,0.72,0,1)]">
         <header className="flex items-center justify-between border-b border-slate-200 p-6 dark:border-slate-800">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-amber-500/10 dark:border dark:border-amber-500/20">
               <ShieldCheck className="text-blue-600 dark:text-amber-400" size={24} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">
+              <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">
                 {selectedRecord.department}
-              </h2>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+              </DialogTitle>
+              <DialogDescription className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
                 {selectedRecord.staff}
-              </p>
+              </DialogDescription>
             </div>
           </div>
           <button
-            onClick={() => setSelectedRecord(null)}
+            aria-label="Close department details"
+            onClick={() => onOpenChange(false)}
             className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" size={24} />
@@ -277,7 +275,7 @@ export default function Sidebar({
             </div>
           </section>
         </div>
-      </div>
+      </DialogContent>
 
       {/* Render the modal ONLY if a task is active. Pass the necessary details. */}
       {activeTask && (
@@ -290,6 +288,6 @@ export default function Sidebar({
           studentId={studentId}
         />
       )}
-    </section>
+    </Dialog>
   );
 }

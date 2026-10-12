@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "src/components/clearance/sidebar.tsx"
+        ],
+        "createdAt": "2026-10-12T04:40:39.913Z",
+        "reason": "Codex reviewed flagged Submit button: white on blue in light mode and near-black slate-950 on amber-500 in dark mode both provide strong contrast; appearance retained."
+      },
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "src/components/department/clients/task-view.tsx"
+        ],
+        "createdAt": "2026-10-12T04:50:42.861Z",
+        "reason": "Codex reviewed Review File button: white on navy in light mode and near-black slate-950 on amber-500 in dark mode are intentionally high contrast; unrelated styling retained."
+      }
+    ]
+  }
+}

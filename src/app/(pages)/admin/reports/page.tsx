@@ -161,8 +161,8 @@ function DeptSigningRate() {
               <div className='flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden'>
                 {dept.rate !== null && (
                   <div 
-                    className={`h-full rounded-full transition-[width] duration-500 ease-out ${getDeptBarColor(dept.rate)}`}
-                    style={{ width: animated ? `${dept.rate}%` : '0%', transitionDelay: `${i * 60}ms`, }}
+                    className={`h-full rounded-full ${getDeptBarColor(dept.rate)}`}
+                    style={{ width: `${dept.rate}%`,  }}
                   />
                 )}
               </div>

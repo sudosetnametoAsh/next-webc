@@ -18,11 +18,14 @@ export default function DepartmenList({
     getClearanceRecordsPromise[0] | null
   >(null);
 
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
   const [departmentTasks, setDepartmentTasks] =
     useState<getDepartmentDetailsPromise>([]);
 
   const getDepartmentTasks = async (item: getClearanceRecordsPromise[0]) => {
     setSelectedRecord(item);
+    setDetailsOpen(true);
 
     try {
       const departmentTasks = await getDepartmentDetails.execute(item.staff_id);
@@ -63,7 +66,7 @@ export default function DepartmenList({
               key={item.clearance_id}
               onClick={() => item.task_count > 0 && getDepartmentTasks(item)}
               className={`group flex flex-col gap-5 rounded-2xl border bg-white p-6 shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out dark:bg-slate-900/90 ${item.task_count > 0
-                  ? `cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] ${isSigned
+                  ? `cursor-pointer hover:shadow-md active:scale-[0.99] ${isSigned
                     ? "border-emerald-200 hover:border-emerald-400 dark:border-emerald-800/60 dark:hover:border-emerald-700"
                     : (isPending || isIncomplete)
                       ? "border-amber-200 hover:border-amber-400 dark:border-amber-800/60 dark:hover:border-amber-700"
@@ -129,7 +132,7 @@ export default function DepartmenList({
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
-                      className={`h-full rounded-full transition-[width] duration-500 ease-out ${allCompleted ? "bg-emerald-500" : "bg-amber-500"
+                      className={`h-full rounded-full ${allCompleted ? "bg-emerald-500" : "bg-amber-500"
                         }`}
                       style={{ width: `${percentage}%` }}
                     />
@@ -151,7 +154,8 @@ export default function DepartmenList({
         <Sidebar
           selectedRecord={selectedRecord}
           departmentTasks={departmentTasks}
-          setSelectedRecord={setSelectedRecord}
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
           studentId="02000609703"
         />
       )}
