@@ -8,27 +8,30 @@ import { makeGetClearanceRecords } from "@/composition/clearance/make-get-cleara
 import { makeGetDepartmentDetailsServer } from "@/composition/clearance/make-get-department-details-server";
 import { makeGetOfficeHours } from "@/composition/clearance/make-get-office-hours";
 import { makeGetSummary } from "@/composition/clearance/make-get-summary";
+import { makeGetStudentProfile } from "@/composition/clearance/make-get-student-profile";
 import { getSession } from "@/lib/auth/get-session";
-import { Clock, GraduationCap, Send, ShieldCheck, User } from "lucide-react";
+import { Clock, GraduationCap, Send, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import AzureSignOutButton from "@/components/auth/azure-sign-out-button";
+import UserDropdown from "@/components/clearance/user-dropdown";
 
 export default async function Clearance({
   searchParams,
 }: {
   searchParams: { tab: string };
 }) {
-  const { user_id } = await getSession();
+  const { user_id, user_email, user_name } = await getSession();
   const getClearanceRecords = await makeGetClearanceRecords();
   const getSummary = await makeGetSummary();
   const getDepartmentDetailsServer = await makeGetDepartmentDetailsServer();
   const getOfficeHours = await makeGetOfficeHours();
+  const getStudentProfile = await makeGetStudentProfile();
 
-  const [summary, records, tasks, departments] = await Promise.all([
+  const [summary, records, tasks, departments, profile] = await Promise.all([
     getSummary.execute(user_id),
     getClearanceRecords.execute(user_id),
     getDepartmentDetailsServer.execute(user_id),
     getOfficeHours.execute(user_id),
+    getStudentProfile.execute(user_id),
   ]);
   const params = await searchParams;
   const activeTab = params.tab || "overview";
@@ -54,11 +57,12 @@ export default async function Clearance({
             </div>
           </div>
 
-          <AzureSignOutButton>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
-              <User size={20} />
-            </div>
-          </AzureSignOutButton>
+          <UserDropdown 
+            user={{ name: user_name, email: user_email }} 
+            profile={profile} 
+            records={records} 
+            summary={summary}
+          />
         </div>
       </header>
 

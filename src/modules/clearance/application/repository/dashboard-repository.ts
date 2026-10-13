@@ -40,9 +40,19 @@ export type getOfficeHoursPromise = {
     time_out: string | null;
 }[]
 
+export type getStudentProfilePromise = {
+    student_id: string;
+    student_name: string;
+    course_name: string | null;
+    section_number: number | null;
+    year: number | null;
+    semester: number | null;
+}
+
 export interface DashBoardRepository {
     getSummary(userId?: string): Promise<getSummaryPromise>;
     getClearanceRecords(userId?: string): Promise<getClearanceRecordsPromise>;
     getDepartmentDetails(userId?: string): Promise<getDepartmentDetailsPromise>;
-    getOfficeHours(userId?: string) : Promise<getOfficeHoursPromise>
+    getOfficeHours(userId?: string) : Promise<getOfficeHoursPromise>;
+    getStudentProfile(userId?: string): Promise<getStudentProfilePromise | null>;
 }

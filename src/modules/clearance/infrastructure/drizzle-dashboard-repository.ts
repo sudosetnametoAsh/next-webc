@@ -11,12 +11,40 @@ import {
   clearanceRecords,
   clearanceTasks,
   clearanceTemplates,
+  courseSections,
+  courses,
+  enrollments,
   staffs,
+  students,
 } from "@/lib/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 
 export class DrizzleDashBoardRepository implements DashBoardRepository {
   constructor(private readonly drizzle: DrizzleSupabaseClient) {}
+
+  async getStudentProfile(userId?: string): Promise<any> {
+    if (!userId) return null;
+
+    const response = await this.drizzle.rls((tx) => {
+      return tx
+        .select({
+          student_id: students.studentId,
+          student_name: students.studentName,
+          course_name: courses.courseName,
+          section_number: courseSections.sectionNumber,
+          year: courseSections.year,
+          semester: courseSections.semester,
+        })
+        .from(students)
+        .leftJoin(enrollments, eq(students.studentId, enrollments.studentId))
+        .leftJoin(courseSections, eq(enrollments.sectionId, courseSections.sectionId))
+        .leftJoin(courses, eq(courseSections.courseId, courses.courseId))
+        .where(eq(students.studentId, userId))
+        .limit(1);
+    });
+
+    return response[0] || null;
+  }
 
   async getClearanceRecords(userId?: string): Promise<getClearanceRecordsPromise> {
     const response = await this.drizzle.rls((tx) => {
