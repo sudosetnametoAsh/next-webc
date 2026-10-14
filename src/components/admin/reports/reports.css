@@ -27,7 +27,7 @@
   
     /* chart series */
     --rp-bar: #0b192c;
-    --rp-approved: #009966;
+    --rp-signed: #009966;
     --rp-review: #62748e;
     --rp-incomplete: #fe9a00;
   
@@ -72,7 +72,7 @@
     --rp-primary-hover: #ffc933;
   
     --rp-bar: #ffb900;
-    --rp-approved: #00bc7d;
+    --rp-signed: #00bc7d;
     --rp-review: #90a1b9;
     --rp-incomplete: #ffb900;
   

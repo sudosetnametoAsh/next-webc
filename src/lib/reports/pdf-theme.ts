@@ -12,7 +12,7 @@ export const PDF_COLORS = {
     zebra: "#fafbfc",
     navy: "#0b192c",
     amber: "#ffb900",
-    approved: "#059669",
+    signed: "#059669",
     pending: "#64748b",
     pendingText: "#475569",
     incomplete: "#f59e0b",

@@ -46,7 +46,7 @@ export interface ClearanceReportSource {
 
 export interface OutstandingSignoff {
   department: string;
-  status: Exclude<SignoffStatus, "approved">;
+  status: Exclude<SignoffStatus, "signed">;
 }
 
 export interface ReportRow {
@@ -71,7 +71,7 @@ export interface TemplateSummary extends ClearanceTemplateInfo, StatusCounts {}
 
 export interface DepartmentSummary {
   department: string;
-  approved: number;
+  signed: number;
   pending: number;
   incomplete: number;
   total: number;

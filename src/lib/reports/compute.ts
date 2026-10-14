@@ -35,7 +35,7 @@ import type {
   /**
    * THE rule for a person's overall status. Change it here and the charts, KPIs,
    * table and PDF all follow.
-   *   - cleared:        every department approved
+   *   - cleared:        every department signed
    *   - incomplete:     at least one department signed
    *   - pending: no progress
    */
@@ -102,12 +102,12 @@ import type {
       for (const { department, status } of record.signoffs) {
         const entry = byDepartment.get(department) ?? {
           department,
-          approved: 0,
+          signed: 0,
           pending: 0,
           incomplete: 0,
           total: 0,
         };
-        if (status === "signed") entry.approved += 1;
+        if (status === "signed") entry.signed += 1;
         else if (status === "pending") entry.pending += 1;
         else entry.incomplete += 1;
         entry.total += 1;

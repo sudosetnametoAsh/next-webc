@@ -85,7 +85,7 @@ export function CompletionChart({ data }: { data: TemplateSummary[] }) {
   );
 }
 
-/** Approved / pending review / incomplete sign-offs per department. */
+/** Signed / pending / incomplete sign-offs per department. */
 export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
   if (data.length === 0) return <EmptyChart />;
 
@@ -94,7 +94,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
       className="w-full"
       style={{ height: Math.max(288, data.length * 40 + 64) }}
       role="img"
-      aria-label="Stacked bar chart of approved, pending review and incomplete sign-offs per department"
+      aria-label="Stacked bar chart of signed, pending review and incomplete sign-offs per department"
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
@@ -124,7 +124,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
                       />
                       <span className="rp-muted">{p.name}:</span> {p.value}
                     </p>
-                  ))}
+                ))}
                 </div>
               );
             }}
@@ -133,7 +133,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
             iconType="circle"
             formatter={(value) => <span style={{ color: "var(--rp-muted)", fontSize: 12 }}>{value}</span>}
           />
-          <Bar dataKey="approved" name="Approved" stackId="s" fill="var(--rp-approved)" />
+          <Bar dataKey="signed" name="Signed" stackId="s" fill="var(--rp-signed)" />
           <Bar dataKey="pending" name="Pending" stackId="s" fill="var(--rp-review)" />
           <Bar dataKey="incomplete" name="Incomplete" stackId="s" fill="var(--rp-incomplete)" radius={[0, 4, 4, 0]} />
         </BarChart>
