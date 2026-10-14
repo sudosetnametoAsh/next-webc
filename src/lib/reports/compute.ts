@@ -41,7 +41,7 @@ import type {
    */
   export function overallStatus(statuses: SignoffStatus[]): PersonStatus {
     if (statuses.every((s) => s === "signed")) return "cleared";
-    if (statuses.some((s) => s === "incomplete")) return "incomplete";
+    if (statuses.some((s) => s === "signed" || s === "incomplete")) return "incomplete";
     return "pending";
   }
   
