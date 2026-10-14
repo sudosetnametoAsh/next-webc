@@ -57,7 +57,7 @@ const LIST_COLS = { name: "26%", id: "15%", tpl: "11%", status: "14%", out: "34%
 
 const STATUS_TEXT_COLOR: Record<PersonStatus, string> = {
   cleared: C.approved,
-  pending_review: C.pendingReviewText,
+  pending: C.pendingText,
   incomplete: C.incompleteText,
 };
 
@@ -94,7 +94,7 @@ export function ReportDocument({ term, view, generatedAt, generatedBy, logo }: R
           <Kpi value={String(totals.total)} label="Total in scope" />
           <Kpi value={String(totals.cleared)} label={`Fully cleared (${totals.rate}%)`} />
           <Kpi value={String(totals.incomplete)} label="Incomplete tasks" />
-          <Kpi value={String(totals.pendingReview)} label="Pending review" last />
+          <Kpi value={String(totals.pending)} label="Pending review" last />
         </View>
 
         {/* Completion by template */}
@@ -116,7 +116,7 @@ export function ReportDocument({ term, view, generatedAt, generatedBy, logo }: R
             <Text style={[s.num, { width: TEMPLATE_COLS.n }]}>{t.total}</Text>
             <Text style={[s.num, { width: TEMPLATE_COLS.n }]}>{t.cleared}</Text>
             <Text style={[s.num, { width: TEMPLATE_COLS.n }]}>{t.incomplete}</Text>
-            <Text style={[s.num, { width: TEMPLATE_COLS.n }]}>{t.pendingReview}</Text>
+            <Text style={[s.num, { width: TEMPLATE_COLS.n }]}>{t.pending}</Text>
             <View style={[s.barWrap, { width: TEMPLATE_COLS.bar, paddingLeft: 12 }]}>
               <View style={[s.track, { flex: 1 }]}>
                 <View style={{ width: `${t.rate}%`, backgroundColor: C.navy }} />
@@ -140,12 +140,12 @@ export function ReportDocument({ term, view, generatedAt, generatedBy, logo }: R
           <View key={d.department} style={[s.tr, i % 2 ? s.trAlt : {}]} wrap={false}>
             <Text style={{ width: DEPT_COLS.name }}>{d.department}</Text>
             <Text style={[s.num, { width: DEPT_COLS.n }]}>{d.approved}</Text>
-            <Text style={[s.num, { width: DEPT_COLS.n }]}>{d.pendingReview}</Text>
+            <Text style={[s.num, { width: DEPT_COLS.n }]}>{d.pending}</Text>
             <Text style={[s.num, { width: DEPT_COLS.n }]}>{d.incomplete}</Text>
             <View style={{ width: DEPT_COLS.bar, paddingLeft: 12 }}>
               <View style={s.track}>
                 <View style={{ flexGrow: d.approved, flexBasis: 0, backgroundColor: C.approved }} />
-                <View style={{ flexGrow: d.pendingReview, flexBasis: 0, backgroundColor: C.pendingReview }} />
+                <View style={{ flexGrow: d.pending, flexBasis: 0, backgroundColor: C.pending }} />
                 <View style={{ flexGrow: d.incomplete, flexBasis: 0, backgroundColor: C.incomplete }} />
               </View>
             </View>
@@ -153,7 +153,7 @@ export function ReportDocument({ term, view, generatedAt, generatedBy, logo }: R
         ))}
         <View style={{ flexDirection: "row", marginTop: 8 }}>
           <LegendDot color={C.approved} label="Approved" />
-          <LegendDot color={C.pendingReview} label="Pending review" />
+          <LegendDot color={C.pending} label="Pending review" />
           <LegendDot color={C.incomplete} label="Incomplete" />
         </View>
 

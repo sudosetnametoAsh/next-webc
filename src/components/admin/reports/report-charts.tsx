@@ -134,7 +134,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
             formatter={(value) => <span style={{ color: "var(--rp-muted)", fontSize: 12 }}>{value}</span>}
           />
           <Bar dataKey="approved" name="Approved" stackId="s" fill="var(--rp-approved)" />
-          <Bar dataKey="pendingReview" name="Pending review" stackId="s" fill="var(--rp-review)" />
+          <Bar dataKey="pending" name="Pending" stackId="s" fill="var(--rp-review)" />
           <Bar dataKey="incomplete" name="Incomplete" stackId="s" fill="var(--rp-incomplete)" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>

@@ -84,8 +84,8 @@ export function ReportsView({ source, generatedBy, logoSrc }: ReportsViewProps) 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={Users} label="Total in scope" badge={SCOPES.find((s) => s.value === scope)?.label ?? ""} value={totals.total} caption="People in this report" />
         <Kpi icon={CircleCheck} tone="cleared" label="Fully cleared" badge={`${totals.rate}%`} value={totals.cleared} caption="All departments endorsed" />
-        <Kpi icon={CircleAlert} tone="warn" label="Incomplete tasks" badge="Hold" value={totals.incomplete} caption="Pending document submission" />
-        <Kpi icon={Clock} label="Pending review" badge="In Queue" value={totals.pendingReview} caption="Awaiting staff signature" />
+        <Kpi icon={CircleAlert} tone="warn" label="Incomplete" badge="Hold" value={totals.incomplete} caption="Waiting other staff signature" />
+        <Kpi icon={Clock} label="Pending" badge="In Queue" value={totals.pending} caption="Awaiting staff signature" />
       </div>
 
       {/* Charts */}

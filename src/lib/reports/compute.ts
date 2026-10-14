@@ -25,7 +25,7 @@ import type {
   
   export const PERSON_STATUS_LABEL: Record<PersonStatus, string> = {
     cleared: "Cleared",
-    pending_review: "Pending review",
+    pending: "Pending",
     incomplete: "Incomplete",
   };
   
@@ -36,13 +36,13 @@ import type {
    * THE rule for a person's overall status. Change it here and the charts, KPIs,
    * table and PDF all follow.
    *   - cleared:        every department approved
-   *   - incomplete:     at least one department is still waiting on the person
-   *   - pending_review: otherwise (everything submitted, some still awaiting sign-off)
+   *   - incomplete:     at least one department signed
+   *   - pending: no progress
    */
   export function overallStatus(statuses: SignoffStatus[]): PersonStatus {
-    if (statuses.every((s) => s === "approved")) return "cleared";
+    if (statuses.every((s) => s === "signed")) return "cleared";
     if (statuses.some((s) => s === "incomplete")) return "incomplete";
-    return "pending_review";
+    return "pending";
   }
   
   function toRow(record: ClearanceRecord): ReportRow {
@@ -53,7 +53,7 @@ import type {
       templateCode: record.templateCode,
       status: overallStatus(record.signoffs.map((s) => s.status)),
       outstanding: record.signoffs.flatMap((s) =>
-        s.status === "approved" ? [] : [{ department: s.department, status: s.status }],
+        s.status === "signed" ? [] : [{ department: s.department, status: s.status }],
       ),
     };
   }
@@ -63,7 +63,7 @@ import type {
     return {
       total: rows.length,
       cleared,
-      pendingReview: rows.filter((r) => r.status === "pending_review").length,
+      pending: rows.filter((r) => r.status === "pending").length,
       incomplete: rows.filter((r) => r.status === "incomplete").length,
       rate: percent(cleared, rows.length),
     };
@@ -103,12 +103,12 @@ import type {
         const entry = byDepartment.get(department) ?? {
           department,
           approved: 0,
-          pendingReview: 0,
+          pending: 0,
           incomplete: 0,
           total: 0,
         };
-        if (status === "approved") entry.approved += 1;
-        else if (status === "pending_review") entry.pendingReview += 1;
+        if (status === "signed") entry.approved += 1;
+        else if (status === "pending") entry.pending += 1;
         else entry.incomplete += 1;
         entry.total += 1;
         byDepartment.set(department, entry);

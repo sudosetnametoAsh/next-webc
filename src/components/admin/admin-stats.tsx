@@ -80,7 +80,7 @@ export default function AdminStats() {
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
             <AlertCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-            <span>Incomplete Tasks</span>
+            <span>Incomplete</span>
           </span>
           <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
             Hold
@@ -91,7 +91,7 @@ export default function AdminStats() {
             {incomplete}
           </p>
           <p className="mt-0.5 text-[11px] text-amber-800/80 dark:text-amber-400/80">
-            Pending document submission
+            Waiting other staff signature
           </p>
         </div>
       </div>

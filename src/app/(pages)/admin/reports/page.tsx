@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getReportSource } from "@/lib/reports/data";
+import { getSession } from "@/lib/auth/get-session";
 import { ReportsView } from "@/components/admin/reports/reports-view";
 
 export const metadata: Metadata = { title: "Reports | STI WebC Clearance Portal" };
@@ -9,11 +10,9 @@ export default async function ReportsPage() {
   // When you swap in a real fetch, use `cache: "no-store"` (or `await connection()`
   // from "next/server") so admins always see live clearance progress.
   const source = await getReportSource();
+  const session = await getSession()
 
-  // TODO: pass the signed-in admin's name from your session, e.g. session.user.name
-  // TODO: logoSrc must be a PNG or JPG in /public (react-pdf cannot embed SVG).
-  //       If the file is missing the PDF is still generated, just without a logo.
-  return <ReportsView source={source} generatedBy="Rodelas, Jan Jan" logoSrc="/logo.png" />;
+  return <ReportsView source={source} generatedBy={session.user_name} logoSrc="../../../../../public/stilogo.png" />;
 }
 
 // 'use client'

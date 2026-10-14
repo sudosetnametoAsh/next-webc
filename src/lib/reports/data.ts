@@ -77,8 +77,8 @@ import type {
   
     const rollStatus = (): SignoffStatus => {
       const n = random();
-      if (n < 0.6) return "approved";
-      if (n < 0.96) return "pending_review";
+      if (n < 0.6) return "signed";
+      if (n < 0.96) return "pending";
       return "incomplete";
     };
   
@@ -95,14 +95,14 @@ import type {
           templateCode: template.code,
           signoffs: template.departments.map((department) => ({
             department,
-            status: fullyCleared ? "approved" : rollStatus(),
+            status: fullyCleared ? "signed" : rollStatus(),
           })),
         });
       }
     }
   
     return {
-      term: "1st Semester, A.Y. 2026-2027",
+      term: "1st Semester, S.Y. 2026-2027",
       templates: MOCK_TEMPLATES.map(({ code, name, kind }) => ({ code, name, kind })),
       records,
     };

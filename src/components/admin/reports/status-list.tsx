@@ -12,7 +12,7 @@ type StatusFilter = "all" | PersonStatus;
 const STATUS_TABS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "cleared", label: PERSON_STATUS_LABEL.cleared },
-  { value: "pending_review", label: PERSON_STATUS_LABEL.pending_review },
+  { value: "pending", label: PERSON_STATUS_LABEL.pending },
   { value: "incomplete", label: PERSON_STATUS_LABEL.incomplete },
 ];
 

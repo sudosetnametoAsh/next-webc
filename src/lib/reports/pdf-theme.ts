@@ -13,8 +13,8 @@ export const PDF_COLORS = {
     navy: "#0b192c",
     amber: "#ffb900",
     approved: "#059669",
-    pendingReview: "#64748b",
-    pendingReviewText: "#475569",
+    pending: "#64748b",
+    pendingText: "#475569",
     incomplete: "#f59e0b",
     incompleteText: "#b45309",
   } as const;

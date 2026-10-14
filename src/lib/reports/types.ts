@@ -6,12 +6,12 @@
 
 /** Status of ONE department's sign-off for ONE person. */
 export type SignoffStatus =
-  | "approved"
-  | "pending_review" // submitted, waiting on the department ("Awaiting staff signature")
-  | "incomplete"; // requirement not submitted yet ("Pending document submission")
+  | "signed"
+  | "pending" // no progress
+  | "incomplete"; // at least one (1) department signed
 
 /** Overall status of one person across all their departments. */
-export type PersonStatus = "cleared" | "pending_review" | "incomplete";
+export type PersonStatus = "cleared" | "pending" | "incomplete";
 
 export type ReportScope = "all" | "staff" | "students";
 
@@ -61,7 +61,7 @@ export interface ReportRow {
 export interface StatusCounts {
   total: number;
   cleared: number;
-  pendingReview: number;
+  pending: number;
   incomplete: number;
   /** Whole-number percentage of `total` that is cleared, 0-100. */
   rate: number;
@@ -72,7 +72,7 @@ export interface TemplateSummary extends ClearanceTemplateInfo, StatusCounts {}
 export interface DepartmentSummary {
   department: string;
   approved: number;
-  pendingReview: number;
+  pending: number;
   incomplete: number;
   total: number;
 }
