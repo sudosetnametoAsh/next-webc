@@ -1,0 +1,283 @@
+/*
+ * Reports page theme. EVERY on-screen color for this feature lives in this file.
+ *
+ * Values were sampled from the Dashboard / Templates screenshots (Tailwind v4
+ * palette). If your app already exposes theme tokens, replace the values below
+ * with them, e.g.  --rp-card: var(--card);  and nothing else needs to change.
+ *
+ * Dark mode is detected via a `.dark` class OR a `data-theme="dark"` attribute
+ * on any ancestor (covers next-themes with attribute="class" or "data-theme").
+ */
+
+/* ------------------------------ Light ------------------------------ */
+.reports-root {
+    --rp-text: #0f172b;
+    --rp-muted: #62748e;
+    --rp-card: #ffffff;
+    --rp-border: #e5eaf1;
+    --rp-subtle: #f1f5f9;
+    --rp-hover: #f8fafc;
+    --rp-grid: #e5eaf1;
+    --rp-cursor: rgba(15, 23, 43, 0.05);
+    --rp-ring: #ffb900;
+  
+    --rp-primary-bg: #0b192c;
+    --rp-primary-fg: #ffffff;
+    --rp-primary-hover: #1d293d;
+  
+    /* chart series */
+    --rp-bar: #0b192c;
+    --rp-approved: #009966;
+    --rp-review: #62748e;
+    --rp-incomplete: #fe9a00;
+  
+    /* tinted KPI cards */
+    --rp-cleared-bg: #f6fbfb;
+    --rp-cleared-border: #acf5d3;
+    --rp-cleared-text: #007a55;
+    --rp-warn-bg: #f9faf9;
+    --rp-warn-border: #fde890;
+    --rp-warn-text: #7b3306;
+  
+    /* status badges */
+    --rp-badge-cleared-bg: #ecfdf5;
+    --rp-badge-cleared-fg: #007a55;
+    --rp-badge-review-bg: #f1f5f9;
+    --rp-badge-review-fg: #45556c;
+    --rp-badge-incomplete-bg: #fffbeb;
+    --rp-badge-incomplete-fg: #7b3306;
+  
+    --rp-error-bg: #fef2f2;
+    --rp-error-border: #fecaca;
+    --rp-error-fg: #b91c1c;
+  
+    color: var(--rp-text);
+  }
+  
+  /* ------------------------------ Dark ------------------------------ */
+  :is(.dark, [data-theme="dark"]) .reports-root {
+    color-scheme: dark;
+  
+    --rp-text: #f1f5f9;
+    --rp-muted: #8697ae;
+    --rp-card: #0e1629;
+    --rp-border: #1d293d;
+    --rp-subtle: #1a2539;
+    --rp-hover: #131d33;
+    --rp-grid: #1d293d;
+    --rp-cursor: rgba(255, 255, 255, 0.05);
+  
+    --rp-primary-bg: #ffb900;
+    --rp-primary-fg: #0b192c;
+    --rp-primary-hover: #ffc933;
+  
+    --rp-bar: #ffb900;
+    --rp-approved: #00bc7d;
+    --rp-review: #90a1b9;
+    --rp-incomplete: #ffb900;
+  
+    --rp-cleared-bg: #06141c;
+    --rp-cleared-border: #033a31;
+    --rp-cleared-text: #5ee9b5;
+    --rp-warn-bg: #141015;
+    --rp-warn-border: #56260a;
+    --rp-warn-text: #ffd230;
+  
+    --rp-badge-cleared-bg: rgba(94, 233, 181, 0.12);
+    --rp-badge-cleared-fg: #5ee9b5;
+    --rp-badge-review-bg: #1a2539;
+    --rp-badge-review-fg: #cad5e2;
+    --rp-badge-incomplete-bg: rgba(255, 185, 0, 0.12);
+    --rp-badge-incomplete-fg: #ffd230;
+  
+    --rp-error-bg: rgba(239, 68, 68, 0.1);
+    --rp-error-border: rgba(239, 68, 68, 0.3);
+    --rp-error-fg: #fca5a5;
+  }
+  
+  /* ---------------------------- Components ---------------------------- */
+  .rp-card {
+    background: var(--rp-card);
+    border: 1px solid var(--rp-border);
+    border-radius: 1rem;
+  }
+  .rp-card-head,
+  .rp-divider {
+    border-color: var(--rp-border);
+  }
+  .rp-muted {
+    color: var(--rp-muted);
+  }
+  
+  .reports-root :is(button, select, input):focus-visible {
+    outline: 2px solid var(--rp-ring);
+    outline-offset: 2px;
+  }
+  
+  .rp-input {
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--rp-border);
+    background: var(--rp-card);
+    color: var(--rp-text);
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+  }
+  .rp-input::placeholder {
+    color: var(--rp-muted);
+  }
+  
+  .rp-btn-primary {
+    background: var(--rp-primary-bg);
+    color: var(--rp-primary-fg);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.15s;
+  }
+  .rp-btn-primary:hover:not(:disabled) {
+    background: var(--rp-primary-hover);
+  }
+  .rp-btn-primary:disabled,
+  .rp-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .rp-btn {
+    height: 2rem;
+    padding: 0 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--rp-border);
+    background: var(--rp-card);
+    color: var(--rp-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .rp-btn:hover:not(:disabled) {
+    background: var(--rp-subtle);
+  }
+  
+  /* Segmented control (scope + status filters) */
+  .rp-segment {
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    border-radius: 0.75rem;
+    border: 1px solid var(--rp-border);
+    background: var(--rp-subtle);
+  }
+  .rp-segment button {
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--rp-muted);
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .rp-segment button:hover {
+    color: var(--rp-text);
+  }
+  .rp-segment button[aria-pressed="true"] {
+    background: var(--rp-card);
+    color: var(--rp-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* KPI cards (mirror the Dashboard stat cards) */
+  .rp-kpi--cleared {
+    background: var(--rp-cleared-bg);
+    border-color: var(--rp-cleared-border);
+    color: var(--rp-cleared-text);
+  }
+  .rp-kpi--warn {
+    background: var(--rp-warn-bg);
+    border-color: var(--rp-warn-border);
+    color: var(--rp-warn-text);
+  }
+  .rp-kpi-caption {
+    color: var(--rp-muted);
+  }
+  .rp-kpi--cleared .rp-kpi-caption,
+  .rp-kpi--warn .rp-kpi-caption {
+    color: inherit;
+  }
+  .rp-pill {
+    border-radius: 0.375rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    background: var(--rp-subtle);
+    color: var(--rp-muted);
+  }
+  .rp-kpi--cleared .rp-pill,
+  .rp-kpi--warn .rp-pill {
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    color: inherit;
+  }
+  
+  /* Table */
+  .rp-table-wrap {
+    border: 1px solid var(--rp-border);
+    border-radius: 0.75rem;
+  }
+  .rp-table thead {
+    background: var(--rp-subtle);
+    color: var(--rp-muted);
+  }
+  .rp-table tbody tr + tr {
+    border-top: 1px solid var(--rp-border);
+  }
+  .rp-table tbody tr:hover {
+    background: var(--rp-hover);
+  }
+  
+  .rp-badge {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .rp-badge--cleared {
+    background: var(--rp-badge-cleared-bg);
+    color: var(--rp-badge-cleared-fg);
+  }
+  .rp-badge--pending_review {
+    background: var(--rp-badge-review-bg);
+    color: var(--rp-badge-review-fg);
+  }
+  .rp-badge--incomplete {
+    background: var(--rp-badge-incomplete-bg);
+    color: var(--rp-badge-incomplete-fg);
+  }
+  
+  .rp-chip {
+    border: 1px solid var(--rp-border);
+    background: var(--rp-subtle);
+    color: var(--rp-text);
+    border-radius: 999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  .rp-chip--incomplete {
+    border-color: var(--rp-warn-border);
+    background: var(--rp-badge-incomplete-bg);
+    color: var(--rp-badge-incomplete-fg);
+  }
+  
+  .rp-tooltip {
+    background: var(--rp-card);
+    border: 1px solid var(--rp-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--rp-text);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  }
+  
+  .rp-alert {
+    background: var(--rp-error-bg);
+    border: 1px solid var(--rp-error-border);
+    color: var(--rp-error-fg);
+    border-radius: 0.5rem;
+  }
