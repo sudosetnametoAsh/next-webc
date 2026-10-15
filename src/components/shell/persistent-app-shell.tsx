@@ -76,7 +76,7 @@ export function PersistentAppShell({
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+    <div className="flex h-dvh w-full overflow-hidden bg-background text-foreground">
       {/* Desktop Sidebar (hidden on screens < lg) */}
       <div
         className={cn(
@@ -130,7 +130,7 @@ export function PersistentAppShell({
         </div>
 
       {/* Main Viewport */}
-      <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         {/* Sticky Top Utility Bar */}
         <TopUtilityBar
           session={session}
@@ -138,7 +138,7 @@ export function PersistentAppShell({
         />
 
         {/* Scrollable Content Canvas */}
-        <main className="flex-1 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 min-h-0 min-w-0 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

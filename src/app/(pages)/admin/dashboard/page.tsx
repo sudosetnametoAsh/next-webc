@@ -154,8 +154,8 @@ export default function AdminDashboard() {
                       {shrinkCourseName(template.course_name) || template.course_name}
                     </CourseBadge>
 
-                    <div className='w-full flex items-center justify-between gap-4'>
-                      <div className='flex flex-col gap-0.5 min-w-0'>
+                    <div className='min-w-0 flex-1 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
+                      <div className='flex flex-col gap-0.5 min-w-0 max-w-full'>
                         <p className='text-sm font-bold text-slate-900 dark:text-slate-100 truncate'>
                           {expandCourseAbbreviation(template.course_name) || template.course_name}
                         </p>
