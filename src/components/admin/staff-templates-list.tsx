@@ -5,6 +5,7 @@ import ConfirmationModal from './confirmation-modal'
 import { useFetchStaffTemplates, useDeleteStaffTemplates } from '@/hooks/admin/staff-templates'
 import { CourseTemplateStats } from '@/types/admin'
 import { Trash } from 'lucide-react'
+import { TemplateCardsSkeleton } from '@/components/shell/loading-states'
 
 type Props = {
   searchQuery: string;
@@ -23,7 +24,7 @@ export default function StaffTemplatesList({
   const [isConfirmLoading, setIsConfirmLoading] = useState(false)
   const [selectedDeptIds, setSelectedDeptIds] = useState<number[]>([])
 
-  const { data: templates = [], isLoading } = useFetchStaffTemplates()
+  const { data: templates = [], isLoading, error } = useFetchStaffTemplates()
   const deleteTemplate = useDeleteStaffTemplates()
 
   const filteredTemplates = templates.filter(template => {
@@ -48,7 +49,11 @@ export default function StaffTemplatesList({
   }
 
   if (isLoading) {
-    return null // Parent handles loading or we show a skeleton
+    return <TemplateCardsSkeleton label="Loading staff templates" />
+  }
+
+  if (error) {
+    return <p role="alert" className="p-6 text-sm text-red-600 dark:text-red-400">Failed to load staff templates. Please try again.</p>
   }
 
   if (templates.length === 0) {

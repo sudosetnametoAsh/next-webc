@@ -28,6 +28,30 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
       guidance: string;
     }
   > = {
+    missing_code: {
+      badge: "Sign-in Incomplete",
+      title: "Microsoft sign-in did not complete",
+      description:
+        "The authentication callback did not receive the authorization code needed to sign you in.",
+      guidance:
+        "Return to sign in and try again. If this continues, ask campus IT to check the Microsoft and Supabase redirect settings.",
+    },
+    oauth_error: {
+      badge: "Provider Sign-in Failed",
+      title: "Microsoft sign-in was unsuccessful",
+      description:
+        "The authentication provider could not complete sign-in. An existing user record does not establish an authenticated session.",
+      guidance:
+        "Try again with your institutional account. If this continues, ask campus IT to inspect the Supabase authentication logs for the Microsoft error code and check the Azure provider credentials.",
+    },
+    session_error: {
+      badge: "Session Setup Failed",
+      title: "Your sign-in session could not be established",
+      description:
+        "The authorization code could not be exchanged for an active application session.",
+      guidance:
+        "Start sign-in again in the same browser. If this continues, ask campus IT to inspect the authentication callback logs.",
+    },
     admin_required: {
       badge: "Institutional Administrator Required",
       title: "Restricted Administrative Console",
@@ -116,7 +140,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
                 <ShieldAlert className="w-4 h-4 text-[#EF4444]" />
                 <span>{currentConfig.badge}</span>
               </div>
-              <span className="text-xs font-mono text-slate-400">HTTP 403</span>
+              <span className="text-xs font-mono text-slate-400">{["missing_code", "oauth_error", "session_error"].includes(reason || "") ? "Sign-in error" : "HTTP 403"}</span>
             </div>
             <h1 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-white">
               {currentConfig.title}

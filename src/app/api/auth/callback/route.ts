@@ -6,6 +6,16 @@ import { createSessionToken, Role } from "@/lib/auth/session-token";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const providerError = searchParams.get("error");
+  if (providerError) {
+    // Provider descriptions may contain authorization codes; log only identifiers.
+    console.error("OAuth provider rejected sign-in:", {
+      error: providerError,
+      code: searchParams.get("error_code"),
+      microsoftCode: searchParams.get("error_description")?.match(/AADSTS\d+/)?.[0],
+    });
+    return NextResponse.redirect(`${origin}/auth-error?reason=oauth_error`);
+  }
   // if "next" is in param, use it as the redirect URL
   let next = searchParams.get("next") ?? "/";
   if (!next.startsWith("/")) {
@@ -13,7 +23,7 @@ export async function GET(request: Request) {
   }
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/auth-code-error`);
+    return NextResponse.redirect(`${origin}/auth-error?reason=missing_code`);
   }
 
   try {
@@ -102,6 +112,6 @@ export async function GET(request: Request) {
     return response;
   } catch (error) {
     console.error("Auth callback execution error:", error);
-    return NextResponse.redirect(`${origin}/auth-error`);
+    return NextResponse.redirect(`${origin}/auth-error?reason=session_error`);
   }
 }

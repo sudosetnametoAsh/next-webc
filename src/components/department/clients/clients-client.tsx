@@ -185,7 +185,7 @@ export default function StudentsClient() {
           </p>
         </header>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 px-6 pb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 px-4 sm:px-6 pb-6">
           <div className="flex w-full max-md:max-w-none max-w-md items-center gap-2">
             <div className="relative w-full">
               <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -200,12 +200,12 @@ export default function StudentsClient() {
             <FilterButton />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
             <SignToggleButton
               clearanceId={signableClearanceIds}
               currentStatus={effectiveStatus}
             />
-            <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-2xs dark:border-slate-700 dark:bg-slate-800">
+            <div className="flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-2xs dark:border-slate-700 dark:bg-slate-800">
               <AddTask
                 preset={preset}
                 clearanceId={clearanceId}
@@ -216,7 +216,6 @@ export default function StudentsClient() {
                 setTitle={setTitle}
                 sectionId={activeSectionId}
               />
-              <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
               <AddPreset
                 preset={preset}
                 taskId={taskId}
@@ -225,7 +224,6 @@ export default function StudentsClient() {
                 description={description}
                 sectionId={activeSectionId}
               />
-              <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
               <ManagePresetButton preset={preset} />
             </div>
           </div>
@@ -244,9 +242,9 @@ export default function StudentsClient() {
             />
           </div>
           <div className="flex-1">{viewType === 'students' ? 'Student' : 'Staff'}</div>
-          <div className="w-48">Clearance Status</div>
-          <div className="w-48">Tasks</div>
-          <div className="w-10"></div>
+          <div className="hidden md:block w-36 lg:w-48">Clearance Status</div>
+          <div className="hidden md:block w-28 lg:w-48">Tasks</div>
+          <div className="hidden md:block w-10"></div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -291,12 +289,13 @@ export default function StudentsClient() {
                 <div
                   key={student.student_id}
                   onClick={() => { setStudent(student); setTaskPanelOpen(true); }}
-                  className="group flex cursor-pointer items-center rounded-xl border border-slate-200/90 bg-white px-4 py-3 shadow-2xs transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
+                  className="group grid grid-cols-[2rem_minmax(0,1fr)] gap-y-3 md:flex cursor-pointer items-center rounded-xl border border-slate-200/90 bg-white px-4 py-3 shadow-2xs transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
                 >
                   <div className="w-8" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       className={`${isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} mr-2`}
                       disabled={isDisabled}
+                      aria-label={`Select ${student.student_name}`}
                       checked={clearanceId.includes(cId)}
                       onCheckedChange={(checked) =>
                         handleStudentChange(cId, checked)
@@ -304,13 +303,13 @@ export default function StudentsClient() {
                     />
                   </div>
 
-                  <div className="flex flex-1 items-center gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isLocked ? "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500" : "bg-[#0B192C] text-amber-400 dark:bg-amber-950/40 dark:text-amber-300 dark:border dark:border-amber-800/50"}`}
                     >
                       {student.student_name[0]}
                     </div>
-                    <div>
+                    <div className="min-w-0 break-words">
                       <h3
                         className={`text-sm font-bold ${isLocked ? "text-slate-500 dark:text-slate-500" : "text-slate-900 dark:text-slate-100"}`}
                       >
@@ -322,16 +321,16 @@ export default function StudentsClient() {
                     </div>
                   </div>
 
-                  <div className="w-48">
+                  <div className="col-start-2 min-w-0 md:w-36 lg:w-48 md:shrink-0">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
+                      className={`inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
                     >
                       {isLocked && <Lock size={12} />}
                       {displayStatus}
                     </span>
                   </div>
 
-                  <div className="w-48">
+                  <div className="col-start-2 min-w-0 md:w-28 lg:w-48 md:shrink-0">
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       {taskCount !== 0 ? (
                         <>
@@ -346,10 +345,11 @@ export default function StudentsClient() {
                     </div>
                   </div>
 
-                  <div className="flex w-10 justify-end">
+                  <div className="col-start-2 flex justify-end md:w-10 md:shrink-0">
                     <button
-                      className="rounded-lg p-2 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`View tasks for ${student.student_name}`}
+                      className="rounded-lg p-2 text-slate-400 md:opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      onClick={(e) => { e.stopPropagation(); setStudent(student); setTaskPanelOpen(true); }}
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
@@ -367,11 +367,11 @@ export default function StudentsClient() {
       </div>
 
       {/* --- FOOTER --- */}
-      <footer className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-8 py-4 dark:border-slate-800 dark:bg-slate-900/90">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-4 dark:border-slate-800 dark:bg-slate-900/90">
         <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">
           Section Progress
         </div>
-        <div className="flex items-center gap-6 text-sm font-medium">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm font-medium">
           <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
             <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-bold dark:bg-emerald-950/60 dark:text-emerald-300">
               {progress.cleared}

@@ -7,6 +7,7 @@ import { useDeleteTemplates } from '@/hooks/admin/course-templates'
 import { CourseTemplateStats } from '@/types/admin'
 import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { Trash } from 'lucide-react'
+import { TemplateCardsSkeleton } from '@/components/shell/loading-states'
 
 type Props = {
   searchQuery: string;
@@ -25,7 +26,7 @@ export default function CourseTemplatesList({
   const [isConfirmLoading, setIsConfirmLoading] = useState(false)
   const [selectedCourseId, setSelectedCourseId] = useState(0)
 
-  const { data: templates = [], isLoading } = useFetchCourseTemplates()
+  const { data: templates = [], isLoading, error } = useFetchCourseTemplates()
   const deleteTemplate = useDeleteTemplates()
 
   const filteredTemplates = templates.filter(template => {
@@ -46,6 +47,7 @@ export default function CourseTemplatesList({
 
     try {
       await deleteTemplate.mutateAsync(course_id)
+      toastSuccess("Course template removed successfully!")
     } catch(error) {
       console.error('Failed to delete template', error)
       toastError("Please try again.", "Failed to delete course template.")
@@ -53,16 +55,19 @@ export default function CourseTemplatesList({
 
     setIsConfirmLoading(false)
     setIsConfirmOpen(false)
-    toastSuccess("Course template removed successfully!")
   }
 
   if (isLoading) {
-    return <div className="py-12 text-center text-slate-400 dark:text-slate-500">Loading...</div>
+    return <TemplateCardsSkeleton label="Loading course templates" />
+  }
+
+  if (error) {
+    return <p role="alert" className="p-6 text-sm text-red-600 dark:text-red-400">Failed to load course templates. Please try again.</p>
   }
 
   if (templates.length === 0) {
     return (
-      <div className='border border-slate-200 dark:border-slate-800 rounded-lg p-32 text-center'>
+      <div className='border border-slate-200 dark:border-slate-800 rounded-lg px-6 py-12 sm:py-20 text-center'>
         <p className='text-slate-400 dark:text-slate-500 text-sm'>No clearance templates found. Create a new one.</p>
       </div>
     )
@@ -70,7 +75,7 @@ export default function CourseTemplatesList({
 
   if (filteredTemplates.length === 0) {
     return (
-      <div className='border border-gray-200 dark:border-slate-800 rounded-lg p-32 text-center'>
+      <div className='border border-gray-200 dark:border-slate-800 rounded-lg px-6 py-12 sm:py-20 text-center break-words'>
         <p className='text-gray-500 dark:text-slate-400'>No results found for &quot;{searchQuery}&quot;</p>
       </div>
     )
@@ -152,6 +157,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-800">
           <button 
+            aria-label="Delete course template"
             className="text-red-400 hover:text-red-600 dark:text-rose-400 dark:hover:text-rose-300 transition-colors cursor-pointer"
             onClick={() => { setIsConfirmOpen(true); setSelectedCourseId(template.course_id as number); }}
           >

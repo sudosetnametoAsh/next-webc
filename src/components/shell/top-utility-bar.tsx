@@ -10,6 +10,7 @@ import { useNotifications } from "@/hooks/clearance/use-notifications";
 import { getInitials } from "./role-sidebar";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./theme-toggle";
+import { DialogTrigger } from "@/components/ui/dialog";
 
 export interface TopUtilityBarProps {
   session: {
@@ -19,7 +20,6 @@ export interface TopUtilityBarProps {
     role: string;
     department?: string;
   };
-  onOpenMobileMenu: () => void;
 }
 
 const segmentLabels: Record<string, string> = {
@@ -200,21 +200,22 @@ function NotificationsMenu({ userId }: { userId?: string }) {
   );
 }
 
-export function TopUtilityBar({ session, onOpenMobileMenu }: TopUtilityBarProps) {
+export function TopUtilityBar({ session }: TopUtilityBarProps) {
   const initials = getInitials(session.user_name);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900/90 dark:border-slate-800 dark:text-slate-100 border-b border-slate-200/80 shadow-xs shrink-0 select-none">
       {/* Left: Mobile Toggle & Breadcrumbs */}
       <div className="flex flex-1 items-center gap-1 sm:gap-3 min-w-0">
-        <button
-          type="button"
-          onClick={onOpenMobileMenu}
-          className="lg:hidden shrink-0 p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            className="lg:hidden shrink-0 p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-[transform,background-color,color] duration-150 ease-out cursor-pointer"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </DialogTrigger>
 
         <Suspense fallback={<div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />}>
           <DynamicBreadcrumbs />

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { RoleSidebar } from "./role-sidebar";
 import { TopUtilityBar } from "./top-utility-bar";
 import { cn } from "@/lib/utils";
@@ -49,19 +49,15 @@ export function PersistentAppShell({
     setMobileOpen(false);
   }, [pathname, searchParams]);
 
-  // Handle escape key to close mobile drawer
+  // Release the modal when the desktop navigation takes over.
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mobileOpen) {
-        setMobileOpen(false);
-      }
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMobileOpen(false);
     };
-
-    if (mobileOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [mobileOpen]);
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
 
   const handleToggleCollapse = () => {
     setCollapsed((prev) => {
@@ -76,73 +72,49 @@ export function PersistentAppShell({
   };
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-background text-foreground">
-      {/* Desktop Sidebar (hidden on screens < lg) */}
-      <div
-        className={cn(
-          "hidden lg:flex flex-col shrink-0 h-full",
-          collapsed ? "w-[72px]" : "w-[260px]"
-        )}
-      >
-        <RoleSidebar
-          session={session}
-          collapsed={collapsed}
-          onToggleCollapse={handleToggleCollapse}
-          extraContent={sidebarExtra}
-        />
-      </div>
-
-      {/* Mobile Drawer (visible on screens < lg when mobileOpen) */}
+    <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
+      <div className="flex h-dvh w-full overflow-hidden bg-background text-foreground">
+        {/* Desktop Sidebar (hidden on screens < lg) */}
         <div
-          inert={!mobileOpen}
-          aria-hidden={!mobileOpen}
-          className={cn("fixed inset-0 z-50 lg:hidden transition-[visibility] duration-0", mobileOpen ? "visible" : "invisible delay-200 pointer-events-none")}
+          className={cn(
+            "hidden lg:flex flex-col shrink-0 h-full",
+            collapsed ? "w-[72px]" : "w-[260px]"
+          )}
         >
-          {/* Backdrop */}
-          <div
-            className={cn("fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]", mobileOpen ? "opacity-100" : "opacity-0")}
-            onClick={() => setMobileOpen(false)}
-            aria-hidden="true"
+          <RoleSidebar
+            session={session}
+            collapsed={collapsed}
+            onToggleCollapse={handleToggleCollapse}
+            extraContent={sidebarExtra}
           />
-
-          {/* Drawer Slide-over */}
-          <div className={cn("fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white dark:bg-[#0B192C] border-r border-slate-200 dark:border-white/10 shadow-2xl transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
-            {/* Close button */}
-            <div className="absolute top-4 right-3 z-10">
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
-                aria-label="Close navigation menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <RoleSidebar
-              session={session}
-              collapsed={false}
-              onToggleCollapse={() => setMobileOpen(false)}
-              extraContent={sidebarExtra}
-              onNavigate={() => setMobileOpen(false)}
-            />
-          </div>
         </div>
 
-      {/* Main Viewport */}
-      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
-        {/* Sticky Top Utility Bar */}
-        <TopUtilityBar
-          session={session}
-          onOpenMobileMenu={() => setMobileOpen(true)}
-        />
+        <DialogContent
+          aria-describedby={undefined}
+          className="left-0 top-0 h-dvh w-[280px] max-w-[85vw] translate-x-0 translate-y-0 rounded-none border-y-0 border-l-0 bg-white p-0 gap-0 flex flex-col sm:max-w-[280px] dark:bg-[#0B192C] data-[state=open]:slide-in-from-bottom-0 data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100"
+        >
+          <DialogTitle className="sr-only">Navigation menu</DialogTitle>
+          <RoleSidebar
+            session={session}
+            collapsed={false}
+            onToggleCollapse={() => setMobileOpen(false)}
+            extraContent={sidebarExtra}
+            onNavigate={() => setMobileOpen(false)}
+          />
+        </DialogContent>
 
-        {/* Scrollable Content Canvas */}
-        <main className="flex-1 min-h-0 min-w-0 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+        {/* Main Viewport */}
+        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+          {/* Sticky Top Utility Bar */}
+          <TopUtilityBar session={session} />
+
+          {/* Scrollable Content Canvas */}
+          <main className="flex-1 min-h-0 min-w-0 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 

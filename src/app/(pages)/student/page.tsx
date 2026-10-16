@@ -6,7 +6,7 @@ import { makeGetSummary } from "@/composition/clearance/make-get-summary";
 import { makeGetDepartmentDetailsServer } from "@/composition/clearance/make-get-department-details-server";
 import { makeGetOfficeHours } from "@/composition/clearance/make-get-office-hours";
 import { makeGetStudentProfile } from "@/composition/clearance/make-get-student-profile";
-import UserDropdown from "@/components/clearance/user-dropdown";
+import ExportClearanceButton from "@/components/clearance/export-clearance-button";
 import DashBoardRealtimeProvider from "@/components/clearance/dashboard-realtime-provider";
 import ClearanceSeal from "@/components/student/clearance-seal";
 import ClearanceItem from "@/components/student/clearance-item";
@@ -146,7 +146,7 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div className="flex justify-end">
-        <UserDropdown user={user} profile={profile} records={records} summary={summary} />
+        <ExportClearanceButton user={user} profile={profile} records={records} summary={summary} />
       </div>
       {/* 1. Signature Clearance Seal & Approval Chain Meter */}
       <ClearanceSeal
