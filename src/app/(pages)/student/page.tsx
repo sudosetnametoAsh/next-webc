@@ -5,6 +5,8 @@ import { makeGetClearanceRecords } from "@/composition/clearance/make-get-cleara
 import { makeGetSummary } from "@/composition/clearance/make-get-summary";
 import { makeGetDepartmentDetailsServer } from "@/composition/clearance/make-get-department-details-server";
 import { makeGetOfficeHours } from "@/composition/clearance/make-get-office-hours";
+import { makeGetStudentProfile } from "@/composition/clearance/make-get-student-profile";
+import UserDropdown from "@/components/clearance/user-dropdown";
 import DashBoardRealtimeProvider from "@/components/clearance/dashboard-realtime-provider";
 import ClearanceSeal from "@/components/student/clearance-seal";
 import ClearanceItem from "@/components/student/clearance-item";
@@ -22,9 +24,11 @@ interface StudentPageProps {
 
 export default async function StudentPage({ searchParams }: StudentPageProps) {
   let user_id: string;
+  let user: { name: string; email: string };
   try {
     const session = await getSession();
     user_id = session.user_id;
+    user = { name: session.user_name, email: session.user_email };
   } catch {
     redirect("/");
   }
@@ -33,17 +37,20 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
   let records: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetClearanceRecords>>["execute"]>> = [];
   let tasks: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetDepartmentDetailsServer>>["execute"]>> = [];
   let departments: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetOfficeHours>>["execute"]>> = [];
+  let profile: Awaited<ReturnType<Awaited<ReturnType<typeof makeGetStudentProfile>>["execute"]>>;
   try {
     const getClearanceRecords = await makeGetClearanceRecords();
     const getSummary = await makeGetSummary();
     const getDepartmentDetailsServer = await makeGetDepartmentDetailsServer();
     const getOfficeHours = await makeGetOfficeHours();
+    const getStudentProfile = await makeGetStudentProfile();
 
-    [summary, records, tasks, departments] = await Promise.all([
+    [summary, records, tasks, departments, profile] = await Promise.all([
       getSummary.execute(user_id),
       getClearanceRecords.execute(user_id),
       getDepartmentDetailsServer.execute(user_id),
       getOfficeHours.execute(user_id),
+      getStudentProfile.execute(user_id),
     ]);
   } catch (err) {
     redirect("/");
@@ -138,6 +145,9 @@ export default async function StudentPage({ searchParams }: StudentPageProps) {
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
+      <div className="flex justify-end">
+        <UserDropdown user={user} profile={profile} records={records} summary={summary} />
+      </div>
       {/* 1. Signature Clearance Seal & Approval Chain Meter */}
       <ClearanceSeal
         totalDepartments={totalDepartments}
