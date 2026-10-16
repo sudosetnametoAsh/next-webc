@@ -35,13 +35,18 @@ const stubs = {
       import {PersistentAppShell} from './src/components/shell/persistent-app-shell';
       import Clients from './src/components/department/clients/clients-client';
       import Courses from './src/components/admin/course-templates-list';
+      import ManageHierarchyModal from './src/components/admin/handle-hierarchy-modal';
+      function HierarchyFixture() {
+        const [open,setOpen] = React.useState(false);
+        return <><button onClick={() => setOpen(true)}>Open hierarchy</button><ManageHierarchyModal open={open} onOpenChange={setOpen}/></>;
+      }
       const screen = new URLSearchParams(location.search).get('screen');
       const client = new QueryClient({defaultOptions: {queries: {retry:false}}});
       const session = {user_id:'fixture', user_name:'Test User', user_email:'test@example.invalid', role:'Department'};
       createRoot(document.getElementById('root')).render(
         <QueryClientProvider client={client}><ThemeProvider attribute="class">
           <PersistentAppShell session={session}>
-            {screen === 'empty' ? <Courses searchQuery="" toastSuccess={() => 0} toastError={() => 0}/> : screen === 'clients' ? <Clients/> : <button>Dashboard action</button>}
+            {screen === 'hierarchy' ? <HierarchyFixture/> : screen === 'empty' ? <Courses searchQuery="" toastSuccess={() => 0} toastError={() => 0}/> : screen === 'clients' ? <Clients/> : <button>Dashboard action</button>}
           </PersistentAppShell>
         </ThemeProvider></QueryClientProvider>);
     `, resolveDir: process.cwd(), loader: 'tsx' },
@@ -128,6 +133,39 @@ const stubs = {
         await page.goto(base+'/?screen=empty');
         await page.getByText('No clearance templates found. Create a new one.').waitFor();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('main *')].every(el => el.scrollWidth <= el.clientWidth+1)), true, 'Empty state should not overflow');
+      });
+    }
+    for (const width of [320,375,390,556,768,1440]) {
+      await check(`hierarchy modal keeps a large close button reachable after scrolling at ${width}px`, async () => {
+        await page.setViewportSize({width,height:812});
+        await page.route('**/api/admin/departments', route => route.fulfill({json:{data:
+          ['Cashier','Clinic','Computer Laboratory','Guidance Office','Library','School Admin','Registrar'].map((dept_name,i) => ({dept_id:i+1,dept_name,signing_order:i===0 ? 1 : i===6 ? 3 : 2}))
+        }}));
+        await page.goto(base+'/?screen=hierarchy');
+        await page.getByRole('button',{name:'Open hierarchy'}).click();
+        const dialog = page.getByRole('dialog',{name:'Clearance Signing Hierarchy & Workflow'});
+        const close = dialog.getByRole('button',{name:'Close',exact:true});
+        await dialog.waitFor();
+        await dialog.evaluate(el => Promise.all(el.getAnimations().map(animation => animation.finished)));
+        await dialog.getByRole('combobox').last().waitFor();
+        const overflow = await dialog.evaluate(el => [el,...el.querySelectorAll('*')]
+          .filter(child => child.clientWidth && child.scrollWidth > child.clientWidth+1)
+          .map(child => ({tag:child.tagName,width:child.clientWidth,scroll:child.scrollWidth})));
+        assert.deepEqual(overflow,[],'Hierarchy content must fit without horizontal overflow');
+        await dialog.getByRole('combobox').first().selectOption('2');
+        assert.equal(await dialog.getByRole('combobox').first().inputValue(),'2');
+        const initial = await close.boundingBox();
+        assert.ok(initial.width >= 44 && initial.height >= 44,'Close needs a 44px click target');
+        await dialog.getByRole('combobox').last().scrollIntoViewIfNeeded();
+        const after = await close.boundingBox();
+        assert.ok(Math.abs(after.y-initial.y)<1,'Close should stay fixed while hierarchy content scrolls');
+        assert.ok(after.y>=0 && after.y+after.height<=812,'Close should remain visible');
+        await close.click({position:{x:3,y:3}});
+        await dialog.waitFor({state:'hidden'});
+        await page.getByRole('button',{name:'Open hierarchy'}).click();
+        await dialog.waitFor();
+        await page.keyboard.press('Escape');
+        await dialog.waitFor({state:'hidden'});
       });
     }
     await check('no browser runtime errors', async () => assert.deepEqual(errors, []));
