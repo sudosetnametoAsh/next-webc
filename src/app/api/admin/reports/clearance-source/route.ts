@@ -29,9 +29,12 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(courseSections.year), desc(courseSections.semester))
       .limit(1)
 
+    // const term = latestSection.length > 0
+    //   ? `${getSemesterLabel(latestSection[0].semester)}, S.Y. ${latestSection[0].year}`
+    //   : `1st Semester, S.Y. ${new Date().getFullYear()}`
     const term = latestSection.length > 0
-      ? `${getSemesterLabel(latestSection[0].semester)}, S.Y. ${latestSection[0].year}`
-      : `1st Semester, S.Y. ${new Date().getFullYear()}`
+      ? `${getSemesterLabel(latestSection[0].semester)}, S.Y. ${getLatestSchoolYear()}`
+      : `1st Semester, S.Y. ${getLatestSchoolYear()}`
 
     // CRITICAL FIX: The clearance_templates table structure is:
     // Each row = (course_id, dept_id, staff_id) - ONE department per template row
@@ -94,11 +97,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    console.log('=== DEBUG: Course Info ===')
-    console.log('Total courses/staff types:', courseInfoMap.size)
-    courseInfoMap.forEach((info, key) => {
-      console.log(`  ${key}: ${info.code}, ${info.departments.length} depts`)
-    })
+    // console.log('=== DEBUG: Course Info ===')
+    // console.log('Total courses/staff types:', courseInfoMap.size)
+    // courseInfoMap.forEach((info, key) => {
+    //   console.log(`  ${key}: ${info.code}, ${info.departments.length} depts`)
+    // })
 
     // Build templates list for response
     const templates: ClearanceTemplateInfo[] = Array.from(courseInfoMap.values()).map(c => ({
@@ -122,8 +125,8 @@ export async function GET(req: NextRequest) {
       .leftJoin(students, eq(clearanceRecords.userId, students.studentId))
       .leftJoin(staffs, eq(clearanceRecords.userId, staffs.staffId))
 
-    console.log('=== DEBUG: Clearance Records ===')
-    console.log('Total clearance_records rows:', allClearanceRecords.length)
+    // console.log('=== DEBUG: Clearance Records ===')
+    // console.log('Total clearance_records rows:', allClearanceRecords.length)
 
     // Group clearance records by userId
     const userClearancesMap = new Map<string, Array<typeof allClearanceRecords[0]>>()
@@ -134,7 +137,7 @@ export async function GET(req: NextRequest) {
       userClearancesMap.get(cr.userId)!.push(cr)
     }
 
-    console.log('Unique users with clearances:', userClearancesMap.size)
+    // console.log('Unique users with clearances:', userClearancesMap.size)
 
     // Step 3: Fetch ALL tasks
     const allTasks = await db
@@ -227,11 +230,11 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    console.log('=== DEBUG: Final ===')
-    console.log('Total records built:', records.length)
-    console.log('Expected: 260 (253 students + 7 staff)')
-    console.log('Sample record:', records[0])
-    console.log('==================')
+    // console.log('=== DEBUG: Final ===')
+    // console.log('Total records built:', records.length)
+    // console.log('Expected: 260 (253 students + 7 staff)')
+    // console.log('Sample record:', records[0])
+    // console.log('==================')
 
     const source: ClearanceReportSource = {
       term,
@@ -257,4 +260,26 @@ function getSemesterLabel(semester: number): string {
     3: 'Summer',
   }
   return labels[semester] || '1st Semester'
+}
+
+function getLatestSchoolYear() {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  // JavaScript months are 0-indexed (0 = January, 7 = August)
+  const currentMonth = currentDate.getMonth(); 
+
+  let startYear;
+  let endYear;
+
+  if (currentMonth >= 7) {
+    // From August to December
+    startYear = currentYear;
+    endYear = currentYear + 1;
+  } else {
+    // From January to July
+    startYear = currentYear - 1;
+    endYear = currentYear;
+  }
+
+  return `${startYear}-${endYear}`;
 }
