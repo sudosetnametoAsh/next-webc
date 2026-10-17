@@ -23,7 +23,9 @@ export async function GET() {
       while (true) {
         const { data, error } = await supabase
           .from('clearance_records')
-          .select('user_id, status')
+          .select('user_id, status, clearance_templates!inner(course_id)')
+          .not('clearance_templates.course_id', 'is', null)
+          .order('clearance_id', { ascending: true })
           .range(from, from + PAGE_SIZE - 1);
 
         if (error) throw error;

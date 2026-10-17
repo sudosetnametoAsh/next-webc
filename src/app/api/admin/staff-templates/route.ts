@@ -111,14 +111,6 @@ export async function POST(req: NextRequest) {
       staff_id: a.staff_id,
     }))
 
-    // const { data, error } = await supabase
-    //   .from('clearance_templates')
-    //   .upsert(templatesToInsert, {
-    //     onConflict: 'dept_id, staff_id',
-    //     ignoreDuplicates: false,
-    //   })
-    //   .select()
-
     const { data, error } = await supabase
       .from('clearance_templates')
       .insert(templatesToInsert)

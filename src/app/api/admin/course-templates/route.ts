@@ -129,12 +129,17 @@ export async function POST(req: NextRequest) {
       }))
     ))
 
+    // const { data, error } = await supabase
+    //   .from('clearance_templates')
+    //   .upsert(templatesToInsert, {
+    //     onConflict: 'course_id, dept_id',
+    //     ignoreDuplicates: false
+    //   })
+    //   .select()
+
     const { data, error } = await supabase
       .from('clearance_templates')
-      .upsert(templatesToInsert, {
-        onConflict: 'course_id, dept_id',
-        ignoreDuplicates: false
-      })
+      .insert(templatesToInsert)
       .select()
 
     if (error) {
