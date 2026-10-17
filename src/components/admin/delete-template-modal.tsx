@@ -86,7 +86,7 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
           <DialogTitle>
             <TriangleAlert className='w-8 h-8 text-red-600 dark:text-rose-400' />
           </DialogTitle>
-          <h2 className='text-lg font-bold mt-2 text-slate-900 dark:text-slate-100'>Delete all course templates</h2>
+          <h2 className='text-lg font-bold mt-2 text-slate-900 dark:text-slate-100'>Delete all clearance templates</h2>
           <p className='text-gray-500 dark:text-slate-400 text-sm'>
             This will delete all clearance templates and their department assignments.
           </p>
@@ -94,7 +94,7 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
         
         <div className='bg-red-50 border border-red-200 px-4 py-4 rounded-xl mb-4 dark:bg-rose-950/40 dark:border-rose-900/60'>
           <p className='text-sm text-red-700 dark:text-rose-300 leading-relaxed'>
-            Students currently enrolled in these courses will no longer have an assigned clearance template until new ones are created.
+            Students currently enrolled in these courses and staff will no longer have an assigned clearance template until new ones are created.
           </p>
         </div>
 
