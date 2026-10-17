@@ -11,7 +11,7 @@ import { useCreateTemplates } from '@/hooks/admin/course-templates'
 import { useCreateStaffTemplates } from '@/hooks/admin/staff-templates'
 import { StaffAssignment } from '@/types/admin'
 import { Courses, Departments } from '@/types/admin'
-import { expandCourseAbbreviation } from '@/utils/formatters'
+import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 
 type Props = {
   open: boolean
@@ -300,7 +300,7 @@ function SelectionStep({
                   onCheckedChange={() => toggleCourse(course.course_id)}
                 />
                 <p className='text-sm text-gray-900 dark:text-slate-200 truncate'>
-                  {expandCourseAbbreviation(course.course_name) || course.course_name}
+                  {shrinkCourseName(course.course_name) || course.course_name}
                 </p>
               </label>
             ))}
