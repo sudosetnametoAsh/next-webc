@@ -4,6 +4,10 @@ import AdminRealtimeListener from "@/components/admin/admin-realtime-listener";
 import { AdminNavProvider } from "@/components/admin/admin-nav-context";
 import { getSession } from "@/lib/auth/get-session";
 
+export const metadata = {
+  title: "WebC - Admin",
+};
+
 export default async function AdminLayout({
   children,
 }: {

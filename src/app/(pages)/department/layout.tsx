@@ -11,6 +11,10 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
+export const metadata = {
+  title: "WebC - Department",
+};
+
 export default async function DepartmentRoot({
   children,
 }: {

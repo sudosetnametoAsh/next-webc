@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="webc-title">
+  <title id="webc-title">WebC — Handoff</title>
+  <rect width="256" height="256" rx="48" fill="#060A14"/>
+  <g fill="#F59E0B">
+    <path d="M32 144V64A32 32 0 0 1 64 32H144V72H72V144Z"/>
+    <rect x="104" y="104" width="48" height="48" rx="4"/>
+    <path d="M224 112V192A32 32 0 0 1 192 224H112V184H184V112Z"/>
+  </g>
+</svg>

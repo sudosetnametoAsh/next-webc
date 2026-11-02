@@ -5,7 +5,13 @@ import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
 
 export const metadata = {
-  title: "Next Js App",
+  title: "WebC: A Clearance App",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
+      { url: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
+  },
 };
 
 const geist = Geist({

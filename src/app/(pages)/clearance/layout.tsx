@@ -5,6 +5,10 @@ import DashBoardRealtimeProvider from "@/components/clearance/dashboard-realtime
 import ClearanceCompletionFab from "@/components/clearance/clearance-completion-fab";
 import { getSession } from "@/lib/auth/get-session";
 
+export const metadata = {
+  title: "WebC - Client",
+};
+
 export default async function ClearanceLayout({
   children,
 }: {
