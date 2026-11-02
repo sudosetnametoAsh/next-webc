@@ -10,14 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, FileDown, ShieldCheck } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { exportClearancePDF } from "@/utils/export-clearance-pdf";
 import { getClearanceRecordsPromise, getStudentProfilePromise, getSummaryPromise } from "@/modules/clearance/application/repository/dashboard-repository";
 
 interface UserDropdownProps {
   user: {
     name: string;
     email: string;
+    userId?: string;
   };
   profile: getStudentProfilePromise | null;
   records: getClearanceRecordsPromise;
@@ -32,110 +32,12 @@ export default function UserDropdown({ user, profile, records, summary }: UserDr
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-
-    // Helper for centering text
-    const centerText = (text: string, y: number, fontSize = 12, fontStyle = "normal") => {
-      doc.setFontSize(fontSize);
-      doc.setFont("helvetica", fontStyle);
-      const textWidth = doc.getTextWidth(text);
-      doc.text(text, (pageWidth - textWidth) / 2, y);
-    };
-
-    // --- Header ---
-    centerText("STI COLLEGE LUCENA", 20, 14, "bold");
-    centerText("CLEARANCE FORM", 28, 16, "bold");
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("SCHOOL'S COPY", pageWidth - 45, 28);
-
-    // --- Student Info Section ---
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.5);
-    doc.rect(15, 35, pageWidth - 30, 40); // Main info box
-
-    doc.setFontSize(9);
-    doc.text("STUDENT IDENTIFICATION NUMBER:", 20, 45);
-    doc.setFont("helvetica", "bold");
-    doc.text(profile?.student_id || "N/A", 80, 45);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("LAST NAME, FIRST NAME, MIDDLE INITIAL:", 20, 52);
-    doc.setFont("helvetica", "bold");
-    doc.text(profile?.student_name || user.name, 90, 52);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("COURSE/SECTION:", 20, 59);
-    doc.setFont("helvetica", "bold");
-    doc.text(`${profile?.course_name || "N/A"} ${profile?.section_number || ""}`, 60, 59);
-
-    // Academic Year & Term
-    doc.setFont("helvetica", "normal");
-    doc.text("ACADEMIC YEAR:", 120, 45);
-    doc.setFont("helvetica", "bold");
-    const ay = profile?.year ? `${profile.year}-${profile.year + 1}` : "N/A";
-    doc.text(ay, 155, 45);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("TERM:", 120, 52);
-    doc.setFont("helvetica", "bold");
-    doc.text(profile?.semester?.toString() || "N/A", 155, 52);
-
-    doc.setFont("helvetica", "normal");
-    doc.text("STUDENT TYPE:", 120, 59);
-    doc.setFont("helvetica", "bold");
-    doc.text("REGULAR", 155, 59); // Defaulting to Regular as per common case
-
-    // --- Departments Table ---
-    const tableData = records.map((record) => [
-      record.department,
-      record.status === "Signed" ? "/" : "", // No Accountabilities
-      record.status !== "Signed" ? "/" : "", // With Accountabilities
-      record.status === "Signed" ? record.staff : "", // Signature (name)
-      record.status === "Signed" ? new Date().toLocaleDateString() : "", // Date
-    ]);
-
-    autoTable(doc, {
-      startY: 85,
-      head: [
-        ["DEPARTMENT", "NO ACCOUNTABILITIES", "WITH ACCOUNTABILITIES", "SIGNATURE", "DATE SIGNED"],
-      ],
-      body: tableData,
-      theme: "grid",
-      headStyles: {
-        fillColor: [240, 240, 240],
-        textColor: [0, 0, 0],
-        fontSize: 8,
-        halign: "center",
-      },
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
-      columnStyles: {
-        0: { cellWidth: 50 },
-        1: { halign: "center", cellWidth: 35 },
-        2: { halign: "center", cellWidth: 35 },
-        3: { halign: "center" },
-        4: { halign: "center" },
-      },
+    exportClearancePDF({
+      studentProfile: profile,
+      user,
+      records,
+      summary,
     });
-
-    // --- Footer ---
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("RECEIVED BY:", 15, finalY);
-    
-    doc.setLineWidth(0.2);
-    doc.line(45, finalY, 120, finalY); // Signature line
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("REGISTRAR", 70, finalY + 5);
-
-    doc.save(`STI_Clearance_${profile?.student_id || "Student"}.pdf`);
   };
 
   return (

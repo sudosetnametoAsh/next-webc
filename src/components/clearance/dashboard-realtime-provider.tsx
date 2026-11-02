@@ -2,19 +2,49 @@
 
 import { createClient } from "@/lib/db/supabase-client";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  invalidateClearanceData,
+  prefetchClearanceData,
+} from "@/hooks/clearance/use-clearance-data";
 
 export default function DashBoardRealtimeProvider({
   children,
+  studentId,
 }: {
   children: React.ReactNode;
+  studentId?: string;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const supabase = useMemo(() => createClient(), []);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Pre-warm clearance cache on mount
+  useEffect(() => {
+    if (studentId) {
+      prefetchClearanceData(queryClient, studentId);
+    }
+  }, [studentId, queryClient]);
 
   useEffect(() => {
+    // Coalesce rapid bursts of Realtime events (e.g. cascading deletes or bulk task updates)
+    // into exactly ONE single cache invalidation and router refresh.
+    const triggerRefresh = () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        invalidateClearanceData(queryClient, studentId);
+        router.refresh();
+      }, 400);
+    };
+
+    // Scoped Realtime Channel Subscription
+    const channelId = `clearance-rt-${studentId || "default"}-${Date.now()}`;
     const channel = supabase
-      .channel("clearance_records_updates")
+      .channel(channelId)
       .on(
         "postgres_changes",
         {
@@ -22,9 +52,8 @@ export default function DashBoardRealtimeProvider({
           schema: "public",
           table: "clearance_records",
         },
-        (payload) => {
-          console.log("payload received from clearance_records", payload);
-          router.refresh();
+        () => {
+          triggerRefresh();
         },
       )
       .on(
@@ -34,16 +63,30 @@ export default function DashBoardRealtimeProvider({
           schema: "public",
           table: "clearance_tasks",
         },
-        (payload) => {
-          console.log("payload received from clearance_tasks", payload);
-          router.refresh();
+        () => {
+          triggerRefresh();
         },
       )
-      .subscribe((status) => console.log(status));
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+        },
+        () => {
+          triggerRefresh();
+        },
+      )
+      .subscribe();
 
     return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
       supabase.removeChannel(channel);
     };
-  }, [supabase, router]);
+  }, [supabase, router, studentId, queryClient]);
+
   return <>{children}</>;
 }

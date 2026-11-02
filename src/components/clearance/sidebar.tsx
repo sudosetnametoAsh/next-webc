@@ -1,295 +1,336 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  getClearanceRecordsPromise,
-} from "@/modules/clearance/application/repository/dashboard-repository";
-import {
-  CheckCircle2,
+  Award,
   Clock,
+  FileText,
+  User,
   ShieldCheck,
+  ChevronDown,
+  LogOut,
   X,
-  MessageSquareWarning,
-  Calendar,
-  Eye,
-  UserCheck,
-  XCircle,
-  RotateCcw,
 } from "lucide-react";
-import TaskSubmissionModal from "./task-submission-modal";
-import { getDepartmentDetailsPromise } from "@/modules/clearance/application/repository/department-repository";
+import AzureSignOutButton from "@/components/auth/azure-sign-out-button";
+import { useClearanceNav } from "./clearance-nav-context";
+import { useQueryClient } from "@tanstack/react-query";
+import { prefetchClearanceData } from "@/hooks/clearance/use-clearance-data";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
-const getStatusConfig = (status: string) => {
-  switch (status) {
-    case "Cleared":
-      return { bg: "bg-emerald-50", text: "text-emerald-600", label: "Cleared" };
-    case "Flagged":
-    case "Submitted":
-      return { bg: "bg-blue-50", text: "text-blue-600", label: "Submitted" };
-    case "Pending":
-      return { bg: "bg-amber-50", text: "text-amber-600", label: "Pending" };
-    case "Rejected":
-      return { bg: "bg-red-50", text: "text-red-600", label: "Rejected" };
-    default:
-      return { bg: "bg-slate-50", text: "text-slate-600", label: status };
-  }
-};
+interface StudentSidebarProps {
+  user?: {
+    name?: string;
+    email?: string;
+    role?: string;
+    avatarInitials?: string;
+    department?: string;
+    userId?: string;
+  };
+}
 
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "—";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
+export default function Sidebar({ user }: StudentSidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const { mobileOpen, closeMobile } = useClearanceNav();
 
-export default function Sidebar({
-  selectedRecord,
-  departmentTasks,
-  setSelectedRecord,
-  studentId,
-}: {
-  selectedRecord: getClearanceRecordsPromise[0];
-  departmentTasks: getDepartmentDetailsPromise;
-  setSelectedRecord: React.Dispatch<
-    React.SetStateAction<getClearanceRecordsPromise[0] | null>
-  >;
-  studentId: string;
-}) {
-  const [activeTask, setActiveTask] = useState<typeof departmentTasks[0] | null>(null);
+  const [cachedDept, setCachedDept] = useState<string | null>(null);
 
-  if (!selectedRecord) return null;
+  const isStudent = Boolean(
+    user?.role?.toLowerCase().includes("student") ||
+    (!user?.department && (!user?.role || user?.role?.toLowerCase().includes("student")))
+  );
 
-  return (
-    <section className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity">
-      <div
-        className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
-          selectedRecord ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <header className="flex items-center justify-between border-b p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-              <ShieldCheck className="text-blue-600" size={24} />
+  // Maintain staff identity across client-side page transitions and notification deep links
+  // EXCLUSIVELY for genuine department staff. Explicitly clear if student or non-department staff.
+  useEffect(() => {
+    if (
+      isStudent ||
+      !user?.department ||
+      ["staff", "student", "admin", "all"].includes(user.department.toLowerCase())
+    ) {
+      try {
+        sessionStorage.removeItem("clearance_staff_department");
+        if (user?.userId) {
+          sessionStorage.removeItem(`clearance_staff_dept_${user.userId}`);
+        }
+      } catch {}
+      setCachedDept(null);
+      return;
+    }
+
+    if (
+      user?.department &&
+      !["staff", "student", "admin", "all"].includes(user.department.toLowerCase())
+    ) {
+      try {
+        sessionStorage.setItem("clearance_staff_department", user.department);
+        if (user?.userId) {
+          sessionStorage.setItem(`clearance_staff_dept_${user.userId}`, user.department);
+        }
+        setCachedDept(user.department);
+      } catch {}
+    }
+  }, [user?.department, user?.role, user?.userId, isStudent]);
+
+  // Role switching is strictly exclusive to department staff who manage an actual department
+  const effectiveDepartment =
+    !isStudent &&
+    user?.department &&
+    user.department.trim() !== "" &&
+    !["staff", "student", "admin", "all"].includes(user.department.toLowerCase())
+      ? user.department
+      : !isStudent &&
+        user?.userId &&
+        cachedDept &&
+        cachedDept.trim() !== "" &&
+        !["staff", "student", "admin", "all"].includes(cachedDept.toLowerCase())
+      ? cachedDept
+      : undefined;
+
+  const isDepartmentStaff = Boolean(effectiveDepartment);
+
+  // Pre-warm all clearance routes into Client Router Cache on mount
+  useEffect(() => {
+    router.prefetch("/clearance");
+    router.prefetch("/clearance/tasks");
+    router.prefetch("/clearance/schedules");
+    if (isDepartmentStaff) {
+      router.prefetch("/department/dashboard");
+      router.prefetch("/department/clients");
+    }
+    if (user?.userId) {
+      prefetchClearanceData(queryClient, user.userId);
+    }
+  }, [router, queryClient, user?.userId, isDepartmentStaff]);
+
+  const userName = user?.name || "Jaro, Jose Raphael (C.)";
+  const userRole = isDepartmentStaff
+    ? `${effectiveDepartment} Staff`
+    : user?.role || "Student";
+  const avatarInitials = user?.avatarInitials || "N";
+
+  const navItems = [
+    {
+      label: "My Clearance",
+      href: "/clearance",
+      icon: Award,
+      isActive: pathname === "/clearance",
+    },
+    {
+      label: "Requirements & Tasks",
+      href: "/clearance/tasks",
+      icon: FileText,
+      isActive: pathname.startsWith("/clearance/tasks"),
+    },
+    {
+      label: "Office Hours",
+      href: "/clearance/schedules",
+      icon: Clock,
+      isActive: pathname.startsWith("/clearance/schedules"),
+    },
+  ];
+
+  const renderContent = (isMobile = false) => (
+    <div className="flex h-full flex-col">
+      {/* ── Brand Header ── */}
+      <div className="flex flex-col gap-4 border-b border-slate-800/80 p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F59E0B] font-black text-slate-950 shadow-md shadow-amber-500/20">
+              <span className="text-xs font-black tracking-tight">STI</span>
             </div>
-            <div className="min-w-0">
-              <h2 className="text-xl font-bold text-slate-900 truncate">
-                {selectedRecord.department}
-              </h2>
-              <p className="text-sm font-medium text-slate-500 truncate">
-                {selectedRecord.staff}
+            <div className="flex flex-col leading-tight">
+              <span className="text-base font-bold tracking-tight text-white">
+                STI WebC
+              </span>
+              <span className="text-xs font-medium text-slate-400">
+                Clearance Portal
+              </span>
+            </div>
+          </div>
+
+          {isMobile && (
+            <button
+              type="button"
+              onClick={closeMobile}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-slate-200 cursor-pointer"
+              aria-label="Close navigation"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Role Pill Indicator / Switcher */}
+        {isDepartmentStaff ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-emerald-950/20 px-3 py-2 text-emerald-400 transition-all hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:outline-hidden focus:ring-1 focus:ring-emerald-500/50 cursor-pointer select-none text-left"
+                aria-label="Switch portal view"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <User className="h-4 w-4 shrink-0 text-emerald-400" />
+                  <span className="text-xs font-semibold tracking-wide truncate">
+                    Client Clearance
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-emerald-400/80 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              side="bottom"
+              sideOffset={4}
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-[200px] border-0 bg-transparent p-0 shadow-2xl shadow-black/90 z-50 rounded-lg overflow-hidden"
+            >
+              {/* Single Target Entry: Department Staff (Yellow color) */}
+              <DropdownMenuItem
+                onMouseEnter={() => {
+                  router.prefetch("/department/dashboard");
+                  router.prefetch("/department/clients");
+                }}
+                onFocus={() => {
+                  router.prefetch("/department/dashboard");
+                  router.prefetch("/department/clients");
+                }}
+                onClick={() => {
+                  router.push("/department/dashboard");
+                  if (isMobile) closeMobile();
+                }}
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-[#060a14] px-3 py-2 text-amber-400 transition-all hover:bg-amber-950/40 hover:border-amber-500/50 focus:bg-amber-950/40 focus:border-amber-500/50 focus:text-amber-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
+                  <span className="text-xs font-semibold tracking-wide truncate">
+                    Department Staff
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80" />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-950/20 px-3 py-2 text-emerald-400 select-none">
+            <User className="h-4 w-4 shrink-0 text-emerald-400" />
+            <span className="text-xs font-semibold tracking-wide truncate">
+              Client Clearance
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Navigation Menu (Path-Based Links) ── */}
+      <nav className="flex flex-1 flex-col gap-1.5 p-4 overflow-y-auto">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              prefetch={true}
+              onMouseEnter={() => {
+                router.prefetch(item.href);
+                prefetchClearanceData(queryClient, user?.userId);
+              }}
+              onFocus={() => {
+                router.prefetch(item.href);
+                prefetchClearanceData(queryClient, user?.userId);
+              }}
+              onTouchStart={() => {
+                router.prefetch(item.href);
+                prefetchClearanceData(queryClient, user?.userId);
+              }}
+              onClick={(e) => {
+                if (item.isActive) {
+                  e.preventDefault();
+                  return;
+                }
+                if (isMobile) closeMobile();
+              }}
+              className={`group flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left transition-colors ${
+                item.isActive
+                  ? "border border-slate-700/60 bg-slate-800/70 text-white font-semibold shadow-sm"
+                  : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 font-medium"
+              }`}
+            >
+              <Icon
+                className={`h-5 w-5 shrink-0 transition-colors ${
+                  item.isActive
+                    ? "text-amber-400"
+                    : "text-slate-400 group-hover:text-slate-200"
+                }`}
+              />
+              <span className="text-sm">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* ── Sidebar Footer with Logout ── */}
+      <div className="border-t border-slate-800/80 p-3">
+        <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-slate-800/40">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-slate-200 shadow-sm">
+              {avatarInitials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold text-slate-200">
+                {userName}
+              </p>
+              <p className="text-[11px] font-medium text-slate-400">
+                {userRole}
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setSelectedRecord(null)}
-            className="rounded-full p-2 hover:bg-slate-100 transition-colors"
-          >
-            <X className="text-slate-400" size={24} />
-          </button>
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          {/* Department Information */}
-          <section>
-            <h3 className="mb-4 text-xs font-bold tracking-wider text-slate-400 uppercase">
-              Department Information
-            </h3>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-              <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-100">
-                  <Clock size={16} className="text-slate-400" />
-                </div>
-                {selectedRecord.time_in && selectedRecord.time_out ? (
-                  <span>{`${selectedRecord.time_in}AM - ${selectedRecord.time_out}`}</span>
-                ) : (
-                  <span className="italic text-slate-400">No schedule set</span>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* Assigned Tasks */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-                Assigned Tasks
-              </h3>
-              <span className="text-[10px] font-bold text-slate-400">
-                {departmentTasks.length} {departmentTasks.length === 1 ? "TASK" : "TASKS"}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {departmentTasks.map((task) => {
-                const effectiveStatus =
-                  task.status === "Flagged" ? "Submitted" : task.status || "Pending";
-                const statusCfg = getStatusConfig(effectiveStatus);
-
-                const isPending = effectiveStatus === "Pending";
-                const isCleared = effectiveStatus === "Cleared";
-                const isSubmitted = effectiveStatus === "Submitted";
-                const isRejected = effectiveStatus === "Rejected";
-
-                const hasDropbox =
-                  task.dropbox &&
-                  task.dropbox.trim() !== "" &&
-                  task.dropbox.toLowerCase() !== "null";
-
-                // Improved logic mirroring task-view:
-                // A task originally required a dropbox if it currently has one,
-                // OR if it's rejected (meaning the previous dropbox submission was rejected)
-                const originallyRequiredDropbox = hasDropbox || isRejected;
-
-                // It's in-person ONLY if it has no dropbox, is not rejected, and not cleared
-                const isInPerson = !hasDropbox && !isRejected && !isCleared;
-
-                // For pending actions logic
-                const isDigital = originallyRequiredDropbox;
-
-                return (
-                  <div
-                    key={task.assigned_task_id}
-                    className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm transition-all hover:border-slate-300"
-                  >
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-2 gap-2">
-                            <h4
-                              className={`text-sm font-bold leading-tight break-words ${
-                                isCleared ? "text-slate-400 line-through" : "text-slate-900"
-                              }`}
-                            >
-                              {task.title}
-                            </h4>
-                            <span
-                              className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
-                            >
-                              {statusCfg.label}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {isInPerson && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-600">
-                                <UserCheck size={10} />
-                                In-Person
-                              </span>
-                            )}
-                            {isRejected && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600">
-                                <XCircle size={10} />
-                                Action Required
-                              </span>
-                            )}
-                          </div>
-
-                          {task.description && (
-                            <p
-                              className={`text-xs leading-relaxed ${
-                                isCleared ? "text-slate-400" : "text-slate-500"
-                              }`}
-                            >
-                              {task.description}
-                            </p>
-                          )}
-
-                          {/* In-person note */}
-                          {isInPerson && (
-                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
-                              <UserCheck size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <p className="text-xs text-slate-500 leading-relaxed">
-                                No file upload required — please complete this requirement in person at the department office.
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Rejection Note */}
-                          {isRejected && task.comments && (
-                            <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 p-3">
-                              <MessageSquareWarning
-                                size={14}
-                                className="shrink-0 text-red-500 mt-0.5"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">
-                                  Feedback
-                                </p>
-                                <p className="text-xs text-red-700 leading-relaxed">
-                                  {task.comments}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-slate-100 px-5 py-3 flex items-center justify-between bg-slate-50/50">
-                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                        <Calendar size={12} />
-                        Assigned {formatDate(task.assigned_at)}
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        {isPending && isDigital && (
-                          <button
-                            onClick={() => setActiveTask(task)}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
-                          >
-                            Submit
-                          </button>
-                        )}
-
-                        {isRejected && (
-                          <button
-                            onClick={() => setActiveTask(task)}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
-                          >
-                            <RotateCcw size={12} />
-                            Resubmit
-                          </button>
-                        )}
-
-                        {isSubmitted && isDigital && task.dropbox && (
-                          <a
-                            href={task.dropbox}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-slate-50 transition-colors"
-                          >
-                            <Eye size={12} />
-                            View
-                          </a>
-                        )}
-
-                        {isCleared && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 uppercase tracking-tight">
-                            <CheckCircle2 size={14} />
-                             Cleared
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+          <AzureSignOutButton color="#94a3b8">
+            <span
+              title="Sign out"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/80 hover:text-red-400 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+            </span>
+          </AzureSignOutButton>
         </div>
       </div>
+    </div>
+  );
 
-      {/* Render the modal ONLY if a task is active. Pass the necessary details. */}
-      {activeTask && (
-        <TaskSubmissionModal
-          isOpen={!!activeTask}
-          onClose={() => setActiveTask(null)}
-          taskTitle={activeTask.title}
-          taskId={activeTask.assigned_task_id}
-          deptName={selectedRecord.department}
-          studentId={studentId}
-        />
+  return (
+    <>
+      {/* ── Desktop Sidebar ── */}
+      <aside className="hidden h-screen w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
+        {renderContent(false)}
+      </aside>
+
+      {/* ── Mobile Drawer & Backdrop ── */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            onClick={closeMobile}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Panel */}
+          <aside
+            aria-label="Clearance navigation drawer"
+            className="relative z-50 flex h-full w-72 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 shadow-2xl select-none animate-in slide-in-from-left duration-200"
+          >
+            {renderContent(true)}
+          </aside>
+        </div>
       )}
-    </section>
+    </>
   );
 }

@@ -2,10 +2,10 @@ import React from 'react';
 
 interface DashboardStatsProps {
     records: any[];
-    balance: string;
+    balance?: string;
 }
 
-export default function DashboardStats({ records, balance }: DashboardStatsProps) {
+export default function DashboardStats({ records, balance = "₱0.00" }: DashboardStatsProps) {
     
     // Logic: Count how many are cleared vs pending
     const clearedCount = records.filter(r => r.status === 'Complete' || r.status === 'Signed').length;

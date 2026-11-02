@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { ShieldCheck } from "lucide-react";
 import { getClearanceRecordsPromise } from "@/modules/clearance/application/repository/dashboard-repository";
 import { makeGetDepartmentDetails } from "@/composition/clearance/make-get-department-details";
-import Sidebar from "./sidebar";
 import { getDepartmentDetailsPromise } from "@/modules/clearance/application/repository/department-repository";
+import Sidebar from "./deparment-overlay";
+import { getDepartmentIcon } from "@/lib/department-icons";
 
 export default function DepartmenList({
   records,
@@ -35,11 +35,10 @@ export default function DepartmenList({
   };
 
   const sortedRecords = [...records].sort((a, b) => {
-    if (a.department === "Cashier") return -1; // 'a' moves to the front
-    if (b.department === "Cashier") return 1;  // 'b' moves to the front
-    if (a.department === "Registrar") return 1;  // 'a' moves to the back
-    if (b.department === "Registrar") return -1; // 'b' moves to the back
-    return 0;
+    const tierA = a.tier ?? 1;
+    const tierB = b.tier ?? 1;
+    if (tierA !== tierB) return tierA - tierB;
+    return a.department.localeCompare(b.department);
   });
 
   return (
@@ -51,12 +50,13 @@ export default function DepartmenList({
           const percentage = hasTasks
             ? Math.round((item.cleared_task / item.task_count) * 100)
             : 0;
-          
+
           const isSigned = item.status.toLowerCase() === "signed" || item.status.toLowerCase() === "cleared";
           const isPending = item.status.toLowerCase() === "pending";
           const isIncomplete = item.status.toLowerCase() === "incomplete";
 
           const allCompleted = isSigned || (hasTasks && item.cleared_task === item.task_count);
+          const DeptIcon = getDepartmentIcon(item.icon_name, item.department);
 
           return (
             <div
@@ -82,7 +82,7 @@ export default function DepartmenList({
                           : "bg-slate-50 group-hover:bg-slate-100"
                       }`}
                   >
-                    <ShieldCheck
+                    <DeptIcon
                       className={`h-8 w-8 ${isSigned
                           ? "text-green-600"
                           : (isPending || isIncomplete)
@@ -93,9 +93,16 @@ export default function DepartmenList({
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl leading-tight font-extrabold text-gray-950">
-                      {item.department}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl leading-tight font-extrabold text-gray-950">
+                        {item.department}
+                      </span>
+                      {item.tier && (
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                          Phase {item.tier}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm font-medium text-gray-500">
                       {item.staff}
                     </span>
@@ -152,7 +159,7 @@ export default function DepartmenList({
           selectedRecord={selectedRecord}
           departmentTasks={departmentTasks}
           setSelectedRecord={setSelectedRecord}
-          studentId="02000609703"
+          studentId="02000248919"
         />
       )}
     </>
