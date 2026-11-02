@@ -1,9 +1,9 @@
 import { createDrizzle } from "./create-drizzle-rls";
 import { createClient } from "./supabase-server";
-import { drizzle } from "drizzle-orm/postgres-js"; // FIX 1: Use the postgres-js driver
+import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "@/lib/db/schema";
-import postgres from "postgres";
 import { jwtDecode } from "jwt-decode";
+import { queryClient } from "@/lib/db";
 
 type SupabaseToken = {
   sub?: string;
@@ -15,20 +15,16 @@ const config = {
   schema,
 };
 
-// ByPass RLS
-const admin = drizzle(postgres(process.env.ADMIN_DATABASE_URL!, { prepare: false }), config);
-
-// Protected by RLS
-const client = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }), config);
-
-// This extracts the specific type of the object returned by your function
+// Reuse shared global singleton connection pool to avoid connection exhaustion in Next.js
+const admin = drizzle(queryClient, config);
+const client = drizzle(queryClient, config);
 
 export async function createDrizzleSupabaseClient() {
-  // FIX 2: Instantiate Supabase inside the function execution, during the actual request
   const supabase = await createClient();
 
-  // FIX 3: Call getSession on the instantiated client
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
     throw new Error("No session found");
@@ -39,4 +35,6 @@ export async function createDrizzleSupabaseClient() {
   return createDrizzle(token, { admin, client });
 }
 
-export type DrizzleSupabaseClient = Awaited<ReturnType<typeof createDrizzleSupabaseClient>>;
+export type DrizzleSupabaseClient = Awaited<
+  ReturnType<typeof createDrizzleSupabaseClient>
+>;

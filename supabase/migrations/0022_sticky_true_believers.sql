@@ -1,0 +1,2 @@
+ALTER TABLE "clearance_departments" ADD COLUMN "icon_name" varchar(50) DEFAULT 'Building2' NOT NULL;--> statement-breakpoint
+ALTER TABLE "clearance_templates" ADD COLUMN "tier" integer DEFAULT 1 NOT NULL;

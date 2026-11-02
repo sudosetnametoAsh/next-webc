@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { staffs, clearanceLogs, clearanceTasks, clearanceRecords, staffPredefinedTasks, courses, clearanceTemplates, clearanceDepartments, courseSections, enrollments, students, users } from "./schema";
+import { staffs, clearanceLogs, clearanceTasks, clearanceRecords, staffPredefinedTasks, courses, clearanceTemplates, clearanceDepartments, courseSections, enrollments, students, users, cashierWebhookEvents } from "./schema";
 
 export const clearanceLogsRelations = relations(clearanceLogs, ({one}) => ({
 	staff: one(staffs, {
@@ -106,8 +106,16 @@ export const studentsRelations = relations(students, ({one, many}) => ({
 	}),
 }));
 
-export const usersRelations = relations(users, ({many}) => ({
+export const usersRelations = relations(users, ({one, many}) => ({
 	staffs: many(staffs),
 	students: many(students),
 	clearanceRecords: many(clearanceRecords),
+	cashierWebhookEvents: many(cashierWebhookEvents),
+}));
+
+export const cashierWebhookEventsRelations = relations(cashierWebhookEvents, ({one}) => ({
+	user: one(users, {
+		fields: [cashierWebhookEvents.userId],
+		references: [users.userId]
+	}),
 }));

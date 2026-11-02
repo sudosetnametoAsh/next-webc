@@ -12,8 +12,10 @@ import {
   check,
   uuid,
   boolean,
+  numeric,
+  unique,
 } from "drizzle-orm/pg-core";
-import { authenticatedRole } from "drizzle-orm/supabase";
+import { anonRole, authenticatedRole } from "drizzle-orm/supabase";
 import { sql } from "drizzle-orm";
 
 export const clearanceLogs = pgTable(
@@ -32,7 +34,9 @@ export const clearanceLogs = pgTable(
       columns: [table.staffId],
       foreignColumns: [staffs.staffId],
       name: "activity_log_staff_id_fkey",
-    }),
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
     pgPolicy("users can view logs", {
       as: "permissive",
       for: "select",
@@ -69,6 +73,11 @@ export const clearanceTasks = pgTable(
     }),
     comments: text(),
     title: text().notNull(),
+    aiAuditReport: jsonb("ai_audit_report"),
+    dueDate: timestamp("due_date", {
+      withTimezone: true,
+      mode: "string",
+    }),
   },
   (table) => [
     foreignKey({
@@ -97,6 +106,19 @@ export const clearanceTasks = pgTable(
       "status_check",
       sql`${table.status}::text IN ('Cleared', 'Pending', 'Submitted', 'Rejected', 'Flagged', 'Verified')`,
     ),
+    pgPolicy("allow read clearance_tasks", {
+      as: "permissive",
+      for: "select",
+      to: [anonRole, authenticatedRole],
+      using: sql`true`,
+    }),
+    pgPolicy("allow update clearance_tasks", {
+      as: "permissive",
+      for: "update",
+      to: [anonRole, authenticatedRole],
+      using: sql`true`,
+      withCheck: sql`true`,
+    }),
     pgPolicy("users can view own tasks", {
       as: "permissive",
       for: "select",
@@ -153,6 +175,8 @@ export const clearanceTemplates = pgTable(
     courseId: integer("course_id"),
     deptId: integer("dept_id").notNull(),
     staffId: text("staff_id").notNull(),
+    tier: integer("tier").notNull().default(1),
+    isActive: boolean("is_active").default(true).notNull(),
   },
   (table) => [
     foreignKey({
@@ -236,6 +260,15 @@ export const clearanceDepartments = pgTable(
   {
     deptId: serial("dept_id").primaryKey().notNull(),
     deptName: varchar("dept_name", { length: 100 }).notNull().unique(),
+    iconName: varchar("icon_name", { length: 50 }).default("Building2").notNull(),
+    floor: varchar("floor", { length: 50 }),
+    room: varchar("room", { length: 50 }),
+    aiVerificationMode: varchar("ai_verification_mode", { length: 20 })
+      .default("two_factor")
+      .notNull(),
+    aiConfidenceThreshold: integer("ai_confidence_threshold")
+      .default(85)
+      .notNull(),
   },
   () => [
     pgPolicy("users can view departments", {
@@ -281,6 +314,7 @@ export const enrollments = pgTable(
       to: authenticatedRole,
       using: sql`true`,
     }),
+    unique("enrollments_student_section_unique").on(table.studentId, table.sectionId),
   ],
 );
 
@@ -291,13 +325,17 @@ export const staffs = pgTable(
     staffName: varchar("staff_name").notNull(),
     timeIn: time("time_in"),
     timeOut: time("time_out"),
+    weeklySchedule: jsonb("weekly_schedule").$type<Record<string, { active: boolean; time_in: string; time_out: string }>>(),
+    earlyOutDate: varchar("early_out_date", { length: 10 }),
   },
   (table) => [
     foreignKey({
       columns: [table.staffId],
       foreignColumns: [users.userId],
       name: "staffs_staff_id_fkey",
-    }),
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
     pgPolicy("users can view staffs", {
       as: "permissive",
       for: "select",
@@ -321,6 +359,9 @@ export const clearanceRecords = pgTable(
     userId: varchar("user_id", { length: 11 }).notNull(),
     status: varchar({ length: 20 }).default("Pending").notNull(),
     signedAt: timestamp("signed_at", { mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
     templateId: integer("template_id").notNull(),
   },
   (table) => [
@@ -328,7 +369,9 @@ export const clearanceRecords = pgTable(
       columns: [table.userId],
       foreignColumns: [users.userId],
       name: "clearance_records_user_id_fkey",
-    }).onDelete("cascade"),
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
     foreignKey({
       columns: [table.templateId],
       foreignColumns: [clearanceTemplates.templateId],
@@ -340,6 +383,7 @@ export const clearanceRecords = pgTable(
       "studentclearances_status_check",
       sql`(status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Signed'::character varying)::text, ('Incomplete'::character varying)::text])`,
     ),
+    unique("clearance_records_user_template_unique").on(table.userId, table.templateId),
     pgPolicy("users view their own clearance", {
       as: "permissive",
       for: "select",
@@ -375,14 +419,15 @@ export const students = pgTable(
     studentId: varchar("student_id", { length: 11 }).primaryKey().notNull(),
     studentName: text("student_name"),
     phoneNumber: varchar("phone_number", { length: 15 }),
-    balance: integer().default(0),
   },
   (table) => [
     foreignKey({
       columns: [table.studentId],
       foreignColumns: [users.userId],
       name: "students_student_id_fkey",
-    }).onDelete("cascade"),
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
     pgPolicy("users can view own student record", {
       as: "permissive",
       for: "select",
@@ -402,12 +447,16 @@ export const notifications = pgTable(
   "notifications",
   {
     notifId: serial("notif_id").primaryKey(),
-    userId: varchar("user_id").notNull(),
+    userId: varchar("user_id"),
+    departmentId: integer("department_id"),
+    targetRole: varchar("target_role", { length: 20 }), // 'student' | 'department' | 'admin'
+    category: varchar("category", { length: 50 }),       // 'task', 'submission', 'clearance', 'schedule', 'template', 'bottleneck', 'system'
     title: text("title").notNull(),
     description: text("description").notNull(),
-    type: text("type").notNull(), // System, Warning, Info
+    type: text("type").notNull(), // System, Warning, Info, Success, Alert
     isRead: boolean("is_read").default(false).notNull(),
     refUrl: text("ref_url").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
     sectionId: integer("section_id"),
     courseId: integer("course_id"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
@@ -419,7 +468,15 @@ export const notifications = pgTable(
       columns: [table.userId],
       foreignColumns: [users.userId],
       name: "notif_user_id_fkey",
-    }),
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+    foreignKey({
+      columns: [table.departmentId],
+      foreignColumns: [clearanceDepartments.deptId],
+      name: "notif_dept_id_fkey",
+    })
+      .onDelete("cascade"),
     foreignKey({
       columns: [table.sectionId],
       foreignColumns: [courseSections.sectionId],
@@ -432,20 +489,32 @@ export const notifications = pgTable(
     }),
     check(
       "type_check",
-      sql`${table.type}::text IN ('System', 'Warning', 'Info')`,
+      sql`${table.type}::text IN ('System', 'Warning', 'Info', 'Success', 'Alert', 'system', 'warning', 'info', 'success', 'alert')`,
     ),
-    pgPolicy("users can view own notifications", {
+    pgPolicy("allow read notifications", {
       as: "permissive",
       for: "select",
-      to: authenticatedRole,
-      using: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      to: [anonRole, authenticatedRole],
+      using: sql`true`,
+    }),
+    pgPolicy("allow insert notifications", {
+      as: "permissive",
+      for: "insert",
+      to: [anonRole, authenticatedRole],
+      withCheck: sql`true`,
     }),
     pgPolicy("users can update own notifications", {
       as: "permissive",
       for: "update",
-      to: authenticatedRole,
-      using: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
-      withCheck: sql`user_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      to: [anonRole, authenticatedRole],
+      using: sql`true`,
+      withCheck: sql`true`,
+    }),
+    pgPolicy("allow delete notifications", {
+      as: "permissive",
+      for: "delete",
+      to: [anonRole, authenticatedRole],
+      using: sql`true`,
     }),
   ],
 );
@@ -480,5 +549,29 @@ export const users = pgTable(
       using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
       withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Admin']`,
     }),
+  ],
+);
+
+export const cashierWebhookEvents = pgTable(
+  "cashier_webhook_events",
+  {
+    eventId: uuid("event_id").defaultRandom().primaryKey().notNull(),
+    userId: varchar("user_id", { length: 50 }),
+    transactionRef: varchar("transaction_ref", { length: 100 }).unique(),
+    amountPaid: numeric("amount_paid", { precision: 12, scale: 2 }),
+    remainingBalance: numeric("remaining_balance", { precision: 12, scale: 2 }),
+    payload: jsonb("payload").$type<Record<string, any>>(),
+    receivedAt: timestamp("received_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.userId],
+      name: "cashier_webhook_events_user_id_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("set null"),
   ],
 );

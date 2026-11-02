@@ -21,7 +21,7 @@ notes.txt
 
 # production
 /build
-/supabase
+# /supabase
 # misc
 .DS_Store
 *.pem
@@ -45,3 +45,7 @@ webc_full_backup.sql
 
 # documentation
 GEMINI.md
+
+# ai agent customizations
+.agent/
+.agents/

@@ -8,9 +8,21 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (pathname === "/api/auth/callback") return NextResponse.next();
+  if (
+    pathname === "/api/auth/callback" ||
+    pathname === "/api/auth/clear-session" ||
+    pathname === "/api/session" ||
+    pathname.startsWith("/api/webhooks") ||
+    pathname.startsWith("/api/admin/enrollments/import") ||
+    pathname.startsWith("/api/admin/simulation")
+  ) {
+    return NextResponse.next();
+  }
 
   if (!user && pathname !== "/") {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.redirect(`${origin}/`);
   }
 

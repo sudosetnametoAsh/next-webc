@@ -11,6 +11,24 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 180, // Cache dynamic routes in client router cache for 3 minutes
+      static: 300,  // Cache static routes for 5 minutes
+    },
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-select",
+      "@radix-ui/react-accordion",
+      "@radix-ui/react-checkbox",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-slot",
+    ],
+  },
 };
 
 export default nextConfig;

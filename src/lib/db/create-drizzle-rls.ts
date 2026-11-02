@@ -62,9 +62,15 @@ export function createDrizzle<
           // 4. Teardown: Reset the session variables back to their defaults.
           // This is critical. Because Postgres connections are pooled and reused by the server,
           // failing to clean this up could accidentally leak one user's identity into the next user's request.
-          await tx.execute(sql`select set_config('request.jwt.claims', NULL, TRUE)`);
-          await tx.execute(sql`select set_config('request.jwt.claim.sub', NULL, TRUE)`);
-          await tx.execute(sql`reset role`);
+          try {
+            await tx.execute(sql`select set_config('request.jwt.claims', NULL, TRUE)`);
+            await tx.execute(sql`select set_config('request.jwt.claim.sub', NULL, TRUE)`);
+            await tx.execute(sql`reset role`);
+          } catch {
+            // If the transaction aborted due to an error in transaction(tx),
+            // queries on the aborted transaction will throw. Catching here ensures
+            // the original root cause error from the query is preserved and not masked.
+          }
         }
       }, ...rest);
     }) as typeof client.transaction,
