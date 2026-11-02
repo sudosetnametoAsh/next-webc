@@ -23,7 +23,9 @@ type Params = {
 };
 
 type Student = {
-  clearance_records: Clearance[];
+  clearance_records?: Clearance[];
+  clearanceId?: string;
+  status?: string;
 };
 
 type Clearance = {
@@ -40,7 +42,16 @@ export default function SelectAll({
   const [open, setOpen] = useState(false);
 
   const clearanceRecords = useMemo(
-    () => students.map((student) => student.clearance_records[0]),
+    () =>
+      students.map((student) => {
+        if (student.clearance_records && student.clearance_records[0]) {
+          return student.clearance_records[0];
+        }
+        return {
+          clearance_id: student.clearanceId || "",
+          status: student.status || "Pending",
+        };
+      }),
     [students],
   );
 
@@ -93,7 +104,7 @@ export default function SelectAll({
         id="all"
         checked={selectState}
         onCheckedChange={handleSelectAll}
-        className="cursor-pointer border-slate-300 data-[state=checked]:bg-[#0b3b75] data-[state=checked]:border-[#0b3b75]"
+        className="cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
       />
       <Label className="cursor-pointer text-base" htmlFor="all" />
 

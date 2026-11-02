@@ -33,7 +33,13 @@ type Preset = {
   description: string;
 };
 
-export default function ManagePresetButton({ preset }: { preset: Data }) {
+export default function ManagePresetButton({
+  preset,
+  buttonClassName,
+}: {
+  preset: Data;
+  buttonClassName?: string;
+}) {
   const { mutate: addTaskPreset } = useAddTaskPreset();
   const { mutate: deleteTaskPreset } = useDeleteTaskPreset();
   const { mutate: updateTaskPreset } = useUpdateTaskPreset();
@@ -199,7 +205,7 @@ export default function ManagePresetButton({ preset }: { preset: Data }) {
     <div>
       <Dialog>
         <DialogTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 ">
+          <button className={buttonClassName || "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 "}>
             <Settings className="h-4 w-4" /> Config
           </button>
         </DialogTrigger>

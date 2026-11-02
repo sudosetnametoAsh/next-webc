@@ -1,8 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+import { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
 export type Schedule = {
   time_in: string | null;
   time_out: string | null;
+  weekly_schedule?: WeeklySchedule | null;
+  early_out_date?: string | null;
+  staff_name?: string | null;
+  dept_name?: string | null;
+  icon_name?: string | null;
+  floor?: string | null;
+  room?: string | null;
 };
 
 export function useFetchSchedule() {

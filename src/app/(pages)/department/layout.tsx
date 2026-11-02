@@ -1,9 +1,10 @@
-import BreadCrumb from "@/components/department/bread-crumb";
+import DepartmentHeader from "@/components/department/header";
 import Sidebar from "@/components/department/sidebar";
+import { DepartmentNavProvider } from "@/components/department/department-nav-context";
 import { DepartmentProvider } from "@/context/deparment";
 import { fetchCourseServer } from "@/lib/api/courses";
-import { fetchClientsServer } from "@/lib/api/clients";
 import { getSession } from "@/lib/auth/get-session";
+import RealtimeDashboardListener from "@/components/department/dashboard-listener";
 import {
   dehydrate,
   HydrationBoundary,
@@ -18,33 +19,36 @@ export default async function DepartmentRoot({
   const session = await getSession();
   const queryClient = new QueryClient();
 
-  const courses = await fetchCourseServer();
-  const initialSectionId = courses?.[0]?.course_sections?.[0]?.section_id
-    ? String(courses[0].course_sections[0].section_id)
-    : null;
-
   await queryClient.prefetchQuery({
     queryKey: ["courses"],
     queryFn: fetchCourseServer,
   });
 
-  if (initialSectionId) {
-    await queryClient.prefetchQuery({
-      queryKey: ["clients", initialSectionId],
-      queryFn: () => fetchClientsServer(initialSectionId),
-    });
-  }
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <DepartmentProvider departmentName={session.department} userId={session.user_id}>
-        <div className="flex h-screen w-screen overflow-hidden">
-          <Sidebar department={session.department} user_name={session.user_name} />
-          <section className="flex w-full flex-1 flex-col">
-            <BreadCrumb />
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
-          </section>
-        </div>
+        <DepartmentNavProvider>
+          <RealtimeDashboardListener />
+          <div className="flex h-screen w-screen overflow-hidden bg-[#060a14]">
+            <Sidebar
+              department={session.department}
+              user_name={session.user_name}
+              user_id={session.user_id}
+            />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              <DepartmentHeader
+                department={session.department}
+                user_name={session.user_name}
+                user_id={session.user_id}
+              />
+              <main className="flex-1 overflow-y-auto flex flex-col">
+                <div className="max-w-[1920px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </div>
+        </DepartmentNavProvider>
       </DepartmentProvider>
     </HydrationBoundary>
   );

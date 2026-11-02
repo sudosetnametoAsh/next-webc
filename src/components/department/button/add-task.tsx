@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea"; // Make sure to install this
 import { useAddClientTasks } from "@/hooks/department/add-client-tasks";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
-import { Plus, Upload, CheckCircle } from "lucide-react";
+import { Plus, Upload, CheckCircle, Calendar } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
 type Props = {
@@ -25,6 +25,8 @@ type Props = {
   title: string;
   setTitle: Dispatch<SetStateAction<string>>;
   sectionId?: string | null;
+  buttonClassName?: string;
+  existingTasks?: { task_id?: number | string | null; title: string }[];
 };
 
 type Data = {
@@ -46,16 +48,29 @@ export default function AddTask({
   title,
   setTitle,
   sectionId,
+  buttonClassName,
+  existingTasks,
 }: Props) {
   const { mutate } = useAddClientTasks(clearanceId[0] || null, sectionId);
 
   const [hasDropBox, setHasDropBox] = useState<boolean>(false);
-  // Optional: Add a state for the detailed description if needed in the future.
-  // const [detailedDesc, setDetailedDesc] = useState<string>("");
+  const [dueDate, setDueDate] = useState<string>("");
+
+  const isTitleDuplicate = Boolean(
+    title.trim() &&
+    existingTasks?.some(
+      (t) => t.title && t.title.trim().toLowerCase() === title.trim().toLowerCase()
+    )
+  );
 
   const addTask = () => {
     if (clearanceId.length === 0) {
       alert("Select at least one student");
+      return;
+    }
+
+    if (isTitleDuplicate) {
+      alert("A task with this title has already been assigned to this client.");
       return;
     }
 
@@ -82,6 +97,7 @@ export default function AddTask({
         }
 
         const dropbox = hasDropBox ? "pending" : "NULL";
+        const formattedDueDate = dueDate ? new Date(`${dueDate}T23:59:59Z`).toISOString() : null;
 
         return {
           clearance_id: student,
@@ -90,6 +106,7 @@ export default function AddTask({
           description: finalDescription,
           staff_id: preset.id,
           dropbox: dropbox,
+          due_date: formattedDueDate,
         };
       }),
     );
@@ -100,13 +117,14 @@ export default function AddTask({
     setTitle("");
     setDescription("");
     setHasDropBox(false);
+    setDueDate("");
   };
 
   return (
     <div className="">
       <Dialog>
         <DialogTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+          <button className={buttonClassName || "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"}>
             <Plus className="h-4 w-4" /> Task
           </button>
         </DialogTrigger>
@@ -150,11 +168,16 @@ export default function AddTask({
                 Task Title <span className="text-red-500">*</span>
               </Label>
               <Input
-                className="focus-visible:ring-blue-600"
+                className={isTitleDuplicate ? "border-rose-500 focus-visible:ring-rose-500" : "focus-visible:ring-blue-600"}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Submit Library Clearance Form"
               />
+              {isTitleDuplicate && (
+                <p className="text-xs font-semibold text-rose-500">
+                  A task with this title has already been assigned to this client.
+                </p>
+              )}
             </div>
 
             {/* Task Description */}
@@ -174,6 +197,40 @@ export default function AddTask({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </div>
+
+            {/* Due Date (Optional) */}
+            <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/50 p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-blue-600" />
+                  <Label htmlFor="task-due-date" className="text-sm font-bold text-slate-900">
+                    Due Date <span className="text-xs font-normal text-slate-500">(Optional)</span>
+                  </Label>
+                </div>
+                {dueDate && (
+                  <button
+                    type="button"
+                    onClick={() => setDueDate("")}
+                    className="text-xs font-medium text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                  >
+                    Clear date
+                  </button>
+                )}
+              </div>
+              <Input
+                id="task-due-date"
+                type="date"
+                min={new Date().toISOString().split("T")[0]}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="bg-white border-slate-200 text-slate-800 focus-visible:ring-blue-600"
+              />
+              <p className="text-xs text-slate-500">
+                {dueDate
+                  ? `Students must complete this requirement by ${new Date(dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`
+                  : "Leave blank to allow completion until the end of the clearance season."}
+              </p>
             </div>
 
             {/* Dropbox Toggle Panel */}
@@ -215,7 +272,8 @@ export default function AddTask({
             <DialogClose asChild>
               <Button
                 onClick={addTask}
-                className="gap-2 bg-[#0b3b75] px-5 font-semibold text-white cursor-pointer hover:bg-[#1d5ead]"
+                disabled={isTitleDuplicate || !title.trim() || !description.trim()}
+                className="gap-2 bg-[#0b3b75] px-5 font-semibold text-white cursor-pointer hover:bg-[#1d5ead] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign Task

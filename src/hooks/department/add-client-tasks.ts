@@ -11,6 +11,7 @@ type NewTaskPayload = {
   description: string;
   staff_id: string;
   dropbox: string;
+  due_date?: string | null;
 };
 
 type Data = {
@@ -47,6 +48,9 @@ export function useAddClientTasks(
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["department-clients"],
+      });
       if (sectionId) {
         queryClient.invalidateQueries({
           queryKey: ["clients", sectionId],

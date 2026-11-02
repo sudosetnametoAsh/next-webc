@@ -1,15 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
-type Payload = {
-  time_in: string;
-  time_out: string;
+export type UpdateSchedulePayload = {
+  time_in?: string;
+  time_out?: string;
+  weekly_schedule?: WeeklySchedule;
+  early_out_date?: string | null;
+  action?: "early_out" | "resume_schedule";
 };
 
 export function useUpdateSchedule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: Payload) => {
+    mutationFn: async (payload: UpdateSchedulePayload) => {
       const response = await fetch("/api/department/availability", {
         method: "PATCH",
         headers: {
@@ -20,7 +24,8 @@ export function useUpdateSchedule() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update schedule");
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.message || "Failed to update schedule");
       }
 
       return response.json();

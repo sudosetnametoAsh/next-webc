@@ -20,5 +20,10 @@ export function useSignClient() {
 
       return response.json();
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["department-clients"] });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });
+    },
   });
 }

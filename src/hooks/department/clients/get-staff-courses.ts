@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/db/supabase-server";
 import { Courses } from "@/types/courses";
 
-export async function getStaffCourses(staffId: string) : Promise<Courses[]> {
+export async function getStaffCourses(staffId: string, deptId?: number) : Promise<Courses[]> {
   const supabase = await createClient();
 
-  const { data: courses, error } = await supabase
+  let query = supabase
     .from("courses")
     .select(
       `
@@ -19,7 +19,14 @@ export async function getStaffCourses(staffId: string) : Promise<Courses[]> {
         clearance_templates!inner()
     `,
     )
-    .eq("clearance_templates.staff_id", staffId);
+    .eq("clearance_templates.staff_id", staffId)
+    .eq("clearance_templates.is_active", true);
+
+  if (deptId !== undefined) {
+    query = query.eq("clearance_templates.dept_id", deptId);
+  }
+
+  const { data: courses, error } = await query;
 
     if (error)  {
         throw new Error("Temporary get course error");
