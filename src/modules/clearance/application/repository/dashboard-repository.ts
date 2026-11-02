@@ -9,6 +9,11 @@ export type getClearanceRecordsPromise = {
     cleared_task: number;
     time_in: string | null;
     time_out: string | null;
+    tier?: number;
+    icon_name?: string;
+    floor?: string | null;
+    room?: string | null;
+    signed_at?: string | null;
 }[]
 
 export type getSummaryPromise = {
@@ -22,6 +27,7 @@ export type getSummaryPromise = {
 
 export type getDepartmentDetailsPromise = {
   assigned_task_id: number;
+  clearance_id?: number | null;
   title: string;
   description: string;
   status: string | null;
@@ -30,6 +36,13 @@ export type getDepartmentDetailsPromise = {
   comments: string | null;
   dropbox: string | null;
   department: string;
+  staff?: string | null;
+  tier?: number | null;
+  icon_name?: string | null;
+  floor?: string | null;
+  room?: string | null;
+  ai_audit_report?: any;
+  due_date?: string | null;
 }[];
 
 export type getOfficeHoursPromise = {
@@ -38,11 +51,18 @@ export type getOfficeHoursPromise = {
     staff_name: string | null;
     time_in: string | null;
     time_out: string | null;
+    weekly_schedule?: Record<string, { active: boolean; time_in: string; time_out: string }> | null;
+    early_out_date?: string | null;
+    floor?: string | null;
+    room?: string | null;
+    icon_name?: string | null;
+    tier?: number | null;
+    email?: string | null;
 }[]
 
 export type getStudentProfilePromise = {
     student_id: string;
-    student_name: string;
+    student_name: string | null;
     course_name: string | null;
     section_number: number | null;
     year: number | null;

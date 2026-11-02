@@ -5,6 +5,7 @@ import { useFetchStaff } from "@/hooks/department/fetch-staff";
 import { DepartmentContextType } from "@/types/department-context";
 import { createContext, ReactNode, useContext, useMemo, useState, useEffect } from "react";
 import { createClient } from "@/lib/db/supabase-client";
+import { shrinkCourseName } from "@/utils/formatters";
 
 const DepartmentContext = createContext<DepartmentContextType | null>(null);
 
@@ -69,7 +70,7 @@ export function DepartmentProvider({ children, departmentName, userId }: { child
       const { data: allClearances } = await supabase
         .from("clearance_records")
         .select(
-          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, departments:clearance_departments(dept_name))",
+          "clearance_id, student_id:user_id, status, clearance_templates(dept_id, tier, is_active, departments:clearance_departments(dept_name))",
         )
         .in("user_id", studentIds);
 
@@ -77,6 +78,7 @@ export function DepartmentProvider({ children, departmentName, userId }: { child
 
       const studentClearancesMap = new Map<string, any[]>();
       const cIdToDeptMap = new Map<string, string>();
+      const cIdToTierMap = new Map<string, number>();
 
       for (const c of allClearances) {
         if (!studentClearancesMap.has(c.student_id)) {
@@ -88,6 +90,7 @@ export function DepartmentProvider({ children, departmentName, userId }: { child
         const department = Array.isArray(template?.departments) ? template.departments[0] : template?.departments;
         const name = department?.dept_name;
         if (name) cIdToDeptMap.set(c.clearance_id, name);
+        cIdToTierMap.set(c.clearance_id, template?.tier ?? 1);
       }
 
       const newStatus = new Map<string, boolean>();
@@ -95,78 +98,24 @@ export function DepartmentProvider({ children, departmentName, userId }: { child
         const cId = s.clearance_records?.[0]?.clearance_id;
         if (!cId) continue;
 
-        const currentDept = cIdToDeptMap.get(cId)?.toLowerCase();
+        const currentTier = cIdToTierMap.get(cId) ?? 1;
         const allStudentClearances = studentClearancesMap.get(s.student_id) || [];
 
-        const isSigned = (deptName: string) => 
-          allStudentClearances.some(c => {
-            const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
-            const d = Array.isArray(t?.departments) ? t.departments[0] : t?.departments;
-            return d?.dept_name?.toLowerCase() === deptName.toLowerCase() && c.status === "Signed";
-          });
+        // Department can sign if all active prerequisite clearances with a lower tier number are Signed
+        const blocking = allStudentClearances.filter((c) => {
+          const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
+          const itemIsActive = t?.is_active !== false;
+          const itemTier = t?.tier ?? 1;
+          return itemIsActive && itemTier < currentTier && c.status !== "Signed";
+        });
 
-        let eligible = true;
-        if (currentDept === "cashier") {
-          eligible = true;
-        } else if (currentDept === "registrar") {
-          eligible = allStudentClearances.every(c => {
-            const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
-            const d = Array.isArray(t?.departments) ? t.departments[0] : t?.departments;
-            return d?.dept_name?.toLowerCase() === "registrar" || c.status === "Signed";
-          });
-        } else {
-          eligible = isSigned("cashier");
-        }
-
+        const eligible = blocking.length === 0;
         newStatus.set(cId, eligible);
       }
       setPrereqStatus(newStatus);
     }
     fetchPrereqStatus();
   }, [students, supabase, viewType]);
-
-  // --- Sync Notifications to DB ---
-  useEffect(() => {
-    if (!userId || students.length === 0 || viewType !== 'students') return;
-
-    async function syncNotifications() {
-      const eligibleStudents = students.filter((s) => {
-        const cId = s.clearance_records?.[0]?.clearance_id;
-        const status = s.clearance_records?.[0]?.status;
-        return cId && status === "Pending" && prereqStatus.get(cId) === true;
-      });
-
-      for (const s of eligibleStudents) {
-        const cId = s.clearance_records[0].clearance_id;
-        const refUrl = `/department/students?clearanceId=${cId}`;
-        
-        // Check if notification already exists
-        const { data: existing } = await supabase
-          .from("notifications")
-          .select("notif_id")
-          .eq("user_id", userId)
-          .eq("ref_url", refUrl)
-          .maybeSingle();
-
-        if (!existing) {
-          const sId = activeSectionId ? Number(activeSectionId) : null;
-          const cIdNum = activeCourseId ? Number(activeCourseId) : null;
-
-          await supabase.from("notifications").insert({
-            user_id: userId,
-            title: "Ready for Signing",
-            description: `${s.student_name} (${s.student_id}) has met all prerequisites.`,
-            type: "Info",
-            ref_url: refUrl,
-            section_id: (sId !== null && !isNaN(sId)) ? sId : null,
-            course_id: (cIdNum !== null && !isNaN(cIdNum)) ? cIdNum : null,
-          });
-        }
-      }
-    }
-
-    syncNotifications();
-  }, [students, prereqStatus, userId, viewType, supabase, activeSectionId, activeCourseId]);
 
   const selectedIds = useMemo(() => new Set(clearanceId), [clearanceId]);
 

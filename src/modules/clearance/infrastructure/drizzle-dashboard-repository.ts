@@ -4,6 +4,7 @@ import {
   getClearanceRecordsPromise,
   getDepartmentDetailsPromise,
   getOfficeHoursPromise,
+  getStudentProfilePromise,
   getSummaryPromise,
 } from "../application/repository/dashboard-repository";
 import {
@@ -16,13 +17,14 @@ import {
   enrollments,
   staffs,
   students,
+  users,
 } from "@/lib/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 export class DrizzleDashBoardRepository implements DashBoardRepository {
   constructor(private readonly drizzle: DrizzleSupabaseClient) {}
 
-  async getStudentProfile(userId?: string): Promise<any> {
+  async getStudentProfile(userId?: string): Promise<getStudentProfilePromise | null> {
     if (!userId) return null;
 
     const response = await this.drizzle.rls((tx) => {
@@ -43,7 +45,31 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         .limit(1);
     });
 
-    return response[0] || null;
+    if (response[0]) return response[0];
+
+    const staffResp = await this.drizzle.rls((tx) => {
+      return tx
+        .select({
+          student_id: staffs.staffId,
+          student_name: staffs.staffName,
+        })
+        .from(staffs)
+        .where(eq(staffs.staffId, userId))
+        .limit(1);
+    });
+
+    if (staffResp[0]) {
+      return {
+        student_id: staffResp[0].student_id,
+        student_name: staffResp[0].student_name,
+        course_name: "Staff Clearance",
+        section_number: null,
+        year: null,
+        semester: null,
+      };
+    }
+
+    return null;
   }
 
   async getClearanceRecords(userId?: string): Promise<getClearanceRecordsPromise> {
@@ -56,9 +82,14 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           status: clearanceRecords.status,
           department: clearanceDepartments.deptName,
           task_count: sql<number>`count(${clearanceTasks.assignedTaskId})::int`,
-          cleared_task: sql<number>`COUNT(*) FILTER (WHERE ${clearanceTasks.status} IN ('Cleared', 'Flagged'))::int`,
+          cleared_task: sql<number>`COUNT(*) FILTER (WHERE ${clearanceTasks.status} IN ('Cleared', 'Flagged', 'Verified'))::int`,
           time_in: staffs.timeIn,
           time_out: staffs.timeOut,
+          tier: clearanceTemplates.tier,
+          icon_name: clearanceDepartments.iconName,
+          floor: clearanceDepartments.floor,
+          room: clearanceDepartments.room,
+          signed_at: clearanceRecords.signedAt,
         })
         .from(clearanceRecords)
         .innerJoin(
@@ -76,7 +107,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         );
 
       if (userId) {
-        query.where(eq(clearanceRecords.userId, userId));
+        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+      } else {
+        query.where(eq(clearanceTemplates.isActive, true));
       }
 
       return query.groupBy(
@@ -85,7 +118,12 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         staffs.timeOut,
         clearanceDepartments.deptName,
         clearanceRecords.clearanceId,
+        clearanceRecords.signedAt,
         clearanceTemplates.staffId,
+        clearanceTemplates.tier,
+        clearanceDepartments.iconName,
+        clearanceDepartments.floor,
+        clearanceDepartments.room,
       );
     });
 
@@ -101,16 +139,22 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           pending: sql<number>`count(*) filter (where ${clearanceRecords.status} = 'Pending')::int`,
           total: sql<number>`count(*)::int`,
         })
-        .from(clearanceRecords);
+        .from(clearanceRecords)
+        .innerJoin(
+          clearanceTemplates,
+          eq(clearanceRecords.templateId, clearanceTemplates.templateId),
+        );
 
       if (userId) {
-        query.where(eq(clearanceRecords.userId, userId));
+        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+      } else {
+        query.where(eq(clearanceTemplates.isActive, true));
       }
 
       return query;
     });
 
-    const result = response[0];
+    const result = response[0] || { signed: 0, incomplete: 0, pending: 0, total: 0 };
 
     return {
       signed: result.signed,
@@ -127,6 +171,7 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
       const query = tx
         .select({
           assigned_task_id: clearanceTasks.assignedTaskId,
+          clearance_id: clearanceTasks.clearanceId,
           title: clearanceTasks.title,
           description: clearanceTasks.description,
           status: clearanceTasks.status,
@@ -135,6 +180,13 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           comments: clearanceTasks.comments,
           dropbox: clearanceTasks.dropbox,
           department: clearanceDepartments.deptName,
+          staff: staffs.staffName,
+          tier: clearanceTemplates.tier,
+          icon_name: clearanceDepartments.iconName,
+          floor: clearanceDepartments.floor,
+          room: clearanceDepartments.room,
+          ai_audit_report: clearanceTasks.aiAuditReport,
+          due_date: clearanceTasks.dueDate,
         })
         .from(clearanceTasks)
         .innerJoin(
@@ -148,10 +200,16 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         .innerJoin(
           clearanceDepartments,
           eq(clearanceTemplates.deptId, clearanceDepartments.deptId),
+        )
+        .leftJoin(
+          staffs,
+          eq(clearanceTasks.staffId, staffs.staffId),
         );
 
       if (userId) {
-        query.where(eq(clearanceRecords.userId, userId));
+        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+      } else {
+        query.where(eq(clearanceTemplates.isActive, true));
       }
 
       return query;
@@ -169,6 +227,13 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           staff_name: staffs.staffName,
           time_in: staffs.timeIn,
           time_out: staffs.timeOut,
+          weekly_schedule: staffs.weeklySchedule,
+          early_out_date: staffs.earlyOutDate,
+          floor: clearanceDepartments.floor,
+          room: clearanceDepartments.room,
+          icon_name: clearanceDepartments.iconName,
+          tier: clearanceTemplates.tier,
+          email: users.email,
         })
         .from(clearanceRecords)
         .innerJoin(
@@ -179,21 +244,34 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           clearanceDepartments,
           eq(clearanceTemplates.deptId, clearanceDepartments.deptId),
         )
-        .innerJoin(staffs, eq(clearanceTemplates.staffId, staffs.staffId));
+        .innerJoin(staffs, eq(clearanceTemplates.staffId, staffs.staffId))
+        .leftJoin(users, eq(staffs.staffId, users.userId));
 
       if (userId) {
-        query.where(eq(clearanceRecords.userId, userId));
+        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+      } else {
+        query.where(eq(clearanceTemplates.isActive, true));
       }
 
-      return query.groupBy(
-        clearanceDepartments.deptId,
-        clearanceDepartments.deptName,
-        staffs.staffName,
-        staffs.timeIn,
-        staffs.timeOut,
-      );
+      return query
+        .groupBy(
+          clearanceDepartments.deptId,
+          clearanceDepartments.deptName,
+          staffs.staffName,
+          staffs.timeIn,
+          staffs.timeOut,
+          staffs.weeklySchedule,
+          staffs.earlyOutDate,
+          clearanceDepartments.floor,
+          clearanceDepartments.room,
+          clearanceDepartments.iconName,
+          clearanceTemplates.tier,
+          users.email,
+        )
+        .orderBy(asc(clearanceTemplates.tier));
     });
 
     return response;
   }
 }
+

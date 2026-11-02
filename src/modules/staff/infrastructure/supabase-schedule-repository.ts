@@ -6,6 +6,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import {
   getSchedulePromise,
   ScheduleRepository,
+  WeeklySchedule,
 } from "../application/repository/schedule-repository";
 import { staffs } from "@/lib/db/schema";
 
@@ -19,6 +20,8 @@ export class SupabaseStaffRepository implements ScheduleRepository {
         .select({
           time_in: staffs.timeIn,
           time_out: staffs.timeOut,
+          weekly_schedule: staffs.weeklySchedule,
+          early_out_date: staffs.earlyOutDate,
         })
         .from(staffs)
         .where(eq(staffs.staffId, id))
@@ -27,7 +30,7 @@ export class SupabaseStaffRepository implements ScheduleRepository {
       const data = result[0];
 
       if (!data) {
-        return { time_in: null, time_out: null };
+        return { time_in: null, time_out: null, weekly_schedule: null, early_out_date: null };
       }
 
       return data;
@@ -44,6 +47,8 @@ export class SupabaseStaffRepository implements ScheduleRepository {
     time_in: string,
     time_out: string,
     name?: string,
+    weekly_schedule?: WeeklySchedule | null,
+    early_out_date?: string | null,
   ): Promise<void> {
     try {
       await db
@@ -53,6 +58,8 @@ export class SupabaseStaffRepository implements ScheduleRepository {
           staffName: name || "Unknown Staff",
           timeIn: time_in,
           timeOut: time_out,
+          weeklySchedule: weekly_schedule || null,
+          earlyOutDate: early_out_date !== undefined ? early_out_date : null,
         })
         .onConflictDoUpdate({
           target: staffs.staffId,
@@ -60,6 +67,8 @@ export class SupabaseStaffRepository implements ScheduleRepository {
             timeIn: time_in,
             timeOut: time_out,
             ...(name ? { staffName: name } : {}),
+            ...(weekly_schedule !== undefined ? { weeklySchedule: weekly_schedule } : {}),
+            ...(early_out_date !== undefined ? { earlyOutDate: early_out_date } : {}),
           },
         });
     } catch (error) {

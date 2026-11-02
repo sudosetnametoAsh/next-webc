@@ -36,25 +36,44 @@ export interface ClearanceNotification {
   title: string;
   description: string;
   timestamp: string;
-  type: 'signing_eligible' | 'task_submitted' | 'info';
+  type: 'signing_eligible' | 'task_submitted' | 'info' | 'system' | 'warning' | 'success' | 'alert' | 'appeal' | string;
+  category?: 'task' | 'submission' | 'clearance' | 'schedule' | 'template' | 'bottleneck' | 'completion' | 'system' | 'appeal' | string;
+  targetRole?: 'student' | 'department' | 'admin' | string;
+  departmentId?: number;
+  userId?: string;
   read: boolean;
   metadata?: {
     studentId?: string;
+    studentName?: string;
     clearanceId?: string;
     sectionId?: number;
     courseId?: number;
+    courseCode?: string;
+    taskId?: number;
+    taskTitle?: string;
+    departmentName?: string;
+    bottleneckRate?: number;
     refUrl?: string;
+    [key: string]: any;
   };
 }
 
 /**
  * Rules for the clearance signing hierarchy:
- * 1. Cashier: Main priority. Must be settled before any other department can sign.
- * 2. Registrar: Always last. Requires all other departments to be signed.
- * 3. Others: Can sign in any order once Cashier is settled.
- * 4. Staff Clearances: No specific order required.
+ * 1. Tier 1: Main priority (e.g. Cashier). Must be settled before higher tiers can sign.
+ * 2. Intermediate Tiers (e.g. Tier 2): Can sign in parallel once lower tiers are cleared.
+ * 3. Final Tier (e.g. Tier 3 Registrar): Requires all preceding tiers to be signed.
+ * 4. Staff Clearances: Parallel / no hierarchy by default.
  */
 export const CLEARANCE_HIERARCHY = {
   CASHIER: "Cashier",
   REGISTRAR: "Registrar",
 } as const;
+
+export interface ClearanceRecordWithTier {
+  clearance_id?: number | string;
+  dept_id?: number;
+  dept_name?: string;
+  status: string;
+  tier: number;
+}
