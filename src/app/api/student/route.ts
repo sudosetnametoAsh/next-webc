@@ -16,8 +16,10 @@ export async function GET() {
       `
         clearance_id,
         status,
-        clearance_templates (
-          clearance_departments ( dept_name ),
+        clearance_templates!inner (
+          tier,
+          is_active,
+          clearance_departments ( dept_name, icon_name ),
           staffs ( staff_name )
         ),
         clearance_tasks (
@@ -30,7 +32,8 @@ export async function GET() {
           title
         )
       `,
-    );
+    )
+    .eq("clearance_templates.is_active", true);
   // .eq("students.users.email", email);
 
   if (studentError) {

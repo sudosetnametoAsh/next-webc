@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
+import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
 
 
 export async function GET() {
@@ -8,7 +10,16 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('courses')
-    .select('course_id, course_name')
+    .select(`
+      course_id,
+      course_name,
+      course_sections (
+        section_id,
+        section_number,
+        year,
+        semester
+      )
+    `)
     .order('course_name', { ascending: true})
 
   if (error) {
@@ -41,6 +52,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
+
     return NextResponse.json({ data }, { status: 201 })
 
   } catch (err) {
@@ -72,6 +86,9 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
+
     return NextResponse.json({ data }, { status: 200 })
 
   } catch (error) {
@@ -101,6 +118,9 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
+
     return NextResponse.json({ success: true }, { status: 200 })
 
   } catch (error) {

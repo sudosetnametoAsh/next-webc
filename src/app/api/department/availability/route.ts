@@ -1,57 +1,239 @@
 import { makeGetSchedule } from "@/composition/staff/make-get-schedule";
 import { makeSetSchedule } from "@/composition/staff/make-set-schedule";
 import { getSession } from "@/lib/auth/get-session";
+import { createClient } from "@/lib/db/supabase-server";
+import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { NotFoundError } from "@/modules/staff/application/error";
+import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
+import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { user_id } = await getSession();
-
-  // const useCase = new GetSchedule(new StaffRepository());
-  const use_case = makeGetSchedule()
-
   try {
-    const response = await use_case.execute(user_id);
+    const { user_id, user_name, department } = await getSession();
+    const supabase = await createClient();
+    const use_case = makeGetSchedule();
 
-    return NextResponse.json(
-      {
-        data: response,
-      },
-      { status: 200 },
-    );
-  } catch (error) {
+    let schedule: {
+      time_in: string | null;
+      time_out: string | null;
+      weekly_schedule?: any;
+      early_out_date?: string | null;
+    } = {
+      time_in: null,
+      time_out: null,
+      weekly_schedule: null,
+      early_out_date: null,
+    };
 
-    if (error instanceof NotFoundError) {
-      // Return empty schedule instead of 404 to avoid frontend crash/error
-      return NextResponse.json(
-        { data: { time_in: null, time_out: null } },
-        { status: 200 },
-      );
+    try {
+      const response = await use_case.execute(user_id);
+      schedule = {
+        time_in: response.time_in,
+        time_out: response.time_out,
+        weekly_schedule: response.weekly_schedule || null,
+        early_out_date: response.early_out_date || null,
+      };
+    } catch (error) {
+      if (!(error instanceof NotFoundError)) {
+        console.error("Error fetching schedule:", error);
+      }
+    }
+
+    // Resolve department details
+    let deptName = department || "";
+    let iconName = "Building2";
+    let floor: string | null = null;
+    let room: string | null = null;
+
+    const { data: templateData } = await supabase
+      .from("clearance_templates")
+      .select(`
+        dept_id,
+        clearance_departments (
+          dept_id,
+          dept_name,
+          icon_name,
+          floor,
+          room
+        )
+      `)
+      .eq("staff_id", user_id)
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+
+    const matchedDept = Array.isArray(templateData?.clearance_departments)
+      ? templateData.clearance_departments[0]
+      : templateData?.clearance_departments;
+
+    if (matchedDept) {
+      deptName = matchedDept.dept_name;
+      iconName = matchedDept.icon_name || "Building2";
+      floor = matchedDept.floor || null;
+      room = matchedDept.room || null;
+    } else if (department) {
+      const { data: fallbackDept } = await supabase
+        .from("clearance_departments")
+        .select("dept_id, dept_name, icon_name, floor, room")
+        .ilike("dept_name", department.trim())
+        .limit(1)
+        .maybeSingle();
+      if (fallbackDept) {
+        deptName = fallbackDept.dept_name;
+        iconName = fallbackDept.icon_name || "Building2";
+        floor = fallbackDept.floor || null;
+        room = fallbackDept.room || null;
+      }
     }
 
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      {
+        data: {
+          time_in: schedule.time_in,
+          time_out: schedule.time_out,
+          weekly_schedule: schedule.weekly_schedule,
+          early_out_date: schedule.early_out_date,
+          staff_name: user_name,
+          dept_name: deptName,
+          icon_name: iconName,
+          floor: floor,
+          room: room,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    console.error("GET Availability Error:", error);
+    return NextResponse.json(
+      { message: error.message || "Internal Server Error" },
       { status: 500 },
     );
   }
 }
 
 export async function PATCH(req: NextRequest) {
-  const { user_id, user_name } = await getSession();
-  const { time_in, time_out } = await req.json();
-
-  // const useCase = new SetSchedule(new StaffRepository());
-  const use_case = makeSetSchedule()
-
   try {
-    await use_case.execute(user_id, time_in, time_out, user_name);
+    const { user_id, user_name } = await getSession();
+    const body = await req.json();
+    const { action, time_in, time_out, weekly_schedule, early_out_date } = body;
 
-    return NextResponse.json({ message: "Success" }, { status: 200 });
-  } catch (error) {
-    console.error(error);
+    const supabase = await createClient();
+
+    // 1. Handle quick Early Out or Resume Schedule actions
+    if (action === "early_out" || action === "resume_schedule") {
+      const targetDate = action === "early_out"
+        ? (early_out_date || new Date().toISOString().slice(0, 10))
+        : null;
+
+      const { error: updateError } = await supabase
+        .from("staffs")
+        .update({ early_out_date: targetDate })
+        .eq("staff_id", user_id);
+
+      if (updateError) {
+        throw new Error(updateError.message);
+      }
+
+      invalidateServerDepartmentCache(user_id);
+      invalidateServerClearanceCache();
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: action === "early_out" ? "Early out active for today" : "Normal schedule resumed",
+          data: { early_out_date: targetDate },
+        },
+        { status: 200 },
+      );
+    }
+
+    // 2. Full Schedule Configuration (Dynamic Weekly Schedule + default hours)
+    if (!time_in || !time_out) {
+      return NextResponse.json(
+        { error: "Both start time and end time are required." },
+        { status: 400 },
+      );
+    }
+
+    // Normalize to HH:mm:ss if HH:mm was sent
+    const normalizedTimeIn = time_in.length === 5 ? `${time_in}:00` : time_in;
+    const normalizedTimeOut = time_out.length === 5 ? `${time_out}:00` : time_out;
+
+    if (normalizedTimeOut <= normalizedTimeIn) {
+      return NextResponse.json(
+        { error: "Office hours closing time must be later than opening time." },
+        { status: 400 },
+      );
+    }
+
+    const use_case = makeSetSchedule();
+    await use_case.execute(
+      user_id,
+      normalizedTimeIn,
+      normalizedTimeOut,
+      user_name,
+      weekly_schedule || null,
+      early_out_date !== undefined ? early_out_date : null,
+    );
+
+    // Notify students of schedule change using polymorphic notifications table
+    try {
+      const adminClient = getSupabaseAdmin();
+      const { data: deptInfo } = await adminClient
+        .from("clearance_templates")
+        .select("dept_id, clearance_departments(dept_id, dept_name)")
+        .eq("staff_id", user_id)
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      const dept = Array.isArray(deptInfo?.clearance_departments)
+        ? deptInfo.clearance_departments[0]
+        : deptInfo?.clearance_departments;
+
+      const deptName = dept?.dept_name || "Department";
+
+      await adminClient.from("notifications").insert({
+        target_role: "student",
+        department_id: dept?.dept_id || null,
+        category: "schedule",
+        title: "Department Schedule Updated",
+        description: `${deptName} updated their office hours (${normalizedTimeIn.slice(0, 5)} - ${normalizedTimeOut.slice(0, 5)}).`,
+        type: "Info",
+        ref_url: "/clearance/schedules",
+        is_read: false,
+        metadata: {
+          departmentId: dept?.dept_id,
+          departmentName: deptName,
+          timeIn: normalizedTimeIn,
+          timeOut: normalizedTimeOut,
+        },
+      });
+    } catch (schedNotifErr) {
+      console.error("Failed to notify schedule update:", schedNotifErr);
+    }
+
+    invalidateServerDepartmentCache(user_id);
+    invalidateServerClearanceCache();
 
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      {
+        success: true,
+        message: "Office hours updated successfully",
+        data: {
+          time_in: normalizedTimeIn,
+          time_out: normalizedTimeOut,
+          weekly_schedule: weekly_schedule || null,
+          early_out_date: early_out_date || null,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    console.error("PATCH Availability Error:", error);
+    return NextResponse.json(
+      { message: error.message || "Internal Server Error" },
       { status: 500 },
     );
   }

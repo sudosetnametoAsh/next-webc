@@ -1,30 +1,21 @@
-import { createClient } from "@/lib/db/supabase-server"
 import { NextRequest, NextResponse } from "next/server"
+import { hardDeleteCourseTemplates } from "@/lib/services/template-deletion"
 
-
-// DELETE: Remove all templates
+// DELETE: Hard-delete all specified course templates and all associated rows across all tables
 export async function DELETE(req: NextRequest) {
-
-  const supabase = await createClient()
-
   try {
     const { courseIds } = await req.json()
 
-    if (!courseIds || courseIds.length === 0) {
+    if (!courseIds || !Array.isArray(courseIds) || courseIds.length === 0) {
       return NextResponse.json({ error: 'Course IDs are required' }, { status: 400 })
     }
 
-    const { error } = await supabase
-      .from('clearance_templates')
-      .delete()
-      .in('course_id', courseIds)
-    
-    if (error) {
-      return NextResponse.json({ error: 'Error deleting templates' }, { status: 500 })
-    }
+    await hardDeleteCourseTemplates(courseIds.map(Number))
 
-    return NextResponse.json({ success: true }, { status: 200 })
-
+    return NextResponse.json(
+      { success: true, message: 'All templates and associated records deleted successfully' },
+      { status: 200 }
+    )
   } catch (err) {
     console.error('Delete templates error', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

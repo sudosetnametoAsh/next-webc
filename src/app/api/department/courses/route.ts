@@ -4,9 +4,22 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const supabase = await createClient();
-  const { user_id } = await getSession();
+  const { user_id, department } = await getSession();
 
-  const { data: courses, error } = await supabase
+  let deptId: number | null = null;
+  if (department) {
+    const { data: deptData } = await supabase
+      .from("clearance_departments")
+      .select("dept_id")
+      .ilike("dept_name", department.trim())
+      .maybeSingle();
+
+    if (deptData) {
+      deptId = deptData.dept_id;
+    }
+  }
+
+  let query = supabase
     .from("courses")
     .select(
       `
@@ -21,7 +34,14 @@ export async function GET() {
         clearance_templates!inner()
     `,
     )
-    .eq("clearance_templates.staff_id", user_id);
+    .eq("clearance_templates.staff_id", user_id)
+    .eq("clearance_templates.is_active", true);
+
+  if (deptId !== null) {
+    query = query.eq("clearance_templates.dept_id", deptId);
+  }
+
+  const { data: courses, error } = await query;
 
   if (error) {
     console.error(error);

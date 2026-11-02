@@ -11,7 +11,8 @@ export async function GET(_req: NextRequest) {
     .from("clearance_templates")
     .select("template_id")
     .is("course_id", null)
-    .eq("staff_id", user_id);
+    .eq("staff_id", user_id)
+    .eq("is_active", true);
 
   if (templateError || !templates || templates.length === 0) {
     console.warn("No staff clearance templates found for staff:", user_id);

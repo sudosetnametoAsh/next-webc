@@ -11,8 +11,21 @@ export async function GET(
   { params }: { params: Promise<Params> },
 ) {
   const supabase = await createClient();
-  const { user_id } = await getSession();
+  const { user_id, department } = await getSession();
   const { section_id } = await params;
+
+  let deptId: number | null = null;
+  if (department) {
+    const { data: deptData } = await supabase
+      .from("clearance_departments")
+      .select("dept_id")
+      .ilike("dept_name", department.trim())
+      .maybeSingle();
+
+    if (deptData) {
+      deptId = deptData.dept_id;
+    }
+  }
 
   // 1. Get the course associated with this section
   const { data: courseSection, error: sectionError } = await supabase
@@ -27,13 +40,18 @@ export async function GET(
   }
 
   // 2. Get the staff's template for this course
-  // We use .select().in() or similar if there could be multiple, 
-  // but usually a staff has one template per course/dept.
-  const { data: templates, error: templateError } = await supabase
+  let tmplQuery = supabase
     .from("clearance_templates")
     .select("template_id")
     .eq("course_id", courseSection.course_id)
-    .eq("staff_id", user_id);
+    .eq("staff_id", user_id)
+    .eq("is_active", true);
+
+  if (deptId !== null) {
+    tmplQuery = tmplQuery.eq("dept_id", deptId);
+  }
+
+  const { data: templates, error: templateError } = await tmplQuery;
 
   if (templateError || !templates || templates.length === 0) {
     console.warn("No template found for staff:", user_id, "on course:", courseSection.course_id);

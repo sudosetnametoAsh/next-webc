@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from "next/server"
+import { invalidateServerAdminCache } from "@/lib/services/admin-cache"
+import { invalidateServerDepartmentCache } from "@/lib/services/department-cache"
 
 
 // Get all departments
@@ -9,7 +11,8 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('clearance_departments')
-    .select('dept_id, dept_name')
+    .select('dept_id, dept_name, icon_name, floor, room')
+    .order('dept_id')
   
   if (error) {
     console.error('Error fetching departments:', error)
@@ -25,15 +28,22 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient()
 
   try {
-    const { dept_name } = await req.json()
+    const { dept_name, icon_name, floor, room } = await req.json()
 
     if (!dept_name || typeof dept_name !== 'string' || dept_name.trim() === '') {
       return NextResponse.json({ error: 'Department name is required' }, { status: 400 }) 
     }
 
+    const insertPayload: Record<string, any> = {
+      dept_name: dept_name.trim(),
+    }
+    if (icon_name) insertPayload.icon_name = icon_name
+    if (floor !== undefined) insertPayload.floor = floor?.trim() || null
+    if (room !== undefined) insertPayload.room = room?.trim() || null
+
     const { data, error } = await supabase
       .from('clearance_departments')
-      .insert({ dept_name: dept_name.trim() })
+      .insert(insertPayload)
       .select()
       .single()
 
@@ -41,6 +51,9 @@ export async function POST(req: NextRequest) {
       console.error('Error creating department:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
 
     return NextResponse.json({ data }, { status: 201 })
 
@@ -56,15 +69,29 @@ export async function PATCH(req: NextRequest) {
   const supabase = await createClient()
 
   try {
-    const { dept_id, dept_name } = await req.json()
+    const { dept_id, dept_name, icon_name, floor, room } = await req.json()
 
-    if (!dept_id || !dept_name || dept_name.trim() === '') {
-      return NextResponse.json({ error: 'Department ID and name are required' }, { status: 400 })
+    if (!dept_id) {
+      return NextResponse.json({ error: 'Department ID is required' }, { status: 400 })
+    }
+
+    const updatePayload: Record<string, any> = {}
+    if (dept_name && typeof dept_name === 'string' && dept_name.trim() !== '') {
+      updatePayload.dept_name = dept_name.trim()
+    }
+    if (icon_name && typeof icon_name === 'string') {
+      updatePayload.icon_name = icon_name
+    }
+    if (floor !== undefined) {
+      updatePayload.floor = floor ? floor.trim() : null
+    }
+    if (room !== undefined) {
+      updatePayload.room = room ? room.trim() : null
     }
 
     const { data, error } = await supabase
       .from('clearance_departments')
-      .update({ dept_name: dept_name.trim() })
+      .update(updatePayload)
       .eq('dept_id', dept_id)
       .select()
       .single()
@@ -73,6 +100,9 @@ export async function PATCH(req: NextRequest) {
       console.error('Error updating department:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
 
     return NextResponse.json({ data }, { status: 200 })
 
@@ -103,7 +133,10 @@ export async function DELETE(req: NextRequest) {
       console.error('Error deleting department:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
-  return NextResponse.json({ success: true }, { status: 200 })
+    invalidateServerAdminCache()
+    invalidateServerDepartmentCache()
+
+    return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
     console.error('Delete department error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
