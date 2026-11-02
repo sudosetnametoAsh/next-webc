@@ -1,14 +1,30 @@
 import { Departments } from '@/types/admin'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+export const adminDepartmentsQueryKey = ['admin', 'departments'] as const
 
 // --- Hooks ---
 
 export function useFetchDepartments() {
   return useQuery({
-    queryKey: ['admin', 'departments'],
+    queryKey: adminDepartmentsQueryKey,
+    queryFn: fetchDepartments,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export async function prefetchDepartments(queryClient: QueryClient): Promise<void> {
+  await queryClient.prefetchQuery({
+    queryKey: adminDepartmentsQueryKey,
     queryFn: fetchDepartments,
     staleTime: 1000 * 60 * 5,
   })
+}
+
+export function invalidateDepartments(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({ queryKey: adminDepartmentsQueryKey })
 }
 
 export function useCreateDepartment() {
@@ -72,11 +88,29 @@ async function fetchDepartments(): Promise<Departments[]> {
   return json.data || []
 }
 
-async function createDepartment(dept_name: string): Promise<void> {
+export type CreateDepartmentInput =
+  | string
+  | {
+      dept_name: string;
+      icon_name?: string;
+      floor?: string | null;
+      room?: string | null;
+    };
+
+export type UpdateDepartmentInput = {
+  dept_id: number;
+  dept_name?: string;
+  icon_name?: string;
+  floor?: string | null;
+  room?: string | null;
+};
+
+async function createDepartment(input: CreateDepartmentInput): Promise<void> {
+  const payload = typeof input === "string" ? { dept_name: input } : input;
   const response = await fetch('/api/admin/departments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ dept_name })
+    body: JSON.stringify(payload)
   })
 
   // 1. Check status first
@@ -97,11 +131,11 @@ async function createDepartment(dept_name: string): Promise<void> {
   return json.data
 }
 
-async function updateDepartment({ dept_id, dept_name }: { dept_id: number, dept_name: string }): Promise<void> {
+async function updateDepartment(payload: UpdateDepartmentInput): Promise<void> {
   const response = await fetch('/api/admin/departments', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ dept_id, dept_name })
+    body: JSON.stringify(payload)
   })
 
   if (!response.ok) {

@@ -1,10 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { CheckIcon, TrashIcon } from "lucide-react";
+import { CheckIcon, TrashIcon, AlertTriangle } from "lucide-react";
  
 /* ─────────────────────────────────────────────
    Types
 ───────────────────────────────────────────── */
 export type ConfirmationModalVariant = "neutral" | "destructive";
+
+export interface ImpactWarningInfo {
+  enrolledCount?: number;
+  signedCount?: number;
+  tasksCount?: number;
+  confirmationKeyword?: string;
+}
  
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -18,6 +25,7 @@ export interface ConfirmationModalProps {
   isLoading?: boolean;
   closeOnBackdrop?: boolean;
   closeOnEscape?: boolean;
+  impactInfo?: ImpactWarningInfo | null;
 }
  
 /* ─────────────────────────────────────────────
@@ -81,22 +89,33 @@ export default function ConfirmationModal({
   isLoading = false,
   closeOnBackdrop = true,
   closeOnEscape = true,
+  impactInfo = null,
 }: ConfirmationModalProps) {
   const [visible, setVisible] = useState<boolean>(false);
   const [animOut, setAnimOut] = useState<boolean>(false);
+  const [confirmKeywordInput, setConfirmKeywordInput] = useState<string>("");
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
  
   const isDestructive = variant === "destructive";
   const label = confirmLabel ?? (isDestructive ? "Delete" : "Confirm");
+
+  const requiredKeyword = impactInfo?.confirmationKeyword?.trim().toUpperCase();
+  const hasActiveImpact = Boolean(impactInfo && ((impactInfo.signedCount ?? 0) > 0 || (impactInfo.enrolledCount ?? 0) > 0));
+  const isKeywordMatched = !requiredKeyword || confirmKeywordInput.trim().toUpperCase() === requiredKeyword;
+  const isConfirmDisabled = isLoading || (hasActiveImpact && Boolean(requiredKeyword) && !isKeywordMatched);
  
   /* open / close lifecycle with exit animation */
   useEffect(() => {
     if (isOpen) {
       setAnimOut(false);
       setVisible(true);
+      setConfirmKeywordInput("");
     } else if (visible) {
       setAnimOut(true);
-      const t = setTimeout(() => setVisible(false), 180);
+      const t = setTimeout(() => {
+        setVisible(false);
+        setConfirmKeywordInput("");
+      }, 180);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
@@ -132,12 +151,12 @@ export default function ConfirmationModal({
  
   /* Variant styles */
   const iconWrapClass = isDestructive
-    ? "bg-red-50 text-red-500"
-    : "bg-blue-50 text-blue-500";
+    ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+    : "bg-amber-500/20 text-amber-400 border border-amber-500/30";
  
   const confirmBtnClass = isDestructive
-    ? "bg-red-600 hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500"
-    : "bg-gray-900 hover:bg-gray-700 active:bg-gray-900 focus-visible:ring-gray-500";
+    ? "bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white shadow-md shadow-rose-950/40"
+    : "bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 shadow-md shadow-amber-500/20";
  
   const backdropAnim = animOut
     ? "opacity-0 transition-opacity duration-[180ms]"
@@ -151,7 +170,7 @@ export default function ConfirmationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/40 ${backdropAnim}`}
+        className={`absolute inset-0 bg-black/70 backdrop-blur-xs ${backdropAnim}`}
         onClick={handleBackdrop}
         aria-hidden="true"
       />
@@ -162,7 +181,7 @@ export default function ConfirmationModal({
         aria-modal="true"
         aria-labelledby="cm-title"
         aria-describedby="cm-desc"
-        className={`relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden ${modalAnim}`}
+        className={`relative w-full max-w-md bg-[#0a101f] border border-slate-800 text-slate-100 rounded-2xl shadow-2xl overflow-hidden ${modalAnim}`}
       >
         {/* Body */}
         <div className="px-6 pt-6 pb-5">
@@ -176,35 +195,58 @@ export default function ConfirmationModal({
             <div className="flex-1 pt-0.5">
               <h2
                 id="cm-title"
-                className="text-[15px] font-semibold text-gray-900 leading-snug mb-1"
+                className="text-[15px] font-bold text-white leading-snug mb-1"
               >
                 {title}
               </h2>
               <p
                 id="cm-desc"
-                className="text-sm text-gray-500 leading-relaxed"
+                className="text-xs text-slate-400 leading-relaxed"
               >
                 {description}
               </p>
+
+              {/* Active Clearance Season Impact Warning */}
+              {hasActiveImpact && (
+                <div className="mt-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+                    <span>Active Clearance Impact Warning</span>
+                  </div>
+                  <p className="mt-1.5 text-[11px] text-slate-300 leading-relaxed">
+                    This template currently has <strong className="text-white font-semibold">{impactInfo?.enrolledCount ?? 0} enrolled clients</strong> with <strong className="text-amber-300 font-semibold">{impactInfo?.signedCount ?? 0} signed approvals</strong> ({impactInfo?.tasksCount ?? 0} requirements). Deleting will permanently remove this template, all student clearance records, sign-offs, and submitted tasks across all databases.
+                  </p>
+
+                  {requiredKeyword && (
+                    <div className="mt-3 pt-2.5 border-t border-amber-500/20">
+                      <p className="text-[11px] text-slate-400 mb-1.5">
+                        To confirm, type <span className="font-mono font-bold text-rose-400 select-all">{requiredKeyword}</span> below:
+                      </p>
+                      <input
+                        type="text"
+                        value={confirmKeywordInput}
+                        onChange={(e) => setConfirmKeywordInput(e.target.value)}
+                        placeholder={`Type ${requiredKeyword} to confirm`}
+                        className="w-full rounded-lg border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 font-mono tracking-wider"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
  
         {/* Divider */}
-        <div className="h-px bg-gray-100 mx-6" />
+        <div className="h-px bg-slate-800 mx-6" />
  
         {/* Footer */}
-        <div className="px-6 py-4 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 bg-[#070c18] border-t border-slate-800 flex items-center justify-end gap-3">
           {/* Cancel */}
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700
-                       bg-white border border-gray-200
-                       hover:bg-gray-50 active:bg-gray-100
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300
-                       transition-colors duration-150
-                       disabled:opacity-40 cursor-pointer"
+            className="rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer disabled:opacity-40"
           >
             {cancelLabel}
           </button>
@@ -213,11 +255,11 @@ export default function ConfirmationModal({
           <button
             ref={confirmBtnRef}
             onClick={handleConfirm}
-            disabled={isLoading}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white
+            disabled={isConfirmDisabled}
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold
                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                         transition-colors duration-150
-                        cursor-pointer disabled:opacity-70
+                        cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                         ${confirmBtnClass}`}
           >
             {isLoading && <SpinnerIcon />}

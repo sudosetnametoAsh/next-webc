@@ -1,15 +1,31 @@
 import { AdminStats } from '@/types/admin'
-import { useQuery } from '@tanstack/react-query'
+import { QueryClient, useQuery } from '@tanstack/react-query'
+
+export const adminStatsQueryKey = ['admin', 'stats'] as const
 
 export function useFetchAdminStats() {
   return useQuery({
-    queryKey: ['admin', 'stats'],
+    queryKey: adminStatsQueryKey,
     queryFn: fetchAdminStats,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
+    refetchOnWindowFocus: false,
   })
 }
 
-async function fetchAdminStats(): Promise<AdminStats> {
+export async function prefetchAdminStats(queryClient: QueryClient): Promise<void> {
+  await queryClient.prefetchQuery({
+    queryKey: adminStatsQueryKey,
+    queryFn: fetchAdminStats,
+    staleTime: 1000 * 60 * 3,
+  })
+}
+
+export function invalidateAdminStats(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({ queryKey: adminStatsQueryKey })
+}
+
+export async function fetchAdminStats(): Promise<AdminStats> {
   const response = await fetch('/api/admin/stats')
   const json = await response.json()
 
