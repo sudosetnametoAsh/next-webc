@@ -20,6 +20,7 @@ export interface DepartmentClearanceProgress {
   icon_name?: string | null
   tier?: number
   status: 'Incomplete' | 'Pending' | 'Signed'
+  created_at?: string | null
   signed_at?: string | null
   staff_name?: string | null
   floor?: string | null

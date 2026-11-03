@@ -124,14 +124,11 @@ export default function PhasePipelineRadar({
               const isLast = idx === specificPhases.length - 1
               const isStaff = isStaffOnly || activeFilter === 'staff'
               const hasSpecificCourse = !isStaff && Boolean(courseCodeOrName && courseCodeOrName !== 'All Courses')
-              const bottleneckDeptParam = phase.bottleneckDept
-                ? `&department=${encodeURIComponent(phase.bottleneckDept.deptName)}`
-                : ''
               const overdueRedirectUrl = isStaff
-                ? `/admin/clients?type=staff&status=overdue&phase=${phase.tier}${bottleneckDeptParam}`
+                ? `/admin/clients?type=staff&status=overdue&phase=${phase.tier}`
                 : `/admin/clients?type=students&status=overdue${
                     hasSpecificCourse ? `&course=${encodeURIComponent(courseCodeOrName)}` : ''
-                  }&phase=${phase.tier}${bottleneckDeptParam}`
+                  }&phase=${phase.tier}`
 
               return (
                 <div

@@ -84,13 +84,7 @@ export default function Reports() {
     const bottleneckDepts = pipelineData.departmentProgress.filter(
       (d) => d.totalAssigned > 0 && d.pendingCount > 0 && (d.isBottleneck || d.stalledCount > 0)
     )
-    if (bottleneckDepts.length > 0) return bottleneckDepts[0]
-
-    const activeDepts = pipelineData.departmentProgress.filter(
-      (d) => d.totalAssigned > 0 && d.pendingCount > 0
-    )
-    if (activeDepts.length === 0) return null
-    return activeDepts[0]
+    return bottleneckDepts[0] ?? null
   }, [pipelineData])
 
   // Handle CSV Audit Export

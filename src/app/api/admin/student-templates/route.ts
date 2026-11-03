@@ -27,7 +27,8 @@ export async function GET() {
         .in('student_id', enrolledStudentIds),
 
       // Query clearance_records directly (they reference user_id which equals student_id)
-      supabase
+      (async () => {
+        const fetchPage = (offset: number) => supabase
         .from('clearance_records')
         .select(`
           clearance_id,
@@ -52,7 +53,20 @@ export async function GET() {
             )
           )
         `)
-        .in('user_id', enrolledStudentIds),
+        .in('user_id', enrolledStudentIds)
+          .order('clearance_id').range(offset, offset + 499)
+        const first = await fetchPage(0)
+        if (first.error) return first
+        const data = [...first.data]
+        let pageLength = first.data.length
+        while (pageLength === 500) {
+          const page = await fetchPage(data.length)
+          if (page.error) return page
+          data.push(...page.data)
+          pageLength = page.data.length
+        }
+        return { ...first, data }
+      })(),
 
       supabase
         .from('enrollments')

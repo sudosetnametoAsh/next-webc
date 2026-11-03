@@ -17,6 +17,7 @@ import TablePaginationFooter from '@/components/admin/table-pagination-footer'
 import ClientEnrollmentModal from '@/components/admin/client-enrollment-modal'
 import { ToastContainer } from '@/components/admin/toast'
 import { useToast } from '@/components/admin/use-toast'
+import { isClearanceOverdue } from '@/lib/clearance-overdue'
 import { computeClientOverdueStatus } from '@/lib/clearance-logic'
 import { GraduationCap, Briefcase, ChevronRight, UserPlus } from 'lucide-react'
 
@@ -262,6 +263,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
           tier: d.tier ?? 1,
           status: d.status,
           signed_at: d.signed_at,
+          created_at: d.created_at,
           staff_name: d.staff_name,
           floor: d.floor,
           room: d.room,
@@ -359,6 +361,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
           tier: d.tier ?? 1,
           status: d.status,
           signed_at: d.signed_at,
+          created_at: d.created_at,
           staff_name: d.staff_name,
           floor: d.floor,
           room: d.room,
@@ -474,16 +477,17 @@ function AdminClientsContent({ setAdminPage }: Props) {
             const matchesDept =
               d.dept_name.toLowerCase() === departmentFilter.toLowerCase() ||
               String(d.dept_id) === departmentFilter
-            const isInActivePhase = c.type === 'staff' || d.tier === c.overduePhase
-            return matchesDept && isInActivePhase && d.status !== 'Signed'
+            const isInActivePhase = isClearanceOverdue(d, c.departments, c.type === 'staff')
+            return matchesDept && isInActivePhase && (phaseFilter === 'all' || String(d.tier ?? 1) === phaseFilter)
           })
         )
       }
       const phases = Array.from(
         new Set(
-          relevant
-            .map((c) => c.overduePhase)
-            .filter((p): p is number => p !== null && p !== undefined)
+          relevant.flatMap(c => c.departments
+            .filter(d => isClearanceOverdue(d, c.departments, c.type === 'staff'))
+            .filter(d => departmentFilter === 'all' || d.dept_name.toLowerCase() === departmentFilter.toLowerCase() || String(d.dept_id) === departmentFilter)
+            .map(d => d.tier ?? 1))
         )
       ).sort((a, b) => a - b)
 
@@ -509,14 +513,14 @@ function AdminClientsContent({ setAdminPage }: Props) {
     if (selectedStatus === 'overdue') {
       let relevant = overdueCandidates
       if (phaseFilter !== 'all') {
-        relevant = relevant.filter((c) => String(c.overduePhase) === phaseFilter)
+        relevant = relevant.filter((c) => c.departments.some(d => String(d.tier ?? 1) === phaseFilter && isClearanceOverdue(d, c.departments, c.type === 'staff')))
       }
 
       const deptMap = new Map<string, { dept_id: number; dept_name: string; icon_name?: string | null }>()
       relevant.forEach((c) => {
         c.departments.forEach((d) => {
-          const isInActivePhase = c.type === 'staff' || d.tier === c.overduePhase
-          if (isInActivePhase && d.status !== 'Signed' && d.dept_id !== undefined) {
+          const isInActivePhase = isClearanceOverdue(d, c.departments, c.type === 'staff')
+          if (isInActivePhase && (phaseFilter === 'all' || String(d.tier ?? 1) === phaseFilter) && d.dept_id !== undefined) {
             const key = d.dept_name.toLowerCase()
             if (!deptMap.has(key)) {
               deptMap.set(key, {
@@ -592,7 +596,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
     } else if (selectedStatus === 'overdue') {
       data = data.filter((c) => c.isOverdue)
       if (phaseFilter !== 'all') {
-        data = data.filter((c) => String(c.overduePhase) === phaseFilter)
+        data = data.filter((c) => c.departments.some(d => String(d.tier ?? 1) === phaseFilter && isClearanceOverdue(d, c.departments, c.type === 'staff')))
       }
       if (departmentFilter !== 'all') {
         data = data.filter((c) => {
@@ -601,11 +605,9 @@ function AdminClientsContent({ setAdminPage }: Props) {
             const filterLower = departmentFilter.toLowerCase()
             const matchesDept =
               deptNameLower === filterLower ||
-              deptNameLower.includes(filterLower) ||
-              filterLower.includes(deptNameLower) ||
               String(d.dept_id) === departmentFilter
-            const isInActivePhase = c.type === 'staff' || d.tier === c.overduePhase
-            return matchesDept && isInActivePhase && d.status !== 'Signed'
+            const isInActivePhase = isClearanceOverdue(d, c.departments, c.type === 'staff')
+            return matchesDept && isInActivePhase && (phaseFilter === 'all' || String(d.tier ?? 1) === phaseFilter)
           })
         })
       }

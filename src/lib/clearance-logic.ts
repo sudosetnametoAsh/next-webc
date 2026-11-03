@@ -1,3 +1,4 @@
+import { clearanceWaitHours } from "./clearance-overdue";
 import { CLEARANCE_HIERARCHY, SigningEligibility, ClearanceRecordWithTier } from "@/types/clearance";
 import { Students } from "@/types/students";
 
@@ -157,65 +158,21 @@ export function computeClientOverdueStatus(
   holdThresholdHours: number = 24,
   now: number = Date.now()
 ): ClientOverdueInfo {
-  if (!records || records.length === 0 || records.every((r) => r.status === "Signed")) {
+  const overdue = (records || []).map(record => ({
+    tier: record.tier ?? 1,
+    hours: clearanceWaitHours(record, records, isStaff, now),
+  })).filter((item): item is { tier: number; hours: number } =>
+    item.hours !== null && item.hours >= holdThresholdHours
+  );
+  if (overdue.length === 0) {
     return { isOverdue: false, overduePhase: null, overduePhaseLabel: null, dwellHours: 0 };
   }
-
-  // Group by tier
-  const tiers = Array.from(new Set(records.map((r) => r.tier ?? 1))).sort((a, b) => a - b);
-  const minTier = tiers[0] ?? 1;
-
-  // Find lowest incomplete tier
-  const activeTier = tiers.find((t) => records.some((r) => (r.tier ?? 1) === t && r.status !== "Signed"));
-  if (activeTier === undefined) {
-    return { isOverdue: false, overduePhase: null, overduePhaseLabel: null, dwellHours: 0 };
-  }
-
-  let entryTime: number;
-  if (activeTier === minTier) {
-    const p1Records = records.filter((r) => (r.tier ?? 1) === minTier && r.status !== "Signed");
-    const p1Timestamps = p1Records
-      .map((r) => (r.created_at ? new Date(r.created_at).getTime() : 0))
-      .filter((t) => t > 0);
-    entryTime = p1Timestamps.length > 0 ? Math.min(...p1Timestamps) : now;
-  } else {
-    // Gate: All preceding tiers must be Signed
-    const prevTierRecords = records.filter((r) => (r.tier ?? 1) < activeTier);
-    const allPrevSigned = prevTierRecords.length > 0 && prevTierRecords.every((r) => r.status === "Signed");
-    if (!allPrevSigned) {
-      // Has not unlocked activeTier yet
-      return { isOverdue: false, overduePhase: null, overduePhaseLabel: null, dwellHours: 0 };
-    }
-    const signedTimestamps = prevTierRecords
-      .map((r) => (r.signed_at ? new Date(r.signed_at).getTime() : 0))
-      .filter((t) => t > 0);
-    let tierEntryTime = signedTimestamps.length > 0 ? Math.max(...signedTimestamps) : now;
-
-    // Check if any unsigned record in active tier has an earlier created_at (simulated bottleneck)
-    const activeTierRecords = records.filter((r) => (r.tier ?? 1) === activeTier && r.status !== "Signed");
-    const activeTimestamps = activeTierRecords
-      .map((r) => (r.created_at ? new Date(r.created_at).getTime() : 0))
-      .filter((t) => t > 0);
-    if (activeTimestamps.length > 0) {
-      tierEntryTime = Math.min(tierEntryTime, ...activeTimestamps);
-    }
-    entryTime = tierEntryTime;
-  }
-
-  const dwellHours = Math.max(0, (now - entryTime) / 3600000);
-  const isOverdue = dwellHours >= holdThresholdHours;
-
-  const phaseLabel = isOverdue
-    ? isStaff && tiers.length === 1
-      ? "Staff"
-      : `Phase ${activeTier}`
-    : null;
-
+  const phase = Math.min(...overdue.map(item => item.tier));
   return {
-    isOverdue,
-    overduePhase: isOverdue ? activeTier : null,
-    overduePhaseLabel: phaseLabel,
-    dwellHours: Math.round(dwellHours),
+    isOverdue: true,
+    overduePhase: phase,
+    overduePhaseLabel: isStaff ? "Staff" : `Phase ${phase}`,
+    dwellHours: Math.round(Math.max(...overdue.map(item => item.hours))),
   };
 }
 

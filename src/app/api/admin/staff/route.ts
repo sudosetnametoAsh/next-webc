@@ -24,7 +24,8 @@ export async function GET() {
 
     // Fetch clearance records for staff and staff template count in parallel
     const [clearancesResult, staffTemplatesResult] = await Promise.all([
-      supabase
+      (async () => {
+        const fetchPage = (offset: number) => supabase
         .from('clearance_records')
         .select(`
           clearance_id,
@@ -49,7 +50,20 @@ export async function GET() {
             )
           )
         `)
-        .in('user_id', staffIds),
+        .in('user_id', staffIds)
+          .order('clearance_id').range(offset, offset + 499)
+        const first = await fetchPage(0)
+        if (first.error) return first
+        const data = [...first.data]
+        let pageLength = first.data.length
+        while (pageLength === 500) {
+          const page = await fetchPage(data.length)
+          if (page.error) return page
+          data.push(...page.data)
+          pageLength = page.data.length
+        }
+        return { ...first, data }
+      })(),
       supabase
         .from('clearance_templates')
         .select('template_id')

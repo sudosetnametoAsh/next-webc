@@ -1,3 +1,4 @@
+import { clearanceWaitHours } from '@/lib/clearance-overdue'
 import { createClient } from '@/lib/db/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 import { shrinkCourseName, expandCourseAbbreviation } from '@/utils/formatters'
@@ -178,7 +179,23 @@ export async function GET(request: NextRequest) {
           staffs ( staff_name )
         `)
         .eq('is_active', true),
-      supabase.from('clearance_records').select('clearance_id, user_id, status, template_id, signed_at, created_at'),
+      (async () => {
+        const pageSize = 500
+        const fetchPage = (offset: number) => supabase.from('clearance_records')
+          .select('clearance_id, user_id, status, template_id, signed_at, created_at')
+          .order('clearance_id').range(offset, offset + pageSize - 1)
+        const first = await fetchPage(0)
+        if (first.error) return first
+        const data = [...first.data]
+        let pageLength = first.data.length
+        while (pageLength === pageSize) {
+          const page = await fetchPage(data.length)
+          if (page.error) return page
+          data.push(...page.data)
+          pageLength = page.data.length
+        }
+        return { ...first, data }
+      })(),
     ])
 
     if (coursesRes.error) throw coursesRes.error
@@ -425,7 +442,7 @@ export async function GET(request: NextRequest) {
 
       let p2EntryTime = hasP2Entered ? p1SignedTime || userCreatedTime : null
       if (hasP2Entered && p2EarliestCreated && p2EntryTime) {
-        p2EntryTime = Math.min(p2EntryTime, p2EarliestCreated)
+        p2EntryTime = Math.max(p2EntryTime, p2EarliestCreated)
       }
 
       const isP2Signed =
@@ -459,7 +476,7 @@ export async function GET(request: NextRequest) {
         ? p2SignedTime || p1SignedTime || userCreatedTime
         : null
       if (hasP3Entered && p3EarliestCreated && p3EntryTime) {
-        p3EntryTime = Math.min(p3EntryTime, p3EarliestCreated)
+        p3EntryTime = Math.max(p3EntryTime, p3EarliestCreated)
       }
 
       const isP3Signed =
@@ -499,7 +516,7 @@ export async function GET(request: NextRequest) {
     // ── 6b. Compute Department Clearance Progress & Temporal Queues ──
     const deptStatsMap = new Map<
       number,
-      { assigned: number; cleared: number; stalledCount: number; totalWaitHours: number }
+      { assigned: number; cleared: number; eligiblePending: number; stalledCount: number; totalWaitHours: number }
     >()
     // Institutional department compliance evaluates all campus client profiles
     const targetProfilesForDepts = userProfiles
@@ -510,6 +527,7 @@ export async function GET(request: NextRequest) {
         const current = deptStatsMap.get(r.deptId) || {
           assigned: 0,
           cleared: 0,
+          eligiblePending: 0,
           stalledCount: 0,
           totalWaitHours: 0,
         }
@@ -517,38 +535,19 @@ export async function GET(request: NextRequest) {
         if (r.status === 'Signed') {
           current.cleared++
         } else {
-          // Check true tier eligibility based on clearance hierarchy:
-          // A department is only eligible once all lower tiers (< r.tier) are signed off
-          const recCreated = r.createdAt ? new Date(r.createdAt).getTime() : nowTime
-          let isEligible = false
-          let dwellHours = 0
-
-          if (u.isStaff) {
-            // Staff clearances are parallel (all departments eligible from enrollment)
-            isEligible = true
-            dwellHours = Math.max(0, (nowTime - recCreated) / 3600000)
-          } else {
-            // Student clearances are sequential by phase tiers
-            const lowerRecords = u.records.filter((other) => other.tier < r.tier)
-            const allLowerSigned =
-              lowerRecords.length === 0 || lowerRecords.every((other) => other.status === 'Signed')
-
-            if (allLowerSigned) {
-              isEligible = true
-              if (lowerRecords.length === 0) {
-                dwellHours = Math.max(0, (nowTime - recCreated) / 3600000)
-              } else {
-                const lowerSignedTimes = lowerRecords
-                  .map((other) => (other.signedAt ? new Date(other.signedAt).getTime() : 0))
-                  .filter((t) => t > 0)
-                const tierEntryTime =
-                  lowerSignedTimes.length > 0 ? Math.max(...lowerSignedTimes) : recCreated
-                dwellHours = Math.max(0, (nowTime - Math.min(tierEntryTime, recCreated)) / 3600000)
-              }
-            }
-          }
+          const timedRecords = u.records.map(record => ({
+            status: record.status, tier: record.tier,
+            created_at: record.createdAt, signed_at: record.signedAt,
+          }))
+          const hours = clearanceWaitHours({
+            status: r.status, tier: r.tier,
+            created_at: r.createdAt, signed_at: r.signedAt,
+          }, timedRecords, u.isStaff, nowTime)
+          const isEligible = hours !== null
+          const dwellHours = hours ?? 0
 
           if (isEligible) {
+            current.eligiblePending++
             current.totalWaitHours += dwellHours
             if (dwellHours >= HOLD_THRESHOLD_HOURS) {
               current.stalledCount++
@@ -571,12 +570,13 @@ export async function GET(request: NextRequest) {
       const stats = deptStatsMap.get(d.dept_id) || {
         assigned: 0,
         cleared: 0,
+        eligiblePending: 0,
         stalledCount: 0,
         totalWaitHours: 0,
       }
       const pendingCount = stats.assigned - stats.cleared
       const rate = stats.assigned > 0 ? Math.round((stats.cleared / stats.assigned) * 100) : 0
-      const avgWaitHours = pendingCount > 0 ? Math.round(stats.totalWaitHours / pendingCount) : 0
+      const avgWaitHours = stats.eligiblePending > 0 ? Math.round(stats.totalWaitHours / stats.eligiblePending) : 0
       const isBottleneck = evaluateBottleneck(stats.stalledCount, stats.assigned)
 
       return {
@@ -659,7 +659,7 @@ export async function GET(request: NextRequest) {
               let isEligible = false
               let dwellHours = 0
 
-              if (tierNum === activeTiers[0] || tierNum <= u.minTier) {
+              if (u.isStaff || tierNum === activeTiers[0] || tierNum <= u.minTier) {
                 isEligible = true
                 dwellHours = Math.max(0, (nowTime - tierEarliestCreated) / 3600000)
               } else {
@@ -673,7 +673,7 @@ export async function GET(request: NextRequest) {
                       r.signedAt ? new Date(r.signedAt).getTime() : tierEarliestCreated
                     )
                   )
-                  dwellHours = Math.max(0, (nowTime - Math.min(entryTime, tierEarliestCreated)) / 3600000)
+                  dwellHours = Math.max(0, (nowTime - Math.max(entryTime, tierEarliestCreated)) / 3600000)
                 }
               }
 
@@ -703,7 +703,7 @@ export async function GET(request: NextRequest) {
                 let dwellHours = 0
                 const recCreated = r.createdAt ? new Date(r.createdAt).getTime() : nowTime
 
-                if (tierNum === activeTiers[0] || tierNum <= u.minTier) {
+                if (u.isStaff || tierNum === activeTiers[0] || tierNum <= u.minTier) {
                   isEligible = true
                   dwellHours = Math.max(0, (nowTime - recCreated) / 3600000)
                 } else {
@@ -717,7 +717,7 @@ export async function GET(request: NextRequest) {
                         r.signedAt ? new Date(r.signedAt).getTime() : recCreated
                       )
                     )
-                    dwellHours = Math.max(0, (nowTime - Math.min(entryTime, recCreated)) / 3600000)
+                    dwellHours = Math.max(0, (nowTime - Math.max(entryTime, recCreated)) / 3600000)
                   }
                 }
 
@@ -947,7 +947,7 @@ export async function GET(request: NextRequest) {
         },
       }
 
-      return NextResponse.json({ data: payload })
+      return payload
     }
 
     // ── CASE B: SPECIFIC COURSE SELECTED ──
@@ -1044,7 +1044,7 @@ export async function GET(request: NextRequest) {
                 lowerSignedTimes.length > 0 ? Math.max(...lowerSignedTimes) : recCreated
               const dwellHours = Math.max(
                 0,
-                (nowTime - Math.min(tierEntryTime, recCreated)) / 3600000
+                (nowTime - Math.max(tierEntryTime, recCreated)) / 3600000
               )
               existing.totalWaitHours += dwellHours
               if (dwellHours >= HOLD_THRESHOLD_HOURS) {
