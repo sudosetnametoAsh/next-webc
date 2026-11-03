@@ -31,7 +31,7 @@ export default function DepartmentGreeting({
     stats.total > 0 ? Math.round((stats.signed / stats.total) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-portal-border bg-portal-surface p-6 sm:p-7 shadow-xl backdrop-blur-md">
+    <div className="rounded-2xl border border-slate-800/80 bg-[#0a101f]/95 p-6 sm:p-7 shadow-xl backdrop-blur-md">
       {/* ── Top Greeting Header ── */}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">

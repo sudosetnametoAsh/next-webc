@@ -331,7 +331,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
       : "Department Console");
 
   return (
-    <header className="relative z-30 flex h-16 w-full items-center justify-between border-b border-portal-border bg-portal-canvas px-4 sm:px-6 lg:px-8 select-none">
+    <header className="relative z-30 flex h-16 w-full items-center justify-between border-b border-slate-800/80 bg-[#060a14] px-4 sm:px-6 lg:px-8 select-none">
       {/* ── Left: Mobile Menu Trigger + Breadcrumb Title ── */}
       <div className="flex items-center gap-3">
         {/* Mobile menu trigger icon */}
@@ -344,7 +344,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
           <Menu className="h-5 w-5" />
         </button>
 
-        <h1 className="text-sm font-semibold tracking-tight text-portal-foreground sm:text-base">
+        <h1 className="text-sm font-semibold tracking-tight text-white sm:text-base">
           {computedTitle}
         </h1>
       </div>
@@ -365,7 +365,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
           >
             <Bell className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-portal-canvas ">
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14] ">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -385,7 +385,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
                   <div
                     key={notif.id}
                     onClick={() => handlePopupClick(notif)}
-                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-portal-surface/95 p-3.5 text-left text-portal-foreground shadow-2xl shadow-black/80 backdrop-blur-md transition-ui hover:border-amber-400 hover:bg-portal-inset cursor-pointer"
+                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-ui hover:border-amber-400 hover:bg-[#0c1427] cursor-pointer"
                   >
                     {/* Left Icon with contextual styling */}
                     <div
@@ -397,12 +397,12 @@ export default function DepartmentHeader({ title, department, user_name, user_id
                     <div className="min-w-0 flex-1 pr-6">
                       <div className="flex items-center gap-2">
                         <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${dotStyle}`} />
-                        <h4 className="text-xs font-bold text-portal-foreground truncate group-hover:text-amber-300 transition-colors">
+                        <h4 className="text-xs font-bold text-white truncate group-hover:text-amber-300 transition-colors">
                           {notif.title}
                         </h4>
                       </div>
 
-                      <p className="mt-1 text-xs text-portal-muted line-clamp-2 leading-relaxed">
+                      <p className="mt-1 text-xs text-slate-300 line-clamp-2 leading-relaxed">
                         {notif.description}
                       </p>
 

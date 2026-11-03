@@ -222,7 +222,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
       : "Admin Console");
 
   return (
-    <header className="flex h-16 w-full items-center justify-between border-b border-portal-border bg-portal-canvas px-4 sm:px-6 lg:px-8 select-none">
+    <header className="flex h-16 w-full items-center justify-between border-b border-slate-800/80 bg-[#060a14] px-4 sm:px-6 lg:px-8 select-none">
       {/* ── Left: Mobile Menu Trigger + Breadcrumb Title ── */}
       <div className="flex items-center gap-3">
         {/* Mobile menu trigger icon */}
@@ -235,7 +235,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
           <Menu className="h-5 w-5" />
         </button>
 
-        <h1 className="text-sm font-semibold tracking-tight text-portal-foreground sm:text-base">
+        <h1 className="text-sm font-semibold tracking-tight text-white sm:text-base">
           {computedTitle}
         </h1>
       </div>
@@ -256,7 +256,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
           >
             <Bell className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-portal-canvas  font-mono">
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14]  font-mono">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -276,7 +276,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
                   <div
                     key={notif.id}
                     onClick={() => handlePopupClick(notif)}
-                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-portal-surface/95 p-3.5 text-left text-portal-foreground shadow-2xl shadow-black/80 backdrop-blur-md transition-ui hover:border-amber-400 hover:bg-portal-inset cursor-pointer"
+                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-ui hover:border-amber-400 hover:bg-[#0c1427] cursor-pointer"
                   >
                     <div
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${containerStyle}`}
@@ -287,12 +287,12 @@ export default function AdminHeader({ title, user }: HeaderProps) {
                     <div className="min-w-0 flex-1 pr-6">
                       <div className="flex items-center gap-2">
                         <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${dotStyle}`} />
-                        <h4 className="text-xs font-bold text-portal-foreground truncate group-hover:text-amber-300 transition-colors">
+                        <h4 className="text-xs font-bold text-white truncate group-hover:text-amber-300 transition-colors">
                           {notif.title}
                         </h4>
                       </div>
 
-                      <p className="mt-1 text-xs text-portal-muted line-clamp-2 leading-relaxed">
+                      <p className="mt-1 text-xs text-slate-300 line-clamp-2 leading-relaxed">
                         {notif.description}
                       </p>
 

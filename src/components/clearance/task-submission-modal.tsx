@@ -136,7 +136,7 @@ export default function TaskSubmissionModal({
         }
       }}
     >
-      <DialogContent className="w-full max-w-lg rounded-2xl border border-portal-border bg-portal-surface p-6 shadow-2xl [&>button]:hidden">
+      <DialogContent className="w-full max-w-lg rounded-2xl border border-slate-800 bg-[#0a101f] p-6 shadow-2xl [&>button]:hidden">
         {/* Header */}
         <div className="flex items-start justify-between pb-3 border-b border-slate-800/80">
           <div className="flex items-center gap-3">

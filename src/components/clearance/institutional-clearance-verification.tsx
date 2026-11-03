@@ -512,7 +512,7 @@ export default function InstitutionalClearanceVerification({
         {/* ── LEFT COLUMN: Verification + How To Comply ── */}
         <div className="lg:col-span-8 flex flex-col gap-5">
           {/* 1. Institutional Clearance Verification */}
-          <section className="w-full lg:flex-1 rounded-2xl border border-portal-border bg-portal-surface p-6 md:p-7 shadow-2xl backdrop-blur-sm space-y-6">
+          <section className="w-full lg:flex-1 rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-6 md:p-7 shadow-2xl backdrop-blur-sm space-y-6">
             {/* ── 1. Top Header Row ── */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -568,7 +568,7 @@ export default function InstitutionalClearanceVerification({
             {/* ── 2. Middle Row: Progress & Next Step Callout ── */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* Clearance Progress Card */}
-              <div className="flex flex-col justify-between rounded-xl border border-portal-border bg-portal-inset p-5 shadow-sm">
+              <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/90 p-5 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                     Clearance Progress
@@ -599,7 +599,7 @@ export default function InstitutionalClearanceVerification({
               </div>
 
               {/* Next Step Alert Card */}
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 dark:from-amber-950/30 dark:via-amber-950/15 to-transparent p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-600/35 bg-gradient-to-r from-amber-950/30 via-amber-950/15 to-transparent p-5 shadow-sm">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
                   <div className="flex flex-col">
@@ -839,7 +839,7 @@ export default function InstitutionalClearanceVerification({
           </section>
 
           {/* 2. How To Comply Component */}
-          <div className="w-full rounded-2xl border border-portal-border bg-portal-surface p-5 md:p-6 shadow-2xl backdrop-blur-sm">
+          <div className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-5 md:p-6 shadow-2xl backdrop-blur-sm">
             <div className="flex items-center gap-2.5">
               <Lightbulb className="h-4 w-4 text-amber-400 shrink-0" />
               <h3 className="text-sm font-bold tracking-tight text-white">
@@ -864,7 +864,7 @@ export default function InstitutionalClearanceVerification({
         {/* ── RIGHT COLUMN: Office Hours Today + Staff Lunch Break Notice ── */}
         <div className="lg:col-span-4 flex flex-col gap-5">
           {/* 3. Office Hours Today Component */}
-          <div className="w-full rounded-2xl border border-portal-border bg-portal-surface p-5 md:p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-4">
+          <div className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-5 md:p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">

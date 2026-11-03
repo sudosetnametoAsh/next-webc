@@ -1414,7 +1414,7 @@ export default function TasksPage({
       </div>
 
       {/* ── Search & Filter Controls ── */}
-      <div className="rounded-2xl border border-portal-border bg-portal-surface p-4 shadow-2xl backdrop-blur-sm space-y-3">
+      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] p-4 shadow-2xl backdrop-blur-sm space-y-3">
         {/* Top Row: Search Input + Department Dropdown */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Input */}

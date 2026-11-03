@@ -67,7 +67,7 @@ export default function ClearanceCompletionFab({
         type="button"
         onClick={handleExport}
         disabled={isExporting}
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/40 bg-portal-surface text-portal-accent shadow-2xl shadow-amber-500/20 hover:border-amber-400 hover:bg-portal-inset hover:text-portal-accent hover:scale-105 active:scale-95 transition-ui duration-200 cursor-pointer backdrop-blur-md disabled:cursor-wait disabled:opacity-70 motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-portal-canvas"
+        className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/40 bg-[#0a101f]/95 text-amber-400 shadow-2xl shadow-amber-500/20 hover:border-amber-400 hover:bg-[#0f172a] hover:text-amber-300 hover:scale-105 active:scale-95 transition-ui duration-200 cursor-pointer backdrop-blur-md disabled:cursor-wait disabled:opacity-70 motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         title={isExporting ? "Generating PDF..." : "Download signed clearance PDF (Student & School copies)"}
         aria-label={isExporting ? "Generating signed clearance PDF" : "Download signed clearance PDF certificate"}
         aria-busy={isExporting}

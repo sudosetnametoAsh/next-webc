@@ -203,16 +203,16 @@ export default function DepartmentNotificationSidebar({
   };
 
   return (
-    <Drawer open={isOpen} onClose={onClose} title="Department notifications" className="w-full max-w-sm sm:max-w-md border-l border-portal-border bg-portal-surface select-none">
+    <Drawer open={isOpen} onClose={onClose} title="Department notifications" className="w-full max-w-sm sm:max-w-md border-l border-slate-800 bg-[#0a101f] select-none">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-portal-border bg-portal-inset px-5 py-4">
+        <div className="flex items-center justify-between border-b border-slate-800/80 bg-[#070c18] px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-sm">
               <Bell className="h-4.5 w-4.5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold tracking-tight text-portal-foreground sm:text-base">
+                <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">
                   Notifications
                 </h2>
                 {unreadCount > 0 && (
@@ -368,7 +368,7 @@ export default function DepartmentNotificationSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-portal-border bg-portal-inset p-3 text-center">
+        <div className="border-t border-slate-800/80 bg-[#070c18] p-3 text-center">
           <p className="text-[11px] text-slate-500">
             Clicking a notification navigates directly to the client directory.
           </p>

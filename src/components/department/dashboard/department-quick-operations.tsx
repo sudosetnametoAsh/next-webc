@@ -65,9 +65,9 @@ export default function DepartmentQuickOperations({
 
   return (
     <>
-      <div className="rounded-2xl border border-portal-border bg-portal-surface shadow-xl overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-portal-border bg-portal-inset px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-800 bg-[#070c18] px-6 py-4">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
               <Zap className="h-4 w-4" />

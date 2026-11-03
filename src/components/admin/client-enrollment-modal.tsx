@@ -608,7 +608,7 @@ export default function ClientEnrollmentModal({
                       value={singleId}
                       onChange={(e) => setSingleId(e.target.value)}
                       placeholder={clientType === "student" ? "e.g. 02000301199" : "e.g. EMP-2024-01"}
-                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors font-mono"
+                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors font-mono"
                     />
                   </div>
 
@@ -624,7 +624,7 @@ export default function ClientEnrollmentModal({
                       value={singleName}
                       onChange={(e) => setSingleName(e.target.value)}
                       placeholder="e.g. Jyrum Jaro or Santos, Maria"
-                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                     />
                   </div>
                 </div>
@@ -643,7 +643,7 @@ export default function ClientEnrollmentModal({
                       value={singleEmail}
                       onChange={(e) => setSingleEmail(e.target.value)}
                       placeholder="username@urdaneta.sti.edu.ph"
-                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                     />
                   </div>
 
@@ -660,7 +660,7 @@ export default function ClientEnrollmentModal({
                       value={singlePhone}
                         onChange={(e) => setSinglePhone(e.target.value)}
                         placeholder="e.g. +63 912 345 6789"
-                        className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                        className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                       />
                     </div>
                   ) : (
@@ -697,7 +697,7 @@ export default function ClientEnrollmentModal({
                           setSelectedCourseId(e.target.value);
                           setSelectedSectionId("auto");
                         }}
-                        className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
+                        className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
                       >
                         <option value="auto">
                           -- Select Academic Program --
@@ -772,7 +772,7 @@ export default function ClientEnrollmentModal({
                             aria-label="Section"
                       value={selectedSectionId}
                             onChange={(e) => setSelectedSectionId(e.target.value)}
-                            className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
+                            className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
                           >
                             <option value="auto">
                               -- Auto-assign or Default Section --
