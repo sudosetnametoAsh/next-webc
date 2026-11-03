@@ -1529,28 +1529,6 @@ export default function StudentsClient() {
         />
       </div>
 
-      {/* ── Selection Feedback Banner ── */}
-      {clearanceId.length > 0 && (
-        <div className="shrink-0 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-300 animate-in ease-out fade-in duration-150">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">
-              {clearanceId.length} {clearanceId.length === 1 ? "client" : "clients"} selected
-            </span>
-            <span className="text-amber-400/60">•</span>
-            <span className="text-amber-400/80">
-              {signableClearanceIds.length} eligible for signing
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setClearanceId([])}
-            className="font-medium text-amber-400 underline hover:text-amber-200 transition-colors cursor-pointer"
-          >
-            Clear selection
-          </button>
-        </div>
-      )}
-
       {/* ── Clients Table Card (Dark Theme) ── */}
       <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
         {/* Desktop Table */}
@@ -1660,12 +1638,13 @@ export default function StudentsClient() {
                         <div className="flex items-center gap-3.5 min-w-0 max-w-full">
                           <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                             <Checkbox
+                              aria-label={`Select ${client.name}`}
                               checked={isChecked}
                               disabled={isCheckboxDisabled}
                               onCheckedChange={(checked) =>
                                 handleCheckboxToggle(client.clearanceId, Boolean(checked))
                               }
-                              className="cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
+                              className="relative after:absolute after:-inset-3.5 after:content-[''] cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
                             />
                           </div>
 
@@ -1819,12 +1798,13 @@ export default function StudentsClient() {
                     <div className="flex items-center gap-3 min-w-0">
                       <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                         <Checkbox
+                          aria-label={`Select ${client.name}`}
                           checked={isChecked}
                           disabled={isCheckboxDisabled}
                           onCheckedChange={(checked) =>
                             handleCheckboxToggle(client.clearanceId, Boolean(checked))
                           }
-                          className="cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
+                          className="relative after:absolute after:-inset-3.5 after:content-[''] cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
                         />
                       </div>
                       <div className="w-9 h-9 rounded-full bg-slate-800/90 border border-slate-700/60 flex items-center justify-center text-xs font-bold text-slate-200 shrink-0">

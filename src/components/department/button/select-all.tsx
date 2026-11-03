@@ -106,7 +106,7 @@ export default function SelectAll({
         aria-label="Select all clients"
         checked={selectState}
         onCheckedChange={handleSelectAll}
-        className="cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
+        className="relative after:absolute after:-inset-3.5 after:content-[''] cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
       />
       <Label className="cursor-pointer text-base" htmlFor="all" />
 

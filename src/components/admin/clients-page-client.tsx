@@ -16,6 +16,8 @@ import ClientClearanceOverlay, { DepartmentClearanceProgress } from '@/component
 import TablePaginationFooter from '@/components/admin/table-pagination-footer'
 import ClientEnrollmentModal from '@/components/admin/client-enrollment-modal'
 import ClientActions from '@/components/admin/client-actions'
+import DeleteSelectedClients from '@/components/admin/delete-selected-clients'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ToastContainer } from '@/components/admin/toast'
 import { useToast } from '@/components/admin/use-toast'
 import { isClearanceOverdue } from '@/lib/clearance-overdue'
@@ -167,13 +169,14 @@ function AdminClientsContent({ setAdminPage }: Props) {
   })
   const [studentPage, setStudentPage] = useState(1)
   const [selectedClient, setSelectedClient] = useState<ClientItem | null>(null)
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false)
   const { toasts, dismiss, success, error } = useToast({ duration: 4500 })
 
   // Data Hooks
   const { isLoading: isLoadingAdminStats } = useFetchAdminStats()
   const { data: courseTemplates = [], isLoading: isLoadingCourseTemplates } = useFetchCourseTemplates()
-  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates, isFetching: isFetchingStudentTemplates } = useFetchStudentTemplates()
+  const { data: studentTemplates = [], isLoading: isLoadingStudentTemplates } = useFetchStudentTemplates()
   const { data: coursesData = [] } = useFetchCourses()
   const { data: staffList = [] } = useFetchStaff()
   const { data: staffTemplates = [] } = useFetchStaffTemplates()
@@ -665,6 +668,32 @@ function AdminClientsContent({ setAdminPage }: Props) {
     sectionFilter,
   ])
 
+  // Selection follows the filtered list and remains available across its pages.
+  const selectedClients = filteredClients.filter((client) => selectedKeys.has(`${client.type}:${client.id}`))
+  const allSelected = filteredClients.length > 0 && selectedClients.length === filteredClients.length
+  useEffect(() => {
+    const visibleKeys = new Set(filteredClients.map((client) => `${client.type}:${client.id}`))
+    setSelectedKeys((previous) => {
+      const next = new Set([...previous].filter((key) => visibleKeys.has(key)))
+      return next.size === previous.size ? previous : next
+    })
+  }, [filteredClients])
+
+  const selectionClassName = "relative after:absolute after:-inset-3.5 after:content-[''] cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
+  const selectAllCheckbox = () => (
+    <Checkbox aria-label="Select all filtered clients" checked={allSelected ? true : selectedClients.length > 0 ? 'indeterminate' : false} onCheckedChange={(checked) => setSelectedKeys(checked === true ? new Set(filteredClients.map((client) => `${client.type}:${client.id}`)) : new Set())} className={selectionClassName} />
+  )
+  const clientCheckbox = (client: ClientItem) => (
+    <div className="shrink-0" onClick={(event) => event.stopPropagation()}>
+      <Checkbox aria-label={`Select ${client.name}`} checked={selectedKeys.has(`${client.type}:${client.id}`)} onCheckedChange={(checked) => setSelectedKeys((previous) => {
+        const next = new Set(previous)
+        if (checked === true) next.add(`${client.type}:${client.id}`)
+        else next.delete(`${client.type}:${client.id}`)
+        return next
+      })} className={selectionClassName} />
+    </div>
+  )
+
   // Pagination slice
   const totalPages = Math.ceil(filteredClients.length / PAGE_SIZE)
   const currentPage = Math.min(studentPage, Math.max(1, totalPages))
@@ -673,7 +702,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
     currentPage * PAGE_SIZE
   )
 
-  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates || isFetchingStudentTemplates) {
+  if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates) {
     return (
       <div className="flex min-h-[400px] items-center justify-center text-sm text-slate-400">
         <div className="flex items-center gap-3">
@@ -769,6 +798,11 @@ function AdminClientsContent({ setAdminPage }: Props) {
         }}
       />
 
+      {selectedClients.length > 0 && <DeleteSelectedClients clients={selectedClients} onDeleted={(keys) => {
+        setSelectedKeys((previous) => new Set([...previous].filter((key) => !keys.includes(key))))
+        setSelectedClient((current) => current && keys.includes(`${current.type}:${current.id}`) ? null : current)
+      }} />}
+
       {/* ── Clients Table Card (Dark Theme) ── */}
       <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
         {/* Desktop Table (CLIENT, TYPE, CLEARANCE PROGRESS, STATUS, Action Chevron) */}
@@ -784,7 +818,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
             <thead>
               <tr className="border-b border-slate-800 bg-[#070c18]">
                 <th className="px-6 py-4 text-left text-[11px] font-bold tracking-wider uppercase text-slate-400">
-                  CLIENT
+                  <div className="flex items-center gap-3">{selectAllCheckbox()}<span>CLIENT</span></div>
                 </th>
                 <th className="px-6 py-4 text-center text-[11px] font-bold tracking-wider uppercase text-slate-400">
                   TYPE
@@ -821,6 +855,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                       {/* CLIENT Column - Left-aligned, text truncated so columns never shift */}
                       <td className="px-6 py-4 text-left overflow-hidden">
                         <div className="flex items-center gap-3 min-w-0 max-w-full">
+                          {clientCheckbox(client)}
                           <div className="w-9 h-9 rounded-full bg-slate-800/90 border border-slate-700/60 flex items-center justify-center text-xs font-bold text-slate-200 shrink-0">
                             {getClientInitials(client.name)}
                           </div>
@@ -897,6 +932,9 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
         {/* Mobile View */}
         <div className="md:hidden divide-y divide-slate-800/60">
+          <div className="flex items-center gap-3 bg-[#070c18] px-4 py-4 text-xs text-slate-400">
+            {selectAllCheckbox()}<span>Select all</span>
+          </div>
           {paginated.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-slate-400">
               No clients match your selected filters.
@@ -916,6 +954,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0">
+                      {clientCheckbox(client)}
                       <div className="w-9 h-9 rounded-full bg-slate-800/90 border border-slate-700/60 flex items-center justify-center text-xs font-bold text-slate-200 shrink-0">
                         {getClientInitials(client.name)}
                       </div>
