@@ -51,6 +51,13 @@ export async function PATCH(req: NextRequest) {
 
     const targetRecords = fetchedRecords;
 
+    if (fetchErr) {
+      return NextResponse.json(
+        { error: "Unable to load clearance records. Please try again." },
+        { status: 500 },
+      );
+    }
+
     if (status === "Signed") {
       // Check each clearance's tier eligibility
       if (!fetchErr && targetRecords) {
@@ -63,7 +70,7 @@ export async function PATCH(req: NextRequest) {
           .map((r: any) => r.user_id);
 
         if (studentUserIds.length > 0) {
-          const { data: allUserClearances } = await adminClient
+          const { data: allUserClearances, error: prerequisitesError } = await adminClient
             .from("clearance_records")
             .select(`
               clearance_id,
@@ -78,6 +85,13 @@ export async function PATCH(req: NextRequest) {
               )
             `)
             .in("user_id", studentUserIds);
+
+          if (prerequisitesError) {
+            return NextResponse.json(
+              { error: "Unable to check clearance prerequisites. Please try again." },
+              { status: 500 },
+            );
+          }
 
           if (allUserClearances) {
             for (const target of targetRecords) {

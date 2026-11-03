@@ -1187,6 +1187,7 @@ export default function StudentsClient() {
         );
         if (!hasSubmission) return false;
       } else if (selectedStatus === "pending") {
+        if (client.isLocked && client.status !== "Signed") return false;
         const isPending = client.departmentStatus === "pending";
         const isElevatedSubmission = isClientElevated(client);
         if (!isPending && !isElevatedSubmission) return false;

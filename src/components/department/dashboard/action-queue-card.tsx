@@ -24,6 +24,7 @@ import SubmissionModal, {
   SubmittedFile,
 } from "../clients/sumission-modal";
 import { createClient } from "@/lib/db/supabase-client";
+import { toast } from "sonner";
 
 interface ActionQueueCardProps {
   submissions: getRecentSubmissionsPromise[];
@@ -197,20 +198,23 @@ export default function ActionQueueCard({
     setSigningId(client.clearanceId);
     try {
       const res = await fetch("/api/department/clients/sign", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clearanceIds: [client.clearanceId],
+          ids: [client.clearanceId],
           status: "Signed",
+          signed_at: new Date().toISOString(),
         }),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to sign clearance");
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "Failed to sign clearance");
       }
       router.refresh();
     } catch (err) {
       console.error("Signing failed:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to sign clearance");
     } finally {
       setSigningId(null);
     }

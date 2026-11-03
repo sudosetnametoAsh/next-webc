@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Payload = {
   ids: string[];
@@ -16,9 +17,15 @@ export function useSignClient() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Unable to sign client");
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || "Unable to sign client");
+      }
 
       return response.json();
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["department-clients"] });

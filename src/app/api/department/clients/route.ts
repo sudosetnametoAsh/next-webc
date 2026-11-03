@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
+import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
 
 export interface DepartmentClientTask {
@@ -174,7 +175,12 @@ export async function GET(_req: NextRequest) {
         .from("staffs")
         .select("staff_id, staff_name")
         .in("staff_id", userIds),
-      supabase
+      // Match the signing endpoint's visibility across prerequisite departments.
+      // Limit this privileged read to clients from the officer's authorized records above.
+      (async () => {
+        // Supabase caps each response: an unpaginated read silently omits blockers.
+        const pageSize = 500;
+        const fetchPage = (offset: number) => getSupabaseAdmin()
         .from("clearance_records")
         .select(`
           clearance_id,
@@ -186,13 +192,34 @@ export async function GET(_req: NextRequest) {
             is_active
           )
         `)
-        .in("user_id", userIds),
+        .in("user_id", userIds)
+        .order("clearance_id", { ascending: true })
+        .range(offset, offset + pageSize - 1);
+        const firstPage = await fetchPage(0);
+        if (firstPage.error) return firstPage;
+
+        const data = [...firstPage.data];
+        let pageLength = firstPage.data.length;
+        while (pageLength === pageSize) {
+          const page = await fetchPage(data.length);
+          if (page.error) return page;
+          data.push(...page.data);
+          pageLength = page.data.length;
+        }
+        return { ...firstPage, data };
+      })(),
     ]);
 
     if (studentsRes.error) console.error("Error fetching students:", studentsRes.error);
     if (enrollmentsRes.error) console.error("Error fetching enrollments:", enrollmentsRes.error);
     if (staffsRes.error) console.error("Error fetching staffs:", staffsRes.error);
-    if (allClearancesRes.error) console.error("Error fetching all clearances:", allClearancesRes.error);
+    if (allClearancesRes.error) {
+      console.error("Error fetching all clearances:", allClearancesRes.error);
+      return NextResponse.json(
+        { error: "Unable to check clearance prerequisites. Please try again." },
+        { status: 500 },
+      );
+    }
 
     const studentMap = new Map<string, { student_id: string; student_name: string }>();
     for (const s of studentsRes.data || []) {
