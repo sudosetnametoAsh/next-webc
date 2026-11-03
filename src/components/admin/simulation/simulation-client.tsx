@@ -552,7 +552,7 @@ export default function SimulationClient() {
         <button
           type="button"
           onClick={() => setActiveTab("client")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-ui cursor-pointer ${
             activeTab === "client"
               ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
               : "bg-[#0a101f] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700"
@@ -572,7 +572,7 @@ export default function SimulationClient() {
         <button
           type="button"
           onClick={() => setActiveTab("department")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-ui cursor-pointer ${
             activeTab === "department"
               ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
               : "bg-[#0a101f] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700"
@@ -588,7 +588,7 @@ export default function SimulationClient() {
         <button
           type="button"
           onClick={() => setActiveTab("admin")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-ui cursor-pointer ${
             activeTab === "admin"
               ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
               : "bg-[#0a101f] text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700"
@@ -1191,7 +1191,7 @@ export default function SimulationClient() {
                         <button
                           type="button"
                           onClick={() => setBottleneckScope("single")}
-                          className={`rounded-xl py-2 px-3 text-xs font-bold transition-all ${
+                          className={`rounded-xl py-2 px-3 text-xs font-bold transition-ui ${
                             bottleneckScope === "single"
                               ? "bg-purple-600 text-white shadow-sm"
                               : "bg-[#070c18] border border-slate-800 text-slate-400 hover:text-white"
@@ -1202,7 +1202,7 @@ export default function SimulationClient() {
                         <button
                           type="button"
                           onClick={() => setBottleneckScope("all")}
-                          className={`rounded-xl py-2 px-3 text-xs font-bold transition-all ${
+                          className={`rounded-xl py-2 px-3 text-xs font-bold transition-ui ${
                             bottleneckScope === "all"
                               ? "bg-purple-600 text-white shadow-sm"
                               : "bg-[#070c18] border border-slate-800 text-slate-400 hover:text-white"
@@ -1355,7 +1355,7 @@ export default function SimulationClient() {
                 logs.map((log) => (
                   <div
                     key={log.id}
-                    className={`rounded-lg border p-2.5 transition-all ${
+                    className={`rounded-lg border p-2.5 transition-ui ${
                       log.status === "success"
                         ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-300"
                         : log.status === "error"

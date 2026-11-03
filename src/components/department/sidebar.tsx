@@ -1,5 +1,7 @@
 "use client";
 
+import { Drawer } from "@/components/ui/drawer";
+
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -144,7 +146,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 transition-all hover:bg-amber-950/40 hover:border-amber-500/50 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer select-none text-left"
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 transition-ui hover:bg-amber-950/40 hover:border-amber-500/50 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer select-none text-left"
                 aria-label="Switch portal view"
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -170,7 +172,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
                   router.push("/clearance");
                   if (isMobile) closeMobile();
                 }}
-                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-[#060a14] px-3 py-2 text-emerald-400 transition-all hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:bg-emerald-950/40 focus:border-emerald-500/50 focus:text-emerald-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-[#060a14] px-3 py-2 text-emerald-400 transition-ui hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:bg-emerald-950/40 focus:border-emerald-500/50 focus:text-emerald-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <User className="h-4 w-4 shrink-0 text-emerald-400" />
@@ -226,6 +228,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
                 }}
                 onClick={(e) => {
                   if (item.isActive) {
+                    if (isMobile) closeMobile();
                     e.preventDefault();
                     return;
                   }
@@ -283,29 +286,14 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
   return (
     <>
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden h-screen w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
+      <aside className="hidden h-dvh w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
         {renderContent(false)}
       </aside>
 
       {/* ── Mobile Drawer & Backdrop ── */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
-            onClick={closeMobile}
-            aria-hidden="true"
-          />
-
-          {/* Drawer Panel */}
-          <aside
-            aria-label="Department navigation drawer"
-            className="relative z-50 flex h-full w-72 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 shadow-2xl select-none animate-in slide-in-from-left duration-200"
-          >
-            {renderContent(true)}
-          </aside>
-        </div>
-      )}
+      <Drawer open={mobileOpen} onClose={closeMobile} title="Department navigation" side="left" mobileOnly className="w-72 max-w-[calc(100vw-2rem)] border-r border-slate-800/80 select-none">
+        {renderContent(true)}
+      </Drawer>
     </>
   );
 }

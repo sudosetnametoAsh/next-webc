@@ -85,7 +85,7 @@ function DeptRow({
   }
 
   return (
-    <div className="group flex items-center justify-between px-3 py-2.5 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all">
+    <div className="group flex items-center justify-between px-3 py-2.5 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-sm transition-ui">
       <div className="flex items-center gap-3 min-w-0">
         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-500 shrink-0 group-hover:bg-slate-200 transition-colors">
           <Building2 className="w-4 h-4" />
@@ -262,13 +262,13 @@ export default function ManageDepartmentsModal({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Department name..."
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-all"
+              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-ui"
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
             <button
               onClick={handleCreate}
               disabled={!newName.trim() || createDepartment.isPending}
-              className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-700 disabled:opacity-40 transition-all cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-700 disabled:opacity-40 transition-ui cursor-pointer shrink-0"
             >
               {createDepartment.isPending
                 ? <Loader2 className="w-4 h-4 animate-spin" />

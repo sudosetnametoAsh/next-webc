@@ -61,11 +61,11 @@ function ToastItem({ id, type, title, message, duration = 4000, onDismiss }: Toa
 
   const handleDismiss = () => {
     setLeaving(true);
-    setTimeout(() => onDismiss(id), 300);
+    setTimeout(() => onDismiss(id), 200);
   };
 
   useEffect(() => {
-    const leaveTimer = setTimeout(() => setLeaving(true), duration - 300);
+    const leaveTimer = setTimeout(() => setLeaving(true), duration - 200);
     const dismissTimer = setTimeout(() => onDismiss(id), duration);
     return () => {
       clearTimeout(leaveTimer);
@@ -79,7 +79,7 @@ function ToastItem({ id, type, title, message, duration = 4000, onDismiss }: Toa
       aria-live="assertive"
       className={`
         relative w-full max-w-sm rounded-xl shadow-lg overflow-hidden
-        transition-all duration-300 ease-in-out
+        transition-[transform,translate,opacity] duration-200 ease-out motion-reduce:translate-none
         ${styles.container}
         ${visible && !leaving ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
       `}
@@ -114,14 +114,14 @@ function ToastItem({ id, type, title, message, duration = 4000, onDismiss }: Toa
       </div>
 
       <div
-        className={`absolute bottom-0 left-0 h-0.5 ${styles.progress}`}
+        className={`absolute bottom-0 left-0 w-full origin-left motion-reduce:animate-none! h-0.5 ${styles.progress}`}
         style={{ animation: `shrink ${duration}ms linear forwards` }}
       />
 
       <style>{`
         @keyframes shrink {
-          from { width: 100%; }
-          to { width: 0%; }
+          from { transform: scaleX(1); }
+          to { transform: scaleX(0); }
         }
       `}</style>
     </div>

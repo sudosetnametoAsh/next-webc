@@ -85,7 +85,7 @@ export default function DepartmentQuickOperations({
           <button
             type="button"
             onClick={() => setAiModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-ui cursor-pointer"
           >
             <Sparkles className="h-3.5 w-3.5" />
             <span>AI Protocol</span>
@@ -136,7 +136,7 @@ export default function DepartmentQuickOperations({
                   key={op.label}
                   type="button"
                   onClick={op.onClick}
-                  className="group relative flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/70 p-4 transition-all hover:border-slate-700 hover:bg-[#070c18] hover:shadow-md text-left cursor-pointer"
+                  className="group relative flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/70 p-4 transition-ui hover:border-slate-700 hover:bg-[#070c18] hover:shadow-md text-left cursor-pointer"
                 >
                   {content}
                 </button>
@@ -147,7 +147,7 @@ export default function DepartmentQuickOperations({
               <Link
                 key={op.label}
                 href={op.href!}
-                className="group relative flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/70 p-4 transition-all hover:border-slate-700 hover:bg-[#070c18] hover:shadow-md"
+                className="group relative flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/70 p-4 transition-ui hover:border-slate-700 hover:bg-[#070c18] hover:shadow-md"
               >
                 {content}
               </Link>

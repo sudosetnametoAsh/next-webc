@@ -45,7 +45,7 @@ export default function OperationalShortcuts({
         {/* Shortcut 1: Ready for Final Endorsement */}
         <Link
           href="/admin/clients"
-          className="group relative flex flex-col justify-between p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all cursor-pointer"
+          className="group relative flex flex-col justify-between p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-ui cursor-pointer"
         >
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -73,7 +73,7 @@ export default function OperationalShortcuts({
         {/* Shortcut 2: Phase 1 Pending Gate */}
         <Link
           href="/admin/clients"
-          className="group relative flex flex-col justify-between p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all cursor-pointer"
+          className="group relative flex flex-col justify-between p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/40 transition-ui cursor-pointer"
         >
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -101,7 +101,7 @@ export default function OperationalShortcuts({
         {/* Shortcut 3: Create Template */}
         <Link
           href="/admin/templates"
-          className="group relative flex flex-col justify-between p-4 rounded-xl border border-slate-800 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-all cursor-pointer"
+          className="group relative flex flex-col justify-between p-4 rounded-xl border border-slate-800 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-ui cursor-pointer"
         >
           <div>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-300 mb-2">
@@ -124,7 +124,7 @@ export default function OperationalShortcuts({
         {/* Shortcut 4: Manage Departments */}
         <Link
           href="/admin/departments"
-          className="group relative flex flex-col justify-between p-4 rounded-xl border border-slate-800 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-all cursor-pointer"
+          className="group relative flex flex-col justify-between p-4 rounded-xl border border-slate-800 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-ui cursor-pointer"
         >
           <div>
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-300 mb-2">

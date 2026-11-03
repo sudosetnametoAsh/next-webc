@@ -201,7 +201,7 @@ export default function InPersonModal({
               type="button"
               onClick={onPrevClient}
               title={prevClientName ? `Previous client: ${prevClientName}` : "Previous client"}
-              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-all cursor-pointer font-bold text-xs group whitespace-nowrap animate-in fade-in zoom-in-90 duration-150"
+              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-ui cursor-pointer font-bold text-xs group whitespace-nowrap animate-in ease-out fade-in zoom-in-90 duration-150"
             >
               <ChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden md:inline font-semibold">Prev Client</span>
@@ -214,7 +214,7 @@ export default function InPersonModal({
             onClick={onPrevTask}
             disabled={!hasPrevTask}
             title={hasPrevTask ? "Previous requirement" : "First requirement"}
-            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-all ${
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-ui ${
               hasPrevTask
                 ? "border-slate-800 bg-[#0a101f]/95 text-slate-300 hover:border-amber-500/50 hover:bg-slate-800 hover:text-white cursor-pointer"
                 : "border-slate-800/40 bg-[#0a101f]/40 text-slate-600 opacity-30 cursor-not-allowed"
@@ -225,7 +225,7 @@ export default function InPersonModal({
         </div>
 
         {/* Modal Dialog */}
-        <div className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
+        <div className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[92vh] animate-in ease-out fade-in zoom-in-95 duration-150">
         {/* Header Section */}
         <div className="bg-[#070c18] border-b border-slate-800 px-6 py-5 flex justify-between items-start gap-4">
           <div className="flex gap-3 min-w-0">
@@ -484,7 +484,7 @@ export default function InPersonModal({
           )
         ) : showFlaggedApproveConfirm ? (
           /* Flagged In-Person Approval Confirmation */
-          <div className="p-4 border-t border-amber-500/40 bg-amber-500/10 space-y-3 animate-in fade-in duration-150">
+          <div className="p-4 border-t border-amber-500/40 bg-amber-500/10 space-y-3 animate-in ease-out fade-in duration-150">
             <div className="flex items-start gap-3">
               <div className="shrink-0 mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
                 <AlertTriangle size={15} />
@@ -555,7 +555,7 @@ export default function InPersonModal({
             onClick={onNextTask}
             disabled={!hasNextTask}
             title={hasNextTask ? "Next requirement" : "Last requirement"}
-            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-all ${
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-ui ${
               hasNextTask
                 ? "border-slate-800 bg-[#0a101f]/95 text-slate-300 hover:border-amber-500/50 hover:bg-slate-800 hover:text-white cursor-pointer"
                 : "border-slate-800/40 bg-[#0a101f]/40 text-slate-600 opacity-30 cursor-not-allowed"
@@ -570,7 +570,7 @@ export default function InPersonModal({
               type="button"
               onClick={onNextClient}
               title={nextClientName ? `Next client: ${nextClientName}` : "Next client"}
-              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-all cursor-pointer font-bold text-xs group whitespace-nowrap animate-in fade-in zoom-in-90 duration-150"
+              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-ui cursor-pointer font-bold text-xs group whitespace-nowrap animate-in ease-out fade-in zoom-in-90 duration-150"
             >
               <span className="hidden md:inline font-semibold">Next Client</span>
               <ChevronsRight className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:translate-x-0.5 transition-transform" />

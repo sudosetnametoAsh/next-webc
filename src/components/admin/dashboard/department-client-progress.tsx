@@ -98,7 +98,7 @@ export default function DepartmentClientProgress({
             return (
               <div
                 key={dept.deptId}
-                className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-all hover:border-slate-700/90 group"
+                className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-ui hover:border-slate-700/90 group"
               >
                 {/* Upper row: Icon, Dept Name, Location, Numbers */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -182,8 +182,8 @@ export default function DepartmentClientProgress({
                 {!isZeroAssigned && (
                   <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800 mt-2">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(dept.rate)}`}
-                      style={{ width: `${dept.rate}%` }}
+                      className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(dept.rate)}`}
+                      style={{ transform: `scaleX(${(dept.rate) / 100})` }}
                     />
                   </div>
                 )}

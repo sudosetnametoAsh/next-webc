@@ -499,7 +499,7 @@ function SelectionStep({
                   type="button"
                   aria-pressed={isChecked}
                   onClick={() => toggleCourse(course.course_id)}
-                  className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer w-full ${
+                  className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-ui text-left cursor-pointer w-full ${
                     isChecked
                       ? 'border-amber-400/40 bg-amber-400/5 text-slate-100'
                       : 'border-slate-800/90 bg-[#070c18]/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-200'
@@ -570,7 +570,7 @@ function SelectionStep({
                 type="button"
                 aria-pressed={isChecked}
                 onClick={() => toggleDepartment(department.dept_id)}
-                className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer w-full ${
+                className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-ui text-left cursor-pointer w-full ${
                   isChecked
                     ? 'border-amber-400/40 bg-amber-400/5 text-slate-100'
                     : 'border-slate-800/90 bg-[#070c18]/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-200'
@@ -685,7 +685,7 @@ function StaffSelectionStep({
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search staff officer by name or ID..."
           autoFocus
-          className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 pl-9 pr-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-all"
+          className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 pl-9 pr-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui"
         />
       </div>
 
@@ -701,7 +701,7 @@ function StaffSelectionStep({
               key={s.staff_id}
               type="button"
               onClick={() => onSelect(s.staff_id, s.staff_name)}
-              className='w-full flex flex-wrap items-center justify-between gap-2 p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-all text-left cursor-pointer group'
+              className='w-full flex flex-wrap items-center justify-between gap-2 p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-ui text-left cursor-pointer group'
             >
               <div className='flex items-center gap-3 min-w-0'>
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">

@@ -1120,7 +1120,7 @@ export default function TaskView({
                 return (
                   <div
                     key={item.dept_name}
-                    className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 w-full overflow-hidden ${
+                    className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-ui duration-200 w-full overflow-hidden ${
                       isCurrent
                         ? "border-amber-500/40 bg-amber-500/10 shadow-xs"
                         : "border-slate-800 bg-[#070c18] hover:border-slate-700"
@@ -1212,7 +1212,7 @@ export default function TaskView({
                 return (
                   <div
                     key={task.assigned_task_id}
-                    className={`relative group rounded-xl border transition-all shadow-xs ${
+                    className={`relative group rounded-xl border transition-ui shadow-xs ${
                       isBypassed
                         ? "border-slate-800/40 bg-[#070c18]/40 opacity-45 grayscale hover:opacity-75"
                         : "border-slate-800 bg-[#070c18] hover:bg-slate-800/30"
@@ -1339,7 +1339,7 @@ export default function TaskView({
                           <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
                         )}
 
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-amber-300 transition-all shrink-0" />
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-amber-300 transition-ui shrink-0" />
                       </div>
                     </div>
                   </div>
@@ -1390,7 +1390,7 @@ export default function TaskView({
                   setTitle={setTitle}
                   sectionId={sectionId}
                   existingTasks={tasks}
-                  buttonClassName="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 px-3 py-2 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                  buttonClassName="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 px-3 py-2 text-xs font-semibold transition-ui cursor-pointer shadow-xs"
                 />
                 <AddPreset
                   preset={activePreset}
@@ -1400,7 +1400,7 @@ export default function TaskView({
                   description={description}
                   sectionId={sectionId}
                   existingTasks={tasks}
-                  buttonClassName="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 px-3 py-2 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                  buttonClassName="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 px-3 py-2 text-xs font-semibold transition-ui cursor-pointer shadow-xs"
                 />
               </>
             )}
@@ -1412,7 +1412,7 @@ export default function TaskView({
                 onClick={onPrevClient}
                 disabled={!hasPrevClient}
                 title={hasPrevClient ? (prevClientName ? `Previous client: ${prevClientName}` : "Previous client") : "First client"}
-                className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-all ${
+                className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-ui ${
                   hasPrevClient
                     ? "border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 cursor-pointer shadow-xs"
                     : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"
@@ -1426,7 +1426,7 @@ export default function TaskView({
                 onClick={onNextClient}
                 disabled={!hasNextClient}
                 title={hasNextClient ? (nextClientName ? `Next client: ${nextClientName}` : "Next client") : "Last client"}
-                className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-all ${
+                className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-ui ${
                   hasNextClient
                     ? "border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-200 cursor-pointer shadow-xs"
                     : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"

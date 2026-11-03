@@ -255,7 +255,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
           >
             <Bell className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14] animate-in zoom-in-50 duration-150 font-mono">
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14]  font-mono">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -264,7 +264,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
           {/* Active Dropdown Popups for Admin Alerts */}
           {activePopups.length > 0 && !isNotificationSidebarOpen && (
             <div
-              className="absolute right-0 top-12 z-50 flex w-80 sm:w-96 flex-col gap-2 transition-all duration-300 animate-in fade-in slide-in-from-top-3"
+              className="absolute right-0 top-12 z-50 flex w-80 max-w-[calc(100vw-2rem)] sm:w-96 flex-col gap-2 transition-ui duration-200 animate-in ease-out fade-in slide-in-from-top-3"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
@@ -275,7 +275,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
                   <div
                     key={notif.id}
                     onClick={() => handlePopupClick(notif)}
-                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-all hover:border-amber-400 hover:bg-[#0c1427] cursor-pointer"
+                    className="group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-ui hover:border-amber-400 hover:bg-[#0c1427] cursor-pointer"
                   >
                     <div
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${containerStyle}`}

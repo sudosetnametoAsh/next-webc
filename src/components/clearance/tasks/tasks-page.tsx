@@ -1512,7 +1512,7 @@ export default function TasksPage({
                 onClick={() => {
                   setSelectedStatus(st.key);
                 }}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                   isActive
                     ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                     : "border border-slate-800/80 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -1562,7 +1562,7 @@ export default function TasksPage({
 
                 {/* ── Returned Documents Header ── */}
                 {showReturnedHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 shadow-sm animate-in ease-out fade-in duration-200">
                     <div className="flex items-center gap-2">
                       <span className="flex h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-rose-300">
@@ -1574,7 +1574,7 @@ export default function TasksPage({
 
                 {/* ── Flagged Documents Header (Early AI Flag) ── */}
                 {showFlaggedHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 shadow-sm animate-in ease-out fade-in duration-200">
                     <div className="flex items-center gap-2">
                       <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300 flex items-center gap-1.5">
@@ -1591,7 +1591,7 @@ export default function TasksPage({
 
                 {/* ── New Tasks Header ── */}
                 {showNewTasksHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 shadow-sm animate-in ease-out fade-in duration-200">
                     <div className="flex items-center gap-2">
                       <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
@@ -1623,7 +1623,7 @@ export default function TasksPage({
                 <div
                   key={t.id}
                   onClick={() => handleTaskClick(t)}
-                  className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border p-4 sm:px-5 shadow-sm backdrop-blur-sm transition-all hover:bg-[#0c1427]/90 cursor-pointer ${
+                  className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border p-4 sm:px-5 shadow-sm backdrop-blur-sm transition-ui hover:bg-[#0c1427]/90 cursor-pointer ${
                     isReturnedElevated
                       ? "border-rose-500/40 bg-[#0a101f]/95 ring-1 ring-rose-500/20 hover:border-rose-500/60"
                       : isFlaggedElevated
@@ -1765,7 +1765,7 @@ export default function TasksPage({
                     </span>
                   </div>
 
-                  <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all" />
+                  <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-ui" />
                 </div>
               </div>
             </Fragment>

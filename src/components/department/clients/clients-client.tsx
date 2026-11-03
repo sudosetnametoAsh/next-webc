@@ -1531,7 +1531,7 @@ export default function StudentsClient() {
 
       {/* ── Selection Feedback Banner ── */}
       {clearanceId.length > 0 && (
-        <div className="shrink-0 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-300 animate-in fade-in duration-150">
+        <div className="shrink-0 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-300 animate-in ease-out fade-in duration-150">
           <div className="flex items-center gap-2">
             <span className="font-semibold">
               {clearanceId.length} {clearanceId.length === 1 ? "client" : "clients"} selected
@@ -1733,7 +1733,7 @@ export default function StudentsClient() {
                               title={`${unviewedSubmissionsCount} new ${
                                 unviewedSubmissionsCount === 1 ? "submission" : "submissions"
                               }`}
-                              className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs ring-2 ring-[#0a101f] animate-in zoom-in duration-150"
+                              className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs ring-2 ring-[#0a101f] "
                             >
                               {unviewedSubmissionsCount}
                             </span>
@@ -1865,7 +1865,7 @@ export default function StudentsClient() {
                           title={`${unviewedSubmissionsCount} new ${
                             unviewedSubmissionsCount === 1 ? "submission" : "submissions"
                           }`}
-                          className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs ring-2 ring-[#0a101f] animate-in zoom-in duration-150"
+                          className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs ring-2 ring-[#0a101f] "
                         >
                           {unviewedSubmissionsCount}
                         </span>
@@ -1919,7 +1919,7 @@ export default function StudentsClient() {
               className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity"
               onClick={handleCloseDrawer}
             />
-            <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full min-w-0 flex-col border-l border-slate-800 bg-[#0a101f] shadow-2xl animate-in slide-in-from-right duration-200">
+            <div className="fixed top-0 right-0 z-50 flex h-full w-[480px] max-w-full min-w-0 flex-col border-l border-slate-800 bg-[#0a101f] shadow-2xl animate-in ease-out slide-in-from-right duration-200">
               <TaskView
                 studentTasks={selectedClient.tasks as any}
                 studentId={selectedClient.id}

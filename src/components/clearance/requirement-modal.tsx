@@ -605,10 +605,10 @@ export default function RequirementModal({
       {/* Outer Positioning Container (unclipped for outside navigation buttons) */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl px-11 sm:px-0 z-10 flex items-center justify-center"
+        className="relative w-full max-w-2xl pt-12 lg:pt-0 z-10 flex items-center justify-center"
       >
         {/* Left Navigation Group */}
-        <div className="absolute left-0.5 sm:left-auto sm:right-[calc(100%+14px)] top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-2 z-20">
+        <div className="absolute left-0 top-0 lg:left-auto lg:right-[calc(100%+14px)] lg:top-1/2 lg:-translate-y-1/2 flex items-center gap-1.5 sm:gap-2 z-20">
           {/* Previous Department '<<' Button (Appears beside chevron at start of task list) */}
           {isFirstTask && hasPrevDept && (
             <button
@@ -619,7 +619,7 @@ export default function RequirementModal({
                 onPrevDept?.();
               }}
               title={prevDeptName ? `Previous department: ${prevDeptName}` : "Previous department"}
-              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-all cursor-pointer font-bold text-xs group whitespace-nowrap animate-in fade-in zoom-in-90 duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-ui cursor-pointer font-bold text-xs group whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden md:inline font-semibold">Prev Dept</span>
@@ -635,7 +635,7 @@ export default function RequirementModal({
             }}
             disabled={!hasPrevTask || isLoadingDept}
             title={hasPrevTask ? "Previous requirement" : "First requirement"}
-            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-all ${
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-ui ${
               hasPrevTask && !isLoadingDept
                 ? "border-slate-800 bg-[#0a101f]/95 text-slate-300 hover:border-amber-500/50 hover:bg-slate-800 hover:text-white cursor-pointer"
                 : "border-slate-800/40 bg-[#0a101f]/40 text-slate-600 opacity-30 cursor-not-allowed"
@@ -646,7 +646,7 @@ export default function RequirementModal({
         </div>
 
         {/* Right Navigation Group */}
-        <div className="absolute right-0.5 sm:right-auto sm:left-[calc(100%+14px)] top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-2 z-20">
+        <div className="absolute right-0 top-0 lg:right-auto lg:left-[calc(100%+14px)] lg:top-1/2 lg:-translate-y-1/2 flex items-center gap-1.5 sm:gap-2 z-20">
           {/* Right Navigation Chevron */}
           <button
             type="button"
@@ -656,7 +656,7 @@ export default function RequirementModal({
             }}
             disabled={!hasNextTask || isLoadingDept}
             title={hasNextTask ? "Next requirement" : "Last requirement"}
-            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-all ${
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-ui ${
               hasNextTask && !isLoadingDept
                 ? "border-slate-800 bg-[#0a101f]/95 text-slate-300 hover:border-amber-500/50 hover:bg-slate-800 hover:text-white cursor-pointer"
                 : "border-slate-800/40 bg-[#0a101f]/40 text-slate-600 opacity-30 cursor-not-allowed"
@@ -675,7 +675,7 @@ export default function RequirementModal({
                 onNextDept?.();
               }}
               title={nextDeptName ? `Next department: ${nextDeptName}` : "Next department"}
-              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-all cursor-pointer font-bold text-xs group whitespace-nowrap animate-in fade-in zoom-in-90 duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex h-9 sm:h-10 px-2.5 sm:px-3 shrink-0 items-center justify-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-xl shadow-amber-500/10 backdrop-blur-md hover:bg-amber-500/25 hover:border-amber-400 hover:text-amber-200 transition-ui cursor-pointer font-bold text-xs group whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="hidden md:inline font-semibold">Next Dept</span>
               <ChevronsRight className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
@@ -686,10 +686,10 @@ export default function RequirementModal({
         {/* Modal Dialog Card */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[92vh]"
+          className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] lg:max-h-[92dvh]"
         >
           {/* Header Section */}
-          <div className="bg-[#070c18] border-b border-slate-800 px-6 py-5 flex justify-between items-start gap-4">
+          <div className="bg-[#070c18] border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap sm:flex-nowrap justify-between items-start gap-4">
             <div className="flex gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 mt-0.5">
                 {task?.isInPerson && isPending ? (
@@ -710,7 +710,7 @@ export default function RequirementModal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-4">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto sm:ml-4">
               {/* Status Badge */}
               {renderStatusBadge()}
 
@@ -869,7 +869,7 @@ export default function RequirementModal({
                             href={file.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-800 bg-[#070c18]/70 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-all cursor-pointer"
+                            className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-800 bg-[#070c18]/70 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-ui cursor-pointer"
                             title={`Click to preview ${file.name}`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
@@ -933,7 +933,7 @@ export default function RequirementModal({
                               href={file.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-800 bg-[#070c18]/70 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-all cursor-pointer"
+                              className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-800 bg-[#070c18]/70 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-ui cursor-pointer"
                               title={`Click to preview ${file.name}`}
                             >
                               <div className="flex items-center gap-3 min-w-0">
@@ -990,7 +990,7 @@ export default function RequirementModal({
                           </div>
                         )}
 
-                        <label className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-800 hover:border-amber-500/50 bg-[#070c18] hover:bg-slate-800/30 p-6 sm:p-7 text-center transition-all cursor-pointer">
+                        <label className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-800 hover:border-amber-500/50 bg-[#070c18] hover:bg-slate-800/30 p-6 sm:p-7 text-center transition-ui cursor-pointer">
                           <input
                             type="file"
                             className="hidden"

@@ -699,7 +699,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
         <button
           type="button"
           onClick={() => setIsEnrollModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs tracking-wide shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-fit cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs tracking-wide shadow-lg shadow-amber-500/20 transition-ui hover:scale-[1.02] active:scale-[0.98] w-fit cursor-pointer"
         >
           <UserPlus className="h-4 w-4" />
           <span>Enroll Client</span>
@@ -866,7 +866,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                           </div>
                           <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-300 ${getProgressBarColor(percent)}`}
+                              className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(percent)}`}
                               style={{ width: `${percent}%` }}
                             />
                           </div>
@@ -961,7 +961,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
                   <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${getProgressBarColor(percent)}`}
+                      className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(percent)}`}
                       style={{ width: `${percent}%` }}
                     />
                   </div>

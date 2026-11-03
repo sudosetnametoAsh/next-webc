@@ -73,28 +73,28 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
             <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-900 border border-slate-800">
               {aiPct > 0 && (
                 <div
-                  className="bg-emerald-500 transition-all duration-500"
+                  className="bg-emerald-500"
                   style={{ width: `${aiPct}%` }}
                   title={`AI Verified: ${aiVerified} (${aiPct}%)`}
                 />
               )}
               {manualPct > 0 && (
                 <div
-                  className="bg-cyan-500 transition-all duration-500"
+                  className="bg-cyan-500"
                   style={{ width: `${manualPct}%` }}
                   title={`Direct Cleared: ${manuallyCleared} (${manualPct}%)`}
                 />
               )}
               {flaggedPct > 0 && (
                 <div
-                  className="bg-rose-500 transition-all duration-500"
+                  className="bg-rose-500"
                   style={{ width: `${flaggedPct}%` }}
                   title={`Flagged Anomalies: ${flagged} (${flaggedPct}%)`}
                 />
               )}
               {pendingPct > 0 && (
                 <div
-                  className="bg-amber-500 transition-all duration-500"
+                  className="bg-amber-500"
                   style={{ width: `${pendingPct}%` }}
                   title={`Pending: ${pendingReview} (${pendingPct}%)`}
                 />

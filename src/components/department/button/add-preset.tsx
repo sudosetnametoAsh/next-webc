@@ -267,7 +267,7 @@ export default function AddPreset({
                     return (
                       <div
                         key={item.task_id}
-                        className={`flex flex-col gap-3 rounded-lg border p-3 transition-all ${
+                        className={`flex flex-col gap-3 rounded-lg border p-3 transition-ui ${
                           isAssigned
                             ? "border-slate-800 bg-slate-900/50 opacity-75"
                             : isSelected

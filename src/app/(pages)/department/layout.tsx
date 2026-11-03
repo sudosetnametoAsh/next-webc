@@ -33,19 +33,19 @@ export default async function DepartmentRoot({
       <DepartmentProvider departmentName={session.department} userId={session.user_id}>
         <DepartmentNavProvider>
           <RealtimeDashboardListener />
-          <div className="flex h-screen w-screen overflow-hidden bg-[#060a14]">
+          <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
             <Sidebar
               department={session.department}
               user_name={session.user_name}
               user_id={session.user_id}
             />
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               <DepartmentHeader
                 department={session.department}
                 user_name={session.user_name}
                 user_id={session.user_id}
               />
-              <main className="flex-1 overflow-y-auto flex flex-col">
+              <main className="min-h-0 min-w-0 flex-1 overflow-y-auto flex flex-col">
                 <div className="max-w-[1920px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
                   {children}
                 </div>

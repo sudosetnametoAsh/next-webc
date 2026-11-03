@@ -94,7 +94,7 @@ export default function PhasePipelineRadar({
                 key={f.id}
                 type="button"
                 onClick={() => onFilterChange(f.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition-ui ${
                   isActive
                     ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
                     : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
@@ -133,7 +133,7 @@ export default function PhasePipelineRadar({
               return (
                 <div
                   key={phase.tier}
-                  className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-all hover:border-slate-700"
+                  className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-ui hover:border-slate-700"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2.5">
@@ -173,8 +173,8 @@ export default function PhasePipelineRadar({
                   {/* Progress Bar */}
                   <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(phase.rate)}`}
-                      style={{ width: `${phase.rate}%` }}
+                      className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(phase.rate)}`}
+                      style={{ transform: `scaleX(${(phase.rate) / 100})` }}
                     />
                   </div>
 
@@ -185,7 +185,7 @@ export default function PhasePipelineRadar({
                         const DeptIcon = getDepartmentIcon(dept.iconName, dept.deptName)
                         const isBottleneck = dept.isBottleneck
                         const isStalled = dept.stalledCount > 0
-                        const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-all ${
+                        const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-ui ${
                           isBottleneck
                             ? 'border-rose-900/60 bg-rose-950/40 text-rose-300 ring-1 ring-rose-500/20'
                             : isStalled
@@ -265,7 +265,7 @@ export default function PhasePipelineRadar({
         ) : isStaffOnly && staffSummary ? (
           /* VIEW 2: STAFF ONLY FALLBACK (Parallel Signatories) */
           <div className="space-y-4">
-            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-all">
+            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-ui">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md font-mono text-[11px] font-bold border border-amber-500/30 bg-amber-500/20 text-amber-400">
@@ -300,8 +300,8 @@ export default function PhasePipelineRadar({
               {/* Progress Bar */}
               <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(staffSummary.rate)}`}
-                  style={{ width: `${staffSummary.rate}%` }}
+                  className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(staffSummary.rate)}`}
+                  style={{ transform: `scaleX(${(staffSummary.rate) / 100})` }}
                 />
               </div>
 
@@ -331,7 +331,7 @@ export default function PhasePipelineRadar({
                     const isBottleneck = dept.isBottleneck
                     const isStalled = dept.stalledCount > 0
                     const isLow = dept.rate < 40 || isBottleneck
-                    const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-all ${
+                    const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-ui ${
                       isBottleneck
                         ? 'border-rose-900/60 bg-rose-950/40 text-rose-300 ring-1 ring-rose-500/20'
                         : isStalled || isLow
@@ -381,7 +381,7 @@ export default function PhasePipelineRadar({
           /* VIEW 3: NORMALIZED LIFECYCLE (All Degree Programs) */
           <div className="space-y-4">
             {/* Stage 1: Prerequisite Settlement Gate */}
-            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-all hover:border-slate-700">
+            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-ui hover:border-slate-700">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20 text-amber-400 font-mono text-[11px] font-bold border border-amber-500/30">
@@ -416,8 +416,8 @@ export default function PhasePipelineRadar({
               {/* Progress Bar */}
               <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(phase1.rate)}`}
-                  style={{ width: `${phase1.rate}%` }}
+                  className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(phase1.rate)}`}
+                  style={{ transform: `scaleX(${(phase1.rate) / 100})` }}
                 />
               </div>
 
@@ -439,7 +439,7 @@ export default function PhasePipelineRadar({
             </div>
 
             {/* Stage 2: In-Flight Parallel Verification */}
-            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-all hover:border-slate-700">
+            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-ui hover:border-slate-700">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md font-mono text-[11px] font-bold border border-amber-500/30 bg-amber-500/20 text-amber-400">
@@ -474,8 +474,8 @@ export default function PhasePipelineRadar({
               {/* Progress Bar */}
               <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(phase2.rate)}`}
-                  style={{ width: `${phase2.rate}%` }}
+                  className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(phase2.rate)}`}
+                  style={{ transform: `scaleX(${(phase2.rate) / 100})` }}
                 />
               </div>
 
@@ -521,7 +521,7 @@ export default function PhasePipelineRadar({
                       const DeptIcon = getDepartmentIcon(dept.iconName, dept.deptName)
                       const isBottleneck = dept.isBottleneck
                       const isStalled = dept.stalledCount > 0
-                      const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-all ${
+                      const chipClass = `inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] border font-mono transition-ui ${
                         isBottleneck
                           ? 'border-rose-900/60 bg-rose-950/40 text-rose-300 ring-1 ring-rose-500/20'
                           : isStalled
@@ -569,7 +569,7 @@ export default function PhasePipelineRadar({
             </div>
 
             {/* Stage 3: Terminal Endorsement */}
-            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-all hover:border-slate-700">
+            <div className="relative rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-4 transition-ui hover:border-slate-700">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md font-mono text-[11px] font-bold border border-amber-500/30 bg-amber-500/20 text-amber-400">
@@ -604,8 +604,8 @@ export default function PhasePipelineRadar({
               {/* Progress Bar */}
               <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${getProgressBarColor(phase3.rate)}`}
-                  style={{ width: `${phase3.rate}%` }}
+                  className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(phase3.rate)}`}
+                  style={{ transform: `scaleX(${(phase3.rate) / 100})` }}
                 />
               </div>
 

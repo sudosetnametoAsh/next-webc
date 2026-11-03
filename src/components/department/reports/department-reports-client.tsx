@@ -90,7 +90,7 @@ export default function DepartmentReportsClient({ reportData }: Props) {
             type="button"
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-all cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 animate-spin text-slate-950" />

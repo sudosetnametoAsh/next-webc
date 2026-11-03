@@ -139,7 +139,7 @@ export default function AdminDepartmentsPage() {
               setSelectedDept(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-sm shadow-md shadow-amber-500/20 transition-all cursor-pointer self-start sm:self-auto"
+            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
             <span>Add Department</span>
@@ -193,7 +193,7 @@ export default function AdminDepartmentsPage() {
                         {/* Department Name, Icon & Location */}
                         <td className="px-6 py-4 text-left">
                           <div className="flex items-center gap-3.5 min-w-0">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner group-hover:border-amber-500/40 group-hover:bg-amber-500/20 transition-all">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner group-hover:border-amber-500/40 group-hover:bg-amber-500/20 transition-ui">
                               <DeptIcon className="h-5 w-5" />
                             </div>
                             <div className="min-w-0 text-left">

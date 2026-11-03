@@ -90,7 +90,7 @@ export default function DepartmentIconPicker({
           type="button"
           disabled={disabled}
           title="Click to change department icon"
-          className={`group relative flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 shadow-xs transition-all hover:border-slate-300 hover:bg-slate-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${sizeClasses} ${className}`}
+          className={`group relative flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 shadow-xs transition-ui hover:border-slate-300 hover:bg-slate-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${sizeClasses} ${className}`}
         >
           <CurrentIcon className={iconSizes} />
 
@@ -186,7 +186,7 @@ export default function DepartmentIconPicker({
                     onMouseEnter={() => setHoveredIcon(item)}
                     onMouseLeave={() => setHoveredIcon(null)}
                     title={`${item.label} (${item.name})`}
-                    className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-all cursor-pointer ${
+                    className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-ui cursor-pointer ${
                       isSelected
                         ? "border-indigo-600 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20"
                         : "border-slate-100 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"

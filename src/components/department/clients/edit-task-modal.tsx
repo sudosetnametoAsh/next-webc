@@ -120,7 +120,7 @@ export default function EditTaskModal({
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[92vh] animate-in ease-out fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="bg-[#070c18] border-b border-slate-800 px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
@@ -270,7 +270,7 @@ export default function EditTaskModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-500/10 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-ui shadow-md shadow-amber-500/10 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
             >
               {isSubmitting ? (
                 <>

@@ -331,7 +331,7 @@ export default function SubmissionsDeskClient({
             type="button"
             onClick={handleBatchAuthorizeVerified}
             disabled={isBatchAuthorizing}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-emerald-500/20 cursor-pointer disabled:opacity-50 self-start sm:self-auto shrink-0"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 text-xs transition-ui shadow-md shadow-emerald-500/20 cursor-pointer disabled:opacity-50 self-start sm:self-auto shrink-0"
           >
             {isBatchAuthorizing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -418,7 +418,7 @@ export default function SubmissionsDeskClient({
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-ui whitespace-nowrap cursor-pointer ${
                 statusFilter === "all"
                   ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold"
                   : "bg-[#070c18] border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
@@ -429,7 +429,7 @@ export default function SubmissionsDeskClient({
             <button
               type="button"
               onClick={() => setStatusFilter("verified")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-ui flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                 statusFilter === "verified"
                   ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold"
                   : "bg-[#070c18] border border-slate-800 text-emerald-400 hover:border-emerald-500/40"
@@ -441,7 +441,7 @@ export default function SubmissionsDeskClient({
             <button
               type="button"
               onClick={() => setStatusFilter("flagged")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-ui flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                 statusFilter === "flagged"
                   ? "bg-rose-500 text-slate-950 shadow-md shadow-rose-500/20 font-bold"
                   : "bg-[#070c18] border border-slate-800 text-rose-400 hover:border-rose-500/40"
@@ -453,7 +453,7 @@ export default function SubmissionsDeskClient({
             <button
               type="button"
               onClick={() => setStatusFilter("needs_review")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-ui flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                 statusFilter === "needs_review"
                   ? "bg-slate-700 text-white font-bold"
                   : "bg-[#070c18] border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
@@ -474,7 +474,7 @@ export default function SubmissionsDeskClient({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, ID, or task title..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#070c18] border border-slate-800 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#070c18] border border-slate-800 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-ui"
               />
             </div>
 
@@ -483,7 +483,7 @@ export default function SubmissionsDeskClient({
               <select
                 value={courseFilter}
                 onChange={(e) => setCourseFilter(e.target.value)}
-                className="px-3 py-2 text-xs rounded-xl bg-[#070c18] border border-slate-800 text-slate-300 focus:outline-none focus:border-amber-500/60 transition-all cursor-pointer"
+                className="px-3 py-2 text-xs rounded-xl bg-[#070c18] border border-slate-800 text-slate-300 focus:outline-none focus:border-amber-500/60 transition-ui cursor-pointer"
               >
                 <option value="all">All Programs</option>
                 {distinctCourses.map((c) => (
@@ -532,7 +532,7 @@ export default function SubmissionsDeskClient({
                 <div
                   key={sub.assignedTaskId}
                   onClick={() => handleOpenReview(sub)}
-                  className="rounded-xl border border-slate-800/90 bg-[#070c18]/80 p-3.5 sm:p-4 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-all cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
+                  className="rounded-xl border border-slate-800/90 bg-[#070c18]/80 p-3.5 sm:p-4 hover:border-amber-500/40 hover:bg-[#0c1427]/90 transition-ui cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
                 >
                   {/* Left: Avatar + Client Meta + Task Title */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -591,7 +591,7 @@ export default function SubmissionsDeskClient({
                         e.stopPropagation();
                         handleOpenReview(sub);
                       }}
-                      className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-1.5 text-xs font-semibold text-white group-hover:border-amber-500/40 group-hover:bg-amber-500/10 group-hover:text-amber-300 transition-all cursor-pointer"
+                      className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-1.5 text-xs font-semibold text-white group-hover:border-amber-500/40 group-hover:bg-amber-500/10 group-hover:text-amber-300 transition-ui cursor-pointer"
                     >
                       <span>Review</span>
                       <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-amber-300 transition-colors" />

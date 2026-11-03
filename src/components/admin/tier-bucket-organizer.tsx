@@ -134,7 +134,7 @@ export default function TierBucketOrganizer({
               key={phaseNum}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, phaseNum)}
-              className={`rounded-2xl border transition-all ${
+              className={`rounded-2xl border transition-ui ${
                 draggedDeptId !== null
                   ? "border-dashed border-amber-500/60 bg-amber-500/10"
                   : "border-slate-800 bg-[#070c18]"
@@ -197,7 +197,7 @@ export default function TierBucketOrganizer({
                         key={assignment.dept_id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, assignment.dept_id)}
-                        className="group flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#0a101f] p-2.5 shadow-xs hover:border-slate-700 transition-all"
+                        className="group flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#0a101f] p-2.5 shadow-xs hover:border-slate-700 transition-ui"
                       >
                         {/* Drag Handle & Info */}
                         <div className="flex items-center gap-2.5 min-w-0">

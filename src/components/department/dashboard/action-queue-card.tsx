@@ -244,7 +244,7 @@ export default function ActionQueueCard({
             <button
               type="button"
               onClick={() => setActiveTab("submissions")}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
                 activeTab === "submissions"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-xs"
                   : "text-slate-400 hover:text-slate-200"
@@ -255,7 +255,7 @@ export default function ActionQueueCard({
             <button
               type="button"
               onClick={() => setActiveTab("ready")}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
                 activeTab === "ready"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-xs"
                   : "text-slate-400 hover:text-slate-200"
@@ -292,7 +292,7 @@ export default function ActionQueueCard({
                     type="button"
                     onClick={handleBatchAuthorizeVerified}
                     disabled={isBatchAuthorizing}
-                    className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-1.5 text-xs transition-all shadow-sm shadow-emerald-500/20 cursor-pointer disabled:opacity-50 shrink-0"
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-1.5 text-xs transition-ui shadow-sm shadow-emerald-500/20 cursor-pointer disabled:opacity-50 shrink-0"
                   >
                     {isBatchAuthorizing ? (
                       <>
@@ -338,7 +338,7 @@ export default function ActionQueueCard({
                   return (
                     <div
                       key={sub.assignedTaskId}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-all hover:border-slate-700 hover:bg-[#070c18]"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-ui hover:border-slate-700 hover:bg-[#070c18]"
                     >
                       <div className="flex items-start gap-3 min-w-0">
                         {/* Avatar */}
@@ -389,7 +389,7 @@ export default function ActionQueueCard({
                       <button
                         type="button"
                         onClick={() => handleOpenReview(sub)}
-                        className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 hover:border-amber-500/50 transition-all cursor-pointer shrink-0"
+                        className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 hover:border-amber-500/50 transition-ui cursor-pointer shrink-0"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         <span>Review</span>
@@ -432,7 +432,7 @@ export default function ActionQueueCard({
                   return (
                     <div
                       key={client.clearanceId}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-all hover:border-slate-700 hover:bg-[#070c18]"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-ui hover:border-slate-700 hover:bg-[#070c18]"
                     >
                       <div className="flex items-start gap-3 min-w-0">
                         {/* Avatar */}
@@ -476,7 +476,7 @@ export default function ActionQueueCard({
                           type="button"
                           onClick={() => handleSignClearance(client)}
                           disabled={isSigning}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/25 hover:text-emerald-200 transition-all cursor-pointer disabled:opacity-50"
+                          className="flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/25 hover:text-emerald-200 transition-ui cursor-pointer disabled:opacity-50"
                         >
                           {isSigning ? (
                             <>

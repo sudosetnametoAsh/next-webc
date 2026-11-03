@@ -221,7 +221,7 @@ export default function DepartmentFormModal({
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="e.g. Guidance Office, Computer Laboratory, Clinic..."
               autoFocus
-              className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui"
             />
             {errorMessage && (
               <p className="text-xs text-rose-400 font-medium">{errorMessage}</p>
@@ -273,7 +273,7 @@ export default function DepartmentFormModal({
                     <select
                       value={floor}
                       onChange={(e) => handleFloorSelectChange(e.target.value)}
-                      className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2 pr-9 text-xs text-white shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-all appearance-none cursor-pointer"
+                      className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2 pr-9 text-xs text-white shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui appearance-none cursor-pointer"
                     >
                       <option value="" className="bg-[#0a101f] text-slate-500">
                         Select Floor...
@@ -300,7 +300,7 @@ export default function DepartmentFormModal({
                       onChange={(e) => handleCustomFloorAdd(e.target.value)}
                       placeholder="e.g. 6th Floor, Roof Deck, Annex 2nd Floor"
                       autoFocus
-                      className="w-full rounded-xl border border-amber-500/50 bg-slate-900/90 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      className="w-full rounded-xl border border-amber-500/50 bg-slate-900/90 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui"
                     />
                   </div>
                 )}
@@ -316,7 +316,7 @@ export default function DepartmentFormModal({
                   value={room}
                   onChange={(e) => setRoom(e.target.value)}
                   placeholder="e.g. Room 101, Lab 3, Suite A"
-                  className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-all"
+                  className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui"
                 />
               </div>
             </div>
@@ -423,7 +423,7 @@ export default function DepartmentFormModal({
                       onMouseEnter={() => setHoveredIcon(item)}
                       onMouseLeave={() => setHoveredIcon(null)}
                       title={`${item.label} (${item.name})`}
-                      className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-all cursor-pointer ${
+                      className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-ui cursor-pointer ${
                         isSelected
                           ? "border-amber-500/80 bg-amber-500/20 text-amber-300 ring-2 ring-amber-500/30 shadow-md shadow-amber-500/10"
                           : "border-slate-800/80 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-200"
@@ -478,7 +478,7 @@ export default function DepartmentFormModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || !deptName.trim()}
-            className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 text-xs font-bold shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 text-xs font-bold shadow-md shadow-amber-500/20 transition-ui disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {isSubmitting ? (
               <>

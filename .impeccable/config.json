@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "animate-bounce",
+        "createdAt": "2026-11-03T11:59:02.467Z",
+        "reason": "Codex review: globals.css references .animate-bounce only inside prefers-reduced-motion: reduce to disable animation with animation: none !important; this does not introduce bounce easing."
+      }
+    ]
+  }
+}

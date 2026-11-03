@@ -78,7 +78,7 @@ function CourseRow({
   }
 
   return (
-    <div className="group flex items-center justify-between px-3 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-slate-700 hover:bg-slate-900 transition-all">
+    <div className="group flex items-center justify-between px-3 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-slate-700 hover:bg-slate-900 transition-ui">
       <div className="flex items-center gap-3 min-w-0">
         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
           <BookOpenText className="w-4 h-4" />
@@ -257,13 +257,13 @@ export default function ManageCoursesModal({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="New course / program name..."
-              className="flex-1 px-3 py-2 text-sm border border-slate-700/80 rounded-xl bg-slate-900/80 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+              className="flex-1 px-3 py-2 text-sm border border-slate-700/80 rounded-xl bg-slate-900/80 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-ui"
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
             <button
               onClick={handleCreate}
               disabled={!newName.trim() || createCourse.isPending}
-              className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-xl disabled:opacity-40 transition-all cursor-pointer shrink-0 shadow-xs"
+              className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-xl disabled:opacity-40 transition-ui cursor-pointer shrink-0 shadow-xs"
             >
               {createCourse.isPending
                 ? <Loader2 className="w-4 h-4 animate-spin" />

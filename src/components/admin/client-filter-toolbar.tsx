@@ -184,7 +184,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("all")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "all"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -200,7 +200,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("students")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "students"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -217,7 +217,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("staff")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "staff"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -245,7 +245,7 @@ export default function ClientFilterToolbar({
 
         {/* Courses Filter (Visible on the right side of the search bar ONLY when Students is selected) */}
         {clientType === "students" && (
-          <div className="relative shrink-0 min-w-[160px] animate-in fade-in duration-200">
+          <div className="relative shrink-0 min-w-[160px] animate-in ease-out fade-in duration-200">
             <select
               value={normalizedCourseValue}
               onChange={(e) => onCourseChange(e.target.value)}
@@ -283,7 +283,7 @@ export default function ClientFilterToolbar({
                   type="button"
                   key={st.key}
                   onClick={() => onStatusChange(st.key as ClientStatus)}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                     isActive
                       ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                       : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -303,7 +303,7 @@ export default function ClientFilterToolbar({
 
       {/* ── Sections Breadcrumbs Row (Only appears if course filter is NOT "All Courses") ── */}
       {showSections && (
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in fade-in duration-200">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in ease-out fade-in duration-200">
           <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase shrink-0 min-w-[55px]">
             SECTIONS
           </span>
@@ -311,7 +311,7 @@ export default function ClientFilterToolbar({
             <button
               type="button"
               onClick={() => onSectionChange("all")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                 selectedSection === "all"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                   : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -329,7 +329,7 @@ export default function ClientFilterToolbar({
                   type="button"
                   key={sec.section_id || code}
                   onClick={() => onSectionChange(secId)}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                     isActive
                       ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                       : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -345,7 +345,7 @@ export default function ClientFilterToolbar({
 
       {/* ── Department Breadcrumbs Row (Only appears when status is 'overdue') ── */}
       {showDepartments && (
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in fade-in duration-200">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in ease-out fade-in duration-200">
           <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase shrink-0 min-w-[55px]">
             DEPARTMENT
           </span>
@@ -353,7 +353,7 @@ export default function ClientFilterToolbar({
             <button
               type="button"
               onClick={() => onDepartmentChange?.("all")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                 selectedDepartment === "all"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                   : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -371,7 +371,7 @@ export default function ClientFilterToolbar({
                   type="button"
                   key={dept.dept_id}
                   onClick={() => onDepartmentChange?.(dept.dept_name)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                     isActive
                       ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                       : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -388,7 +388,7 @@ export default function ClientFilterToolbar({
 
       {/* ── Phases Breadcrumbs Row (Only appears when status is 'overdue' and clientType is not 'staff') ── */}
       {showPhases && (
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in fade-in duration-200">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 animate-in ease-out fade-in duration-200">
           <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase shrink-0 min-w-[55px]">
             PHASES
           </span>
@@ -396,7 +396,7 @@ export default function ClientFilterToolbar({
             <button
               type="button"
               onClick={() => onPhaseChange?.("all")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                 selectedPhase === "all"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                   : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -412,7 +412,7 @@ export default function ClientFilterToolbar({
                   type="button"
                   key={phase}
                   onClick={() => onPhaseChange?.(phaseKey)}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
                     isActive
                       ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                       : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"

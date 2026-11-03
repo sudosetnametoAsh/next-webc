@@ -798,7 +798,7 @@ export default function DepartmentOverlay({
       {/* Main Drawer/Panel Container */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-full w-full max-w-lg flex-col border-l border-[#1f2937] bg-[#0b0e14] shadow-2xl transition-transform duration-300 ease-in-out overflow-hidden"
+        className="relative flex h-full w-full max-w-lg flex-col border-l border-[#1f2937] bg-[#0b0e14] shadow-2xl transition-transform duration-200 ease-in-out overflow-hidden"
       >
         {/* Scrollable Content Area */}
         <div className="overflow-y-auto overflow-x-hidden flex-1 p-6 sm:p-7 custom-scrollbar">
@@ -1150,7 +1150,7 @@ export default function DepartmentOverlay({
                           </span>
                         ))}
 
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-amber-300 transition-all shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-amber-300 transition-ui shrink-0" />
                     </div>
                   </button>
                 );
@@ -1177,7 +1177,7 @@ export default function DepartmentOverlay({
               disabled={!hasPrevDept}
               title={prevDeptName ? `Previous department: ${prevDeptName}` : "First department"}
               aria-label={prevDeptName ? `Previous department: ${prevDeptName}` : "First department"}
-              className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
+              className={`p-2.5 rounded-xl border transition-ui flex items-center justify-center ${
                 hasPrevDept
                   ? "border-slate-800 bg-[#131822] hover:bg-[#1a212f] hover:border-slate-700 text-slate-400 hover:text-white cursor-pointer shadow-xs active:scale-95"
                   : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"
@@ -1203,7 +1203,7 @@ export default function DepartmentOverlay({
               disabled={!hasNextDept}
               title={nextDeptName ? `Next department: ${nextDeptName}` : "Last department"}
               aria-label={nextDeptName ? `Next department: ${nextDeptName}` : "Last department"}
-              className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
+              className={`p-2.5 rounded-xl border transition-ui flex items-center justify-center ${
                 hasNextDept
                   ? "border-slate-800 bg-[#131822] hover:bg-[#1a212f] hover:border-slate-700 text-slate-400 hover:text-white cursor-pointer shadow-xs active:scale-95"
                   : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"

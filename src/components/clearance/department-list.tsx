@@ -62,7 +62,7 @@ export default function DepartmenList({
             <div
               key={item.clearance_id}
               onClick={() => item.task_count > 0 && getDepartmentTasks(item)}
-              className={`group flex flex-col gap-5 rounded-[2rem] border bg-white p-7 shadow-sm transition-all ${item.task_count > 0
+              className={`group flex flex-col gap-5 rounded-[2rem] border bg-white p-7 shadow-sm transition-ui ${item.task_count > 0
                   ? `cursor-pointer hover:-translate-y-0.5 hover:shadow-xl ${isSigned
                     ? "border-green-200 hover:border-green-400"
                     : (isPending || isIncomplete)
@@ -136,7 +136,7 @@ export default function DepartmenList({
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${allCompleted ? "bg-green-500" : "bg-amber-400"
+                      className={`h-full rounded-full transition-ui duration-200 ${allCompleted ? "bg-green-500" : "bg-amber-400"
                         }`}
                       style={{ width: `${percentage}%` }}
                     />

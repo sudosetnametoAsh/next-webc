@@ -163,8 +163,8 @@ export default function ConfirmationModal({
     : "opacity-100 transition-opacity duration-[180ms]";
  
   const modalAnim = animOut
-    ? "opacity-0 scale-95 translate-y-1 transition-all duration-[180ms]"
-    : "opacity-100 scale-100 translate-y-0 transition-all duration-[220ms]";
+    ? "opacity-0 scale-95 translate-y-1 transition-ui duration-[180ms]"
+    : "opacity-100 scale-100 translate-y-0 transition-ui duration-[220ms]";
  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -181,7 +181,7 @@ export default function ConfirmationModal({
         aria-modal="true"
         aria-labelledby="cm-title"
         aria-describedby="cm-desc"
-        className={`relative w-full max-w-md bg-[#0a101f] border border-slate-800 text-slate-100 rounded-2xl shadow-2xl overflow-hidden ${modalAnim}`}
+        className={`relative w-full max-w-md bg-[#0a101f] border border-slate-800 text-slate-100 rounded-2xl shadow-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto ${modalAnim}`}
       >
         {/* Body */}
         <div className="px-6 pt-6 pb-5">

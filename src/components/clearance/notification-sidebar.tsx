@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
+import { Drawer } from "@/components/ui/drawer";
 import { useRouter } from "next/navigation";
 import {
   Bell,
@@ -52,37 +52,7 @@ export default function NotificationSidebar({
   isLoading = false,
 }: NotificationSidebarProps) {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
-
-  // Prevent body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  if (!isOpen || !mounted) return null;
 
   const filteredNotifications = notifications.filter((n) => {
     if (filter === "unread") return !n.read;
@@ -149,20 +119,8 @@ export default function NotificationSidebar({
     router.push(directUrl);
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[70] flex justify-end select-none">
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        aria-hidden="true"
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
-
-      {/* Right Drawer Container (Anchored to Right) */}
-      <aside
-        aria-label="Notification Center"
-        className="relative z-[71] flex h-full w-full max-w-sm sm:max-w-md flex-col border-l border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/80 animate-in slide-in-from-right duration-300 ease-out"
-      >
+  return (
+    <Drawer open={isOpen} onClose={onClose} title="Clearance notifications" className="w-full max-w-sm sm:max-w-md border-l border-slate-800 bg-[#0a101f] select-none">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800/80 bg-[#070c18] px-5 py-4">
           <div className="flex items-center gap-3">
@@ -215,7 +173,7 @@ export default function NotificationSidebar({
           <button
             type="button"
             onClick={() => setFilter("all")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
               filter === "all"
                 ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
@@ -226,7 +184,7 @@ export default function NotificationSidebar({
           <button
             type="button"
             onClick={() => setFilter("unread")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer flex items-center gap-1.5 ${
               filter === "unread"
                 ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-xs"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
@@ -240,7 +198,7 @@ export default function NotificationSidebar({
         </div>
 
         {/* Notification List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 space-y-2.5">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
@@ -256,7 +214,7 @@ export default function NotificationSidebar({
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
-                  className={`group relative flex items-start gap-3.5 rounded-xl border p-3.5 transition-all ${
+                  className={`group relative flex items-start gap-3.5 rounded-xl border p-3.5 transition-ui ${
                     canNavigate ? "cursor-pointer" : "cursor-default"
                   } ${
                     !notif.read
@@ -333,8 +291,6 @@ export default function NotificationSidebar({
             Clicking a notification navigates directly to the requirement.
           </p>
         </div>
-      </aside>
-    </div>,
-    document.body
+    </Drawer>
   );
 }

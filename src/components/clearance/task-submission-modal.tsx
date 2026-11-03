@@ -185,7 +185,7 @@ export default function TaskSubmissionModal({
           <div className="flex flex-col gap-2">
             <label
               htmlFor="file-upload"
-              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-all ${
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-ui ${
                 errorMsg
                   ? "border-rose-500/50 bg-rose-950/10 hover:border-rose-500"
                   : file

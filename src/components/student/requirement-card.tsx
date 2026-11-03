@@ -29,7 +29,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
   };
 
   return (
-    <div className={`w-full border rounded-xl shadow-sm transition-all overflow-hidden ${containerStyle}`}>
+    <div className={`w-full border rounded-xl shadow-sm transition-ui overflow-hidden ${containerStyle}`}>
       
       {/* HEADER ROW */}
       <div 
@@ -71,7 +71,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
             viewBox="0 0 24 24" 
             strokeWidth={2} 
             stroke="currentColor" 
-            className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+            className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
@@ -80,7 +80,7 @@ export const RequirementCard = ({ department, staff, status, tasks }: Requiremen
 
       {/* DROPDOWN CONTENT */}
       <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`transition-ui duration-200 ease-in-out overflow-hidden ${
           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >

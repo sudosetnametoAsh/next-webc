@@ -102,7 +102,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
           <button
             type="button"
             onClick={() => setSelectedProgram("all")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
               selectedProgram === "all"
                 ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
                 : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
@@ -120,7 +120,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                 key={p.programCode}
                 type="button"
                 onClick={() => setSelectedProgram(p.programCode)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
                   isSelected
                     ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
                     : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
@@ -239,10 +239,10 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                     <div className="flex items-center gap-2.5 min-w-[140px]">
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-900 border border-slate-800">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(
+                          className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(
                             p.rate,
                           )}`}
-                          style={{ width: `${p.rate}%` }}
+                          style={{ transform: `scaleX(${(p.rate) / 100})` }}
                         />
                       </div>
                       <span className="w-10 text-right font-mono text-xs font-bold text-white">
@@ -299,7 +299,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                                 <div className="flex items-center gap-2 min-w-[120px]">
                                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-900 border border-slate-800">
                                     <div
-                                      className={`h-full rounded-full transition-all duration-300 ${getProgressBarColor(
+                                      className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(
                                         s.rate,
                                       )}`}
                                       style={{ width: `${s.rate}%` }}

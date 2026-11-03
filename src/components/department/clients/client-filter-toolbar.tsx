@@ -188,7 +188,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("all")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "all"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -208,7 +208,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("students")}
-            className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "students"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -237,7 +237,7 @@ export default function ClientFilterToolbar({
           <button
             type="button"
             onClick={() => onClientTypeChange("staff")}
-            className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               clientType === "staff"
                 ? "border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs"
                 : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium"
@@ -405,7 +405,7 @@ export default function ClientFilterToolbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="relative flex items-center justify-between gap-2.5 shrink-0 rounded-xl border border-slate-800 bg-[#070c18] px-3.5 py-2.5 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer select-none min-w-[140px] focus:outline-none focus:ring-1 focus:ring-amber-500/50 animate-in fade-in duration-200"
+                className="relative flex items-center justify-between gap-2.5 shrink-0 rounded-xl border border-slate-800 bg-[#070c18] px-3.5 py-2.5 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer select-none min-w-[140px] focus:outline-none focus:ring-1 focus:ring-amber-500/50 animate-in ease-out fade-in duration-200"
               >
                 <div className="flex items-center gap-2 min-w-0 pr-1">
                   <GraduationCap className="h-3.5 w-3.5 text-amber-400 shrink-0" />
@@ -515,7 +515,7 @@ export default function ClientFilterToolbar({
                     type="button"
                     key={st.key}
                     onClick={() => onStatusChange(st.key)}
-                    className={`relative rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`relative rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer flex items-center gap-1.5 ${
                       isActive
                         ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                         : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -538,7 +538,7 @@ export default function ClientFilterToolbar({
 
       {/* ── Dynamic Section Pills: Appear when a course is chosen ── */}
       {showSections && displayedSections.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-slate-800/60 pt-3 animate-in fade-in duration-200">
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-800/60 pt-3 animate-in ease-out fade-in duration-200">
           <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase shrink-0 min-w-[55px]">
             SECTION
           </span>
@@ -546,7 +546,7 @@ export default function ClientFilterToolbar({
             <button
               type="button"
               onClick={() => onSectionChange("all")}
-              className={`rounded-full px-3 py-0.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-0.5 text-xs font-semibold transition-ui cursor-pointer ${
                 selectedSection === "all"
                   ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                   : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -584,7 +584,7 @@ export default function ClientFilterToolbar({
                   type="button"
                   key={sec.section_id || idx}
                   onClick={() => onSectionChange(secIdStr)}
-                  className={`relative rounded-full px-3 py-0.5 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`relative rounded-full px-3 py-0.5 text-xs font-semibold transition-ui cursor-pointer ${
                     isActive
                       ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                       : "border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"

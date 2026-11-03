@@ -128,8 +128,8 @@ export default function DepartmentGreeting({
             </div>
             <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
               <div
-                className={`h-full rounded-full transition-all duration-700 ease-out ${getProgressBarColor(progressPercent)}`}
-                style={{ width: `${progressPercent}%` }}
+                className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(progressPercent)}`}
+                style={{ transform: `scaleX(${(progressPercent) / 100})` }}
               />
             </div>
             <p className="mt-1.5 text-xs text-slate-400">

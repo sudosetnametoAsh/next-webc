@@ -371,7 +371,7 @@ export default function Header({ title, user }: HeaderProps) {
           >
             <Bell className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14] animate-in zoom-in-50 duration-150">
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14] ">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -382,7 +382,7 @@ export default function Header({ title, user }: HeaderProps) {
             <div
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
-              className="absolute top-full right-0 mt-2 z-40 flex flex-col gap-2 w-80 sm:w-96 pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200 select-none"
+              className="absolute top-full right-0 mt-2 z-40 flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 pointer-events-auto animate-in ease-out fade-in slide-in-from-top-2 duration-200 select-none"
             >
               {activePopups.map((notif) => {
                 const { icon, containerStyle, dotStyle } = getNotificationVisual(notif);
@@ -393,7 +393,7 @@ export default function Header({ title, user }: HeaderProps) {
                   <div
                     key={notif.id}
                     onClick={() => handlePopupClick(notif)}
-                    className={`group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-all ${
+                    className={`group relative flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-[#0a101f]/95 p-3.5 text-left text-slate-200 shadow-2xl shadow-black/80 backdrop-blur-md transition-ui ${
                       canNavigate
                         ? "hover:border-amber-400 hover:bg-[#0c1427] cursor-pointer"
                         : "cursor-default"

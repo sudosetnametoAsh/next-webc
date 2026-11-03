@@ -69,14 +69,14 @@ export default function QuickOperations() {
             <Link
               key={op.title}
               href={op.href}
-              className="group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-slate-800/80 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-all cursor-pointer h-full"
+              className="group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-slate-800/80 bg-[#070c18]/80 hover:bg-slate-800/40 hover:border-slate-700 transition-ui cursor-pointer h-full"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
                     <Icon className="h-4 w-4" />
                   </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  <ArrowUpRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-ui" />
                 </div>
                 <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
                   {op.title}

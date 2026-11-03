@@ -497,7 +497,7 @@ export default function Templates() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-sm shadow-md shadow-amber-500/20 transition-all cursor-pointer self-start sm:self-auto"
+                className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto"
               >
                 <Plus className="h-4 w-4 stroke-[2.5]" />
                 <span>Create Template</span>
@@ -551,7 +551,7 @@ export default function Templates() {
           <button
             type="button"
             onClick={() => handleTabChange('all')}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               activeTab === 'all'
                 ? 'border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs'
                 : 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium'
@@ -571,7 +571,7 @@ export default function Templates() {
           <button
             type="button"
             onClick={() => handleTabChange('students')}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               activeTab === 'students'
                 ? 'border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs'
                 : 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium'
@@ -594,7 +594,7 @@ export default function Templates() {
           <button
             type="button"
             onClick={() => handleTabChange('staff')}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-ui cursor-pointer ${
               activeTab === 'staff'
                 ? 'border border-amber-500/40 bg-amber-500/15 text-amber-300 font-semibold shadow-xs'
                 : 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium'
@@ -686,7 +686,7 @@ export default function Templates() {
                         <td className="px-6 py-4 text-left">
                           <div className="flex items-center gap-3.5 min-w-0">
                             <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-all ${
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-ui ${
                                 isStaff
                                   ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/20'
                                   : 'border-amber-500/20 bg-amber-500/10 text-amber-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/20'
@@ -743,7 +743,7 @@ export default function Templates() {
                           <div className="flex items-center gap-2.5 font-mono text-xs text-slate-300">
                             <div className="w-20 h-2 bg-slate-800 rounded-full overflow-hidden shrink-0">
                               <div
-                                className={`h-full rounded-full transition-all duration-300 ${getProgressBarColor(item.completionRate)}`}
+                                className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(item.completionRate)}`}
                                 style={{ width: `${item.completionRate}%` }}
                               />
                             </div>

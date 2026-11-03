@@ -144,7 +144,7 @@ export default function AiVerificationConfigModal({
                   {/* Mode A: Two-Factor Verification */}
                   <div
                     onClick={() => setMode("two_factor")}
-                    className={`cursor-pointer rounded-xl border p-4 transition-all relative ${
+                    className={`cursor-pointer rounded-xl border p-4 transition-ui relative ${
                       mode === "two_factor"
                         ? "border-amber-500/80 bg-amber-500/10 ring-1 ring-amber-500/30"
                         : "border-slate-800 bg-[#070c18]/70 hover:border-slate-700 hover:bg-[#070c18]"
@@ -191,7 +191,7 @@ export default function AiVerificationConfigModal({
                   {/* Mode B: Autonomous Auto-Approve */}
                   <div
                     onClick={() => setMode("autonomous")}
-                    className={`cursor-pointer rounded-xl border p-4 transition-all relative ${
+                    className={`cursor-pointer rounded-xl border p-4 transition-ui relative ${
                       mode === "autonomous"
                         ? "border-amber-500/80 bg-amber-500/10 ring-1 ring-amber-500/30"
                         : "border-slate-800 bg-[#070c18]/70 hover:border-slate-700 hover:bg-[#070c18]"
@@ -238,7 +238,7 @@ export default function AiVerificationConfigModal({
                   {/* Mode C: Strict Manual */}
                   <div
                     onClick={() => setMode("manual")}
-                    className={`cursor-pointer rounded-xl border p-4 transition-all relative ${
+                    className={`cursor-pointer rounded-xl border p-4 transition-ui relative ${
                       mode === "manual"
                         ? "border-amber-500/80 bg-amber-500/10 ring-1 ring-amber-500/30"
                         : "border-slate-800 bg-[#070c18]/70 hover:border-slate-700 hover:bg-[#070c18]"

@@ -469,7 +469,7 @@ export default function DepartmentCalendarClient({
               }
             }}
             disabled={!isTodaySelected || (!isEarlyOutAllowed && !isEarlyOutActive)}
-            className={`text-xs font-medium px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border transition-all duration-200 active:scale-95 ${
+            className={`text-xs font-medium px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border transition-ui duration-200 active:scale-95 ${
               !isTodaySelected
                 ? "border border-slate-800 bg-[#070c18] text-slate-500 opacity-50 cursor-not-allowed"
                 : isEarlyOutActive
@@ -561,7 +561,7 @@ export default function DepartmentCalendarClient({
                       key={day.key}
                       type="button"
                       onClick={() => toggleDaySelection(day.key)}
-                      className={`relative flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border transition-all duration-150 cursor-pointer ${
+                      className={`relative flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border transition-ui duration-150 cursor-pointer ${
                         isSelected
                           ? "bg-amber-500/10 border-amber-500 text-white shadow-md shadow-amber-500/10"
                           : "bg-slate-900/60 hover:bg-slate-800/80 border-slate-800/80 text-slate-400 hover:text-slate-200"
@@ -638,7 +638,7 @@ export default function DepartmentCalendarClient({
                             key={preset.label}
                             type="button"
                             onClick={() => applyPresetToSelectedDays(preset.in, preset.out)}
-                            className={`p-3 rounded-xl border text-left transition-all duration-150 cursor-pointer ${
+                            className={`p-3 rounded-xl border text-left transition-ui duration-150 cursor-pointer ${
                               isPresetActive
                                 ? "bg-amber-500/10 border-amber-500 text-white shadow-sm shadow-amber-500/20"
                                 : "bg-slate-900/80 hover:bg-slate-800/80 border-slate-800/80 text-slate-300"
@@ -752,7 +752,7 @@ export default function DepartmentCalendarClient({
                 setSaveSuccess(false);
                 setErrorMessage(null);
               }}
-              className="text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+              className="text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2 transition-ui cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Defaults</span>
@@ -762,7 +762,7 @@ export default function DepartmentCalendarClient({
               type="button"
               onClick={handleSaveSchedule}
               disabled={isSaving}
-              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-ui cursor-pointer disabled:opacity-50"
             >
               {isSaving ? (
                 <>
@@ -805,7 +805,7 @@ export default function DepartmentCalendarClient({
                   <div
                     key={day.key}
                     onClick={() => toggleDaySelection(day.key)}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
+                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-ui cursor-pointer ${
                       isToday
                         ? "bg-amber-500/10 border-amber-500/40 shadow-sm"
                         : isSelected

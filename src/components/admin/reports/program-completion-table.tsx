@@ -196,8 +196,8 @@ export default function ProgramCompletionTable() {
                       <div className="flex items-center gap-2.5">
                         <div className="h-2 w-20 shrink-0 overflow-hidden rounded-full bg-slate-800 sm:w-28">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(item.completion)}`}
-                            style={{ width: `${item.completion}%` }}
+                            className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(item.completion)}`}
+                            style={{ transform: `scaleX(${(item.completion) / 100})` }}
                           />
                         </div>
                         <span

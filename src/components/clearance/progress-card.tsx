@@ -37,10 +37,10 @@ export default function ProgressCard({ summary }: { summary: getSummaryPromise }
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
           <div
             // Removed the glowing shadow effect for a cleaner flat UI
-            className={`h-full transition-all duration-500 ${
+            className={`h-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${
               isCompleted ? "bg-green-500" : "bg-black"
             }`}
-            style={{ width: `${percentage}%` }}
+            style={{ transform: `scaleX(${(percentage) / 100})` }}
           />
         </div>
       </div>

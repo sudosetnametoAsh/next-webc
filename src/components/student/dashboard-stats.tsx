@@ -25,7 +25,7 @@ export default function DashboardStats({ records, balance = "₱0.00" }: Dashboa
 
     // Reusable Small Card Component
     const StatCard = ({ value, label, bgClass, textClass }: any) => (
-        <div className={`${bgClass} p-4 rounded-xl flex flex-col items-center justify-center text-center h-32 border border-transparent hover:border-black/5 transition-all shadow-sm`}>
+        <div className={`${bgClass} p-4 rounded-xl flex flex-col items-center justify-center text-center h-32 border border-transparent hover:border-black/5 transition-ui shadow-sm`}>
             <span className={`text-3xl font-bold ${textClass} mb-1`}>{value}</span>
             <span className={`text-xs font-bold ${textClass} opacity-80 uppercase tracking-wide`}>{label}</span>
         </div>

@@ -57,7 +57,7 @@ export default function CourseVelocityCard({
             return (
               <div
                 key={c.courseId ?? `staff-${index}`}
-                className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-all hover:border-slate-700/90 hover:bg-[#0c1427]/80 group"
+                className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-ui hover:border-slate-700/90 hover:bg-[#0c1427]/80 group"
               >
                 {/* Upper Row: Left Program Info & Right Velocity Metrics */}
                 <div className="flex items-center justify-between gap-3">
@@ -133,10 +133,10 @@ export default function CourseVelocityCard({
                 {/* Compact Progress Bar */}
                 <div className="mt-2.5 h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                   <div
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${getProgressBarColor(
+                    className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(
                       c.rate
                     )}`}
-                    style={{ width: `${c.rate}%` }}
+                    style={{ transform: `scaleX(${(c.rate) / 100})` }}
                   />
                 </div>
               </div>

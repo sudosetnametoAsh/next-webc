@@ -4,6 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-timing-function: var(--ease-out);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -44,6 +47,78 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --breakpoint-3xl: 1920px;
+}
+
+@utility transition-ui {
+  transition-property: color, background-color, border-color, opacity, transform, translate, scale, rotate;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+
+/* Native modal dialogs keep focus inside and restore it to their opener. */
+.app-drawer {
+  position: fixed;
+  justify-content: flex-end;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out), display 240ms allow-discrete, overlay 240ms allow-discrete;
+}
+
+.app-drawer[open] {
+  display: flex;
+  opacity: 1;
+}
+
+.app-drawer[data-side="left"] { justify-content: flex-start; }
+.app-drawer::backdrop {
+  background: rgb(0 0 0 / 70%);
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out), display 240ms allow-discrete, overlay 240ms allow-discrete;
+}
+.app-drawer[open]::backdrop { opacity: 1; }
+.app-drawer[data-side="left"] .app-drawer-panel {
+  transform: translateX(-100%);
+  transition: transform 240ms var(--ease-drawer);
+}
+.app-drawer[open][data-side="left"] .app-drawer-panel { transform: translateX(0); }
+
+/* shortcut: older browsers skip drawer transitions; add a presence fallback if legacy support is required. */
+@starting-style {
+  .app-drawer[open] { opacity: 0; }
+  .app-drawer[open]::backdrop { opacity: 0; }
+  .app-drawer[open][data-side="left"] .app-drawer-panel { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-property: color, background-color, border-color, opacity !important;
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-exit-scale: 1 !important;
+    --tw-enter-rotate: 0 !important;
+    --tw-exit-rotate: 0 !important;
+  }
+  .animate-spin, .animate-pulse, .animate-ping, .animate-bounce {
+    animation: none !important;
+  }
+  /* Keep nested Radix exit lifecycles alive while the drawer fades out. */
+  .app-drawer, .app-drawer::backdrop {
+    transition-property: opacity, display, overlay !important;
+  }
+  .app-drawer-panel { transform: none !important; }
 }
 
 :root {

@@ -19,6 +19,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: 76px 0 24px;
 
   /* Background image with a dark overlay for contrast */
   background: linear-gradient(rgba(10, 20, 60, 0.55), rgba(10, 20, 60, 0.65)),
@@ -43,7 +44,6 @@
   background: radial-gradient(circle, var(--sti-red), transparent 70%);
   top: -100px;
   right: -80px;
-  animation: drift 10s ease-in-out infinite alternate;
 }
 
 .blob2 {
@@ -52,12 +52,6 @@
   background: radial-gradient(circle, var(--sti-blue-light), transparent 70%);
   bottom: -80px;
   left: -60px;
-  animation: drift 13s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes drift {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(24px, 20px) scale(1.06); }
 }
 
 /* ── Top-left logo ─────────────────────────────────────── */
@@ -69,7 +63,7 @@
   align-items: center;
   gap: 10px;
   z-index: 20;
-  animation: fadeDown 0.6s ease both;
+  animation: fadeDown 200ms var(--ease-out) both;
 }
 
 .logoTopLeft img {
@@ -100,8 +94,7 @@
   max-width: 420px;
   margin: 0 16px;
   overflow: hidden;
-  animation: riseUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.1s;
+  animation: riseUp 240ms var(--ease-out) both;
 }
 
 /* Red accent bar at top of card */
@@ -204,20 +197,23 @@
   gap: 10px;
   font-size: 15px;
   letter-spacing: 0.01em;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  transition: transform 160ms var(--ease-out);
   box-shadow: 0 4px 14px rgba(235, 70, 38, 0.35);
 }
 
-.loginCard :global(button):hover,
-.loginCard :global(.loginButton):hover {
-  background: linear-gradient(135deg, #d63b1f, var(--sti-blue));
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(235, 70, 38, 0.4);
+@media (hover: hover) and (pointer: fine) {
+  .loginCard :global(button):hover,
+  .loginCard :global(.loginButton):hover {
+    background: linear-gradient(135deg, #d63b1f, var(--sti-blue));
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(235, 70, 38, 0.4);
+  }
 }
 
 .loginCard :global(button):active,
 .loginCard :global(.loginButton):active {
-  transform: translateY(0);
+  transform: scale(0.97);
+  transition-duration: 100ms;
   box-shadow: 0 2px 8px rgba(235, 70, 38, 0.3);
 }
 
@@ -233,12 +229,26 @@
 @keyframes riseUp {
   from {
     opacity: 0;
-    transform: translateY(28px) scale(0.97);
+    transform: translateY(8px) scale(0.97);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loginCard, .logoTopLeft {
+    animation: loginFade 150ms var(--ease-out) both;
+  }
+  .loginCard :global(button), .loginCard :global(.loginButton) {
+    transform: none !important;
+  }
+}
+
+@keyframes loginFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeDown {

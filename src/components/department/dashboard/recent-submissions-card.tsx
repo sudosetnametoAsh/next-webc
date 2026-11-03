@@ -356,7 +356,7 @@ export default function RecentSubmissionsCard({
                       handleOpenReview(client.documents[0]);
                     }
                   }}
-                  className={`rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-all cursor-pointer group ${
+                  className={`rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-ui cursor-pointer group ${
                     hasMultiple
                       ? "hover:border-slate-700/90 hover:bg-slate-800/20"
                       : "hover:border-amber-500/40 hover:bg-[#0c1427]/90"
@@ -483,7 +483,7 @@ export default function RecentSubmissionsCard({
                   {hasMultiple && isExpanded && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1.5 animate-in fade-in duration-200"
+                      className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1.5 animate-in ease-out fade-in duration-200"
                     >
                       <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">
                         Requirements ({client.documents.length})
@@ -497,7 +497,7 @@ export default function RecentSubmissionsCard({
                           <div
                             key={doc.assignedTaskId}
                             onClick={() => handleOpenReview(doc)}
-                            className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-[#060a14]/80 border border-slate-800/80 hover:border-amber-500/40 hover:bg-slate-800/50 transition-all cursor-pointer group/doc"
+                            className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-[#060a14]/80 border border-slate-800/80 hover:border-amber-500/40 hover:bg-slate-800/50 transition-ui cursor-pointer group/doc"
                           >
                             <div className="min-w-0 flex-1">
                               <div className="text-xs font-semibold text-white group-hover/doc:text-amber-300 transition-colors truncate max-w-[200px] sm:max-w-[300px]">

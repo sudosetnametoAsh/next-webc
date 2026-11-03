@@ -493,7 +493,7 @@ export default function ClientEnrollmentModal({
               type="button"
               aria-pressed={activeTab === "single"}
               onClick={() => setActiveTab("single")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-ui ${
                 activeTab === "single"
                   ? "bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/30"
                   : "text-slate-400 hover:text-slate-200"
@@ -506,7 +506,7 @@ export default function ClientEnrollmentModal({
               type="button"
               aria-pressed={activeTab === "bulk"}
               onClick={() => setActiveTab("bulk")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-ui ${
                 activeTab === "bulk"
                   ? "bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/30"
                   : "text-slate-400 hover:text-slate-200"
@@ -535,7 +535,7 @@ export default function ClientEnrollmentModal({
                     type="button"
                     aria-pressed={clientType === "student"}
                     onClick={() => setClientType("student")}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-ui ${
                       clientType === "student"
                         ? "bg-amber-400/5 border-amber-400/40 text-white shadow-xs"
                         : "bg-[#070c18] border-slate-800 text-slate-400 hover:border-slate-700"
@@ -560,7 +560,7 @@ export default function ClientEnrollmentModal({
                     type="button"
                     aria-pressed={clientType === "staff"}
                     onClick={() => setClientType("staff")}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-ui ${
                       clientType === "staff"
                         ? "bg-amber-400/5 border-amber-400/40 text-white shadow-xs"
                         : "bg-[#070c18] border-slate-800 text-slate-400 hover:border-slate-700"
@@ -742,7 +742,7 @@ export default function ClientEnrollmentModal({
                           type="button"
                           aria-pressed={sectionMode === "existing"}
                           onClick={() => setSectionMode("existing")}
-                          className={`px-2.5 py-1 rounded-md transition-all ${
+                          className={`px-2.5 py-1 rounded-md transition-ui ${
                             sectionMode === "existing"
                               ? "bg-slate-800 text-white font-semibold"
                               : "text-slate-400 hover:text-white"
@@ -754,7 +754,7 @@ export default function ClientEnrollmentModal({
                           type="button"
                           aria-pressed={sectionMode === "new"}
                           onClick={() => setSectionMode("new")}
-                          className={`px-2.5 py-1 rounded-md transition-all ${
+                          className={`px-2.5 py-1 rounded-md transition-ui ${
                             sectionMode === "new"
                               ? "bg-slate-800 text-white font-semibold"
                               : "text-slate-400 hover:text-white"
@@ -856,7 +856,7 @@ export default function ClientEnrollmentModal({
                         setBulkClientType("student");
                         if (rawPastedText) parseRawText(rawPastedText, "student");
                       }}
-                      className={`px-3 py-1 rounded-md transition-all font-semibold ${
+                      className={`px-3 py-1 rounded-md transition-ui font-semibold ${
                         bulkClientType === "student"
                           ? "bg-amber-400/10 text-amber-300"
                           : "text-slate-400 hover:text-white"
@@ -870,7 +870,7 @@ export default function ClientEnrollmentModal({
                         setBulkClientType("staff");
                         if (rawPastedText) parseRawText(rawPastedText, "staff");
                       }}
-                      className={`px-3 py-1 rounded-md transition-all font-semibold ${
+                      className={`px-3 py-1 rounded-md transition-ui font-semibold ${
                         bulkClientType === "staff"
                           ? "bg-amber-400/10 text-amber-300"
                           : "text-slate-400 hover:text-white"
@@ -934,7 +934,7 @@ export default function ClientEnrollmentModal({
                   />
                   <label
                     htmlFor="bulk-file-input"
-                    className="peer-focus-visible:ring-2 peer-focus-visible:ring-amber-400/40 border border-dashed border-slate-700/80 hover:border-amber-500/60 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer bg-slate-900/20 hover:bg-[#070c18] transition-all text-center group"
+                    className="peer-focus-visible:ring-2 peer-focus-visible:ring-amber-400/40 border border-dashed border-slate-700/80 hover:border-amber-500/60 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer bg-slate-900/20 hover:bg-[#070c18] transition-ui text-center group"
                   >
                     <div className="h-12 w-12 rounded-full bg-slate-800 group-hover:bg-amber-500/20 flex items-center justify-center text-slate-400 group-hover:text-amber-400 transition-colors mb-3">
                       <Upload className="h-6 w-6" />

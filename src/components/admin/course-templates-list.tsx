@@ -130,7 +130,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
     const fullName = expandCourseAbbreviation(template.course_name) || template.course_name;
 
     return (
-      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] p-5 shadow-xl hover:border-slate-700/80 transition-all flex flex-col justify-between">
+      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] p-5 shadow-xl hover:border-slate-700/80 transition-ui flex flex-col justify-between">
         <div>
           {/* Header */}
           <div className='flex items-start justify-between gap-3 mb-5'>
@@ -170,7 +170,7 @@ function CourseTemplateCard({ template, setIsConfirmOpen, setSelectedCourseId }:
               <div className="flex items-center gap-2">
                 <div className='flex-1 h-2 bg-slate-800 rounded-full overflow-hidden'>
                   <div 
-                    className={`h-full rounded-full transition-all duration-300 ${getProgressBarColor(template.completion_rate)}`}
+                    className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(template.completion_rate)}`}
                     style={{ width: `${template.completion_rate}%` }}
                   />
                 </div>

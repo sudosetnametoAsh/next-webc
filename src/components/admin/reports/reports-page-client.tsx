@@ -126,7 +126,7 @@ export default function Reports() {
             type="button"
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-all cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 animate-spin text-slate-950" />
@@ -168,7 +168,7 @@ export default function Reports() {
           {primaryBottleneck ? (
             <Link
               href={`/admin/clients?status=overdue&department=${encodeURIComponent(primaryBottleneck.deptName)}`}
-              className="group rounded-2xl border border-slate-800 hover:border-slate-700 bg-[#0a101f] hover:bg-[#0c1427] shadow-xl p-5 flex flex-col justify-between transition-all cursor-pointer"
+              className="group rounded-2xl border border-slate-800 hover:border-slate-700 bg-[#0a101f] hover:bg-[#0c1427] shadow-xl p-5 flex flex-col justify-between transition-ui cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400 group-hover:text-slate-300 transition-colors">
@@ -227,7 +227,7 @@ export default function Reports() {
           {/* Metric 3: Active Overdue Backlog (>24h SLA) */}
           <Link
             href="/admin/clients?status=overdue"
-            className="group rounded-2xl border border-slate-800 hover:border-slate-700 bg-[#0a101f] hover:bg-[#0c1427] shadow-xl p-5 flex flex-col justify-between transition-all cursor-pointer"
+            className="group rounded-2xl border border-slate-800 hover:border-slate-700 bg-[#0a101f] hover:bg-[#0c1427] shadow-xl p-5 flex flex-col justify-between transition-ui cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400 group-hover:text-slate-300 transition-colors">
@@ -286,8 +286,8 @@ export default function Reports() {
               </div>
               <div className="mt-2.5 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(totalRate)}`}
-                  style={{ width: `${totalRate}%` }}
+                  className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(totalRate)}`}
+                  style={{ transform: `scaleX(${(totalRate) / 100})` }}
                 />
               </div>
             </div>

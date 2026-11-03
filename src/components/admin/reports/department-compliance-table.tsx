@@ -138,7 +138,7 @@ export default function DepartmentComplianceTable({
                     <td className="px-6 py-4 text-left">
                       <div className="flex min-w-0 items-center gap-3">
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-all ${
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-ui ${
                             isOptimal
                               ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
                               : isBottleneck
@@ -189,9 +189,9 @@ export default function DepartmentComplianceTable({
                     {/* Overdue Queue (Centered, number with chevron on hover, blank if 0) */}
                     <td className="px-6 py-4 text-center whitespace-nowrap">
                       {dept.stalledCount > 0 ? (
-                        <span className="inline-flex items-center gap-1 font-mono text-sm font-bold text-rose-400 bg-rose-500/10 border border-rose-500/25 rounded-md px-2 py-0.5 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 transition-all">
+                        <span className="inline-flex items-center gap-1 font-mono text-sm font-bold text-rose-400 bg-rose-500/10 border border-rose-500/25 rounded-md px-2 py-0.5 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 transition-ui">
                           <span>{dept.stalledCount}</span>
-                          <ChevronRight className="h-3 w-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                          <ChevronRight className="h-3 w-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-ui" />
                         </span>
                       ) : null}
                     </td>
@@ -201,8 +201,8 @@ export default function DepartmentComplianceTable({
                       <div className="flex items-center justify-center gap-3">
                         <div className="h-2 w-24 shrink-0 overflow-hidden rounded-full bg-slate-800 sm:w-28">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(dept.rate)}`}
-                            style={{ width: `${dept.rate}%` }}
+                            className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(dept.rate)}`}
+                            style={{ transform: `scaleX(${(dept.rate) / 100})` }}
                           />
                         </div>
                         <span
@@ -312,8 +312,8 @@ export default function DepartmentComplianceTable({
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(dept.rate)}`}
-                      style={{ width: `${dept.rate}%` }}
+                      className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(dept.rate)}`}
+                      style={{ transform: `scaleX(${(dept.rate) / 100})` }}
                     />
                   </div>
                 </div>

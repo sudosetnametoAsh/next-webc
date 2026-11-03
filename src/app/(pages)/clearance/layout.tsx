@@ -49,11 +49,11 @@ export default async function ClearanceLayout({
   return (
     <ClearanceNavProvider>
       <DashBoardRealtimeProvider studentId={user?.userId}>
-        <div className="flex h-screen w-screen overflow-hidden bg-[#060a14]">
+        <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
           <Sidebar user={user} />
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <Header user={user} />
-            <main className="flex-1 overflow-y-auto flex flex-col relative">
+            <main className="min-h-0 min-w-0 flex-1 overflow-y-auto flex flex-col relative">
               {children}
               <ClearanceCompletionFab studentId={user?.userId} user={user} />
             </main>

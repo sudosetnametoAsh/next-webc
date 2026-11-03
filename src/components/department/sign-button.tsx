@@ -64,7 +64,7 @@ export default function SignToggleButton({
         type="button"
         onClick={handleToggle}
         disabled={isDisabled}
-        className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${btnStyle} ${className}`}
+        className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-ui cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${btnStyle} ${className}`}
         title={
           clearanceId.length === 0
             ? "Select clients to sign"
@@ -93,7 +93,7 @@ export default function SignToggleButton({
 
       {/* Confirmation Modal when Signing with Pending Tasks */}
       {showPendingConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in ease-out fade-in duration-150">
           <div className="relative w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#0a101f] p-6 shadow-2xl shadow-black/80 space-y-4">
             <button
               type="button"
@@ -160,7 +160,7 @@ export default function SignToggleButton({
               <button
                 type="button"
                 onClick={executeSign}
-                className="rounded-xl px-4 py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
+                className="rounded-xl px-4 py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-500/20 transition-ui cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>Proceed & Sign</span>

@@ -95,7 +95,7 @@ export default function DailyThroughputChart({
 
                   <div className="flex h-full w-full items-end justify-center pb-8">
                     <div
-                      className={`w-7 sm:w-11 rounded-t-md transition-all duration-300 ${
+                      className={`w-7 sm:w-11 rounded-t-md transition-ui duration-200 ${
                         isToday
                           ? "bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-lg shadow-emerald-500/20"
                           : "bg-emerald-500/80 hover:bg-emerald-400"

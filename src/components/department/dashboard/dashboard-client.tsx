@@ -55,7 +55,7 @@ export default function DashboardClient({
       <button
         type="button"
         onClick={() => setAiModalOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/40 bg-[#0a101f]/95 text-amber-400 shadow-2xl shadow-amber-500/20 hover:border-amber-400 hover:bg-[#0f172a] hover:text-amber-300 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer backdrop-blur-md"
+        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/40 bg-[#0a101f]/95 text-amber-400 shadow-2xl shadow-amber-500/20 hover:border-amber-400 hover:bg-[#0f172a] hover:text-amber-300 hover:scale-105 active:scale-95 transition-ui duration-200 cursor-pointer backdrop-blur-md"
         aria-label="AI Verification Configuration"
         title="AI Verification Configuration"
       >

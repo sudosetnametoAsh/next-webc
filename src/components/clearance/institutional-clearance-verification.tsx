@@ -581,8 +581,8 @@ export default function InstitutionalClearanceVerification({
                 {/* Dual-Tone Track & Amber Bar */}
                 <div className="my-3.5 h-2.5 w-full overflow-hidden rounded-full bg-slate-800/90">
                   <div
-                    className="h-full rounded-full bg-[#F59E0B] transition-all duration-500 ease-out shadow-sm shadow-amber-500/30"
-                    style={{ width: `${percentage}%` }}
+                    className="h-full rounded-full bg-[#F59E0B] w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none shadow-sm shadow-amber-500/30"
+                    style={{ transform: `scaleX(${(percentage) / 100})` }}
                   />
                 </div>
 
@@ -677,7 +677,7 @@ export default function InstitutionalClearanceVerification({
 
                     // Card container styling
                     let cardClasses =
-                      "group relative flex min-w-0 min-h-[140px] flex-col justify-between rounded-xl p-3.5 sm:p-4 transition-all text-left cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40";
+                      "group relative flex min-w-0 min-h-[140px] flex-col justify-between rounded-xl p-3.5 sm:p-4 transition-ui text-left cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40";
                     let badgeClasses =
                       "rounded-md px-2 py-0.5 text-[10px] font-bold border transition-colors";
                     let statusTextClass = "text-xs font-semibold";
@@ -742,7 +742,7 @@ export default function InstitutionalClearanceVerification({
                                     unviewedCount === 1 ? "task" : "tasks"
                                   } assigned by staff`
                             }
-                            className="absolute -top-2 -right-2 flex h-5 min-w-5 px-1.5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-md ring-2 ring-[#0a101f] z-10 animate-in zoom-in duration-150"
+                            className="absolute -top-2 -right-2 flex h-5 min-w-5 px-1.5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-md ring-2 ring-[#0a101f] z-10 "
                           >
                             {hasReturnedTasks && (
                               <span className="absolute -inset-0.5 rounded-full bg-rose-500 opacity-60 animate-ping -z-10" />
@@ -816,7 +816,7 @@ export default function InstitutionalClearanceVerification({
                         onClick={() => setPipelinePage(idx)}
                         aria-label={`Go to department page ${idx + 1}`}
                         aria-current={currentPipelinePage === idx ? "page" : undefined}
-                        className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+                        className={`h-1 rounded-full transition-ui duration-200 cursor-pointer ${
                           currentPipelinePage === idx
                             ? "w-6 bg-amber-400"
                             : "w-3 bg-slate-700 hover:bg-slate-500"
@@ -964,7 +964,7 @@ export default function InstitutionalClearanceVerification({
                       type="button"
                       onClick={() => setOfficeHoursPage(idx)}
                       aria-label={`Go to page ${idx + 1}`}
-                      className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+                      className={`h-1 rounded-full transition-ui duration-200 cursor-pointer ${
                         officeHoursPage === idx
                           ? "w-6 bg-amber-400"
                           : "w-3 bg-slate-700 hover:bg-slate-500"

@@ -112,7 +112,7 @@ export default function RecentActivityFeed({
               return (
                 <div key={item.id} className="relative group">
                   {/* Timeline Node Dot */}
-                  <div className="absolute -left-6 top-1 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-slate-700/80 bg-slate-900 group-hover:border-amber-500 group-hover:scale-110 transition-all">
+                  <div className="absolute -left-6 top-1 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-slate-700/80 bg-slate-900 group-hover:border-amber-500 group-hover:scale-110 transition-ui">
                     {item.type === 'sign' ? (
                       <CheckCircle2 className="h-3 w-3 text-emerald-400" />
                     ) : (
@@ -121,7 +121,7 @@ export default function RecentActivityFeed({
                   </div>
 
                   {/* Content Container */}
-                  <div className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-all group-hover:border-slate-700 group-hover:bg-[#070c18]">
+                  <div className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3.5 transition-ui group-hover:border-slate-700 group-hover:bg-[#070c18]">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-slate-100 group-hover:text-white transition-colors truncate">

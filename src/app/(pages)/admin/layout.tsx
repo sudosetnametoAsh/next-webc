@@ -36,11 +36,11 @@ export default async function AdminLayout({
   return (
     <AdminNavProvider>
       <AdminRealtimeListener />
-      <div className="flex h-screen w-screen overflow-hidden bg-[#060a14]">
+      <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
         <AdminSidebar user={user} />
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <AdminHeader user={user} />
-          <main className="flex-1 overflow-y-auto flex flex-col ">
+          <main className="min-h-0 min-w-0 flex-1 overflow-y-auto flex flex-col ">
             <div className="max-w-[1920px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
               {children}
             </div>

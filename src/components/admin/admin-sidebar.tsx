@@ -1,5 +1,7 @@
 "use client";
 
+import { Drawer } from "@/components/ui/drawer";
+
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -163,6 +165,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               }}
               onClick={(e) => {
                 if (item.isActive) {
+                  if (isMobile) closeMobile();
                   e.preventDefault();
                   return;
                 }
@@ -219,29 +222,14 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
   return (
     <>
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden h-screen w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
+      <aside className="hidden h-dvh w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
         {renderContent(false)}
       </aside>
 
       {/* ── Mobile Drawer & Backdrop ── */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
-            onClick={closeMobile}
-            aria-hidden="true"
-          />
-
-          {/* Drawer Panel */}
-          <aside
-            aria-label="Admin navigation drawer"
-            className="relative z-50 flex h-full w-72 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 shadow-2xl select-none animate-in slide-in-from-left duration-200"
-          >
-            {renderContent(true)}
-          </aside>
-        </div>
-      )}
+      <Drawer open={mobileOpen} onClose={closeMobile} title="Admin navigation" side="left" mobileOnly className="w-72 max-w-[calc(100vw-2rem)] border-r border-slate-800/80 select-none">
+        {renderContent(true)}
+      </Drawer>
     </>
   );
 }

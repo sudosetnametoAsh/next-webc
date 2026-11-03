@@ -142,7 +142,7 @@ export default function ClientClearanceOverlay({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-full w-full max-w-lg md:max-w-xl flex-col border-l border-slate-800 bg-[#060a14] shadow-2xl transition-transform animate-in slide-in-from-right duration-300 ease-out overflow-hidden"
+        className="relative flex h-full w-full max-w-lg md:max-w-xl flex-col border-l border-slate-800 bg-[#060a14] shadow-2xl transition-transform animate-in slide-in-from-right duration-200 ease-out overflow-hidden"
       >
         {/* ── 1. Top Bar / Dossier Meta ── */}
         <div className="flex items-center justify-between border-b border-slate-800/80 bg-[#070c18] px-5 py-3.5">
@@ -270,8 +270,8 @@ export default function ClientClearanceOverlay({
             {/* Progress Bar */}
             <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(percent)}`}
-                style={{ width: `${percent}%` }}
+                className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(percent)}`}
+                style={{ transform: `scaleX(${(percent) / 100})` }}
               />
             </div>
           </div>
@@ -304,7 +304,7 @@ export default function ClientClearanceOverlay({
                 return (
                   <div
                     key={`${dept.dept_id || dept.dept_name}-${index}`}
-                    className={`relative rounded-xl border p-4 transition-all duration-200 ${
+                    className={`relative rounded-xl border p-4 transition-ui duration-200 ${
                       isCleared
                         ? 'border-emerald-500/30 bg-[#0a141a]/60 hover:bg-[#0a141a]'
                         : 'border-slate-800 bg-[#0a101f] hover:bg-slate-800/40'

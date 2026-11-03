@@ -146,7 +146,7 @@ export default function ClearanceItem({
                       >
                         {/* Inner Trigger: Task Title */}
                         <AccordionTrigger
-                          className={`flex w-full cursor-pointer flex-row items-center justify-between p-4 transition-all hover:bg-slate-50 hover:no-underline group-data-[state=open]/task:border-b group-data-[state=open]/task:border-slate-100 ${
+                          className={`flex w-full cursor-pointer flex-row items-center justify-between p-4 transition-ui hover:bg-slate-50 hover:no-underline group-data-[state=open]/task:border-b group-data-[state=open]/task:border-slate-100 ${
                             task.dropbox === "NULL" && !isResubmit
                               ? "pointer-events-none"
                               : ""
