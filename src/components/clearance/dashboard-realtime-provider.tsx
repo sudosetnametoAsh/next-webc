@@ -1,13 +1,9 @@
 "use client";
 
 import { createClient } from "@/lib/db/supabase-client";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  invalidateClearanceData,
-  prefetchClearanceData,
-} from "@/hooks/clearance/use-clearance-data";
+import { invalidateClearanceData } from "@/hooks/clearance/use-clearance-data";
 
 export default function DashBoardRealtimeProvider({
   children,
@@ -16,32 +12,44 @@ export default function DashBoardRealtimeProvider({
   children: React.ReactNode;
   studentId?: string;
 }) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const supabase = useMemo(() => createClient(), []);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Pre-warm clearance cache on mount
   useEffect(() => {
-    if (studentId) {
-      prefetchClearanceData(queryClient, studentId);
-    }
-  }, [studentId, queryClient]);
+    if (!studentId) return;
 
-  useEffect(() => {
-    // Coalesce rapid bursts of Realtime events (e.g. cascading deletes or bulk task updates)
-    // into exactly ONE single cache invalidation and router refresh.
-    const triggerRefresh = () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+    let disposed = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let fallback: ReturnType<typeof setInterval> | undefined;
+    let refreshing = false;
+    let refreshPending = false;
+
+    // Finish the current fetch before following up on events received during it.
+    // This avoids repeatedly cancelling a slow request during assignment bursts.
+    const refresh = async () => {
+      if (disposed || refreshing) return;
+      refreshing = true;
+      try {
+        do {
+          refreshPending = false;
+          await invalidateClearanceData(queryClient, studentId);
+        } while (refreshPending && !disposed);
+      } finally {
+        refreshing = false;
       }
-      debounceTimerRef.current = setTimeout(() => {
-        invalidateClearanceData(queryClient, studentId);
-        router.refresh();
-      }, 400);
     };
 
-    // Scoped Realtime Channel Subscription
+    const triggerRefresh = () => {
+      if (disposed) return;
+      refreshPending = true;
+      // Bound the batching delay: new events must not keep postponing a refresh.
+      if (timer || refreshing) return;
+      timer = setTimeout(() => {
+        timer = undefined;
+        void refresh();
+      }, 200);
+    };
+
+    // RLS determines which changes this authenticated user can receive.
     const channelId = `clearance-rt-${studentId || "default"}-${Date.now()}`;
     const channel = supabase
       .channel(channelId)
@@ -78,15 +86,30 @@ export default function DashBoardRealtimeProvider({
           triggerRefresh();
         },
       )
-      .subscribe();
+      .subscribe((status, error) => {
+        if (disposed) return;
+        if (status === "SUBSCRIBED") {
+          if (fallback) clearInterval(fallback);
+          fallback = undefined;
+          // Catch changes made before subscribing or while disconnected.
+          triggerRefresh();
+        } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          console.warn("Clearance realtime disconnected:", status, error);
+          triggerRefresh();
+          // Keep an open portal usable while the realtime client reconnects.
+          fallback ??= setInterval(() => {
+            if (document.visibilityState === "visible") triggerRefresh();
+          }, 15000);
+        }
+      });
 
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      supabase.removeChannel(channel);
+      disposed = true;
+      if (timer) clearTimeout(timer);
+      if (fallback) clearInterval(fallback);
+      void supabase.removeChannel(channel);
     };
-  }, [supabase, router, studentId, queryClient]);
+  }, [supabase, studentId, queryClient]);
 
   return <>{children}</>;
 }

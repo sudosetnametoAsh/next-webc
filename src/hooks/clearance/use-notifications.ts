@@ -118,9 +118,8 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
           queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
         }
         queryClient.invalidateQueries({ queryKey });
-        if (role === "student") {
-          queryClient.invalidateQueries({ queryKey: ["clearance"] });
-        }
+        // The clearance layout owns task-data synchronization. Keeping it in
+        // one listener avoids competing refetches from the notification UI.
       }, 350);
     };
 

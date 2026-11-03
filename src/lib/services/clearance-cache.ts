@@ -31,7 +31,10 @@ const CACHE_TTL_MS = 180 * 1000;
 const serverClearanceCache = new Map<string, CacheEntry>();
 
 // Concurrent fetch deduplication map
-const pendingFetches = new Map<string, Promise<ClearanceBundle>>();
+const pendingFetches = new Map<string, {
+  token: symbol;
+  promise: Promise<ClearanceBundle>;
+}>();
 
 /**
  * Retrieves the full clearance dataset for a given student from memory if fresh (< 3 mins),
@@ -53,9 +56,10 @@ export async function getCachedClearanceBundle(
 
   // Deduplicate concurrent fetches for the same student
   if (pendingFetches.has(userId)) {
-    return pendingFetches.get(userId)!;
+    return pendingFetches.get(userId)!.promise;
   }
 
+  const token = Symbol();
   const fetchPromise = (async () => {
     try {
       const [
@@ -89,18 +93,24 @@ export async function getCachedClearanceBundle(
         tasks,
       };
 
-      serverClearanceCache.set(userId, {
-        data: bundle,
-        timestamp: Date.now(),
-      });
+      // An invalidated request may still finish after a newer request. Only
+      // the current request may publish its result back into the shared cache.
+      if (pendingFetches.get(userId)?.token === token) {
+        serverClearanceCache.set(userId, {
+          data: bundle,
+          timestamp: Date.now(),
+        });
+      }
 
       return bundle;
     } finally {
-      pendingFetches.delete(userId);
+      if (pendingFetches.get(userId)?.token === token) {
+        pendingFetches.delete(userId);
+      }
     }
   })();
 
-  pendingFetches.set(userId, fetchPromise);
+  pendingFetches.set(userId, { token, promise: fetchPromise });
   return fetchPromise;
 }
 

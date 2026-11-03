@@ -26,7 +26,8 @@ export const clearanceQueryKeys = {
 
 export async function fetchClearanceData(
   studentId?: string,
-  fresh = false
+  fresh = false,
+  signal?: AbortSignal
 ): Promise<ClearanceDataResponse> {
   const params = new URLSearchParams();
   if (studentId) params.set("studentId", studentId);
@@ -36,6 +37,8 @@ export async function fetchClearanceData(
 
   const res = await fetch(url, {
     method: "GET",
+    signal,
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
     },
@@ -59,7 +62,7 @@ export async function prefetchClearanceData(
   const queryKey = clearanceQueryKeys.student(studentId);
   return queryClient.prefetchQuery({
     queryKey,
-    queryFn: () => fetchClearanceData(studentId),
+    queryFn: ({ signal }) => fetchClearanceData(studentId, true, signal),
     staleTime: 1000 * 60 * 3, // 3 minutes fresh
   });
 }
@@ -141,12 +144,13 @@ export function useClearanceData(
     // Realtime invalidation must also bypass the server's three-minute cache.
     // Staff approvals/rejections can write directly to Supabase, so they do not
     // pass through an API route that invalidates that cache.
-    queryFn: () => fetchClearanceData(studentId, true),
+    queryFn: ({ signal }) => fetchClearanceData(studentId, true, signal),
     staleTime: 1000 * 60 * 3, // 3 minutes stale time
     gcTime: 1000 * 60 * 10,   // 10 minutes cache garbage collection
     initialData,
     initialDataUpdatedAt: initialData ? initialMountTimeRef.current : undefined,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     enabled: options?.enabled !== false && Boolean(studentId),
   });
 

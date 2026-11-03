@@ -196,12 +196,8 @@ export default function TasksPage({
   );
 
   useEffect(() => {
-    if (liveTasks && liveTasks.length > 0) {
-      setTasksList(liveTasks);
-    } else if (propTask && propTask.length > 0) {
-      setTasksList(propTask);
-    }
-  }, [liveTasks, propTask]);
+    setTasksList(liveTasks);
+  }, [liveTasks]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("All");
