@@ -18,6 +18,41 @@ async function waitForStoredTheme(page, expected) {
   await page.waitForFunction((theme) => localStorage.getItem("theme") === theme, expected);
 }
 
+async function assertContrast(page, foregroundSelector, backgroundSelector, minimum, label) {
+  const result = await page.evaluate(({ foregroundSelector: foreground, backgroundSelector: background }) => {
+    const parseColor = (value) => {
+      const match = value.match(/rgba?\(([^)]+)\)/);
+      if (!match) return null;
+      const parts = match[1].replace(/\//g, " ").split(/[\s,]+/).filter(Boolean);
+      const channels = parts.slice(0, 3).map(Number);
+      if (channels.some((channel) => Number.isNaN(channel))) return null;
+      return { r: channels[0], g: channels[1], b: channels[2], a: parts[3] === undefined ? 1 : Number(parts[3]) };
+    };
+    const luminance = ({ r, g, b }) => {
+      const channel = (value) => {
+        const normalized = value / 255;
+        return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+      };
+      return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+    };
+    const foregroundColor = parseColor(getComputedStyle(document.querySelector(foreground)).color);
+    const backgroundColor = parseColor(getComputedStyle(document.querySelector(background)).backgroundColor);
+    if (!foregroundColor || !backgroundColor) return null;
+    const alpha = Number.isFinite(foregroundColor.a) ? foregroundColor.a : 1;
+    const blended = {
+      r: foregroundColor.r * alpha + backgroundColor.r * (1 - alpha),
+      g: foregroundColor.g * alpha + backgroundColor.g * (1 - alpha),
+      b: foregroundColor.b * alpha + backgroundColor.b * (1 - alpha),
+    };
+    const foregroundLuminance = luminance(blended);
+    const backgroundLuminance = luminance(backgroundColor);
+    return (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+      (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+  }, { foregroundSelector, backgroundSelector });
+  assert(result !== null, `${label} colors should be readable by the browser`);
+  assert(result >= minimum, `${label} contrast ${result?.toFixed(2)} < ${minimum}`);
+}
+
 (async () => {
   const temp = await fs.mkdtemp(path.join(os.tmpdir(), "webc-theme-"));
   let browser;
@@ -77,8 +112,20 @@ async function waitForStoredTheme(page, expected) {
     {
       const context = await browser.newContext({ colorScheme: "light" });
       const page = await context.newPage();
-      await page.goto(`${origin}/?area=admin`);
+      await page.goto(`${origin}/?area=admin`, { waitUntil: "domcontentloaded" });
+      const toggleBeforeHydration = page.locator('button[aria-label="Theme switcher"], button[aria-label^="Switch to"]').first();
+      await toggleBeforeHydration.waitFor({ state: "attached" });
+      const beforeHydrationBox = await toggleBeforeHydration.boundingBox();
       await waitForClass(page, "light");
+      await page.waitForFunction(() => Boolean(document.querySelector('button[aria-label^="Switch to"]')));
+      const toggleAfterHydration = page.locator('button[aria-label^="Switch to"]').first();
+      const afterHydrationBox = await toggleAfterHydration.boundingBox();
+      assert(beforeHydrationBox && afterHydrationBox, "theme toggle reserves space before and after hydration");
+      assert.deepEqual(
+        { x: afterHydrationBox.x, y: afterHydrationBox.y, width: afterHydrationBox.width, height: afterHydrationBox.height },
+        { x: beforeHydrationBox.x, y: beforeHydrationBox.y, width: beforeHydrationBox.width, height: beforeHydrationBox.height },
+        "theme toggle keeps its bounding box through hydration",
+      );
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(244, 246, 250)");
       assert.equal(await page.getByTestId("theme-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
@@ -88,8 +135,23 @@ async function waitForStoredTheme(page, expected) {
       assert.equal(await page.getByTestId("clearance-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("clearance-panel").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "light");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible(), true);
+      await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "normal text");
+      await assertContrast(page, '[data-testid="status-text"]', '[data-testid="status-text"]', 4.5, "status text");
+      await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "large text");
+      await assertContrast(page, 'button[aria-label="Switch to dark mode"]', '[data-portal]', 3, "theme toggle");
+      await page.getByRole("button", { name: "Switch to dark mode" }).focus();
+      assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).evaluate((el) => document.activeElement === el), true);
+      assert.notEqual(await page.getByRole("button", { name: "Switch to dark mode" }).evaluate((el) => getComputedStyle(el).boxShadow), "none");
+      await page.keyboard.press("Enter");
+      await waitForClass(page, "dark");
+      assert.equal(await page.getByRole("button", { name: "Switch to light mode" }).isVisible(), true);
+      await page.getByRole("button", { name: "Switch to light mode" }).focus();
+      await page.keyboard.press("Space");
+      await waitForClass(page, "light");
       await page.getByRole("button", { name: "Switch to dark mode" }).click();
       await waitForClass(page, "dark");
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(6, 10, 20)");
@@ -98,11 +160,31 @@ async function waitForStoredTheme(page, expected) {
       assert.equal(await page.getByTestId("clearance-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("clearance-panel").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
+      assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
+      assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "dark");
+      await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "dark normal text");
+      await assertContrast(page, '[data-testid="status-text"]', '[data-testid="status-text"]', 4.5, "dark status text");
+      await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "dark large text");
+      await assertContrast(page, 'button[aria-label="Switch to light mode"]', '[data-portal]', 3, "dark theme toggle");
       await waitForStoredTheme(page, "dark");
       await page.reload();
       await waitForClass(page, "dark");
       assert.equal(await page.getByRole("button", { name: "Switch to light mode" }).isVisible(), true);
+      await context.close();
+    }
+
+    {
+      const context = await browser.newContext({ colorScheme: "light", reducedMotion: "reduce" });
+      const page = await context.newPage();
+      await page.goto(`${origin}/?area=clearance`);
+      await waitForClass(page, "light");
+      const reducedMotion = await page.getByRole("button", { name: "Switch to dark mode" }).evaluate((el) => {
+        const style = getComputedStyle(el);
+        return { transitionProperty: style.transitionProperty, animationName: style.animationName };
+      });
+      assert.equal(reducedMotion.animationName, "none");
+      assert.equal(reducedMotion.transitionProperty.includes("transform"), false);
       await context.close();
     }
 
@@ -148,6 +230,9 @@ async function waitForStoredTheme(page, expected) {
       await page.getByRole("button", { name: "Switch to dark mode" }).click();
       await waitForClass(second, "dark");
       assert.equal(await second.getByRole("button", { name: "Switch to light mode" }).isVisible(), true);
+      await second.goto(`${origin}/?area=clearance`);
+      await waitForClass(second, "dark");
+      assert.equal(await second.locator("[data-portal]").getAttribute("data-portal"), "clearance");
       await second.close();
       await context.close();
     }
@@ -171,6 +256,37 @@ async function waitForStoredTheme(page, expected) {
       await waitForClass(page, "dark");
       assert.deepEqual(errors, []);
       await context.close();
+    }
+
+    if (process.env.WEB_C_BASE_URL) {
+      const scenarios = [
+        { saved: "light", device: "dark" },
+        { saved: "dark", device: "light" },
+      ];
+      let authenticatedPortal = false;
+      for (const scenario of scenarios) {
+        const context = await browser.newContext({ colorScheme: scenario.device });
+        await context.addInitScript((theme) => localStorage.setItem("theme", theme), scenario.saved);
+        const page = await context.newPage();
+        const hydrationErrors = [];
+        page.on("console", (message) => {
+          if (message.type() === "error" && /hydration|uncaught|error/i.test(message.text())) hydrationErrors.push(message.text());
+        });
+        page.on("pageerror", (error) => hydrationErrors.push(error.message));
+        await page.goto(process.env.WEB_C_BASE_URL, { waitUntil: "domcontentloaded" });
+        await page.waitForTimeout(300);
+        if (await page.locator("[data-portal]").count()) {
+          authenticatedPortal = true;
+          await waitForClass(page, scenario.saved);
+          const expectedCanvas = scenario.saved === "dark" ? "rgb(6, 10, 20)" : "rgb(244, 246, 250)";
+          assert.equal(await page.locator("[data-portal]").first().evaluate((el) => getComputedStyle(el).backgroundColor), expectedCanvas);
+          assert.deepEqual(hydrationErrors, []);
+        }
+        await context.close();
+      }
+      console.log(authenticatedPortal
+        ? "PASS: optional live app theme checks (authenticated portal reached)."
+        : "SKIP: optional live app theme checks (no authenticated portal at WEB_C_BASE_URL).");
     }
 
     console.log("PASS: theme follows system, persists explicit choices, syncs tabs, scopes nonportal routes, and tolerates unavailable storage.");
