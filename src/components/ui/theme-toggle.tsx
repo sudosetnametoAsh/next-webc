@@ -15,8 +15,9 @@ export function ThemeToggle() {
       <button
         type="button"
         aria-label="Theme switcher"
-        disabled
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-portal-muted opacity-70"
+        aria-disabled="true"
+        tabIndex={-1}
+        className="pointer-events-none flex h-9 w-9 items-center justify-center rounded-lg text-portal-muted opacity-70"
       />
     );
   }
