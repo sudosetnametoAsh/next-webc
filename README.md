@@ -75,9 +75,22 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Docker builds with GitHub Actions
+## CI/CD pipeline
 
-The [Docker workflow](.github/workflows/docker.yml) builds and smoke-tests the image on pull requests. Pushes to `main` also publish to GitHub Container Registry (GHCR). You can run it manually from the Actions tab; only runs on `main` publish. No Docker Hub account or personal token is needed for publishing: the workflow uses GitHub's built-in `GITHUB_TOKEN`.
+The [CI/CD workflow](.github/workflows/ci.yml) runs in three ordered stages:
+
+1. **Tests (quality gate)** — installs dependencies, runs `tsc --noEmit`, and runs the Node test suite in `tests/`. A failure stops the pipeline.
+2. **Build image** — builds the Docker image, starts the container, and smoke-tests `/` and `/favicon.svg`.
+3. **Deploy to Dokploy** — after a successful build and publish on `main`, triggers a Dokploy redeploy through a webhook.
+
+| Event | Tests | Build image | Publish to GHCR | Deploy |
+| --- | --- | --- | --- | --- |
+| Pull request | Yes | Yes | No | No |
+| Push to `main` | Yes | Yes | Yes | Yes |
+| Manual run on `main` | Yes | Yes | Yes | Yes |
+| Manual run on another ref | Yes | Yes | No | No |
+
+Require the **Tests (quality gate)** and **Build image** checks in branch protection so pull requests cannot merge without them.
 
 ### 1. Configure public build variables
 
@@ -92,20 +105,42 @@ Under **Settings → Secrets and variables → Actions → Variables**, add thes
 
 The current app reads both Supabase key names. Both variables can contain the same public anon or publishable key from your Supabase project. Never put a service-role or secret key in either variable. These values are public and are embedded during `next build`; changing container environment variables cannot replace them. Rebuild the image after changing them.
 
-### 2. Publish the image
+### 2. Configure Dokploy
 
-Commit these files and merge into `main`. Open **Actions → Docker image** to check the build. Successful runs publish:
+Point the Dokploy application at the published image:
+
+- **Docker image:** `ghcr.io/sudosetnametoash/next-webc:latest`. The workflow derives the lowercase image path from the repository, so forks use their own path.
+- **Registry credentials:** for a private GHCR package, add credentials in Dokploy that can read the package (a personal access token with `read:packages`).
+- **Deploy webhook:** open the application's **Deployments** tab and copy the webhook URL. It looks like `https://<dokploy-host>/api/deploy/<token>`.
+
+Store the webhook URL as a repository secret under **Settings → Secrets and variables → Actions → Secrets**:
+
+| Secret | Value |
+| --- | --- |
+| `DOKPLOY_WEBHOOK_URL` | The application Deploy Webhook URL from Dokploy |
+
+Add the secret before merging a change to the workflow, otherwise the first `main` run fails at the deploy job. The deploy job fails with a clear error when the secret is missing or the webhook returns a non-2xx response. Treat the URL as a credential: anyone who has it can trigger deployments. Rotate the webhook token in Dokploy if it leaks.
+
+Keep any Dokploy GitHub auto-deploy disabled. If Dokploy deploys directly on GitHub pushes, it can release code before the quality gate finishes. This workflow triggers the deployment explicitly, and GHCR pushes do not fire Dokploy's DockerHub webhook.
+
+### 3. Publish and deploy
+
+Merge into `main`. Open **Actions → CI/CD** to follow the run. A successful `main` run publishes:
 
 ```text
 ghcr.io/sudosetnametoash/next-webc:latest
 ghcr.io/sudosetnametoash/next-webc:sha-<full-commit-sha>
 ```
 
-The workflow derives the lowercase image name from the repository, so forks use their own path. Images are built for Linux AMD64, matching the GitHub-hosted runner. PR builds never log in or publish. If organization policy blocks package writes, allow GHCR publishing for this repository; an existing package may also need to grant this repository Actions access under its package settings.
+The image job pushes to GHCR only after the tests and smoke test pass. Images are built for Linux AMD64, matching the GitHub-hosted runner. PR builds never log in or publish. If organization policy blocks package writes, allow GHCR publishing for this repository; an existing package may also need to grant this repository Actions access under its package settings.
 
-### 3. Run on your server
+Dokploy pulls `:latest` when the deploy job triggers it. The job finishes once Dokploy accepts the webhook, not when the rollout completes; follow the deployment in Dokploy for the final status. Every run also publishes a `sha-<full-commit-sha>` tag for reproducible rollbacks.
 
-Create a private `.env.production` file on the server with the server-side configuration. Do not commit it or pass these secrets as Docker build arguments:
+To redeploy the current `main` commit without a new push, open **Actions → CI/CD → Run workflow** and select `main`. Manual runs on other refs only run the tests and build the image.
+
+### 4. Runtime configuration
+
+Configure these server-only variables in Dokploy under the application's **Environment** settings. When running the container manually, use a private `.env.production` file instead. Do not commit these values or pass them as Docker build arguments:
 
 ```dotenv
 DATABASE_URL=postgresql://USER:PASSWORD@DATABASE_HOST:5432/postgres
@@ -122,7 +157,9 @@ SMS_USERNAME=YOUR_SMS_USERNAME
 SMS_PASSWORD=YOUR_SMS_PASSWORD
 ```
 
-Generate independent session/webhook secrets with `openssl rand -hex 32`. Restrict the file with `chmod 600 .env.production`. The Docker build context includes only application source, public assets, and build configuration; local `.env` files, database backups, and development dependencies are not included in the runtime image.
+Generate independent session/webhook secrets with `openssl rand -hex 32`. When using a local file, restrict it with `chmod 600 .env.production`. The Docker build context includes only application source, public assets, and build configuration; local `.env` files, database backups, and development dependencies are not included in the runtime image.
+
+### 5. Run manually on a server (fallback)
 
 For a private GHCR package, log in on the server using a personal access token (classic) with `read:packages` and access to the package:
 
@@ -149,4 +186,4 @@ Replace `<full-commit-sha>` before running these commands. Put an HTTPS reverse 
 - Update `redirectUri` and `postLogoutRedirectUri` in [the MSAL config](src/lib/auth/msal-config.ts), which currently point to `http://localhost:3000`, and register the production redirect URI in Microsoft Entra. Its hardcoded client/tenant IDs must match the runtime Azure settings.
 - Configure Supabase Auth's production Site URL and allowed redirect URL (`https://YOUR_DOMAIN/api/auth/callback`), and the Azure provider's callback URL. The checked-in Supabase config is for local development.
 - Use a database, Supabase service, and SMS gateway reachable from the container. `localhost` inside it refers to the container itself. Provision the production database/schema separately; this image does not run migrations or host Supabase.
-- Building and publishing an image does not deploy it to a server, configure DNS/TLS, or certify the app's authorization/security for public access.
+- Building, publishing, and triggering a Dokploy redeploy does not configure DNS/TLS or certify the app's authorization/security for public access.
