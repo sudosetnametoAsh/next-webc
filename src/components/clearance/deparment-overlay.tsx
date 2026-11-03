@@ -806,38 +806,38 @@ export default function DepartmentOverlay({
           <div className="flex justify-between items-start mb-5">
             <div className="flex gap-3.5 items-start">
               {/* Icon Box */}
-              <div className="w-11 h-11 rounded-xl border border-[#2d281a] bg-[#1a160c] flex items-center justify-center flex-shrink-0 mt-0.5 text-[#EAB308]">
+              <div className="w-11 h-11 rounded-xl border border-portal-accent/30 bg-portal-accent-soft flex items-center justify-center flex-shrink-0 mt-0.5 text-portal-accent">
                 <DeptIcon className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                  <h1 className="text-xl font-bold text-white tracking-tight">
+                  <h1 className="text-xl font-bold text-portal-foreground tracking-tight">
                     {deptName}
                   </h1>
                   {/* Status Badge */}
                   <span
                     className={`flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-medium border ${
                       isCleared
-                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                        ? "border-portal-success/30 bg-portal-success-soft text-portal-success"
                         : isIncomplete
-                        ? "border-amber-500/40 bg-amber-500/10 text-amber-400 font-bold"
-                        : "border-slate-700/60 bg-slate-800/80 text-slate-300"
+                        ? "border-portal-warning/40 bg-portal-warning-soft text-portal-warning font-bold"
+                        : "border-portal-border bg-portal-inset text-portal-muted"
                     }`}
                   >
                     {isCleared ? (
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      <CheckCircle2 className="w-3 h-3 text-portal-success" />
                     ) : isIncomplete ? (
-                      <AlertCircle className="w-3 h-3 text-amber-400" />
+                      <AlertCircle className="w-3 h-3 text-portal-warning" />
                     ) : (
-                      <Clock className="w-3 h-3 text-slate-400" />
+                      <Clock className="w-3 h-3 text-portal-muted" />
                     )}
                     <span>{deptStatusLabel}</span>
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
+                <div className="flex items-center gap-2 text-xs text-portal-muted">
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      hasSchedule && isOpen ? "bg-emerald-400" : "bg-gray-500"
+                      hasSchedule && isOpen ? "bg-portal-success" : "bg-portal-muted"
                     }`}
                   />
                   <span>{hasSchedule ? hoursStatus : "Pending Schedule"}</span>
@@ -847,7 +847,7 @@ export default function DepartmentOverlay({
             <button
               type="button"
               onClick={() => setSelectedRecord(null)}
-              className="p-1 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 transition-colors cursor-pointer"
+              className="p-1 rounded-md text-portal-muted hover:text-portal-foreground hover:bg-portal-inset transition-colors cursor-pointer"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -855,31 +855,31 @@ export default function DepartmentOverlay({
           </div>
 
           {/* Divider with balanced top/bottom margin */}
-          <hr className="border-[#1f2937] my-7" />
+          <hr className="border-portal-border my-7" />
 
           {/* 2. Staff Responsible Section */}
           <div className="mb-9">
-            <h2 className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-3.5">
+            <h2 className="text-xs font-bold text-portal-muted tracking-widest uppercase mb-3.5">
               Staff
             </h2>
 
-            <div className="bg-[#131822] border border-[#1f2937] rounded-xl p-3.5 flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-full border border-[#423314] bg-[#231a08] flex items-center justify-center text-[#EAB308] font-bold text-sm shrink-0">
+            <div className="bg-portal-inset border border-portal-border rounded-xl p-3.5 flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-full border border-portal-accent/30 bg-portal-accent-soft flex items-center justify-center text-portal-accent font-bold text-sm shrink-0">
                 {staffInitials}
               </div>
               <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-white font-semibold text-sm truncate">
+                <span className="text-portal-foreground font-semibold text-sm truncate">
                   {staffName}
                 </span>
-                <span className="text-gray-400 text-xs truncate">
+                <span className="text-portal-muted text-xs truncate">
                   Clearance Signatory · signs off this step
                 </span>
               </div>
             </div>
 
             {/* Location with balanced breathing room */}
-            <div className="flex items-center gap-2 mt-4 text-xs text-gray-300">
-              <MapPin className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
+            <div className="flex items-center gap-2 mt-4 text-xs text-portal-muted">
+              <MapPin className="w-3.5 h-3.5 text-portal-accent shrink-0" />
               <span>{location}</span>
             </div>
           </div>
@@ -888,23 +888,23 @@ export default function DepartmentOverlay({
           <div className="mb-9">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xs font-bold text-gray-500 tracking-widest uppercase">
+              <h2 className="text-xs font-bold text-portal-muted tracking-widest uppercase">
                 Office Hours
               </h2>
               <div
                 className={`flex items-center gap-1.5 text-xs font-semibold ${
                   hasSchedule
                     ? isOpen
-                      ? "text-emerald-400"
-                      : "text-gray-400"
-                    : "text-gray-400 font-medium"
+                      ? "text-portal-success"
+                      : "text-portal-muted"
+                    : "text-portal-muted font-medium"
                 }`}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    hasSchedule && isOpen
-                      ? "bg-emerald-400 animate-pulse"
-                      : "bg-gray-500"
+                      hasSchedule && isOpen
+                      ? "bg-portal-success animate-pulse"
+                      : "bg-portal-muted"
                   }`}
                 />
                 <span>{hasSchedule ? hoursStatus : "Pending Schedule"}</span>
@@ -912,31 +912,31 @@ export default function DepartmentOverlay({
             </div>
 
             {hasSchedule ? (
-              <div className="bg-[#131822] border border-[#1f2937] rounded-xl overflow-hidden text-xs">
+              <div className="bg-portal-inset border border-portal-border rounded-xl overflow-hidden text-xs">
                 {weeklyScheduleList.map((slot, index) => (
                   <div
                     key={slot.key}
                     className={`flex justify-between items-center py-3.5 px-4.5
-                      ${index !== weeklyScheduleList.length - 1 ? "border-b border-[#1f2937]" : ""}
-                      ${slot.isToday ? "bg-[#2a2212]/30 text-[#EAB308]" : "text-white"}`}
+                      ${index !== weeklyScheduleList.length - 1 ? "border-b border-portal-border" : ""}
+                      ${slot.isToday ? "bg-portal-accent-soft text-portal-accent" : "text-portal-foreground"}`}
                   >
                     <div className="flex items-center gap-2.5">
                       <span
                         className={`font-medium ${
-                          slot.isToday ? "text-[#EAB308] font-semibold" : "text-gray-200"
+                          slot.isToday ? "text-portal-accent font-semibold" : "text-portal-foreground"
                         }`}
                       >
                         {slot.name}
                       </span>
                       {slot.isToday && (
-                        <span className="bg-[#423314] text-[#EAB308] text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="bg-portal-accent-soft text-portal-accent text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                           Today
                         </span>
                       )}
                     </div>
                     <span
-                      className={`${slot.isClosed ? "text-gray-500" : ""} ${
-                        slot.isToday ? "font-semibold text-[#EAB308]" : "text-gray-300"
+                      className={`${slot.isClosed ? "text-portal-muted" : ""} ${
+                        slot.isToday ? "font-semibold text-portal-accent" : "text-portal-muted"
                       }`}
                     >
                       {slot.hours}
@@ -945,16 +945,16 @@ export default function DepartmentOverlay({
                 ))}
               </div>
             ) : (
-              <div className="bg-[#131822] border border-[#1f2937] rounded-xl p-4 flex items-start gap-3 text-xs text-gray-400">
-                <Clock className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <div className="bg-portal-inset border border-portal-border rounded-xl p-4 flex items-start gap-3 text-xs text-portal-muted">
+                <Clock className="w-4 h-4 text-portal-muted shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <p className="font-semibold text-gray-200">
+                  <p className="font-semibold text-portal-foreground">
                     No designated schedule set
                   </p>
-                  <p className="leading-relaxed text-gray-400">
+                  <p className="leading-relaxed text-portal-muted">
                     This department has not published specific operating hours
                     yet. Please visit the office at{" "}
-                    <strong className="text-gray-200">{location}</strong> during
+                    <strong className="text-portal-foreground">{location}</strong> during
                     regular campus administrative hours.
                   </p>
                 </div>
@@ -964,14 +964,14 @@ export default function DepartmentOverlay({
 
           {/* 4. Requirements Section */}
           <div className="mb-6">
-            <h2 className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-4">
+            <h2 className="text-xs font-bold text-portal-muted tracking-widest uppercase mb-4">
               Department Requirements ({sortedTasks.length})
             </h2>
 
             {/* Gap between cards */}
             <div className="flex flex-col gap-3.5">
               {sortedTasks.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#1f2937] bg-[#131822]/50 px-4 py-8 text-center text-xs text-gray-500">
+                <div className="rounded-xl border border-dashed border-portal-border bg-portal-inset px-4 py-8 text-center text-xs text-portal-muted">
                   No clearance requirements assigned for this department.
                 </div>
               ) : (
@@ -1016,13 +1016,13 @@ export default function DepartmentOverlay({
                         );
                       }
                     }}
-                    className="relative bg-[#131822] hover:bg-[#1a212f] transition-colors border border-[#1f2937] rounded-xl p-4 sm:p-4.5 flex items-center justify-between w-full text-left group cursor-pointer"
+                    className="relative bg-portal-inset hover:bg-portal-surface transition-colors border border-portal-border rounded-xl p-4 sm:p-4.5 flex items-center justify-between w-full text-left group cursor-pointer"
                   >
                     {/* Unviewed task pulse dot */}
                     {isUnviewed && (
                       <span
                         title="New unviewed requirement"
-                        className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#131822] animate-pulse z-10"
+                        className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-portal-inset animate-pulse z-10"
                       />
                     )}
 
@@ -1030,32 +1030,32 @@ export default function DepartmentOverlay({
                       {/* Status Icon matching task-view.tsx */}
                       <div className="flex-shrink-0">
                         {isCleared && (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <CheckCircle2 className="w-4 h-4 text-portal-success" />
                         )}
                         {isVerified && (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <CheckCircle2 className="w-4 h-4 text-portal-success" />
                         )}
                         {isForReview && (
-                          <Clock className="w-4 h-4 text-amber-400" />
+                          <Clock className="w-4 h-4 text-portal-warning" />
                         )}
                         {isFlagged && (
-                          <AlertTriangle className="w-4 h-4 text-blue-400" />
+                          <AlertTriangle className="w-4 h-4 text-portal-info" />
                         )}
                         {isRejected && (
-                          <XCircle className="w-4 h-4 text-rose-400" />
+                          <XCircle className="w-4 h-4 text-portal-danger" />
                         )}
                         {isPending &&
                           (req.isInPerson ? (
-                            <UserCheck className="w-4 h-4 text-slate-400" />
+                            <UserCheck className="w-4 h-4 text-portal-muted" />
                           ) : (
-                            <Clock className="w-4 h-4 text-slate-400" />
+                            <Clock className="w-4 h-4 text-portal-muted" />
                           ))}
                       </div>
 
                       {/* Title and Calendar Due Indicator */}
                       <div className="flex flex-col min-w-0 flex-1 gap-0.5">
                         <span
-                          className="text-white font-semibold text-sm group-hover:text-amber-300 transition-colors truncate block max-w-[170px] sm:max-w-[210px]"
+                          className="text-portal-foreground font-semibold text-sm group-hover:text-portal-accent transition-colors truncate block max-w-[170px] sm:max-w-[210px]"
                           title={req.title}
                         >
                           {req.title}
@@ -1064,8 +1064,8 @@ export default function DepartmentOverlay({
                         {/* Once in For review or Submitted: remove due date, just display elapsed time */}
                         {isForReview && req.uploaded_at ? (
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <Clock size={12} className="text-slate-400 shrink-0" />
-                            <span className="text-xs text-slate-400 font-medium truncate">
+                            <Clock size={12} className="text-portal-muted shrink-0" />
+                            <span className="text-xs text-portal-muted font-medium truncate">
                               {formatSubmittedTime(req.uploaded_at)}
                             </span>
                           </div>
@@ -1075,18 +1075,18 @@ export default function DepartmentOverlay({
                               size={12}
                               className={
                                 isUrgent
-                                  ? "text-rose-400 shrink-0"
+                                  ? "text-portal-danger shrink-0"
                                   : req.due_date
-                                  ? "text-slate-400 shrink-0"
-                                  : "text-slate-500 shrink-0"
+                                  ? "text-portal-muted shrink-0"
+                                  : "text-portal-muted shrink-0"
                               }
                             />
                             {req.due_date ? (
                               <span
                                 className={`text-xs truncate ${
                                   isUrgent
-                                    ? "text-rose-400 font-medium"
-                                    : "text-slate-400"
+                                    ? "text-portal-danger font-medium"
+                                    : "text-portal-muted"
                                 }`}
                               >
                                 {isOverdue
@@ -1096,7 +1096,7 @@ export default function DepartmentOverlay({
                                   : formatDate(req.due_date)}
                               </span>
                             ) : (
-                              <span className="text-xs text-slate-500 truncate">
+                              <span className="text-xs text-portal-muted truncate">
                                 —
                               </span>
                             )}
@@ -1108,49 +1108,49 @@ export default function DepartmentOverlay({
                     {/* Right side Status Badge and Chevron */}
                     <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                       {isCleared && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
-                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-portal-success/30 bg-portal-success-soft text-portal-success">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-portal-success" />
                           <span>Cleared</span>
                         </span>
                       )}
                       {isVerified && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
-                          <Sparkles className="w-2.5 h-2.5 text-emerald-300" />
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-portal-success/30 bg-portal-success-soft text-portal-success">
+                          <Sparkles className="w-2.5 h-2.5 text-portal-success" />
                           <span>AI Verified</span>
                         </span>
                       )}
                       {isForReview && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-amber-500/40 bg-amber-500/10 text-amber-400">
-                          <Clock className="w-2.5 h-2.5 text-amber-400" />
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-portal-warning/40 bg-portal-warning-soft text-portal-warning">
+                          <Clock className="w-2.5 h-2.5 text-portal-warning" />
                           <span>{req.status === "For review" ? "For review" : "Submitted"}</span>
                         </span>
                       )}
                       {isFlagged && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-bold border-blue-500/40 bg-blue-500/10 text-blue-300">
-                          <AlertTriangle className="w-2.5 h-2.5 text-blue-400" />
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-bold border-portal-info/40 bg-portal-info-soft text-portal-info">
+                          <AlertTriangle className="w-2.5 h-2.5 text-portal-info" />
                           <span>Flagged</span>
                         </span>
                       )}
                       {isRejected && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-bold border-rose-500/40 bg-rose-500/10 text-rose-400">
-                          <XCircle className="w-2.5 h-2.5 text-rose-400" />
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-bold border-portal-danger/40 bg-portal-danger-soft text-portal-danger">
+                          <XCircle className="w-2.5 h-2.5 text-portal-danger" />
                           <span>Rejected</span>
                         </span>
                       )}
                       {isPending &&
                         (req.isInPerson ? (
-                          <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-slate-700/60 bg-slate-800/80 text-slate-300">
-                            <UserCheck className="w-2.5 h-2.5 text-slate-400" />
+                          <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-portal-border bg-portal-inset text-portal-muted">
+                            <UserCheck className="w-2.5 h-2.5 text-portal-muted" />
                             <span>In person</span>
                           </span>
                         ) : (
-                          <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border font-medium border-slate-700/60 bg-slate-800/80 text-slate-300">
-                            <Clock className="w-2.5 h-2.5 text-slate-400" />
+                          <span className="text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-portal-border bg-portal-inset text-portal-muted">
+                            <Clock className="w-2.5 h-2.5 text-portal-muted" />
                             <span>Pending</span>
                           </span>
                         ))}
 
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-amber-300 transition-ui shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-portal-muted group-hover:translate-x-0.5 group-hover:text-portal-accent transition-ui shrink-0" />
                     </div>
                   </button>
                 );
@@ -1160,7 +1160,7 @@ export default function DepartmentOverlay({
 
             {/* 5. Footer Helper Text with balanced top spacing */}
             {sortedTasks.length > 0 && (
-              <p className="mt-6 text-xs text-gray-500 leading-relaxed max-w-[90%]">
+              <p className="mt-6 text-xs text-portal-muted leading-relaxed max-w-[90%]">
                 Click a requirement to inspect details, submit documents online, or review clearance status.
               </p>
             )}
@@ -1168,7 +1168,7 @@ export default function DepartmentOverlay({
         </div>
 
         {/* Sticky Action Footer: Department Navigation */}
-        <div className="sticky bottom-0 z-20 border-t border-[#1f2937] bg-[#0b0e14]/95 backdrop-blur-md px-5 py-3.5 w-full shrink-0">
+        <div className="sticky bottom-0 z-20 border-t border-portal-border bg-portal-surface/95 backdrop-blur-md px-5 py-3.5 w-full shrink-0">
           <div className="flex items-center justify-between gap-3 w-full">
             {/* Previous Department Button with chevron left */}
             <button
@@ -1179,19 +1179,19 @@ export default function DepartmentOverlay({
               aria-label={prevDeptName ? `Previous department: ${prevDeptName}` : "First department"}
               className={`p-2.5 rounded-xl border transition-ui flex items-center justify-center ${
                 hasPrevDept
-                  ? "border-slate-800 bg-[#131822] hover:bg-[#1a212f] hover:border-slate-700 text-slate-400 hover:text-white cursor-pointer shadow-xs active:scale-95"
-                  : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"
+                  ? "border-portal-border bg-portal-inset hover:bg-portal-surface hover:border-portal-border text-portal-muted hover:text-portal-foreground cursor-pointer shadow-xs active:scale-95"
+                  : "border-portal-border/40 bg-portal-inset/30 text-portal-muted opacity-40 cursor-not-allowed"
               }`}
             >
-              <ChevronLeft className="w-4 h-4 shrink-0 text-slate-400" />
+              <ChevronLeft className="w-4 h-4 shrink-0 text-portal-muted" />
             </button>
 
             {/* Department Index / Phase info in the middle */}
             <div className="flex flex-col items-center justify-center text-center px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-portal-accent">
                 Phase {tierNumber}
               </span>
-              <span className="text-xs font-medium text-slate-400">
+              <span className="text-xs font-medium text-portal-muted">
                 {currentDeptNumber} of {totalDepts}
               </span>
             </div>
@@ -1205,11 +1205,11 @@ export default function DepartmentOverlay({
               aria-label={nextDeptName ? `Next department: ${nextDeptName}` : "Last department"}
               className={`p-2.5 rounded-xl border transition-ui flex items-center justify-center ${
                 hasNextDept
-                  ? "border-slate-800 bg-[#131822] hover:bg-[#1a212f] hover:border-slate-700 text-slate-400 hover:text-white cursor-pointer shadow-xs active:scale-95"
-                  : "border-slate-800/40 bg-slate-900/30 text-slate-600 opacity-40 cursor-not-allowed"
+                  ? "border-portal-border bg-portal-inset hover:bg-portal-surface hover:border-portal-border text-portal-muted hover:text-portal-foreground cursor-pointer shadow-xs active:scale-95"
+                  : "border-portal-border/40 bg-portal-inset/30 text-portal-muted opacity-40 cursor-not-allowed"
               }`}
             >
-              <ChevronRight className="w-4 h-4 shrink-0 text-slate-400" />
+              <ChevronRight className="w-4 h-4 shrink-0 text-portal-muted" />
             </button>
           </div>
         </div>
@@ -1225,9 +1225,9 @@ export default function DepartmentOverlay({
                 background: transparent;
               }
               .custom-scrollbar::-webkit-scrollbar-thumb {
-                background-color: #374151;
+                background-color: var(--portal-border);
                 border-radius: 20px;
-                border: 2px solid #0b0e14;
+                border: 2px solid var(--portal-surface);
               }
             `,
           }}

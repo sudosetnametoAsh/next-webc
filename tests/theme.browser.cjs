@@ -137,13 +137,52 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
+      assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
+      assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
+      assert.equal(await page.getByTestId("variant-input").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
+      assert.equal(await page.getByTestId("solid-danger").evaluate((el) => getComputedStyle(el).color), "rgb(255, 255, 255)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "light");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible(), true);
       await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "normal text");
       await assertContrast(page, '[data-testid="status-text"]', '[data-testid="status-text"]', 4.5, "status text");
       await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "large text");
       await assertContrast(page, 'button[aria-label="Switch to dark mode"]', '[data-portal]', 3, "theme toggle");
+
+      const dialogTrigger = page.getByTestId("real-dialog-trigger");
+      await dialogTrigger.click();
+      const realDialog = page.getByTestId("real-dialog");
+      await realDialog.waitFor();
+      const dialogLightBackground = await realDialog.evaluate((el) => getComputedStyle(el).backgroundColor);
+      assert.notEqual(dialogLightBackground, "transparent");
+      await page.getByTestId("dialog-toggle").getByRole("button", { name: "Switch to dark mode" }).click();
+      await waitForClass(page, "dark");
+      assert.notEqual(await realDialog.evaluate((el) => getComputedStyle(el).backgroundColor), dialogLightBackground);
+      await page.keyboard.press("Escape");
+      await realDialog.waitFor({ state: "hidden" });
+      assert.equal(await realDialog.isVisible(), false);
+      assert.equal(await dialogTrigger.evaluate((el) => document.activeElement === el), true);
+      await page.getByRole("button", { name: "Switch to light mode" }).click();
+      await waitForClass(page, "light");
+
+      const drawerTrigger = page.getByTestId("real-drawer-trigger");
+      await drawerTrigger.click();
+      const drawer = page.locator("dialog.app-drawer[open]");
+      await drawer.waitFor();
+      const drawerPanel = drawer.locator(".app-drawer-panel");
+      assert.equal(await drawerPanel.evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
+      await page.getByTestId("drawer-toggle").getByRole("button", { name: "Switch to dark mode" }).click();
+      await waitForClass(page, "dark");
+      assert.equal(await drawerPanel.evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(280);
+      assert.equal(await page.locator("dialog.app-drawer[open]").count(), 0);
+      assert.equal(await drawerTrigger.evaluate((el) => document.activeElement === el), true);
+      await page.getByRole("button", { name: "Switch to light mode" }).click();
+      await waitForClass(page, "light");
+
       await page.getByRole("button", { name: "Switch to dark mode" }).focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).evaluate((el) => document.activeElement === el), true);
       assert.notEqual(await page.getByRole("button", { name: "Switch to dark mode" }).evaluate((el) => getComputedStyle(el).boxShadow), "none");
       await page.keyboard.press("Enter");
@@ -162,6 +201,10 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
+      assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");
+      assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
+      assert.equal(await page.getByTestId("variant-input").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
+      assert.equal(await page.getByTestId("solid-danger").evaluate((el) => getComputedStyle(el).color), "rgb(255, 255, 255)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "dark");
       await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "dark normal text");
       await assertContrast(page, '[data-testid="status-text"]', '[data-testid="status-text"]', 4.5, "dark status text");
@@ -267,18 +310,33 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       for (const scenario of scenarios) {
         const context = await browser.newContext({ colorScheme: scenario.device });
         await context.addInitScript((theme) => localStorage.setItem("theme", theme), scenario.saved);
+        await context.route("**/_next/static/**/*.js", async (route) => {
+          try {
+            const response = await route.fetch();
+            const body = await response.body();
+            setTimeout(() => route.fulfill({ response, body }).catch(() => {}), 350);
+          } catch {
+            await route.continue();
+          }
+        });
         const page = await context.newPage();
         const hydrationErrors = [];
         page.on("console", (message) => {
           if (message.type() === "error" && /hydration|uncaught|error/i.test(message.text())) hydrationErrors.push(message.text());
         });
         page.on("pageerror", (error) => hydrationErrors.push(error.message));
-        await page.goto(process.env.WEB_C_BASE_URL, { waitUntil: "domcontentloaded" });
+        await page.goto(process.env.WEB_C_BASE_URL, { waitUntil: "commit" });
+        await page.waitForTimeout(60);
+        const firstFrame = await page.locator("[data-portal]").count()
+          ? await page.locator("[data-portal]").first().evaluate((el) => getComputedStyle(el).backgroundColor)
+          : null;
+        await page.waitForLoadState("domcontentloaded");
         await page.waitForTimeout(300);
         if (await page.locator("[data-portal]").count()) {
           authenticatedPortal = true;
           await waitForClass(page, scenario.saved);
           const expectedCanvas = scenario.saved === "dark" ? "rgb(6, 10, 20)" : "rgb(244, 246, 250)";
+          if (firstFrame) assert.equal(firstFrame, expectedCanvas);
           assert.equal(await page.locator("[data-portal]").first().evaluate((el) => getComputedStyle(el).backgroundColor), expectedCanvas);
           assert.deepEqual(hydrationErrors, []);
         }

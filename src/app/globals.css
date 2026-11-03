@@ -320,18 +320,26 @@ html:has([data-portal]) [class*="bg-gray-100"] {
   background-color: var(--portal-inset);
 }
 
-html:has([data-portal]) [class*="text-white"],
-html:has([data-portal]) [class*="text-slate-100"],
-html:has([data-portal]) [class*="text-slate-200"],
-html:has([data-portal]) [class*="text-gray-900"] {
+html:has([data-portal]) [class~="text-white"],
+html:has([data-portal]) [class~="text-slate-100"],
+html:has([data-portal]) [class~="text-slate-200"],
+html:has([data-portal]) [class~="text-gray-200"],
+html:has([data-portal]) [class~="text-gray-900"] {
   color: var(--portal-foreground);
 }
 
-html:has([data-portal]) [class*="text-slate-300"],
-html:has([data-portal]) [class*="text-slate-400"],
-html:has([data-portal]) [class*="text-slate-500"],
-html:has([data-portal]) [class*="text-gray-400"],
-html:has([data-portal]) [class*="text-gray-500"] {
+html:has([data-portal]) [class~="text-slate-300"],
+html:has([data-portal]) [class~="text-slate-400"],
+html:has([data-portal]) [class~="text-slate-500"],
+html:has([data-portal]) [class~="text-gray-300"],
+html:has([data-portal]) [class~="text-gray-400"],
+html:has([data-portal]) [class~="text-gray-500"] {
+  color: var(--portal-muted);
+}
+
+html:has([data-portal]) [class~="placeholder:text-slate-400"]::placeholder,
+html:has([data-portal]) [class~="placeholder:text-slate-500"]::placeholder,
+html:has([data-portal]) [class~="placeholder:text-slate-600"]::placeholder {
   color: var(--portal-muted);
 }
 
@@ -342,25 +350,46 @@ html:has([data-portal]) [class*="border-[#1f2937]"] {
   border-color: var(--portal-border);
 }
 
-html:has([data-portal]) [class*="text-amber-300"],
-html:has([data-portal]) [class*="text-amber-400"],
-html:has([data-portal]) [class*="text-yellow-400"] {
+html:has([data-portal]) [class~="text-amber-300"],
+html:has([data-portal]) [class~="text-amber-400"],
+html:has([data-portal]) [class~="text-yellow-400"] {
   color: var(--portal-accent);
 }
 
-html:has([data-portal]) [class*="text-emerald-300"],
-html:has([data-portal]) [class*="text-emerald-400"] {
+html:has([data-portal]) [class~="text-emerald-300"],
+html:has([data-portal]) [class~="text-emerald-400"] {
   color: var(--portal-success);
 }
 
-html:has([data-portal]) [class*="text-rose-300"],
-html:has([data-portal]) [class*="text-rose-400"] {
+html:has([data-portal]) [class~="text-rose-300"],
+html:has([data-portal]) [class~="text-rose-400"] {
   color: var(--portal-danger);
 }
 
-html:has([data-portal]) [class*="text-blue-300"],
-html:has([data-portal]) [class*="text-blue-400"] {
+html:has([data-portal]) [class~="text-blue-300"],
+html:has([data-portal]) [class~="text-blue-400"] {
   color: var(--portal-info);
+}
+
+html:has([data-portal]) [class~="hover:text-white"]:hover,
+html:has([data-portal]) .group:hover [class~="group-hover:text-white"] {
+  color: var(--portal-foreground);
+}
+
+html:has([data-portal]) [class~="hover:text-amber-200"]:hover,
+html:has([data-portal]) [class~="hover:text-amber-300"]:hover,
+html:has([data-portal]) [class~="hover:text-amber-400"]:hover,
+html:has([data-portal]) .group:hover [class~="group-hover:text-amber-300"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-amber-400"] {
+  color: var(--portal-accent);
+}
+
+html:has([data-portal]) [class~="bg-blue-600"][class~="text-white"],
+html:has([data-portal]) [class~="bg-indigo-600"][class~="text-white"],
+html:has([data-portal]) [class~="bg-purple-600"][class~="text-white"],
+html:has([data-portal]) [class~="bg-red-600"][class~="text-white"],
+html:has([data-portal]) [class~="bg-rose-600"][class~="text-white"] {
+  color: #ffffff;
 }
 
 html:has([data-portal]) [class*="bg-amber-950"],

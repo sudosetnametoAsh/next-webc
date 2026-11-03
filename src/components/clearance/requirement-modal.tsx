@@ -1000,7 +1000,7 @@ export default function RequirementModal({
                           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 mb-3 shadow-sm group-hover:scale-105 transition-transform">
                             <Upload className="h-5 w-5" />
                           </div>
-                          <p className="text-sm text-gray-200">
+                        <p className="text-sm text-portal-foreground">
                             Drag &amp; drop or{" "}
                             <span className="text-amber-400 font-semibold underline underline-offset-2 hover:text-amber-300">
                               browse files
