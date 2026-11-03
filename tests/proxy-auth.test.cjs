@@ -71,7 +71,7 @@ test('temporary auth failures do not sign out the user',async()=>{
 const roleUser = (...roles) => ({id:'valid',user_metadata:{custom_claims:{roles}}});
 for (const [role, own, other, home] of [
   ['Admin','/admin/dashboard','/department/dashboard','/admin'],
-  ['Department','/department/clients','/clearance/tasks','/department/dashboard'],
+  ['Department','/department/clients','/admin/clients','/department/dashboard'],
   ['Client','/clearance/tasks','/admin/simulation','/clearance'],
 ]) {
   test(role+' can access its own page area',async()=>{
@@ -82,6 +82,18 @@ for (const [role, own, other, home] of [
     assert.equal(res.status,307);assert.equal(res.headers.get('location'),'http://localhost'+home);
   });
 }
+test('Department can access personal clearance pages and APIs without the Client role',async()=>{
+  const h=load({user:roleUser('Department')});
+  for(const path of ['/clearance','/clearance/tasks','/clearance/schedules','/api/student/clearance-data','/api/student/submissions','/api/student/appeal']) {
+    assert.equal((await h.proxy(new NextRequest('http://localhost'+path))).status,200,path);
+  }
+});
+test('Department cannot access admin APIs through personal clearance permissions',async()=>{
+  const h=load({user:roleUser('Department')});
+  for(const path of ['/api/admin/clients','/api/admin/enrollments/import','/api/admin/simulation']) {
+    assert.equal((await h.proxy(new NextRequest('http://localhost'+path))).status,403,path);
+  }
+});
 for(const path of ['/api/admin/enrollments/import','/api/admin/simulation','/api/department/clients','/api/dashboard']) {
   test('Client cannot access '+path,async()=>{
     assert.equal((await load({user:roleUser('Client')}).proxy(new NextRequest('http://localhost'+path))).status,403);
