@@ -1,3 +1,4 @@
+import { getDocumentMimeType, validateDocumentUpload } from "@/lib/document-upload";
 import { createClient } from "@/lib/db/supabase-server";
 import { verifyDocumentAuthenticity } from "@/lib/services/ai-vision-verification";
 import { NextRequest, NextResponse } from "next/server";
@@ -29,6 +30,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { file, task, taskId, studentId, department } = parseResult.data;
+    const validationError = validateDocumentUpload(file);
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
+    }
+    const mimeType = getDocumentMimeType(file.name)!;
     const supabaseAdmin = getSupabaseAdmin();
 
     // 1. Fetch Task Details (title, description, clearanceId, staffId)
@@ -56,12 +62,13 @@ export async function POST(req: NextRequest) {
     const timestamp = Date.now();
     const sanitizedDept = department.trim().replace(/[^a-zA-Z0-9_-]/g, "_");
     const sanitizedTask = task.trim().replace(/[^a-zA-Z0-9_-]/g, "_");
-    const file_name = `${studentId}_${sanitizedDept}_${sanitizedTask}_${timestamp}`;
+    const extension = file.name.split(".").pop()!.toLowerCase();
+    const file_name = `${studentId}_${sanitizedDept}_${sanitizedTask}_${timestamp}.${extension}`;
     const file_path = `user_uploads/${file_name}`;
 
     const { error: upload_error } = await supabaseAdmin.storage
       .from("images")
-      .upload(file_path, file, { upsert: true });
+      .upload(file_path, file, { upsert: true, contentType: mimeType });
 
     if (upload_error) {
       console.error("Storage Upload Error:", upload_error);
@@ -74,6 +81,27 @@ export async function POST(req: NextRequest) {
     const {
       data: { publicUrl },
     } = supabaseAdmin.storage.from("images").getPublicUrl(file_path);
+
+    // Resolve client's full name instead of raw studentId
+    let clientName = studentId;
+    const { data: studentRecord } = await supabaseAdmin
+      .from("students")
+      .select("student_name")
+      .eq("student_id", studentId)
+      .maybeSingle();
+
+    if (studentRecord?.student_name) {
+      clientName = studentRecord.student_name;
+    } else {
+      const { data: staffRecord } = await supabaseAdmin
+        .from("staffs")
+        .select("staff_name")
+        .eq("staff_id", studentId)
+        .maybeSingle();
+      if (staffRecord?.staff_name) {
+        clientName = staffRecord.staff_name;
+      }
+    }
 
     // 4. Execute Factor 1 AI Verification (if not set to strict manual)
     let newStatus = "Submitted";
@@ -92,8 +120,10 @@ export async function POST(req: NextRequest) {
         taskTitle: taskData?.title || task,
         taskDescription: taskData?.description || "",
         expectedStudentId: studentId,
+        expectedStudentName: clientName,
         fileBuffer,
-        mimeType: file.type,
+        mimeType,
+        fileName: file.name,
       });
 
       if (aiReport.processingFailed) {
@@ -140,7 +170,7 @@ export async function POST(req: NextRequest) {
 
     if (statusError) {
       console.error("Status Update Error:", statusError);
-      return NextResponse.json({ message: statusError.message, status: 500 });
+      return NextResponse.json({ error: statusError.message }, { status: 500 });
     }
 
     // Invalidate server-side clearance cache & department cache
@@ -150,27 +180,6 @@ export async function POST(req: NextRequest) {
     // 6. Notify Department Staff of New Document Submission
     if (deptData?.dept_id) {
       try {
-        // Resolve client's full name instead of raw studentId
-        let clientName = studentId;
-        const { data: studentRecord } = await supabaseAdmin
-          .from("students")
-          .select("student_name")
-          .eq("student_id", studentId)
-          .maybeSingle();
-
-        if (studentRecord?.student_name) {
-          clientName = studentRecord.student_name;
-        } else {
-          const { data: staffRecord } = await supabaseAdmin
-            .from("staffs")
-            .select("staff_name")
-            .eq("staff_id", studentId)
-            .maybeSingle();
-          if (staffRecord?.staff_name) {
-            clientName = staffRecord.staff_name;
-          }
-        }
-
         const notifTitle =
           newStatus === "Flagged"
             ? "Submission Flagged for Review"

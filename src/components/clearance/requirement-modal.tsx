@@ -1,5 +1,7 @@
 "use client";
 
+import { DOCUMENT_ACCEPT, DOCUMENT_FORMAT_LABEL, validateDocumentUpload } from "@/lib/document-upload";
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -327,8 +329,10 @@ export default function RequirementModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size exceeds 10MB limit.");
+      const validationError = validateDocumentUpload(file);
+      if (validationError) {
+        setSelectedFile(null);
+        toast.error(validationError);
         return;
       }
       setSelectedFile(file);
@@ -871,12 +875,12 @@ export default function RequirementModal({
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
-                                  file.type === "pdf"
+                                  (file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url))
                                     ? "border-rose-500/30 bg-rose-500/15 text-rose-400 group-hover:border-rose-500/50"
                                     : "border-blue-500/30 bg-blue-500/15 text-blue-400 group-hover:border-blue-500/50"
                                 }`}
                               >
-                                {file.type === "pdf" ? (
+                                {(file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url)) ? (
                                   <FileText size={18} />
                                 ) : (
                                   <ImageIcon size={18} />
@@ -935,12 +939,12 @@ export default function RequirementModal({
                               <div className="flex items-center gap-3 min-w-0">
                                 <div
                                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
-                                    file.type === "pdf"
+                                    (file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url))
                                       ? "border-rose-500/30 bg-rose-500/15 text-rose-400 group-hover:border-rose-500/50"
                                       : "border-blue-500/30 bg-blue-500/15 text-blue-400 group-hover:border-blue-500/50"
                                   }`}
                                 >
-                                  {file.type === "pdf" ? (
+                                  {(file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url)) ? (
                                     <FileText size={18} />
                                   ) : (
                                     <ImageIcon size={18} />
@@ -991,7 +995,7 @@ export default function RequirementModal({
                             type="file"
                             className="hidden"
                             onChange={handleFileChange}
-                            accept=".pdf,.docx,.png,.jpg,.jpeg"
+                            accept={DOCUMENT_ACCEPT}
                           />
                           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 mb-3 shadow-sm group-hover:scale-105 transition-transform">
                             <Upload className="h-5 w-5" />
@@ -1003,7 +1007,7 @@ export default function RequirementModal({
                             </span>
                           </p>
                           <span className="text-xs text-slate-400 mt-1">
-                            Images or documents (PDF, DOCX) · max 10 MB
+                            {DOCUMENT_FORMAT_LABEL}
                           </span>
                         </label>
 

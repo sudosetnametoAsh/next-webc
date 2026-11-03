@@ -1,5 +1,7 @@
 "use client";
 
+import { DOCUMENT_ACCEPT, DOCUMENT_FORMAT_LABEL, validateDocumentUpload } from "@/lib/document-upload";
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -50,8 +52,10 @@ export default function TaskSubmissionModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected) {
-      if (selected.size > 5 * 1024 * 1024) {
-        setErrorMsg("File size exceeds 5MB limit.");
+      const validationError = validateDocumentUpload(selected);
+      if (validationError) {
+        setFile(null);
+        setErrorMsg(validationError);
         return;
       }
       setFile(selected);
@@ -210,7 +214,7 @@ export default function TaskSubmissionModal({
                     Click to select file or drag &amp; drop
                   </p>
                   <p className="mt-1 text-[11px] text-slate-500">
-                    PDF, PNG, JPG (maximum 5MB)
+                    {DOCUMENT_FORMAT_LABEL}
                   </p>
                 </div>
               )}
@@ -218,7 +222,7 @@ export default function TaskSubmissionModal({
               <input
                 id="file-upload"
                 type="file"
-                accept=".pdf,image/png,image/jpeg,image/jpg"
+                accept={DOCUMENT_ACCEPT}
                 className="hidden"
                 disabled={isSubmitting}
                 onChange={handleFileChange}
