@@ -104,11 +104,7 @@ export default function AdminNotificationSidebar({
                 <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">
                   Notifications
                 </h2>
-                {unreadCount > 0 && (
-                  <span className="rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-400 font-mono">
-                    {unreadCount} New
-                  </span>
-                )}
+
               </div>
               <p className="text-[11px] text-slate-400 mt-0.5">
                 Clearance bottlenecks & completions
@@ -117,17 +113,7 @@ export default function AdminNotificationSidebar({
           </div>
 
           <div className="flex items-center gap-2">
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={onMarkAllAsRead}
-                title="Mark all as read"
-                className="flex items-center gap-1 rounded-lg border border-slate-700/60 bg-slate-800/50 px-2.5 py-1 text-xs font-semibold text-amber-400 hover:bg-slate-800 hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                <CheckCheck className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Mark read</span>
-              </button>
-            )}
+
 
             <button
               type="button"
@@ -305,10 +291,16 @@ export default function AdminNotificationSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-800/80 bg-[#070c18] p-3 text-center">
-          <p className="text-[11px] text-slate-500">
-            Clicking a notification navigates directly to the client directory.
-          </p>
+        <div className="shrink-0 border-t border-slate-800/80 bg-[#070c18] p-3">
+          <button
+            type="button"
+            onClick={onMarkAllAsRead}
+            disabled={isLoading || unreadCount === 0}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-700/60 bg-slate-800/50 text-xs font-semibold text-amber-400 transition-colors hover:bg-slate-800 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <CheckCheck className="h-4 w-4" />
+            Mark all as read
+          </button>
         </div>
     </Drawer>
   );
