@@ -323,7 +323,7 @@ export default function RecentSubmissionsCard({
         {/* ── Compact 5-Coupled Clients List (Matching Admin DepartmentClientProgress) ── */}
         <div className="p-4 sm:p-5 space-y-2.5 flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-track]:bg-transparent">
           {topClients.length === 0 ? (
-            <div className="text-center py-10">
+            <div className="flex h-full flex-col items-center justify-center text-center">
               <Inbox className="mx-auto h-8 w-8 text-slate-600 mb-2" />
               <p className="text-sm font-medium text-slate-400">
                 All caught up!

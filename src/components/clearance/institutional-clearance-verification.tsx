@@ -171,11 +171,13 @@ export default function InstitutionalClearanceVerification({
   >(null);
   const [todayStr, setTodayStr] = useState("Fri, Oct 16");
   const [officeHoursPage, setOfficeHoursPage] = useState(0);
+  const [pipelinePage, setPipelinePage] = useState(0);
+  const DEPARTMENTS_PER_PAGE = 6;
   const OFFICE_HOURS_PER_PAGE = 6;
 
   const allTasks = useMemo<getDepartmentDetailsPromise>(() => {
-    return liveTasks && liveTasks.length > 0 ? liveTasks : (propInitialTasks || []);
-  }, [liveTasks, propInitialTasks]);
+    return liveTasks;
+  }, [liveTasks]);
 
   const departmentTasks = useMemo<getDepartmentDetailsPromise>(() => {
     if (!selectedRecord || !allTasks) return [];
@@ -404,6 +406,16 @@ export default function InstitutionalClearanceVerification({
     return a.department.localeCompare(b.department);
   });
 
+  const totalPipelinePages = Math.ceil(sortedRecords.length / DEPARTMENTS_PER_PAGE);
+  const currentPipelinePage = Math.min(
+    pipelinePage,
+    Math.max(0, totalPipelinePages - 1),
+  );
+  const pagedRecords = sortedRecords.slice(
+    currentPipelinePage * DEPARTMENTS_PER_PAGE,
+    (currentPipelinePage + 1) * DEPARTMENTS_PER_PAGE,
+  );
+
   const totalCount =
     effectiveSummary.department_count || sortedRecords.length || 0;
   const clearedCount =
@@ -500,7 +512,7 @@ export default function InstitutionalClearanceVerification({
         {/* ── LEFT COLUMN: Verification + How To Comply ── */}
         <div className="lg:col-span-8 flex flex-col gap-5">
           {/* 1. Institutional Clearance Verification */}
-          <section className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-6 md:p-7 shadow-2xl backdrop-blur-sm space-y-6">
+          <section className="w-full lg:flex-1 rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-6 md:p-7 shadow-2xl backdrop-blur-sm space-y-6">
             {/* ── 1. Top Header Row ── */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -627,7 +639,7 @@ export default function InstitutionalClearanceVerification({
                 </span>
               </div>
 
-              {/* 3 columns x 2 rows grid or empty state */}
+              {/* Six departments per page: three rows on mobile, two on desktop. */}
               {sortedRecords.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-dashed border-slate-800 bg-[#070c18]/60">
                   <AlertCircle className="h-8 w-8 text-amber-400 mb-2.5" />
@@ -640,12 +652,12 @@ export default function InstitutionalClearanceVerification({
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {sortedRecords.map((record, idx) => {
+                <div className="grid grid-cols-2 grid-rows-3 md:grid-cols-3 md:grid-rows-2 gap-3">
+                  {pagedRecords.map((record, idx) => {
                     const itemTier =
                       record.tier ??
                       INSTITUTIONAL_PRIORITY[record.department] ??
-                      idx + 1;
+                      currentPipelinePage * DEPARTMENTS_PER_PAGE + idx + 1;
                     const isCleared =
                       record.status === "Cleared" || record.status === "Signed";
                     const isActive = !isCleared && itemTier === activePhaseTier;
@@ -665,7 +677,7 @@ export default function InstitutionalClearanceVerification({
 
                     // Card container styling
                     let cardClasses =
-                      "group relative flex min-h-[140px] flex-col justify-between rounded-xl p-3.5 sm:p-4 transition-all text-left cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40";
+                      "group relative flex min-w-0 min-h-[140px] flex-col justify-between rounded-xl p-3.5 sm:p-4 transition-all text-left cursor-pointer hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40";
                     let badgeClasses =
                       "rounded-md px-2 py-0.5 text-[10px] font-bold border transition-colors";
                     let statusTextClass = "text-xs font-semibold";
@@ -782,6 +794,47 @@ export default function InstitutionalClearanceVerification({
                   })}
                 </div>
               )}
+              {totalPipelinePages > 1 && (
+                <nav
+                  aria-label="Department pipeline pages"
+                  className="flex items-center justify-center gap-2 pt-1"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setPipelinePage(Math.max(0, currentPipelinePage - 1))}
+                    disabled={currentPipelinePage === 0}
+                    className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    aria-label="Previous department page"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {Array.from({ length: totalPipelinePages }, (_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setPipelinePage(idx)}
+                        aria-label={`Go to department page ${idx + 1}`}
+                        aria-current={currentPipelinePage === idx ? "page" : undefined}
+                        className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+                          currentPipelinePage === idx
+                            ? "w-6 bg-amber-400"
+                            : "w-3 bg-slate-700 hover:bg-slate-500"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPipelinePage(Math.min(totalPipelinePages - 1, currentPipelinePage + 1))}
+                    disabled={currentPipelinePage === totalPipelinePages - 1}
+                    className="p-1 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    aria-label="Next department page"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </nav>
+              )}
             </div>
           </section>
 
@@ -809,7 +862,7 @@ export default function InstitutionalClearanceVerification({
         </div>
 
         {/* ── RIGHT COLUMN: Office Hours Today + Staff Lunch Break Notice ── */}
-        <div className="lg:col-span-4 flex flex-col gap-5 h-full">
+        <div className="lg:col-span-4 flex flex-col gap-5">
           {/* 3. Office Hours Today Component */}
           <div className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-5 md:p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-4">
             {/* Header */}
@@ -835,8 +888,8 @@ export default function InstitutionalClearanceVerification({
               </div>
             </div>
 
-            {/* Department Office List */}
-            <div className="flex flex-col gap-2">
+            {/* Reserve six 66px rows plus five 8px gaps on every page. */}
+            <div className="grid min-h-[436px] auto-rows-[66px] content-start gap-2">
               {officeHoursList.length === 0 ? (
                 <div className="py-6 text-center text-xs text-slate-500 italic">
                   No office schedules configured.
@@ -860,7 +913,7 @@ export default function InstitutionalClearanceVerification({
                   return (
                     <div
                       key={office.dept_id}
-                      className="flex min-h-[58px] w-full items-center justify-between rounded-xl border border-slate-800/70 bg-[#070c18]/60 px-3.5 py-2.5 transition-colors"
+                      className="flex h-[66px] w-full items-center justify-between rounded-xl border border-slate-800/70 bg-[#070c18]/60 px-3.5 py-2.5 transition-colors"
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
                         <div
@@ -936,7 +989,7 @@ export default function InstitutionalClearanceVerification({
             )}
           </div>
 
-          {/* 4. Staff Lunch Break Notice Component (Height dynamically aligns with the bottom of "How to comply") */}
+          {/* 4. Staff Lunch Break Notice Component (Both columns stretch to align their bottom cards) */}
           <div className="w-full flex-1 rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-5 md:p-6 shadow-2xl backdrop-blur-sm flex flex-col justify-between gap-4">
             <div>
               <div className="flex items-center justify-between pb-3">
