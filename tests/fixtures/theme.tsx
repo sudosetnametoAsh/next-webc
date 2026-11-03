@@ -14,6 +14,7 @@ function App() {
       >
         <p data-testid="resolved-area">{area}</p>
         <div className="theme-card bg-portal-surface" data-testid="theme-card">Themed surface</div>
+        <div className="admin-card bg-[#0c1427] border border-slate-800 text-white" data-testid="admin-card">Admin card</div>
         <button type="button" data-testid="focus-target">Focus target</button>
         <ThemeToggle />
       </div>

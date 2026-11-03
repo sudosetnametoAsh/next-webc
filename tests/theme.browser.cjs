@@ -82,10 +82,13 @@ async function waitForStoredTheme(page, expected) {
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(244, 246, 250)");
       assert.equal(await page.getByTestId("theme-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
+      assert.equal(await page.getByTestId("admin-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("admin-card").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible(), true);
       await page.getByRole("button", { name: "Switch to dark mode" }).click();
       await waitForClass(page, "dark");
       assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(6, 10, 20)");
+      assert.equal(await page.getByTestId("admin-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       await waitForStoredTheme(page, "dark");
       await page.reload();
       await waitForClass(page, "dark");

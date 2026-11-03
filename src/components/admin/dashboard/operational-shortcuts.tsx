@@ -22,9 +22,9 @@ export default function OperationalShortcuts({
   phase1PendingCount = 0,
 }: Props) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-portal-border bg-portal-surface shadow-xl overflow-hidden flex flex-col">
       {/* ── Card Header ── */}
-      <div className="px-6 py-5 border-b border-slate-800 bg-[#070c18] flex items-center justify-between gap-4">
+      <div className="px-6 py-5 border-b border-portal-border bg-portal-inset flex items-center justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">

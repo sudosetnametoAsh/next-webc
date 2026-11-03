@@ -40,7 +40,7 @@ export default function AdminStats() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {/* Card 1: Total Clients */}
-      <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#0c1427]/90 p-5 shadow-xs backdrop-blur-xs">
+      <div className="flex flex-col justify-between rounded-xl border border-portal-border bg-portal-inset p-5 shadow-xs backdrop-blur-xs">
         <div className="flex items-center gap-2 text-slate-400">
           <Users className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
@@ -72,7 +72,7 @@ export default function AdminStats() {
       </div>
 
       {/* Card 2: Departments */}
-      <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#0c1427]/90 p-5 shadow-xs backdrop-blur-xs">
+      <div className="flex flex-col justify-between rounded-xl border border-portal-border bg-portal-inset p-5 shadow-xs backdrop-blur-xs">
         <div className="flex items-center gap-2 text-slate-400">
           <Building2 className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
@@ -98,7 +98,7 @@ export default function AdminStats() {
       </div>
 
       {/* Card 3: Templates */}
-      <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#0c1427]/90 p-5 shadow-xs backdrop-blur-xs">
+      <div className="flex flex-col justify-between rounded-xl border border-portal-border bg-portal-inset p-5 shadow-xs backdrop-blur-xs">
         <div className="flex items-center gap-2 text-slate-400">
           <FileSpreadsheet className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
@@ -124,7 +124,7 @@ export default function AdminStats() {
       </div>
 
       {/* Card 4: Overall Progress */}
-      <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#0c1427]/90 p-5 shadow-xs backdrop-blur-xs">
+      <div className="flex flex-col justify-between rounded-xl border border-portal-border bg-portal-inset p-5 shadow-xs backdrop-blur-xs">
         <div className="flex items-center gap-2 text-slate-400">
           <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
           <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
