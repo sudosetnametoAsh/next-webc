@@ -1,3 +1,4 @@
+import { isBottleneckNotification } from "@/lib/notification-visibility";
 import { getSession } from "@/lib/auth/get-session";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { syncAdminNotifications } from "@/lib/services/admin-notifications";
@@ -165,6 +166,7 @@ export async function GET(req: NextRequest) {
     const formatted = notifList
       .filter((n: any) => {
         if (role === "department") {
+          if (isBottleneckNotification(n)) return false;
           const t = (n.title || "").toLowerCase();
           if (t.includes("requirement cleared") || t.includes("clearance signed")) {
             return false;

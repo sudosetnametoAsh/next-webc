@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/db/supabase-client";
+import { isBottleneckNotification } from "@/lib/notification-visibility";
 import { ClearanceNotification } from "@/types/clearance";
 
 export interface UseNotificationsOptions {
@@ -95,6 +96,10 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
         },
       })) as ClearanceNotification[];
     },
+    // Apply to API responses, direct-query fallback, and previously cached data.
+    select: (items: ClearanceNotification[]) => role === "department"
+      ? items.filter((notification) => !isBottleneckNotification(notification))
+      : items,
     enabled: !!userId || !!departmentId || role === "admin",
     staleTime: 1000 * 30, // 30 seconds fresh window
     refetchInterval: false, // Push-based updates via Supabase Realtime; avoid polling flood
