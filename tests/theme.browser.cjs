@@ -136,6 +136,10 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("clearance-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("clearance-panel").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("panel-inset-60").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("panel-inset-40").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
+      assert.equal(await page.getByTestId("teal-status").evaluate((el) => getComputedStyle(el).color), "rgb(22, 101, 52)");
+      assert.equal(await page.getByTestId("amber-muted-status").evaluate((el) => getComputedStyle(el).color), "rgb(146, 64, 14)");
       assert.equal(await page.getByTestId("expanded-document-row").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(244, 246, 250)");
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
       assert.equal(await page.getByTestId("cleared-badge").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
@@ -178,6 +182,9 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       await assertContrast(page, '[data-testid="amber-status"]', '[data-testid="amber-status"]', 4.5, "amber status text");
       await assertContrast(page, '[data-testid="rose-status"]', '[data-testid="rose-status"]', 4.5, "rose status text");
       await assertContrast(page, '[data-testid="blue-status"]', '[data-testid="blue-status"]', 4.5, "blue status text");
+      await assertContrast(page, '[data-testid="panel-inset-60"]', '[data-testid="panel-inset-60"]', 4.5, "panel inset 60 text");
+      await assertContrast(page, '[data-testid="teal-status"]', '[data-testid="theme-card"]', 4.5, "teal status text");
+      await assertContrast(page, '[data-testid="amber-muted-status"]', '[data-testid="theme-card"]', 4.5, "amber muted status text");
       await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "large text");
       await assertContrast(page, 'button[aria-label="Switch to dark mode"]', '[data-portal]', 3, "theme toggle");
 
@@ -235,6 +242,10 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.match(darkPhaseGradient, /\/ 0\.3\)/);
       assert.match(darkPhaseGradient, /\/ 0\.15\)/);
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(16, 23, 42)");
+      assert.match(await page.getByTestId("panel-inset-60").evaluate((el) => getComputedStyle(el).backgroundColor), /\/ 0\.6\)/);
+      assert.match(await page.getByTestId("panel-inset-40").evaluate((el) => getComputedStyle(el).backgroundColor), /\/ 0\.4\)/);
+      assert.match(await page.getByTestId("teal-status").evaluate((el) => getComputedStyle(el).color), /oklch\(0\.777|rgb\(45, 212, 191\)/);
+      assert.match(await page.getByTestId("amber-muted-status").evaluate((el) => getComputedStyle(el).color), /\/ 0\.8\)/);
       assert.match(await page.getByTestId("expanded-document-row").evaluate((el) => getComputedStyle(el).backgroundColor), /\/ 0\.8\)/);
       assert.match(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), /\/ 0\.4\)/);
       assert.match(await page.getByTestId("cleared-badge").evaluate((el) => getComputedStyle(el).backgroundColor), /\/ 0\.6\)/);

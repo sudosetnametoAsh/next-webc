@@ -49,3 +49,6 @@ GEMINI.md
 # ai agent customizations
 .agent/
 .agents/
+
+.superpowers/
+.impecabble/

@@ -599,9 +599,9 @@ export default function InstitutionalClearanceVerification({
               </div>
 
               {/* Next Step Alert Card */}
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-600/35 bg-gradient-to-r from-amber-950/30 via-amber-950/15 to-transparent p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-500/30 dark:border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 to-transparent dark:from-amber-950/30 dark:via-amber-950/15 p-5 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500 dark:text-amber-400" />
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-white">
                       {isFullyCleared
@@ -610,7 +610,7 @@ export default function InstitutionalClearanceVerification({
                             nextStepRecord?.department || "Pending"
                           }`}
                     </span>
-                    <p className="mt-1 text-xs leading-relaxed text-amber-200/80">
+                    <p className="mt-1 text-xs leading-relaxed text-amber-900/90 dark:text-amber-200/80">
                       {getNextStepDescription()}
                     </p>
                   </div>

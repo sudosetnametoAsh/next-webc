@@ -26,6 +26,10 @@ function App() {
         <div className="clearance-card bg-[#091122] border border-slate-800 text-white" data-testid="clearance-card">Clearance card</div>
         <div className="clearance-panel bg-[#0b0e14]" data-testid="clearance-panel">Clearance panel</div>
         <div className="clearance-inset bg-[#10172A]" data-testid="clearance-inset">Clearance inset</div>
+        <div className="panel-inset-60 bg-slate-950/60 border border-slate-800 text-white" data-testid="panel-inset-60">Panel inset 60</div>
+        <div className="panel-inset-40 bg-slate-950/40 border border-slate-800 text-white" data-testid="panel-inset-40">Panel inset 40</div>
+        <p className="teal-status text-teal-400 bg-portal-surface" data-testid="teal-status">Active</p>
+        <p className="amber-muted-status text-amber-200/80 bg-portal-surface" data-testid="amber-muted-status">Muted amber</p>
         <div className="expanded-document-row bg-[#060a14]/80 text-white" data-testid="expanded-document-row">Expanded document</div>
         <div className="cleared-card bg-[#061817]/40 hover:bg-[#061817]/60 text-emerald-400" data-testid="cleared-card">Cleared department</div>
         <div className="cleared-badge bg-emerald-950/60 text-emerald-400" data-testid="cleared-badge">Cleared</div>
