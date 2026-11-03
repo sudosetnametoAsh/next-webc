@@ -1,4 +1,6 @@
 "use client";
+
+import { rejectSubmission } from "@/lib/api/reject-submission";
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -806,108 +808,19 @@ export default function TaskView({
   };
 
   const handleRejectWithResubmit = async (comment: string) => {
-    if (activeTaskId === null) return;
-
-    onRejectTask?.(activeTaskId);
-
-    // Strip appeal from ai_audit_report so the appeal is cleanly resolved upon rejection
-    let cleanAiAuditReport: any = null;
-    const currentTask = tasks.find((t) => t.assigned_task_id === activeTaskId);
-    const existingReport = currentTask?.ai_audit_report ?? aiAuditReport;
-    if (existingReport) {
-      let parsed = existingReport;
-      if (typeof parsed === "string") {
-        try {
-          parsed = JSON.parse(parsed);
-        } catch {
-          parsed = null;
-        }
-      }
-      if (parsed && typeof parsed === "object") {
-        const { appeal, ...rest } = parsed;
-        cleanAiAuditReport = Object.keys(rest).length > 0 ? rest : null;
-      }
-    }
-
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.assigned_task_id === activeTaskId
-          ? {
-              ...t,
-              status: "Rejected" as TaskStatus,
-              comments: comment,
-              ai_audit_report: cleanAiAuditReport,
-            }
-          : t
-      )
-    );
-    setAiAuditReport(cleanAiAuditReport);
-    closeModal();
-
-    try {
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({
-          status: "Rejected",
-          comments: comment,
-          ai_audit_report: cleanAiAuditReport,
-        })
-        .eq("assigned_task_id", activeTaskId);
-
-      if (error) throw error;
-
-      if (clearanceId && clientStatus !== "Signed") {
-        await supabase
-          .from("clearance_records")
-          .update({ status: "Incomplete" })
-          .eq("clearance_id", clearanceId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["department-clients"] });
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-
-      if (studentId) {
-        const rejectedTask = tasks.find((t) => t.assigned_task_id === activeTaskId);
-        const taskTitle = rejectedTask?.title || "requirement";
-
-        // Remove any prior cleared notifications for this task
-        await supabase
-          .from("notifications")
-          .delete()
-          .eq("user_id", studentId)
-          .ilike("title", "%Cleared%")
-          .ilike("description", `%"${taskTitle}"%`);
-
-        try {
-          await supabase.from("notifications").insert({
-            user_id: studentId,
-            target_role: "student",
-            category: "submission",
-            title: "Submission Rejected",
-            description: `Your submission for "${taskTitle}" was rejected. Reason: ${comment}`,
-            type: "Warning",
-            ref_url: `/clearance/tasks?taskId=${activeTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId,
-              taskId: activeTaskId,
-              taskTitle,
-              reason: comment,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert reject notification:", notifErr);
-        }
-      }
-    } catch (error) {
-      console.error("Error rejecting with resubmit:", error);
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.assigned_task_id === activeTaskId
-            ? { ...t, status: "Submitted" as TaskStatus }
-            : t
-        )
-      );
-    }
+    if (activeTaskId === null) throw new Error("Select a submission first.");
+    const targetTaskId = activeTaskId;
+    const saved = await rejectSubmission(targetTaskId, comment);
+    setTasks((prev) => prev.map((task) => task.assigned_task_id === targetTaskId
+      ? { ...task, status: saved.status, comments: saved.comments, ai_audit_report: saved.ai_audit_report }
+      : task));
+    setAiAuditReport(saved.ai_audit_report);
+    onRejectTask?.(targetTaskId);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["department-clients"] }),
+      queryClient.invalidateQueries({ queryKey: ["clients"] }),
+      queryClient.invalidateQueries({ queryKey: ["staff-clearance"] }),
+    ]);
   };
 
   const handleUpdateFeedback = async (newComment: string) => {

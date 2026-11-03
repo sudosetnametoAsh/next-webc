@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   FileText,
   Image as ImageIcon,
@@ -70,8 +71,8 @@ export interface SubmissionModalProps {
   } | null;
   onReopen?: () => Promise<void>;
   onUpdateStatus: (newStatus: "Cleared" | "Flagged", comment: string) => Promise<void>;
-  /** Rejects the submission, clears the student's files, and sets status back to Pending */
-  onRejectWithResubmit?: (comment: string) => Promise<void>;
+  /** Saves a rejection and requires the client to resubmit. */
+  onRejectWithResubmit: (comment: string) => Promise<void>;
   onUpdateFeedback?: (newComment: string) => Promise<void>;
   onEdit?: (task: any) => void;
   onDelete?: (task: any) => void;
@@ -238,14 +239,11 @@ export default function SubmissionModal({
     }
     setIsSubmitting(true);
     try {
-      if (onRejectWithResubmit) {
-        await onRejectWithResubmit(comment);
-      } else {
-        await onUpdateStatus("Flagged", comment);
-      }
+      await onRejectWithResubmit(comment);
       resetAndClose();
     } catch (error) {
       console.error("Failed to reject with resubmit", error);
+      toast.error(error instanceof Error ? error.message : "Could not save rejection.");
     } finally {
       setIsSubmitting(false);
     }

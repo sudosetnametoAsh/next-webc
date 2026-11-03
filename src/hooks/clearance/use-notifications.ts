@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/db/supabase-client";
 import { isBottleneckNotification } from "@/lib/notification-visibility";
+import { notificationFromRow } from "@/lib/notification-row";
 import { ClearanceNotification } from "@/types/clearance";
 
 export interface UseNotificationsOptions {
@@ -22,7 +23,7 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!userId && !departmentId && role !== "admin") return [];
 
       // 1. Try fetching via API route
@@ -32,7 +33,7 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
         if (role) params.set("role", role);
         if (departmentId) params.set("departmentId", String(departmentId));
 
-        const res = await fetch(`/api/student/notifications?${params.toString()}`);
+        const res = await fetch(`/api/student/notifications?${params.toString()}`, { signal, cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
           if (json.notifications && Array.isArray(json.notifications)) {
@@ -40,6 +41,7 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
           }
         }
       } catch (e) {
+        if (signal.aborted) throw e;
         console.warn("API notifications fetch failed, falling back to direct Supabase query", e);
       }
 
@@ -77,24 +79,7 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
 
       if (error) throw error;
 
-      return (data || []).map((n: any) => ({
-        id: String(n.notif_id),
-        title: n.title,
-        description: n.description,
-        timestamp: n.created_at,
-        type: (n.type || "info").toLowerCase() as any,
-        category: n.category || "system",
-        targetRole: n.target_role,
-        departmentId: n.department_id,
-        userId: n.user_id,
-        read: Boolean(n.is_read),
-        metadata: {
-          refUrl: n.ref_url,
-          sectionId: n.section_id,
-          courseId: n.course_id,
-          ...(typeof n.metadata === "object" && n.metadata !== null ? n.metadata : {}),
-        },
-      })) as ClearanceNotification[];
+      return (data || []).map(notificationFromRow);
     },
     // Apply to API responses, direct-query fallback, and previously cached data.
     select: (items: ClearanceNotification[]) => role === "department"
@@ -103,21 +88,22 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
     enabled: !!userId || !!departmentId || role === "admin",
     staleTime: 1000 * 30, // 30 seconds fresh window
     refetchInterval: false, // Push-based updates via Supabase Realtime; avoid polling flood
-    refetchOnWindowFocus: false, // Prevent request storms on alt-tab/window focus
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
 
   // Realtime subscription for instant notification updates with debounced invalidation
   useEffect(() => {
     if (!userId && !departmentId && role !== "admin") return;
 
+    let disposed = false;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let fallback: ReturnType<typeof setInterval> | undefined;
     const triggerDebouncedInvalidate = () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
+      if (disposed || debounceTimer) return;
       debounceTimer = setTimeout(() => {
-        if (userId) {
-          queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
-        }
-        queryClient.invalidateQueries({ queryKey });
+        debounceTimer = null;
+        void queryClient.invalidateQueries({ queryKey });
         // The clearance layout owns task-data synchronization. Keeping it in
         // one listener avoids competing refetches from the notification UI.
       }, 350);
@@ -128,38 +114,43 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
       .channel(channelId)
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "notifications",
-        },
-        () => {
+        { event: "*", schema: "public", table: "notifications" },
+        async (payload) => {
+          // Render direct incoming alerts immediately; the API reconciliation
+          // can also perform slower deadline/completion synchronization.
+          const row = payload.new;
+          if (payload.eventType === "INSERT" && userId && "user_id" in row && row.user_id === userId) {
+            const notification = notificationFromRow(row);
+            const hiddenForDepartment = role === "department" && (
+              isBottleneckNotification(notification) ||
+              /requirement cleared|clearance signed/i.test(notification.title)
+            );
+            if (!hiddenForDepartment) {
+              // A response started before this insert must not overwrite it.
+              await queryClient.cancelQueries({ queryKey });
+              if (disposed) return;
+              queryClient.setQueryData<ClearanceNotification[]>(queryKey, (previous = []) =>
+                [notification, ...previous.filter((item) => item.id !== notification.id)],
+              );
+            }
+          }
           triggerDebouncedInvalidate();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "clearance_records",
         },
-        () => {
-          triggerDebouncedInvalidate();
-        }
       )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "clearance_tasks",
-        },
-        () => {
+      .subscribe((status, error) => {
+        if (disposed) return;
+        if (status === "SUBSCRIBED") {
+          if (fallback) clearInterval(fallback);
+          fallback = undefined;
           triggerDebouncedInvalidate();
+        } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          console.warn("Notification realtime disconnected:", status, error);
+          triggerDebouncedInvalidate();
+          fallback ??= setInterval(() => {
+            if (document.visibilityState === "visible") triggerDebouncedInvalidate();
+          }, 15000);
         }
-      )
-      .subscribe();
+      });
 
     const handleCustomUpdate = () => {
       triggerDebouncedInvalidate();
@@ -167,9 +158,11 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
     window.addEventListener("notifications_updated", handleCustomUpdate);
 
     return () => {
+      disposed = true;
       window.removeEventListener("notifications_updated", handleCustomUpdate);
       if (debounceTimer) clearTimeout(debounceTimer);
-      supabase.removeChannel(channel);
+      if (fallback) clearInterval(fallback);
+      void supabase.removeChannel(channel);
     };
   }, [userId, departmentId, role, queryKey, supabase, queryClient]);
 

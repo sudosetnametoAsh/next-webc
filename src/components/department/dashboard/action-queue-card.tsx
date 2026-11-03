@@ -1,5 +1,7 @@
 "use client";
 
+import { rejectSubmission } from "@/lib/api/reject-submission";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -145,53 +147,11 @@ export default function ActionQueueCard({
   };
 
   const handleRejectWithResubmit = async (comment: string) => {
-    if (!activeSubmission) return;
-    try {
-      let cleanAiAuditReport: any = activeSubmission.aiAuditReport;
-      if (cleanAiAuditReport && typeof cleanAiAuditReport === "object") {
-        const { appeal, ...rest } = cleanAiAuditReport;
-        cleanAiAuditReport = Object.keys(rest).length > 0 ? rest : null;
-      }
-
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({
-          status: "Rejected",
-          comments: comment,
-          ai_audit_report: cleanAiAuditReport,
-        })
-        .eq("assigned_task_id", activeSubmission.assignedTaskId);
-
-      if (error) throw error;
-
-      if (activeSubmission.studentId) {
-        try {
-          await supabase.from("notifications").insert({
-            user_id: activeSubmission.studentId,
-            target_role: "student",
-            category: "submission",
-            title: "Submission Rejected",
-            description: `Your submission for "${activeSubmission.taskTitle || "requirement"}" was rejected. Reason: ${comment}`,
-            type: "Warning",
-            ref_url: `/clearance/tasks?taskId=${activeSubmission.assignedTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId: activeSubmission.studentId,
-              taskId: activeSubmission.assignedTaskId,
-              taskTitle: activeSubmission.taskTitle,
-              reason: comment,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert reject notification:", notifErr);
-        }
-      }
-
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to reject task with resubmit:", err);
-    }
+    if (!activeSubmission) throw new Error("Select a submission first.");
+    const currentSub = activeSubmission;
+    await rejectSubmission(currentSub.assignedTaskId, comment);
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
   const handleSignClearance = async (client: ReadyToSignClient) => {

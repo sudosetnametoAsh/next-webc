@@ -53,16 +53,22 @@ export default function DepartmentHeader({ title, department, user_name, user_id
   // Active Drop-down Floating Notifications (max 2 items)
   const [activePopups, setActivePopups] = useState<ClearanceNotification[]>([]);
   const [isHovered, setIsHovered] = useState(false);
+  const shownStorageKey = `department_shown_popups:${effectiveUserId || "anonymous"}`;
+  const dismissedStorageKey = `department_dismissed_popups:${effectiveUserId || "anonymous"}`;
   const initialLoadRef = useRef(true);
   const shownPopupIdsRef = useRef<Set<string>>(new Set());
   const dismissedPopupIdsRef = useRef<Set<string>>(new Set());
 
   // Sync localStorage & sessionStorage on mount
   useEffect(() => {
+    initialLoadRef.current = true;
+    shownPopupIdsRef.current.clear();
+    dismissedPopupIdsRef.current.clear();
+    setActivePopups([]);
     try {
       const storedShown =
-        localStorage.getItem("department_shown_popups") ||
-        sessionStorage.getItem("department_shown_popups");
+        localStorage.getItem(shownStorageKey) ||
+        sessionStorage.getItem(shownStorageKey);
       if (storedShown) {
         const parsed = JSON.parse(storedShown);
         if (Array.isArray(parsed)) {
@@ -70,8 +76,8 @@ export default function DepartmentHeader({ title, department, user_name, user_id
         }
       }
       const storedDismissed =
-        localStorage.getItem("department_dismissed_popups") ||
-        sessionStorage.getItem("department_dismissed_popups");
+        localStorage.getItem(dismissedStorageKey) ||
+        sessionStorage.getItem(dismissedStorageKey);
       if (storedDismissed) {
         const parsed = JSON.parse(storedDismissed);
         if (Array.isArray(parsed)) {
@@ -79,7 +85,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
         }
       }
     } catch {}
-  }, []);
+  }, [shownStorageKey, dismissedStorageKey]);
 
   // Detect and drop down incoming notifications (strictly max 2 items)
   useEffect(() => {
@@ -107,8 +113,8 @@ export default function DepartmentHeader({ title, department, user_name, user_id
 
       try {
         const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
-        localStorage.setItem("department_shown_popups", shownArr);
-        sessionStorage.setItem("department_shown_popups", shownArr);
+        localStorage.setItem(shownStorageKey, shownArr);
+        sessionStorage.setItem(shownStorageKey, shownArr);
       } catch {}
 
       if (recentUnread.length > 0) {
@@ -132,8 +138,8 @@ export default function DepartmentHeader({ title, department, user_name, user_id
     if (newItems.length > 0) {
       try {
         const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
-        localStorage.setItem("department_shown_popups", shownArr);
-        sessionStorage.setItem("department_shown_popups", shownArr);
+        localStorage.setItem(shownStorageKey, shownArr);
+        sessionStorage.setItem(shownStorageKey, shownArr);
       } catch {}
 
       setActivePopups((prev) => {
@@ -147,7 +153,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
         return Array.from(unique.values()).slice(0, 2);
       });
     }
-  }, [notifications]);
+  }, [notifications, shownStorageKey]);
 
   // Instantly remove active popups when their underlying notification is marked as read
   useEffect(() => {
@@ -173,10 +179,10 @@ export default function DepartmentHeader({ title, department, user_name, user_id
           try {
             const disArr = JSON.stringify(Array.from(dismissedPopupIdsRef.current));
             const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
-            localStorage.setItem("department_dismissed_popups", disArr);
-            sessionStorage.setItem("department_dismissed_popups", disArr);
-            localStorage.setItem("department_shown_popups", shownArr);
-            sessionStorage.setItem("department_shown_popups", shownArr);
+            localStorage.setItem(dismissedStorageKey, disArr);
+            sessionStorage.setItem(dismissedStorageKey, disArr);
+            localStorage.setItem(shownStorageKey, shownArr);
+            sessionStorage.setItem(shownStorageKey, shownArr);
           } catch {}
         }
         return prev.slice(0, -1);
@@ -184,7 +190,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
     }, 8000);
 
     return () => clearTimeout(timer);
-  }, [activePopups, isHovered]);
+  }, [activePopups, isHovered, shownStorageKey, dismissedStorageKey]);
 
   const handleDismissPopup = (id: string, e?: React.MouseEvent) => {
     if (e) {
@@ -197,10 +203,10 @@ export default function DepartmentHeader({ title, department, user_name, user_id
     try {
       const disArr = JSON.stringify(Array.from(dismissedPopupIdsRef.current));
       const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
-      localStorage.setItem("department_dismissed_popups", disArr);
-      sessionStorage.setItem("department_dismissed_popups", disArr);
-      localStorage.setItem("department_shown_popups", shownArr);
-      sessionStorage.setItem("department_shown_popups", shownArr);
+      localStorage.setItem(dismissedStorageKey, disArr);
+      sessionStorage.setItem(dismissedStorageKey, disArr);
+      localStorage.setItem(shownStorageKey, shownArr);
+      sessionStorage.setItem(shownStorageKey, shownArr);
     } catch {}
 
     markAsRead.mutate(idStr);

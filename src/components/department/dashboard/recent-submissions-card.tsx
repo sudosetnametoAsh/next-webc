@@ -1,5 +1,7 @@
 "use client";
 
+import { rejectSubmission } from "@/lib/api/reject-submission";
+
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -245,59 +247,14 @@ export default function RecentSubmissionsCard({
   };
 
   const handleRejectWithResubmit = async (comment: string) => {
-    if (!activeSubmission) return;
+    if (!activeSubmission) throw new Error("Select a submission first.");
     const currentSub = activeSubmission;
-    try {
-      let cleanAiAuditReport: any = currentSub.aiAuditReport;
-      if (cleanAiAuditReport && typeof cleanAiAuditReport === "object") {
-        const { appeal, ...rest } = cleanAiAuditReport;
-        cleanAiAuditReport = Object.keys(rest).length > 0 ? rest : null;
-      }
-
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({
-          status: "Rejected",
-          comments: comment,
-          ai_audit_report: cleanAiAuditReport,
-        })
-        .eq("assigned_task_id", currentSub.assignedTaskId);
-
-      if (error) throw error;
-
-      if (currentSub.studentId) {
-        try {
-          await supabase.from("notifications").insert({
-            user_id: currentSub.studentId,
-            target_role: "student",
-            category: "submission",
-            title: "Submission Returned",
-            description: `Your submission for "${currentSub.taskTitle || "requirement"}" was returned. Reason: ${comment}`,
-            type: "Warning",
-            ref_url: `/clearance/tasks?taskId=${currentSub.assignedTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId: currentSub.studentId,
-              taskId: currentSub.assignedTaskId,
-              taskTitle: currentSub.taskTitle,
-              reason: comment,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert return notification:", notifErr);
-        }
-      }
-
-      // Optimistically remove rejected submission immediately from the dashboard list
-      setLocalSubmissions((prev) =>
-        prev.filter((s) => s.assignedTaskId !== currentSub.assignedTaskId)
-      );
-
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to reject task with resubmit:", err);
-    }
+    await rejectSubmission(currentSub.assignedTaskId, comment);
+    setLocalSubmissions((prev) =>
+      prev.filter((s) => s.assignedTaskId !== currentSub.assignedTaskId)
+    );
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
   return (

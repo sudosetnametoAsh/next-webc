@@ -1,5 +1,6 @@
 "use client";
 
+import { useDepartmentDashboard } from "@/hooks/department/use-department-dashboard";
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import {
@@ -16,9 +17,10 @@ import AiVerificationConfigModal from "./ai-verification-config-modal";
 export default function DashboardClient({
   user_name,
   department,
-  stats,
-  recentSubmissions = [],
-  courseVelocity = [],
+  stats: initialStats,
+  recentSubmissions: initialSubmissions = [],
+  readyToSignClients = [],
+  courseVelocity: initialVelocity = [],
 }: {
   user_name: string;
   department?: string;
@@ -27,6 +29,13 @@ export default function DashboardClient({
   readyToSignClients?: ReadyToSignClient[];
   courseVelocity: CourseVelocity[];
 }) {
+  const { data } = useDepartmentDashboard({
+    stats: initialStats, recentSubmissions: initialSubmissions,
+    readyToSignClients, courseVelocity: initialVelocity,
+  });
+  const stats = data?.stats ?? initialStats;
+  const recentSubmissions = data?.recentSubmissions ?? initialSubmissions;
+  const courseVelocity = data?.courseVelocity ?? initialVelocity;
   const [aiModalOpen, setAiModalOpen] = useState(false);
 
   return (

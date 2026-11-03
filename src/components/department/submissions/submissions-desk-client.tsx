@@ -1,5 +1,8 @@
 "use client";
 
+import { useDepartmentDashboard } from "@/hooks/department/use-department-dashboard";
+import { rejectSubmission } from "@/lib/api/reject-submission";
+
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -72,7 +75,8 @@ export default function SubmissionsDeskClient({
   userName = "Staff Officer",
 }: SubmissionsDeskClientProps) {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const { data: dashboard } = useDepartmentDashboard();
 
   const [submissions, setSubmissions] = useState<getRecentSubmissionsPromise[]>(initialSubmissions);
   const [search, setSearch] = useState("");
@@ -87,30 +91,8 @@ export default function SubmissionsDeskClient({
 
   // Sync state if initialSubmissions prop updates
   useEffect(() => {
-    setSubmissions(initialSubmissions);
-  }, [initialSubmissions]);
-
-  // Realtime Supabase updates on clearance_tasks
-  useEffect(() => {
-    const channel = supabase
-      .channel("department-submissions-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "clearance_tasks",
-        },
-        () => {
-          router.refresh();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, router]);
+    setSubmissions(dashboard?.recentSubmissions ?? initialSubmissions);
+  }, [dashboard?.recentSubmissions, initialSubmissions]);
 
   // Derived counts for macro metrics ribbon
   const stats = useMemo(() => {
@@ -233,53 +215,11 @@ export default function SubmissionsDeskClient({
 
   // Rejection handler
   const handleRejectWithResubmit = async (comment: string) => {
-    if (!activeSubmission) return;
-    try {
-      let cleanAiAuditReport: any = activeSubmission.aiAuditReport;
-      if (cleanAiAuditReport && typeof cleanAiAuditReport === "object") {
-        const { appeal, ...rest } = cleanAiAuditReport;
-        cleanAiAuditReport = Object.keys(rest).length > 0 ? rest : null;
-      }
-
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({
-          status: "Rejected",
-          comments: comment,
-          ai_audit_report: cleanAiAuditReport,
-        })
-        .eq("assigned_task_id", activeSubmission.assignedTaskId);
-
-      if (error) throw error;
-
-      if (activeSubmission.studentId) {
-        try {
-          await supabase.from("notifications").insert({
-            user_id: activeSubmission.studentId,
-            target_role: "student",
-            category: "submission",
-            title: "Submission Rejected",
-            description: `Your submission for "${activeSubmission.taskTitle || "requirement"}" was rejected. Reason: ${comment}`,
-            type: "Warning",
-            ref_url: `/clearance/tasks?taskId=${activeSubmission.assignedTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId: activeSubmission.studentId,
-              taskId: activeSubmission.assignedTaskId,
-              taskTitle: activeSubmission.taskTitle,
-              reason: comment,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert reject notification:", notifErr);
-        }
-      }
-
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to reject task with resubmit:", err);
-    }
+    if (!activeSubmission) throw new Error("Select a submission first.");
+    const currentSub = activeSubmission;
+    await rejectSubmission(currentSub.assignedTaskId, comment);
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
   // Batch authorize all AI-verified documents

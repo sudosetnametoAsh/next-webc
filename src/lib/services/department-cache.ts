@@ -50,6 +50,32 @@ const pendingDashboardFetches = new Map<string, Promise<DepartmentDashboardBundl
 const pendingReportFetches = new Map<string, Promise<DepartmentReportData>>();
 const pendingScheduleFetches = new Map<string, Promise<DepartmentScheduleBundle>>();
 
+/** Fetch current dashboard data without the page-render cache. */
+export async function fetchDepartmentDashboard(staffUserId: string): Promise<DepartmentDashboardBundle> {
+  if (!staffUserId) throw new Error("Staff user ID is required");
+  const getStatCardValue = makeGetStatCardValue();
+  const getRecentSubmissions = makeGetRecentSubmissions();
+  const getReadyToSignClients = makeGetReadyToSignClients();
+  const getCourseVelocity = makeGetCourseVelocity();
+
+  const [stats, recentSubmissions, readyToSignClients, courseVelocity] =
+    await Promise.all([
+      getStatCardValue.execute(staffUserId),
+      getRecentSubmissions.execute(staffUserId),
+      getReadyToSignClients.execute(staffUserId),
+      getCourseVelocity.execute(staffUserId),
+    ]);
+
+  const bundle: DepartmentDashboardBundle = {
+    stats,
+    recentSubmissions,
+    readyToSignClients,
+    courseVelocity,
+  };
+
+  return bundle;
+}
+
 /**
  * Retrieves the cached department dashboard bundle for the authenticated staff user.
  */
@@ -73,25 +99,7 @@ export async function getCachedDepartmentDashboard(
 
   const fetchPromise = (async () => {
     try {
-      const getStatCardValue = makeGetStatCardValue();
-      const getRecentSubmissions = makeGetRecentSubmissions();
-      const getReadyToSignClients = makeGetReadyToSignClients();
-      const getCourseVelocity = makeGetCourseVelocity();
-
-      const [stats, recentSubmissions, readyToSignClients, courseVelocity] =
-        await Promise.all([
-          getStatCardValue.execute(staffUserId),
-          getRecentSubmissions.execute(staffUserId),
-          getReadyToSignClients.execute(staffUserId),
-          getCourseVelocity.execute(staffUserId),
-        ]);
-
-      const bundle: DepartmentDashboardBundle = {
-        stats,
-        recentSubmissions,
-        readyToSignClients,
-        courseVelocity,
-      };
+      const bundle = await fetchDepartmentDashboard(staffUserId);
 
       dashboardCache.set(staffUserId, {
         data: bundle,
