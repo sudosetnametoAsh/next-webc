@@ -16,6 +16,9 @@ function App() {
         <div className="theme-card bg-portal-surface" data-testid="theme-card">Themed surface</div>
         <div className="admin-card bg-[#0c1427] border border-slate-800 text-white" data-testid="admin-card">Admin card</div>
         <div className="department-card bg-[#101726] border border-slate-800 text-white" data-testid="department-card">Department card</div>
+        <div className="clearance-card bg-[#091122] border border-slate-800 text-white" data-testid="clearance-card">Clearance card</div>
+        <div className="clearance-panel bg-[#0b0e14]" data-testid="clearance-panel">Clearance panel</div>
+        <div className="clearance-inset bg-[#10172A]" data-testid="clearance-inset">Clearance inset</div>
         <input type="date" data-testid="department-date" />
         <button type="button" data-testid="focus-target">Focus target</button>
         <ThemeToggle />

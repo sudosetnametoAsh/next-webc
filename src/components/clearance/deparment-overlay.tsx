@@ -798,7 +798,7 @@ export default function DepartmentOverlay({
       {/* Main Drawer/Panel Container */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-full w-full max-w-lg flex-col border-l border-[#1f2937] bg-[#0b0e14] shadow-2xl transition-transform duration-200 ease-in-out overflow-hidden"
+        className="relative flex h-full w-full max-w-lg flex-col border-l border-portal-border bg-portal-surface shadow-2xl transition-transform duration-200 ease-in-out overflow-hidden"
       >
         {/* Scrollable Content Area */}
         <div className="overflow-y-auto overflow-x-hidden flex-1 p-6 sm:p-7 custom-scrollbar">

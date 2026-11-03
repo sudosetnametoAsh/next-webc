@@ -423,11 +423,11 @@ export default function OfficeHours({
       </div>
 
       {/* ── Main Weekly Schedule Table ── */}
-      <div className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 shadow-2xl backdrop-blur-sm overflow-hidden">
+      <div className="w-full rounded-2xl border border-portal-border bg-portal-surface shadow-2xl backdrop-blur-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] border-collapse text-left">
             {/* Table Header */}
-            <thead className="border-b border-slate-800/80 bg-[#070c18]/80 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <thead className="border-b border-portal-border bg-portal-inset text-xs font-bold uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="py-4 px-6 text-left w-[31%]">DEPARTMENT</th>
                 {DAYS_HEADER.map(({ key, label }) => {

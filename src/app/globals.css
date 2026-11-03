@@ -290,15 +290,16 @@ html.dark:has([data-portal]) {
 }
 
 /* Portal compatibility layer: active screens still use repeated literal dark utilities. */
-[data-portal] [class*="bg-[#060a14]"],
-[data-portal] [class*="bg-[#0b0e14]"],
-[data-portal] [class*="bg-[#10172A]"],
-[data-portal] [class*="bg-[#131822]"],
-[data-portal] [class*="bg-[#1a212f]"] {
+[data-portal] [class*="bg-[#060a14]"] {
   background-color: var(--portal-canvas);
 }
 
+[data-portal] [class*="bg-[#0b0e14]"],
+[data-portal] [class*="bg-[#131822]"],
+[data-portal] [class*="bg-[#1a212f]"],
 [data-portal] [class*="bg-[#0a101f]"],
+[data-portal] [class*="bg-[#0f172a]"],
+[data-portal] [class*="bg-[#0a1128]"],
 [data-portal] [class*="bg-[#ffffff]"],
 [data-portal] [class*="bg-[#FFFFFF]"],
 [data-portal] [class*="bg-white"],
@@ -310,6 +311,8 @@ html.dark:has([data-portal]) {
 [data-portal] [class*="bg-[#070c18]"],
 [data-portal] [class*="bg-[#0c1427]"],
 [data-portal] [class*="bg-[#0a141a]"],
+[data-portal] [class*="bg-[#091122]"],
+[data-portal] [class*="bg-[#10172A]"],
 [data-portal] [class*="bg-[#101726]"],
 [data-portal] [class*="bg-[#F6F8FB]"],
 [data-portal] [class*="bg-slate-700"],
@@ -378,6 +381,17 @@ html.dark:has([data-portal]) {
 [data-portal] [class*="bg-blue-950"],
 [data-portal] [class*="bg-blue-500/10"] {
   background-color: var(--portal-info-soft);
+}
+
+[data-portal] [class*="bg-[#061817]"] {
+  background-color: var(--portal-success-soft);
+}
+
+[data-portal] [class*="bg-[#1a160c]"],
+[data-portal] [class*="bg-[#231a08]"],
+[data-portal] [class*="bg-[#2a2212]"],
+[data-portal] [class*="bg-[#423314]"] {
+  background-color: var(--portal-accent-soft);
 }
 
 [data-portal] [class*="hover:bg-slate-800"]:hover,

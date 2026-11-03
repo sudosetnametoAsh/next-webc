@@ -686,10 +686,10 @@ export default function RequirementModal({
         {/* Modal Dialog Card */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] lg:max-h-[92dvh]"
+          className="relative w-full rounded-2xl border border-portal-border bg-portal-surface shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] lg:max-h-[92dvh]"
         >
           {/* Header Section */}
-          <div className="bg-[#070c18] border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap sm:flex-nowrap justify-between items-start gap-4">
+          <div className="bg-portal-inset border-b border-portal-border px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap sm:flex-nowrap justify-between items-start gap-4">
             <div className="flex gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 mt-0.5">
                 {task?.isInPerson && isPending ? (
