@@ -79,7 +79,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 The [CI/CD workflow](.github/workflows/ci.yml) runs in three ordered stages:
 
-1. **Tests (quality gate)** — installs dependencies, runs `tsc --noEmit`, and runs the Node test suite in `tests/`. A failure stops the pipeline.
+1. **Tests (quality gate)** — installs dependencies, runs `tsc --noEmit`, and runs the Node regression suite with `node --test tests/*.test.cjs`. A failure stops the pipeline. The separate `tests/motion-responsive.browser.cjs` browser check requires Playwright and Chromium and is not run by this gate.
 2. **Build image** — builds the Docker image, starts the container, and smoke-tests `/` and `/favicon.svg`.
 3. **Deploy to Dokploy** — after a successful build and publish on `main`, triggers a Dokploy redeploy through a webhook.
 
