@@ -29,7 +29,9 @@ function App() {
         <p className="bg-portal-accent-soft text-portal-accent" data-testid="status-text">Status contrast</p>
         <p className="bg-portal-canvas text-portal-foreground text-lg" data-testid="large-text">Large contrast</p>
         <input className="bg-portal-surface text-white placeholder:text-slate-500" placeholder="Placeholder" data-testid="variant-input" />
+        <input className="border border-slate-800 focus:border-amber-500" data-testid="focus-border-input" />
         <button className="bg-rose-600 text-white" type="button" data-testid="solid-danger">Delete</button>
+        <button className="hover:bg-slate-800" type="button" data-testid="hover-surface">Hover surface</button>
         <input type="date" data-testid="department-date" />
         <button type="button" data-testid="focus-target">Focus target</button>
         <ThemeToggle />

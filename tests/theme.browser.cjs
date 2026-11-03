@@ -141,6 +141,16 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByTestId("variant-input").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByTestId("solid-danger").evaluate((el) => getComputedStyle(el).color), "rgb(255, 255, 255)");
+      const focusBorderInput = page.getByTestId("focus-border-input");
+      const unfocusedBorder = await focusBorderInput.evaluate((el) => getComputedStyle(el).borderTopColor);
+      await focusBorderInput.focus();
+      const focusedBorder = await focusBorderInput.evaluate((el) => getComputedStyle(el).borderTopColor);
+      assert.notEqual(focusedBorder, unfocusedBorder);
+      assert.notEqual(focusedBorder, "rgb(220, 226, 235)");
+      const hoverSurface = page.getByTestId("hover-surface");
+      assert.match(await hoverSurface.evaluate((el) => getComputedStyle(el).backgroundColor), /rgba?\(0, 0, 0, 0\)|transparent/);
+      await hoverSurface.hover();
+      assert.equal(await hoverSurface.evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "light");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible(), true);
       await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "normal text");
@@ -205,6 +215,10 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
       assert.equal(await page.getByTestId("variant-input").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
       assert.equal(await page.getByTestId("solid-danger").evaluate((el) => getComputedStyle(el).color), "rgb(255, 255, 255)");
+      const darkHoverSurface = page.getByTestId("hover-surface");
+      assert.match(await darkHoverSurface.evaluate((el) => getComputedStyle(el).backgroundColor), /rgba?\(0, 0, 0, 0\)|transparent/);
+      await darkHoverSurface.hover();
+      assert.equal(await darkHoverSurface.evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("department-date").evaluate((el) => getComputedStyle(el).colorScheme), "dark");
       await assertContrast(page, '[data-testid="normal-text"]', '[data-testid="normal-text"]', 4.5, "dark normal text");
       await assertContrast(page, '[data-testid="status-text"]', '[data-testid="status-text"]', 4.5, "dark status text");
@@ -306,7 +320,8 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
         { saved: "light", device: "dark" },
         { saved: "dark", device: "light" },
       ];
-      let authenticatedPortal = false;
+      let portalScenarios = 0;
+      let firstPaintScenarios = 0;
       for (const scenario of scenarios) {
         const context = await browser.newContext({ colorScheme: scenario.device });
         await context.addInitScript((theme) => localStorage.setItem("theme", theme), scenario.saved);
@@ -333,17 +348,22 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
         await page.waitForLoadState("domcontentloaded");
         await page.waitForTimeout(300);
         if (await page.locator("[data-portal]").count()) {
-          authenticatedPortal = true;
+          portalScenarios += 1;
           await waitForClass(page, scenario.saved);
           const expectedCanvas = scenario.saved === "dark" ? "rgb(6, 10, 20)" : "rgb(244, 246, 250)";
-          if (firstFrame) assert.equal(firstFrame, expectedCanvas);
+          if (firstFrame) {
+            firstPaintScenarios += 1;
+            assert.equal(firstFrame, expectedCanvas);
+          }
           assert.equal(await page.locator("[data-portal]").first().evaluate((el) => getComputedStyle(el).backgroundColor), expectedCanvas);
           assert.deepEqual(hydrationErrors, []);
         }
         await context.close();
       }
-      console.log(authenticatedPortal
-        ? "PASS: optional live app theme checks (authenticated portal reached)."
+      console.log(portalScenarios === scenarios.length && firstPaintScenarios === scenarios.length
+        ? "PASS: optional live app theme checks (authenticated portal and first frames reached)."
+        : portalScenarios > 0
+        ? "SKIP: optional live app theme checks (portal reached, but authenticated first frames were not all observable)."
         : "SKIP: optional live app theme checks (no authenticated portal at WEB_C_BASE_URL).");
     }
 
