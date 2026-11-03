@@ -290,7 +290,8 @@ html.dark:has([data-portal]) {
 }
 
 /* Portal compatibility layer: active screens still use repeated literal dark utilities. */
-html:has([data-portal]) [class~="bg-[#060a14]"] {
+html:has([data-portal]) [class~="bg-[#060a14]"],
+html:has([data-portal]) [class~="bg-[#060a14]/80"] {
   background-color: var(--portal-canvas);
 }
 
@@ -428,6 +429,12 @@ html:has([data-portal]) [class~="bg-amber-500/10"] {
 }
 
 html:has([data-portal]) [class~="bg-emerald-950"],
+html:has([data-portal]) [class~="bg-emerald-950/10"],
+html:has([data-portal]) [class~="bg-emerald-950/20"],
+html:has([data-portal]) [class~="bg-emerald-950/30"],
+html:has([data-portal]) [class~="bg-emerald-950/40"],
+html:has([data-portal]) [class~="bg-emerald-950/60"],
+html:has([data-portal]) [class~="bg-emerald-950/80"],
 html:has([data-portal]) [class~="bg-emerald-500/10"] {
   background-color: var(--portal-success-soft);
 }
@@ -442,7 +449,13 @@ html:has([data-portal]) [class~="bg-blue-500/10"] {
   background-color: var(--portal-info-soft);
 }
 
-html:has([data-portal]) [class~="bg-[#061817]"] {
+html:has([data-portal]) [class~="bg-[#061817]"],
+html:has([data-portal]) [class~="bg-[#061817]/40"],
+html:has([data-portal]) [class~="bg-[#061817]/60"] {
+  background-color: var(--portal-success-soft);
+}
+
+html:has([data-portal]) [class~="hover:bg-[#061817]/60"]:hover {
   background-color: var(--portal-success-soft);
 }
 
