@@ -56,7 +56,11 @@ export default function EditTaskModal({
           task.dropbox.toLowerCase() !== "null"
       );
       setHasDropbox(isOnline);
-      setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
+      // Use the same local calendar date shown in the task view, not the UTC date.
+      const deadline = task.due_date ? new Date(task.due_date) : null;
+      setDueDate(deadline
+        ? `${deadline.getFullYear()}-${String(deadline.getMonth() + 1).padStart(2, "0")}-${String(deadline.getDate()).padStart(2, "0")}`
+        : "");
       setTitleError("");
     }
   }, [task, isOpen]);
@@ -73,7 +77,7 @@ export default function EditTaskModal({
     setIsSubmitting(true);
     try {
       const formattedDueDate = dueDate
-        ? new Date(`${dueDate}T23:59:59Z`).toISOString()
+        ? new Date(`${dueDate}T23:59:59`).toISOString()
         : null;
 
       // Determine dropbox value:

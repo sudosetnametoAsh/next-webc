@@ -1,19 +1,17 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { useFetchDepartments } from '@/hooks/admin/departments'
 import {
   ChevronRight,
-  GripVertical,
   X,
   User,
   GraduationCap,
   MapPin,
   Search,
   Check,
-  Building2,
+  Layers,
 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import ConfirmationModal from '@/components/admin/confirmation-modal'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
 import { useCreateTemplates } from '@/hooks/admin/course-templates'
@@ -265,7 +263,7 @@ export default function CreateTemplateModal({
         : 'Create a clearance template for staff and assign it to departments'
       : isEdit
       ? 'Update participating departments for this course clearance template'
-      : 'Create a new clearance template and assign it to sections and departments'
+      : 'Choose the courses and offices included in this clearance workflow.'
     : activeDeptId !== null
     ? 'Select a staff officer for this department'
     : 'Organize departments into sequential sign-off phases and assign staff officers.'
@@ -296,40 +294,33 @@ export default function CreateTemplateModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-2xl max-h-[90vh] flex flex-col p-0 border border-slate-800 bg-[#0a101f] text-slate-100 shadow-2xl rounded-2xl overflow-hidden'>
-        {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-slate-800 bg-[#070c18] flex items-center justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <DialogTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              {dialogTitle}
-            </DialogTitle>
-            <p className='mt-1 text-xs text-slate-400 truncate sm:whitespace-normal'>
-              {dialogDescription}
-            </p>
-          </div>
-
-          {/* Stepper badge indicator */}
-          {activeDeptId === null && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/90 text-xs shrink-0">
-              <span className={`font-semibold flex items-center gap-1.5 ${step === 'select' ? 'text-amber-400' : 'text-slate-500'}`}>
-                <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${step === 'select' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-500'}`}>
-                  1
-                </span>
-                Selection
+      <DialogContent className='flex max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-800 bg-[#0a101f] p-0 text-slate-100 shadow-2xl sm:max-w-3xl [&>button]:text-slate-400'>
+        <div className="shrink-0 border-b border-slate-800 px-5 py-5 sm:px-6">
+          <DialogHeader className="text-left">
+            <div className="flex items-center gap-3 pr-7">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300">
+                <Layers className="h-5 w-5" />
               </span>
-              <ChevronRight className="h-3 w-3 text-slate-600" />
-              <span className={`font-semibold flex items-center gap-1.5 ${step === 'assign' ? 'text-amber-400' : 'text-slate-500'}`}>
-                <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${step === 'assign' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-500'}`}>
-                  2
-                </span>
-                Phases & Staff
-              </span>
+              <div className="min-w-0">
+                <DialogTitle className="text-lg font-semibold tracking-tight">{dialogTitle}</DialogTitle>
+                <DialogDescription className="mt-1 text-xs leading-relaxed text-slate-400">{dialogDescription}</DialogDescription>
+              </div>
             </div>
-          )}
+          </DialogHeader>
+          <ol aria-label="Template setup progress" className="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-slate-800 bg-[#070c18] p-1">
+            {(['select', 'assign'] as const).map((stage, index) => (
+              <li key={stage} aria-current={step === stage ? 'step' : undefined} className={`flex items-center justify-center gap-2 rounded-lg px-2 py-2 text-xs font-medium ${step === stage ? 'bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/20' : 'text-slate-500'}`}>
+                <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] ${step === stage ? 'bg-amber-400/10 text-amber-300' : 'bg-slate-800 text-slate-400'}`}>
+                  {stage === 'select' && step === 'assign' ? <Check className="h-3 w-3" /> : index + 1}
+                </span>
+                {stage === 'select' ? 'Select scope' : 'Phases & staff'}
+              </li>
+            ))}
+          </ol>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
           {step === 'select' ? (
             <SelectionStep
               mode={mode}
@@ -372,12 +363,12 @@ export default function CreateTemplateModal({
         </div>
 
         {/* Modal Footer */}
-        <div className='px-6 py-4 border-t border-slate-800 bg-[#070c18] flex items-center justify-end gap-3'>
+        <div className='shrink-0 px-5 sm:px-6 py-4 border-t border-slate-800 bg-[#070c18] flex flex-wrap items-center justify-end gap-3'>
           {step === 'assign' && activeDeptId !== null ? (
             <button
               type="button"
               onClick={() => setActiveDeptId(null)}
-              className='rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
+              className='rounded-lg px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
             >
               Back to Phases
             </button>
@@ -387,7 +378,7 @@ export default function CreateTemplateModal({
                 <button
                   type="button"
                   onClick={handleBack}
-                  className='rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
+                  className='rounded-lg px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
                 >
                   Back
                 </button>
@@ -396,7 +387,7 @@ export default function CreateTemplateModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className='rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
+                className='rounded-lg px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer'
               >
                 Cancel
               </button>
@@ -406,7 +397,7 @@ export default function CreateTemplateModal({
                   type="button"
                   onClick={handleNext}
                   disabled={nextDisabled}
-                  className='flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2 text-xs shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
+                  className='flex items-center gap-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold px-5 py-2 text-xs transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
                 >
                   <span>Next: Configure Phases</span>
                   <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -416,7 +407,7 @@ export default function CreateTemplateModal({
                   type="button"
                   onClick={() => setIsConfirmOpen(true)}
                   disabled={isPending}
-                  className='flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2 text-xs shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
+                  className='flex items-center gap-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold px-5 py-2 text-xs transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
                 >
                   <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                   <span>{isPending ? 'Saving...' : isEdit ? 'Save Changes' : 'Save Template'}</span>
@@ -431,7 +422,7 @@ export default function CreateTemplateModal({
 }
 
 // ————————————————————————————————————————
-// Step 1: Select Courses (student only) and Clearance Offices
+// Step 1: Select Courses (student only) and Clearance offices
 // ————————————————————————————————————————
 
 function SelectionStep({
@@ -474,16 +465,16 @@ function SelectionStep({
   }
 
   return (
-    <div className='space-y-6'>
+    <div className={`grid gap-5 ${mode === 'student' ? 'md:grid-cols-2' : ''}`}>
       {/* Course selection — hidden for staff mode */}
       {mode === 'student' && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
+        <div className="min-w-0 space-y-4 rounded-xl border border-slate-800 bg-[#070c18] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Assign to Courses <span className="text-amber-400">*</span>
+              <label className="text-sm font-semibold text-slate-200">
+                Courses <span className="text-amber-400">*</span>
               </label>
-              <span className="text-[11px] font-mono text-slate-500">
+              <span className="rounded-md border border-slate-700/60 bg-slate-800/60 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-400">
                 ({selectedCourses.length}/{courses.length})
               </span>
             </div>
@@ -498,31 +489,33 @@ function SelectionStep({
             )}
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto pr-1'>
+          <div className='grid grid-cols-1 gap-2 max-h-80 overflow-y-auto pr-1'>
+            {courses.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-5 text-center text-xs text-slate-500">No courses available.</p>}
             {courses.map((course) => {
               const isChecked = selectedCourses.includes(course.course_id)
               return (
                 <button
                   key={course.course_id}
                   type="button"
+                  aria-pressed={isChecked}
                   onClick={() => toggleCourse(course.course_id)}
                   className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer w-full ${
                     isChecked
-                      ? 'border-amber-500/80 bg-amber-500/10 text-white ring-1 ring-amber-500/30 shadow-md shadow-amber-500/5'
+                      ? 'border-amber-400/40 bg-amber-400/5 text-slate-100'
                       : 'border-slate-800/90 bg-[#070c18]/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-200'
                   }`}
                 >
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
                       isChecked
-                        ? 'border-amber-500 bg-amber-500/20 text-amber-400 ring-2 ring-amber-500/20 shadow-xs'
+                        ? 'border-amber-400/20 bg-amber-400/10 text-amber-300'
                         : 'border-slate-700/80 bg-slate-800/70 text-slate-400 group-hover:text-slate-300 group-hover:border-slate-600'
                     }`}
                   >
                     <GraduationCap className="h-5 w-5 transition-transform group-hover:scale-105" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-xs font-bold truncate transition-colors ${
+                    <p className={`text-sm font-medium break-words transition-colors ${
                       isChecked ? 'text-white' : 'text-slate-200 group-hover:text-white'
                     }`}>
                       {course.course_name}
@@ -533,6 +526,7 @@ function SelectionStep({
                       {expandCourseAbbreviation(course.course_name) || course.course_name}
                     </p>
                   </div>
+                  {isChecked && <Check className="h-4 w-4 shrink-0 text-amber-300" />}
                 </button>
               )
             })}
@@ -541,13 +535,13 @@ function SelectionStep({
       )}
 
       {/* Department selection */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
+      <div className="min-w-0 space-y-4 rounded-xl border border-slate-800 bg-[#070c18] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Clearance Offices <span className="text-amber-400">*</span>
+            <label className="text-sm font-semibold text-slate-200">
+              Clearance offices <span className="text-amber-400">*</span>
             </label>
-            <span className="text-[11px] font-mono text-slate-500">
+            <span className="rounded-md border border-slate-700/60 bg-slate-800/60 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-400">
               ({selectedDepartments.length}/{departments.length})
             </span>
           </div>
@@ -562,9 +556,10 @@ function SelectionStep({
           )}
         </div>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1 ${
-          mode === 'student' ? 'max-h-52' : 'max-h-[380px]'
+        <div className={`grid grid-cols-1 gap-2 overflow-y-auto pr-1 ${
+          mode === 'student' ? 'max-h-80' : 'max-h-[380px]'
         }`}>
+          {departments.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-5 text-center text-xs text-slate-500">No clearance offices available.</p>}
           {departments.map((department) => {
             const isChecked = selectedDepartments.includes(department.dept_id)
             const DeptIcon = getDepartmentIcon(department.icon_name, department.dept_name)
@@ -573,24 +568,25 @@ function SelectionStep({
               <button
                 key={department.dept_id}
                 type="button"
+                aria-pressed={isChecked}
                 onClick={() => toggleDepartment(department.dept_id)}
                 className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer w-full ${
                   isChecked
-                    ? 'border-amber-500/80 bg-amber-500/10 text-white ring-1 ring-amber-500/30 shadow-md shadow-amber-500/5'
+                    ? 'border-amber-400/40 bg-amber-400/5 text-slate-100'
                     : 'border-slate-800/90 bg-[#070c18]/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-200'
                 }`}
               >
                 <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
                     isChecked
-                      ? 'border-amber-500 bg-amber-500/20 text-amber-400 ring-2 ring-amber-500/20 shadow-xs'
+                      ? 'border-amber-400/20 bg-amber-400/10 text-amber-300'
                       : 'border-slate-700/80 bg-slate-800/70 text-slate-400 group-hover:text-slate-300 group-hover:border-slate-600'
                   }`}
                 >
                   <DeptIcon className="h-5 w-5 transition-transform group-hover:scale-105" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-bold truncate transition-colors ${
+                  <p className={`text-sm font-medium break-words transition-colors ${
                     isChecked ? 'text-white' : 'text-slate-200 group-hover:text-white'
                   }`}>
                     {department.dept_name}
@@ -612,6 +608,7 @@ function SelectionStep({
                     </p>
                   )}
                 </div>
+                {isChecked && <Check className="h-4 w-4 shrink-0 text-amber-300" />}
               </button>
             )
           })}
@@ -653,7 +650,7 @@ function StaffSelectionStep({
   return (
     <div className='space-y-4'>
       {/* Department Context Card & Back Button */}
-      <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-800 bg-[#070c18]">
+      <div className="flex flex-wrap items-center justify-between gap-2 gap-3 p-3.5 rounded-xl border border-slate-800 bg-[#070c18]">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400">
             <DeptIcon className="h-5 w-5" />
@@ -682,7 +679,8 @@ function StaffSelectionStep({
       <div className="relative">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
         <input
-          type="text"
+          type="search"
+          aria-label="Search staff by name or ID"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search staff officer by name or ID..."
@@ -703,7 +701,7 @@ function StaffSelectionStep({
               key={s.staff_id}
               type="button"
               onClick={() => onSelect(s.staff_id, s.staff_name)}
-              className='w-full flex items-center justify-between p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-all text-left cursor-pointer group'
+              className='w-full flex flex-wrap items-center justify-between gap-2 p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-all text-left cursor-pointer group'
             >
               <div className='flex items-center gap-3 min-w-0'>
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">
@@ -718,7 +716,7 @@ function StaffSelectionStep({
                   </span>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] font-bold text-amber-300 transition-colors">
                 Select →
               </span>
             </button>
