@@ -28,6 +28,9 @@ function App() {
         <div className="expanded-document-row bg-[#060a14]/80 text-white" data-testid="expanded-document-row">Expanded document</div>
         <div className="cleared-card bg-[#061817]/40 hover:bg-[#061817]/60 text-emerald-400" data-testid="cleared-card">Cleared department</div>
         <div className="cleared-badge bg-emerald-950/60 text-emerald-400" data-testid="cleared-badge">Cleared</div>
+        <div className="amber-status bg-amber-950/20 hover:bg-amber-950/30 text-amber-200" data-testid="amber-status">Awaiting</div>
+        <div className="rose-status bg-rose-950/20 hover:bg-rose-950/30 text-rose-200" data-testid="rose-status">Action required</div>
+        <div className="blue-status bg-blue-950/60 text-blue-300" data-testid="blue-status">Verified</div>
         <p className="bg-portal-surface text-portal-foreground" data-testid="normal-text">Normal contrast</p>
         <p className="bg-portal-accent-soft text-portal-accent" data-testid="status-text">Status contrast</p>
         <p className="bg-portal-canvas text-portal-foreground text-lg" data-testid="large-text">Large contrast</p>

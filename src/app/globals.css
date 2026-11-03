@@ -381,22 +381,27 @@ html:has([data-portal]) [class*="border-[#1f2937]"]:focus:not([class*="focus:bor
   border-color: var(--portal-border);
 }
 
+html:has([data-portal]) [class~="text-amber-200"],
 html:has([data-portal]) [class~="text-amber-300"],
 html:has([data-portal]) [class~="text-amber-400"],
 html:has([data-portal]) [class~="text-yellow-400"] {
   color: var(--portal-accent);
 }
 
+html:has([data-portal]) [class~="text-emerald-200"],
 html:has([data-portal]) [class~="text-emerald-300"],
 html:has([data-portal]) [class~="text-emerald-400"] {
   color: var(--portal-success);
 }
 
+html:has([data-portal]) [class~="text-rose-200"],
 html:has([data-portal]) [class~="text-rose-300"],
 html:has([data-portal]) [class~="text-rose-400"] {
   color: var(--portal-danger);
 }
 
+html:has([data-portal]) [class~="text-blue-100"],
+html:has([data-portal]) [class~="text-blue-200"],
 html:has([data-portal]) [class~="text-blue-300"],
 html:has([data-portal]) [class~="text-blue-400"] {
   color: var(--portal-info);
@@ -424,6 +429,10 @@ html:has([data-portal]) [class~="bg-rose-600"][class~="text-white"] {
 }
 
 html:has([data-portal]) [class~="bg-amber-950"],
+html:has([data-portal]) [class~="bg-amber-950/10"],
+html:has([data-portal]) [class~="bg-amber-950/20"],
+html:has([data-portal]) [class~="bg-amber-950/30"],
+html:has([data-portal]) [class~="bg-amber-950/40"],
 html:has([data-portal]) [class~="bg-amber-500/10"] {
   background-color: var(--portal-accent-soft);
 }
@@ -431,20 +440,31 @@ html:has([data-portal]) [class~="bg-amber-500/10"] {
 html:has([data-portal]) [class~="bg-emerald-950"],
 html:has([data-portal]) [class~="bg-emerald-950/10"],
 html:has([data-portal]) [class~="bg-emerald-950/20"],
+html:has([data-portal]) [class~="bg-emerald-950/25"],
 html:has([data-portal]) [class~="bg-emerald-950/30"],
 html:has([data-portal]) [class~="bg-emerald-950/40"],
 html:has([data-portal]) [class~="bg-emerald-950/60"],
 html:has([data-portal]) [class~="bg-emerald-950/80"],
+html:has([data-portal]) [class~="bg-emerald-900/40"],
 html:has([data-portal]) [class~="bg-emerald-500/10"] {
   background-color: var(--portal-success-soft);
 }
 
 html:has([data-portal]) [class~="bg-rose-950"],
+html:has([data-portal]) [class~="bg-rose-950/10"],
+html:has([data-portal]) [class~="bg-rose-950/20"],
+html:has([data-portal]) [class~="bg-rose-950/30"],
+html:has([data-portal]) [class~="bg-rose-950/40"],
+html:has([data-portal]) [class~="bg-rose-900/50"],
 html:has([data-portal]) [class~="bg-rose-500/10"] {
   background-color: var(--portal-danger-soft);
 }
 
 html:has([data-portal]) [class~="bg-blue-950"],
+html:has([data-portal]) [class~="bg-blue-950/10"],
+html:has([data-portal]) [class~="bg-blue-950/30"],
+html:has([data-portal]) [class~="bg-blue-950/40"],
+html:has([data-portal]) [class~="bg-blue-950/60"],
 html:has([data-portal]) [class~="bg-blue-500/10"] {
   background-color: var(--portal-info-soft);
 }
@@ -457,6 +477,26 @@ html:has([data-portal]) [class~="bg-[#061817]/60"] {
 
 html:has([data-portal]) [class~="hover:bg-[#061817]/60"]:hover {
   background-color: var(--portal-success-soft);
+}
+
+html:has([data-portal]) [class*="hover:bg-amber-950/"]:hover,
+html:has([data-portal]) [class*="focus:bg-amber-950/"]:focus {
+  background-color: var(--portal-accent-soft);
+}
+
+html:has([data-portal]) [class*="hover:bg-emerald-950/"]:hover,
+html:has([data-portal]) [class*="focus:bg-emerald-950/"]:focus,
+html:has([data-portal]) [class*="hover:bg-emerald-900/"]:hover {
+  background-color: var(--portal-success-soft);
+}
+
+html:has([data-portal]) [class*="hover:bg-rose-950/"]:hover,
+html:has([data-portal]) [class*="hover:bg-rose-900/"]:hover {
+  background-color: var(--portal-danger-soft);
+}
+
+html:has([data-portal]) [class*="hover:bg-blue-950/"]:hover {
+  background-color: var(--portal-info-soft);
 }
 
 html:has([data-portal]) [class~="bg-[#1a160c]"],

@@ -138,8 +138,15 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("expanded-document-row").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(244, 246, 250)");
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
       assert.equal(await page.getByTestId("cleared-badge").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 243, 199)");
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 226, 226)");
+      assert.equal(await page.getByTestId("blue-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(219, 234, 254)");
       await page.getByTestId("cleared-card").hover();
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
+      await page.getByTestId("amber-status").hover();
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 243, 199)");
+      await page.getByTestId("rose-status").hover();
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 226, 226)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
@@ -163,6 +170,9 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       await assertContrast(page, '[data-testid="expanded-document-row"]', '[data-testid="expanded-document-row"]', 4.5, "expanded document text");
       await assertContrast(page, '[data-testid="cleared-card"]', '[data-testid="cleared-card"]', 4.5, "cleared card text");
       await assertContrast(page, '[data-testid="cleared-badge"]', '[data-testid="cleared-badge"]', 4.5, "cleared badge text");
+      await assertContrast(page, '[data-testid="amber-status"]', '[data-testid="amber-status"]', 4.5, "amber status text");
+      await assertContrast(page, '[data-testid="rose-status"]', '[data-testid="rose-status"]', 4.5, "rose status text");
+      await assertContrast(page, '[data-testid="blue-status"]', '[data-testid="blue-status"]', 4.5, "blue status text");
       await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "large text");
       await assertContrast(page, 'button[aria-label="Switch to dark mode"]', '[data-portal]', 3, "theme toggle");
 
@@ -220,8 +230,15 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("expanded-document-row").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(6, 10, 20)");
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(17, 53, 43)");
       assert.equal(await page.getByTestId("cleared-badge").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(17, 53, 43)");
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(55, 42, 19)");
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(63, 30, 38)");
+      assert.equal(await page.getByTestId("blue-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(23, 37, 84)");
       await page.getByTestId("cleared-card").hover();
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(17, 53, 43)");
+      await page.getByTestId("amber-status").hover();
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(55, 42, 19)");
+      await page.getByTestId("rose-status").hover();
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(63, 30, 38)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");
@@ -238,6 +255,9 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       await assertContrast(page, '[data-testid="expanded-document-row"]', '[data-testid="expanded-document-row"]', 4.5, "dark expanded document text");
       await assertContrast(page, '[data-testid="cleared-card"]', '[data-testid="cleared-card"]', 4.5, "dark cleared card text");
       await assertContrast(page, '[data-testid="cleared-badge"]', '[data-testid="cleared-badge"]', 4.5, "dark cleared badge text");
+      await assertContrast(page, '[data-testid="amber-status"]', '[data-testid="amber-status"]', 4.5, "dark amber status text");
+      await assertContrast(page, '[data-testid="rose-status"]', '[data-testid="rose-status"]', 4.5, "dark rose status text");
+      await assertContrast(page, '[data-testid="blue-status"]', '[data-testid="blue-status"]', 4.5, "dark blue status text");
       await assertContrast(page, '[data-testid="large-text"]', '[data-testid="large-text"]', 3, "dark large text");
       await assertContrast(page, 'button[aria-label="Switch to light mode"]', '[data-portal]', 3, "dark theme toggle");
       await waitForStoredTheme(page, "dark");
