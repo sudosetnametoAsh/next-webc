@@ -68,6 +68,7 @@ export interface SubmissionModalProps {
     };
     [key: string]: any;
   } | null;
+  onReopen?: () => Promise<void>;
   onUpdateStatus: (newStatus: "Cleared" | "Flagged", comment: string) => Promise<void>;
   /** Rejects the submission, clears the student's files, and sets status back to Pending */
   onRejectWithResubmit?: (comment: string) => Promise<void>;
@@ -144,6 +145,7 @@ export default function SubmissionModal({
   comments,
   aiAuditReport,
   onUpdateStatus,
+  onReopen,
   onRejectWithResubmit,
   onUpdateFeedback,
   onEdit,
@@ -164,6 +166,7 @@ export default function SubmissionModal({
 }: SubmissionModalProps) {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReopenConfirm, setShowReopenConfirm] = useState(false);
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
   const [showFlaggedApproveConfirm, setShowFlaggedApproveConfirm] = useState(false);
   const [commentError, setCommentError] = useState("");
@@ -255,8 +258,22 @@ export default function SubmissionModal({
     }
   };
 
+  const handleConfirmReopen = async () => {
+    if (!onReopen) return;
+    setIsSubmitting(true);
+    try {
+      await onReopen();
+      resetAndClose();
+    } catch (error) {
+      console.error("Failed to reopen requirement:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const resetAndClose = () => {
     setComment("");
+    setShowReopenConfirm(false);
     setShowRejectConfirm(false);
     setShowFlaggedApproveConfirm(false);
     setCommentError("");
@@ -329,7 +346,11 @@ export default function SubmissionModal({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-4">
-            {status === "Pending" ? (
+            {status === "Cleared" ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Cleared
+              </span>
+            ) : status === "Pending" ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-slate-800/80 px-2.5 py-1 text-xs font-bold text-slate-300">
                 <Clock className="h-3.5 w-3.5 text-slate-400" /> Pending
               </span>
@@ -517,12 +538,12 @@ export default function SubmissionModal({
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
-                            file.type === "pdf"
+                            (file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url))
                               ? "border-rose-500/30 bg-rose-500/15 text-rose-400 group-hover:border-rose-500/50"
                               : "border-blue-500/30 bg-blue-500/15 text-blue-400 group-hover:border-blue-500/50"
                           }`}
                         >
-                          {file.type === "pdf" ? <FileText size={18} /> : <ImageIcon size={18} />}
+                          {(file.type === "pdf" || /\.(docx|txt|csv)(?:$|[?#])/i.test(file.name || file.url)) ? <FileText size={18} /> : <ImageIcon size={18} />}
                         </div>
 
                         <div className="min-w-0 flex-1">
@@ -549,8 +570,8 @@ export default function SubmissionModal({
             </div>
           )}
 
-          {/* Feedback Section at the bottom (Hidden on Pending status) */}
-          {status !== "Pending" && (
+          {/* Feedback Section (Hidden for pending and cleared tasks) */}
+          {status !== "Pending" && status !== "Cleared" && (
             status === "Rejected" ? (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -658,7 +679,66 @@ export default function SubmissionModal({
         </div>
 
         {/* Footer Actions */}
-        {showFlaggedApproveConfirm ? (
+        {status === "Cleared" ? (
+          /* Cleared State Footer */
+          !showReopenConfirm ? (
+            <div className="p-4 border-t border-slate-800 bg-[#070c18] flex gap-3 sm:flex-row flex-col">
+              <button
+                type="button"
+                onClick={() => setShowReopenConfirm(true)}
+                disabled={isSubmitting || !onReopen}
+                className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium rounded-xl transition-colors focus:ring-2 focus:ring-slate-600 focus:outline-none cursor-pointer text-center disabled:opacity-50 flex items-center justify-center gap-2 text-xs sm:text-sm border border-slate-700/60"
+              >
+                <RotateCcw size={15} />
+                <span>Reopen (Mark Pending)</span>
+              </button>
+              <button
+                type="button"
+                onClick={resetAndClose}
+                disabled={isSubmitting}
+                className="flex-1 py-3 px-4 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+              >
+                <CheckCircle2 size={16} />
+                <span>Requirement Cleared</span>
+              </button>
+            </div>
+          ) : (
+            <div className="p-4 border-t border-amber-500/30 bg-amber-500/10 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400">
+                  <RotateCcw size={15} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-white">
+                    Reopen this requirement?
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                    This will set the status back to Pending for the {personLabel}.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3 sm:flex-row flex-col">
+                <button
+                  type="button"
+                  onClick={() => setShowReopenConfirm(false)}
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl transition-colors focus:ring-2 focus:ring-slate-600 focus:outline-none cursor-pointer text-center text-xs sm:text-sm disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmReopen}
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 px-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 focus:ring-2 focus:ring-amber-500/50 focus:outline-none cursor-pointer disabled:opacity-50 text-xs sm:text-sm"
+                >
+                  {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : null}
+                  <span>Confirm Reopen</span>
+                </button>
+              </div>
+            </div>
+          )
+        ) : showFlaggedApproveConfirm ? (
           /* Flagged Approval Confirmation View */
           <div className="p-4 border-t border-amber-500/40 bg-amber-500/10 space-y-3 animate-in fade-in duration-150">
             <div className="flex items-start gap-3">

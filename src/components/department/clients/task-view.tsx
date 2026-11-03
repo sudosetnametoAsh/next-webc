@@ -732,13 +732,12 @@ export default function TaskView({
     }
   };
 
-  const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged", comment: string) => {
+  const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged" | "Pending", comment: string) => {
     if (activeTaskId === null) return;
     const targetTaskId = activeTaskId; // Capture ID before modal closes
     const targetTask = tasks.find((t) => t.assigned_task_id === targetTaskId);
 
     setTasks((prev) => prev.map((t) => t.assigned_task_id === targetTaskId ? { ...t, status: newStatus, comments: comment } : t));
-    closeModal();
     try {
       const { error } = await supabase.from("clearance_tasks").update({ status: newStatus, comments: comment }).eq("assigned_task_id", targetTaskId);
       if (error) throw error;
@@ -796,7 +795,13 @@ export default function TaskView({
         }
       }
     } catch (error) {
+      if (targetTask) {
+        setTasks((prev) => prev.map((task) =>
+          task.assigned_task_id === targetTaskId ? targetTask : task
+        ));
+      }
       console.error("Error updating task status:", error);
+      throw error;
     }
   };
 
@@ -1450,6 +1455,7 @@ export default function TaskView({
         comments={tasks.find((t) => t.assigned_task_id === activeTaskId)?.comments}
         aiAuditReport={aiAuditReport}
         onUpdateStatus={handleUpdateStatus}
+        onReopen={() => handleUpdateStatus("Pending", tasks.find((t) => t.assigned_task_id === activeTaskId)?.comments ?? "")}
         onRejectWithResubmit={handleRejectWithResubmit}
         onUpdateFeedback={handleUpdateFeedback}
         onEdit={(t) => {

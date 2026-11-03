@@ -138,7 +138,10 @@ export function useClearanceData(
 
   const query = useQuery({
     queryKey,
-    queryFn: () => fetchClearanceData(studentId, false),
+    // Realtime invalidation must also bypass the server's three-minute cache.
+    // Staff approvals/rejections can write directly to Supabase, so they do not
+    // pass through an API route that invalidates that cache.
+    queryFn: () => fetchClearanceData(studentId, true),
     staleTime: 1000 * 60 * 3, // 3 minutes stale time
     gcTime: 1000 * 60 * 10,   // 10 minutes cache garbage collection
     initialData,
