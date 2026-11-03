@@ -50,6 +50,7 @@ export interface ClientOverlayData {
 interface ClientClearanceOverlayProps {
   client: ClientOverlayData | null
   onClose: () => void
+  actions?: React.ReactNode
 }
 
 function getInitials(name: string): string {
@@ -90,13 +91,14 @@ function formatSignedDate(dateStr?: string | null): string | null {
 export default function ClientClearanceOverlay({
   client,
   onClose,
+  actions,
 }: ClientClearanceOverlayProps) {
   // Close on Escape key press & prevent background scroll
   useEffect(() => {
     if (!client) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         onClose()
       }
     }
@@ -150,14 +152,17 @@ export default function ClientClearanceOverlay({
               CLIENT CLEARANCE DOSSIER
             </span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
-            aria-label="Close drawer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            {actions}
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close drawer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* ── 2. Client Profile Header ── */}

@@ -15,6 +15,7 @@ import ClientFilterToolbar, { ClientType, ClientStatus, formatSectionCode } from
 import ClientClearanceOverlay, { DepartmentClearanceProgress } from '@/components/admin/client-clearance-overlay'
 import TablePaginationFooter from '@/components/admin/table-pagination-footer'
 import ClientEnrollmentModal from '@/components/admin/client-enrollment-modal'
+import ClientActions from '@/components/admin/client-actions'
 import { ToastContainer } from '@/components/admin/toast'
 import { useToast } from '@/components/admin/use-toast'
 import { isClearanceOverdue } from '@/lib/clearance-overdue'
@@ -666,9 +667,10 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
   // Pagination slice
   const totalPages = Math.ceil(filteredClients.length / PAGE_SIZE)
+  const currentPage = Math.min(studentPage, Math.max(1, totalPages))
   const paginated = filteredClients.slice(
-    (studentPage - 1) * PAGE_SIZE,
-    studentPage * PAGE_SIZE
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   )
 
   if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates || isFetchingStudentTemplates) {
@@ -793,7 +795,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                 <th className="px-6 py-4 text-center text-[11px] font-bold tracking-wider uppercase text-slate-400">
                   STATUS
                 </th>
-                <th className="w-12 px-4 py-4 text-center"></th>
+                <th className="w-12 px-4 py-4 text-center"><span className="sr-only">View client</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
@@ -881,7 +883,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                         />
                       </td>
 
-                      {/* Chevron Column - Centered */}
+                      {/* View client */}
                       <td className="w-12 px-4 py-4 text-center">
                         <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors inline-block" />
                       </td>
@@ -971,7 +973,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
         {/* Pagination Footer */}
         <TablePaginationFooter
-          currentPage={studentPage}
+          currentPage={currentPage}
           pageSize={PAGE_SIZE}
           totalItems={filteredClients.length}
           itemLabel={filteredClients.length === 1 ? 'client' : 'clients'}
@@ -982,6 +984,16 @@ function AdminClientsContent({ setAdminPage }: Props) {
       {/* ── Client Clearance Sidebar Overlay ── */}
       <ClientClearanceOverlay
         client={selectedClient}
+        actions={selectedClient && (
+          <ClientActions
+            key={`${selectedClient.type}-${selectedClient.id}`}
+            client={selectedClient}
+            onSuccess={(message, result) => {
+              success(message)
+              setSelectedClient((current) => result.deleted ? null : current && { ...current, name: result.name })
+            }}
+          />
+        )}
         onClose={() => setSelectedClient(null)}
       />
 
