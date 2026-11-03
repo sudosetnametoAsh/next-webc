@@ -28,6 +28,7 @@ export function useSignClient() {
       toast.error(error.message);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["department-client-progress"] });
       queryClient.invalidateQueries({ queryKey: ["department-clients"] });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });

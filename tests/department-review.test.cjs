@@ -245,7 +245,7 @@ test('department events refresh dashboard, section clients, and staff without lo
   eventCallback();
   release();
   await new Promise(setImmediate);
-  for (const key of ['department-dashboard', 'department-clients', 'clients', 'staff-clearance', 'client-tasks']) {
+  for (const key of ['department-dashboard', 'department-clients', 'clients', 'staff-clearance', 'client-tasks', 'department-client-progress']) {
     assert.equal(invalidated.filter((value) => value === key).length, 2, key);
   }
   assert.equal(refreshed, 1);

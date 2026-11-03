@@ -24,7 +24,7 @@ export default function RealtimeDashboardListener() {
         do {
           pending = false;
           // Include the section and staff lists used by the department context.
-          await Promise.all(["department-clients", "department-dashboard", "clients", "staff-clearance", "client-tasks"].map(
+          await Promise.all(["department-clients", "department-dashboard", "clients", "staff-clearance", "client-tasks", "department-client-progress"].map(
             (key) => queryClient.invalidateQueries({ queryKey: [key] }),
           ));
         } while (pending && !disposed);

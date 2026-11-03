@@ -25,8 +25,11 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
           name === 'next/navigation' ? `const router={push(){},refresh(){},prefetch(){}}; export const useRouter=()=>router; export const usePathname=()=>'/department/dashboard';` :
           name.includes('deparment') ? `export const useDepartmentContext=()=>({userId:'test-officer',departmentName:'Clinic'});` :
           name.includes('department-nav-context') ? `export const useDepartmentNav=()=>({toggleMobile(){}});` :
-          `const channels=new Set(); window.emitTestNotification=(row)=>{for(const channel of channels)for(const callback of channel.callbacks)callback({eventType:'INSERT',new:row})};
-           const client={channel(){const channel={callbacks:[],on(event,filter,callback){if(filter.table==='notifications')this.callbacks.push(callback);return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
+          `const channels=new Set();
+           const emit=(table,row)=>{for(const channel of channels)for(const binding of channel.callbacks)if(binding.table===table)binding.callback({eventType:'INSERT',new:row})};
+           window.emitTestNotification=(row)=>emit('notifications',row);
+           window.emitTestRecord=(row)=>emit('clearance_records',row);
+           const client={channel(){const channel={callbacks:[],on(event,filter,callback){this.callbacks.push({table:filter.table,callback});return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
            export const createClient=()=>client;`,
         }));
       } }],
@@ -34,7 +37,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     const css = await postcss([tailwind({ base: root })]).process(await fs.readFile(path.join(root, 'src/app/globals.css'), 'utf8'), { from: path.join(root, 'src/app/globals.css') });
     await fs.writeFile(path.join(temp, 'globals.css'), css.css);
     server = http.createServer(async (req, res) => {
-      if (req.url === '/') {
+      if (new URL(req.url, 'http://localhost').pathname === '/') {
         res.setHeader('Content-Type', 'text/html');
         res.end('<!doctype html><html class="dark"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/globals.css"><div id="root"></div><script src="/department-review.js"></script></html>');
       } else if (req.url === '/department-review.js' || req.url === '/globals.css') {
@@ -48,6 +51,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     let failRejection = true, requestBody, notificationDelay = 0;
+    let failProgress = true, progressDelay = 500, clinicStatus = 'Pending';
     let notifications = [];
     await page.route('**/api/student/notifications?*', async (route) => {
       const snapshot = notifications;
@@ -59,6 +63,21 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await route.fulfill(failRejection
         ? { status: 500, json: { error: 'Could not save rejection. Please try again.' } }
         : { json: { data: { status: 'Rejected', comments: requestBody.reason } } });
+    });
+    await page.route('**/api/department/presets', (route) => route.fulfill({ json: { data: [], id: 'test-officer' } }));
+    await page.route('**/api/department/clients/sign', (route) => {
+      clinicStatus = 'Signed';
+      return route.fulfill({ json: { data: [], message: 'Clearances signed successfully' } });
+    });
+    await page.route('**/api/department/clients/progress?*', async (route) => {
+      assert.equal(new URL(route.request().url()).searchParams.get('studentId'), 'test-client');
+      if (progressDelay) await new Promise((resolve) => setTimeout(resolve, progressDelay));
+      await route.fulfill(failProgress ? { status: 500, json: { error: 'Could not load department status. Please try again.' } } : {
+        json: { data: [
+          { clearance_id: 1, dept_name: 'Cashier', tier: 1, status: 'Signed' },
+          { clearance_id: 2, dept_name: 'Clinic', tier: 2, status: clinicStatus },
+        ] },
+      }).catch(() => {});
     });
     const firstResponse = page.waitForResponse((response) => response.url().includes('/api/student/notifications?'));
     await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -88,8 +107,27 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.evaluate(() => window.emitTestNotification({ notif_id: 412, user_id: 'another-officer',
       title: 'Other officer private alert', created_at: new Date().toISOString(), is_read: false }));
     assert.equal(await page.getByText('Other officer private alert').count(), 0);
+
+    // Exercise the real TaskView rather than only its data transformation.
+    await page.goto(`http://127.0.0.1:${server.address().port}/?progress`);
+    const progressSection = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Department Status', exact: true }) });
+    await progressSection.getByRole('status').waitFor();
+    assert.equal(await progressSection.getByText('No clearance records found.').count(), 0, 'loading must not look like an empty result');
+    await progressSection.getByRole('alert').waitFor();
+    assert.equal(await progressSection.getByText('No clearance records found.').count(), 0, 'a failed query must not look like an empty result');
+    failProgress = false;
+    progressDelay = 0;
+    await progressSection.getByRole('button', { name: 'Retry', exact: true }).click();
+    await progressSection.getByText('1 / 2 Cleared', { exact: true }).waitFor();
+    assert.equal(await progressSection.getByText('Clinic', { exact: true }).isVisible(), true);
+    await page.getByRole('button', { name: 'Sign Clearance (1)', exact: true }).click();
+    await progressSection.getByText('2 / 2 Cleared', { exact: true }).waitFor();
+    clinicStatus = 'Pending';
+    await page.evaluate(() => window.emitTestRecord({ user_id: 'test-client', status: 'Pending' }));
+    await progressSection.getByText('1 / 2 Cleared', { exact: true }).waitFor();
     assert.deepEqual(errors, [], 'no React runtime errors');
     console.log(`PASS: rejection failure stays open, success persists and closes; incoming popup rendered in ${elapsed}ms despite a ${notificationDelay}ms API delay; another officer's alert excluded.`);
+    console.log('PASS: TaskView shows loading and query errors, retries successfully, and updates progress after signing and realtime changes without reloading.');
     await page.close();
   } finally {
     await browser?.close();

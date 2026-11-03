@@ -5,13 +5,20 @@ import { Toaster } from "sonner";
 import DepartmentHeader from "@/components/department/header";
 import SubmissionModal from "@/components/department/clients/sumission-modal";
 import { rejectSubmission } from "@/lib/api/reject-submission";
+import TaskView from "@/components/department/clients/task-view";
+import RealtimeDashboardListener from "@/components/department/dashboard-listener";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 function ReviewFixture() {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("Flagged");
+  const showProgress = new URLSearchParams(location.search).has("progress");
   return <QueryClientProvider client={queryClient}>
     <DepartmentHeader user_id="test-officer" user_name="Test Officer" department="Clinic" />
+    {showProgress ? <>
+      <RealtimeDashboardListener />
+      <TaskView studentTasks={[]} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
+    </> : <>
     <main>
       <output data-testid="saved-status">{status}</output>
       <button onClick={() => setOpen(true)}>Review flagged submission</button>
@@ -24,6 +31,7 @@ function ReviewFixture() {
         const saved = await rejectSubmission(12, reason);
         setStatus(saved.status);
       }} />
+    </>}
     <Toaster />
   </QueryClientProvider>;
 }

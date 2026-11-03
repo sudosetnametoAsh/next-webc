@@ -1,5 +1,6 @@
 "use client";
 
+import { useClientClearanceProgress } from "@/hooks/department/use-client-clearance-progress";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -164,14 +165,6 @@ const getTaskOrderRank = (status: TaskStatus): number => {
   }
 };
 
-type ClearanceProgress = {
-  dept_name: string;
-  status: "Signed" | "Pending" | "Incomplete";
-  signed_at?: string;
-  tier?: number;
-  icon_name?: string;
-};
-
 export default function TaskView({
   studentTasks,
   studentName,
@@ -233,7 +226,10 @@ export default function TaskView({
   const [isLoading, setIsLoading] = useState(false);
   const [fetchedFiles, setFetchedFiles] = useState<SubmittedFile[]>([]);
   const [lastUpdatedDate, setLastUpdatedDate] = useState<string>("");
-  const [progress, setProgress] = useState<ClearanceProgress[]>([]);
+  const {
+    data: progress = [], isPending: progressLoading, error: progressError,
+    refetch: refreshProgress, isFetching: progressFetching,
+  } = useClientClearanceProgress(studentId);
   const [aiAuditReport, setAiAuditReport] = useState<any>(null);
   const [activeInPersonTaskId, setActiveInPersonTaskId] = useState<number | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<Tasks | null>(null);
@@ -423,42 +419,6 @@ export default function TaskView({
     setTasks(studentTasks);
   }, [studentTasks]);
 
-  useEffect(() => {
-    const fetchProgress = async () => {
-      if (!studentId) return;
-      const { data, error } = await supabase
-        .from("clearance_records")
-        .select(`
-          status,
-          signed_at,
-          clearance_templates (
-            dept_id,
-            tier,
-            is_active,
-            departments:clearance_departments ( dept_name, icon_name )
-          )
-        `)
-        .eq("user_id", studentId);
-
-      if (!error && data) {
-        const formatted: ClearanceProgress[] = data
-          .filter((item: any) => item.clearance_templates?.is_active !== false)
-          .map((item: any) => ({
-            dept_name: item.clearance_templates?.departments?.dept_name || "Unknown Department",
-            status: item.status,
-            signed_at: item.signed_at,
-            tier: item.clearance_templates?.tier ?? 1,
-            icon_name: item.clearance_templates?.departments?.icon_name,
-          }))
-          .sort((a: any, b: any) => {
-            if (a.tier !== b.tier) return a.tier - b.tier;
-            return a.dept_name.localeCompare(b.dept_name);
-          });
-        setProgress(formatted);
-      }
-    };
-    fetchProgress();
-  }, [studentId, clientStatus, supabase]);
 
   useEffect(() => {
     const channel = supabase
@@ -1013,12 +973,22 @@ export default function TaskView({
           <div className="flex items-center justify-between mb-3 w-full">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Department Status</h3>
             <span className="text-xs font-mono text-slate-400">
-              {progress.filter((p) => p.status === "Signed").length} / {progress.length} Cleared
+              {!progressLoading && !progressError && `${progress.filter((p) => p.status === "Signed").length} / ${progress.length} Cleared`}
             </span>
           </div>
 
           <div className="flex flex-col gap-2 w-full">
-            {progress.length === 0 ? (
+            {progressLoading ? (
+              <p role="status" className="px-4 py-8 text-center text-xs text-slate-400">Loading department status…</p>
+            ) : progressError ? (
+              <div role="alert" className="rounded-xl border border-rose-500/30 px-4 py-6 text-center text-xs text-rose-300">
+                <p>{progressError.message}</p>
+                <button type="button" disabled={progressFetching} onClick={() => void refreshProgress()}
+                  className="mt-3 rounded-lg border border-slate-700 px-3 py-2 text-slate-200 disabled:opacity-50">
+                  {progressFetching ? "Retrying…" : "Retry"}
+                </button>
+              </div>
+            ) : progress.length === 0 ? (
               <div className="rounded-xl border border-dashed border-slate-800 bg-[#070c18]/50 px-4 py-8 text-center text-xs text-slate-500">
                 No clearance records found.
               </div>
@@ -1032,7 +1002,7 @@ export default function TaskView({
 
                 return (
                   <div
-                    key={item.dept_name}
+                    key={item.clearance_id}
                     className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-ui duration-200 w-full overflow-hidden ${
                       isCurrent
                         ? "border-amber-500/40 bg-amber-500/10 shadow-xs"
@@ -1041,7 +1011,7 @@ export default function TaskView({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 border border-slate-700/60">
-                        {getDeptIcon(item.dept_name, item.icon_name)}
+                        {getDeptIcon(item.dept_name, item.icon_name || undefined)}
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2">
