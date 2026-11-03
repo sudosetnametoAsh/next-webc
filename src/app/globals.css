@@ -45,6 +45,22 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-portal-canvas: var(--portal-canvas);
+  --color-portal-surface: var(--portal-surface);
+  --color-portal-inset: var(--portal-inset);
+  --color-portal-foreground: var(--portal-foreground);
+  --color-portal-muted: var(--portal-muted);
+  --color-portal-border: var(--portal-border);
+  --color-portal-accent: var(--portal-accent);
+  --color-portal-accent-soft: var(--portal-accent-soft);
+  --color-portal-success: var(--portal-success);
+  --color-portal-success-soft: var(--portal-success-soft);
+  --color-portal-warning: var(--portal-warning);
+  --color-portal-warning-soft: var(--portal-warning-soft);
+  --color-portal-danger: var(--portal-danger);
+  --color-portal-danger-soft: var(--portal-danger-soft);
+  --color-portal-info: var(--portal-info);
+  --color-portal-info-soft: var(--portal-info-soft);
 
   --breakpoint-3xl: 1920px;
 }
@@ -122,6 +138,7 @@
 }
 
 :root {
+  color-scheme: light;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -154,9 +171,26 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --portal-canvas: #f4f6fa;
+  --portal-surface: #ffffff;
+  --portal-inset: #f8fafc;
+  --portal-foreground: #172033;
+  --portal-muted: #526078;
+  --portal-border: #dce2eb;
+  --portal-accent: #92400e;
+  --portal-accent-soft: #fef3c7;
+  --portal-success: #166534;
+  --portal-success-soft: #dcfce7;
+  --portal-warning: #92400e;
+  --portal-warning-soft: #fef3c7;
+  --portal-danger: #991b1b;
+  --portal-danger-soft: #fee2e2;
+  --portal-info: #1d4ed8;
+  --portal-info-soft: #dbeafe;
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -188,6 +222,60 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --portal-canvas: #060a14;
+  --portal-surface: #0a101f;
+  --portal-inset: #070c18;
+  --portal-foreground: #f1f5f9;
+  --portal-muted: #94a3b8;
+  --portal-border: #253047;
+  --portal-accent: #fbbf24;
+  --portal-accent-soft: #372a13;
+  --portal-success: #86efac;
+  --portal-success-soft: #11352b;
+  --portal-warning: #fbbf24;
+  --portal-warning-soft: #372a13;
+  --portal-danger: #fca5a5;
+  --portal-danger-soft: #3f1e26;
+  --portal-info: #93c5fd;
+  --portal-info-soft: #172554;
+}
+
+html:has([data-portal]) {
+  --portal-canvas: #f4f6fa;
+  --portal-surface: #ffffff;
+  --portal-inset: #f8fafc;
+  --portal-foreground: #172033;
+  --portal-muted: #526078;
+  --portal-border: #dce2eb;
+  --portal-accent: #92400e;
+  --portal-accent-soft: #fef3c7;
+  --portal-success: #166534;
+  --portal-success-soft: #dcfce7;
+  --portal-warning: #92400e;
+  --portal-warning-soft: #fef3c7;
+  --portal-danger: #991b1b;
+  --portal-danger-soft: #fee2e2;
+  --portal-info: #1d4ed8;
+  --portal-info-soft: #dbeafe;
+}
+
+html.dark:has([data-portal]) {
+  --portal-canvas: #060a14;
+  --portal-surface: #0a101f;
+  --portal-inset: #070c18;
+  --portal-foreground: #f1f5f9;
+  --portal-muted: #94a3b8;
+  --portal-border: #253047;
+  --portal-accent: #fbbf24;
+  --portal-accent-soft: #372a13;
+  --portal-success: #86efac;
+  --portal-success-soft: #11352b;
+  --portal-warning: #fbbf24;
+  --portal-warning-soft: #372a13;
+  --portal-danger: #fca5a5;
+  --portal-danger-soft: #3f1e26;
+  --portal-info: #93c5fd;
+  --portal-info-soft: #172554;
 }
 
 @layer base {

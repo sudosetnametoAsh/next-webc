@@ -220,7 +220,7 @@ export default function AddTask({
                 min={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
+                className="border-slate-700 bg-[#0a101f] text-slate-200 focus-visible:ring-amber-400/40"
               />
               <p className="text-xs text-slate-500">
                 {dueDate

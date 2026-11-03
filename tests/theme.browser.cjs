@@ -4,6 +4,8 @@ const path = require("node:path");
 const os = require("node:os");
 const http = require("node:http");
 const esbuild = require("esbuild");
+const postcss = require("postcss");
+const tailwind = require("@tailwindcss/postcss");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 
 const root = path.resolve(__dirname, "..");
@@ -42,17 +44,22 @@ async function waitForStoredTheme(page, expected) {
         },
       ],
     });
+    const css = await postcss([tailwind({ base: root })]).process(
+      await fs.readFile(path.join(root, "src/app/globals.css"), "utf8"),
+      { from: path.join(root, "src/app/globals.css") },
+    );
+    await fs.writeFile(path.join(temp, "globals.css"), css.css);
 
     server = http.createServer(async (req, res) => {
       try {
         const file = path.join(temp, path.basename(new URL(req.url, "http://localhost").pathname));
         const content = await fs.readFile(file);
-        res.setHeader("Content-Type", "text/javascript");
+        res.setHeader("Content-Type", file.endsWith(".css") ? "text/css" : "text/javascript");
         res.end(content);
       } catch {
         if (new URL(req.url, "http://localhost").pathname === "/") {
           res.setHeader("Content-Type", "text/html");
-          res.end('<!doctype html><html><head><meta name="color-scheme" content="light dark"></head><body><div id="root"></div><script src="/theme.js"></script></body></html>');
+          res.end('<!doctype html><html><head><meta name="color-scheme" content="light dark"><link rel="stylesheet" href="/globals.css"></head><body><div id="root"></div><script src="/theme.js"></script></body></html>');
         } else {
           res.statusCode = 404;
           res.end();
@@ -72,9 +79,13 @@ async function waitForStoredTheme(page, expected) {
       const page = await context.newPage();
       await page.goto(`${origin}/?area=admin`);
       await waitForClass(page, "light");
+      assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(244, 246, 250)");
+      assert.equal(await page.getByTestId("theme-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
+      assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible(), true);
       await page.getByRole("button", { name: "Switch to dark mode" }).click();
       await waitForClass(page, "dark");
+      assert.equal(await page.locator("[data-portal]").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(6, 10, 20)");
       await waitForStoredTheme(page, "dark");
       await page.reload();
       await waitForClass(page, "dark");

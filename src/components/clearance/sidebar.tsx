@@ -143,17 +143,17 @@ export default function Sidebar({ user }: StudentSidebarProps) {
   const renderContent = (isMobile = false) => (
     <div className="flex h-full flex-col">
       {/* ── Brand Header ── */}
-      <div className="flex flex-col gap-4 border-b border-slate-800/80 p-5">
+      <div className="flex flex-col gap-4 border-b border-portal-border p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F59E0B] font-black text-slate-950 shadow-md shadow-amber-500/20">
               <span className="text-xs font-black tracking-tight">STI</span>
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-base font-bold tracking-tight text-white">
+                <span className="text-base font-bold tracking-tight text-portal-foreground">
                 STI WebC
               </span>
-              <span className="text-xs font-medium text-slate-400">
+              <span className="text-xs font-medium text-portal-muted">
                 Clearance Portal
               </span>
             </div>
@@ -280,17 +280,17 @@ export default function Sidebar({ user }: StudentSidebarProps) {
       </nav>
 
       {/* ── Sidebar Footer with Logout ── */}
-      <div className="border-t border-slate-800/80 p-3">
-        <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-slate-800/40">
+      <div className="border-t border-portal-border p-3">
+        <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-portal-inset">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-slate-200 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-portal-border bg-portal-inset text-xs font-bold text-portal-foreground shadow-sm">
               {avatarInitials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-slate-200">
+              <p className="truncate text-xs font-semibold text-portal-foreground">
                 {userName}
               </p>
-              <p className="text-[11px] font-medium text-slate-400">
+              <p className="text-[11px] font-medium text-portal-muted">
                 {userRole}
               </p>
             </div>
@@ -311,7 +311,7 @@ export default function Sidebar({ user }: StudentSidebarProps) {
   return (
     <>
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden h-dvh w-64 flex-col border-r border-slate-800/80 bg-[#060a14] text-slate-200 lg:flex lg:w-72 shrink-0 select-none">
+      <aside className="hidden h-dvh w-64 flex-col border-r border-portal-border bg-portal-surface text-portal-foreground lg:flex lg:w-72 shrink-0 select-none">
         {renderContent(false)}
       </aside>
 

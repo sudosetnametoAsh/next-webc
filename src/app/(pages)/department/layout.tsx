@@ -33,7 +33,7 @@ export default async function DepartmentRoot({
       <DepartmentProvider departmentName={session.department} userId={session.user_id}>
         <DepartmentNavProvider>
           <RealtimeDashboardListener />
-          <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
+          <div data-portal="department" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
             <Sidebar
               department={session.department}
               user_name={session.user_name}

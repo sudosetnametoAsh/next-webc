@@ -16,7 +16,7 @@ export function ThemeToggle() {
         type="button"
         aria-label="Theme switcher"
         disabled
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 opacity-70"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-portal-muted opacity-70"
       />
     );
   }
@@ -29,7 +29,7 @@ export function ThemeToggle() {
       type="button"
       aria-label={`Switch to ${nextTheme} mode`}
       onClick={() => setTheme(nextTheme)}
-      className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-amber-400 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/70"
+      className="flex h-9 w-9 items-center justify-center rounded-lg text-portal-muted transition-colors hover:bg-portal-inset hover:text-portal-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent"
     >
       {isDark ? <Sun className="h-4 w-4 sm:h-4.5 sm:w-4.5" /> : <Moon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />}
     </button>

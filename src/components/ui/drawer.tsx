@@ -60,7 +60,7 @@ export function Drawer({
         onCancel={(event) => { event.preventDefault(); onClose(); }}
         onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
       >
-        <div ref={setContainer} className={cn("app-drawer-panel flex h-full min-h-0 flex-col bg-[#060a14] text-slate-200 shadow-2xl", className)}>
+        <div ref={setContainer} className={cn("app-drawer-panel flex h-full min-h-0 flex-col bg-portal-surface text-portal-foreground shadow-2xl", className)}>
           <h2 id={titleId} className="sr-only">{title}</h2>
           {children}
         </div>

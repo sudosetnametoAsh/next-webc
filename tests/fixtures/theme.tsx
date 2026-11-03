@@ -8,8 +8,12 @@ const area = new URLSearchParams(window.location.search).get("area") || "admin";
 function App() {
   return (
     <ThemeProvider>
-      <div data-portal={area === "admin" || area === "department" || area === "clearance" ? area : undefined}>
+      <div
+        data-portal={area === "admin" || area === "department" || area === "clearance" ? area : undefined}
+        className="portal-shell bg-portal-canvas text-portal-foreground"
+      >
         <p data-testid="resolved-area">{area}</p>
+        <div className="theme-card bg-portal-surface" data-testid="theme-card">Themed surface</div>
         <button type="button" data-testid="focus-target">Focus target</button>
         <ThemeToggle />
       </div>

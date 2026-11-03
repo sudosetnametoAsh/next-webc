@@ -36,7 +36,7 @@ export default async function AdminLayout({
   return (
     <AdminNavProvider>
       <AdminRealtimeListener />
-      <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
+      <div data-portal="admin" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
         <AdminSidebar user={user} />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <AdminHeader user={user} />

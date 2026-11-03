@@ -49,7 +49,7 @@ export default async function ClearanceLayout({
   return (
     <ClearanceNavProvider>
       <DashBoardRealtimeProvider studentId={user?.userId}>
-        <div className="flex h-dvh w-full overflow-hidden bg-[#060a14]">
+        <div data-portal="clearance" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
           <Sidebar user={user} />
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <Header user={user} />

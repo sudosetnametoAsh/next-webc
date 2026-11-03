@@ -235,7 +235,7 @@ export default function AddPreset({
                 min={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`}
                 value={batchDueDate}
                 onChange={(e) => setBatchDueDate(e.target.value)}
-                className="border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
+                className="border-slate-700 bg-[#0a101f] text-slate-200 focus-visible:ring-amber-400/40"
               />
               <p className="text-xs text-slate-500">
                 {batchDueDate
@@ -341,7 +341,7 @@ export default function AddPreset({
                                       [item.task_id]: e.target.value,
                                     }))
                                   }
-                                  className="h-8 min-w-0 rounded-md border border-slate-700 bg-[#070c18] px-2 text-xs text-slate-300 [color-scheme:dark] focus:border-amber-400 focus:outline-none"
+                                  className="h-8 min-w-0 rounded-md border border-slate-700 bg-[#070c18] px-2 text-xs text-slate-300 focus:border-amber-400 focus:outline-none"
                                 />
                                 {presetDueDates[item.task_id] ? (
                                   <button
