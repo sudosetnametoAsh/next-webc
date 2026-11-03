@@ -263,12 +263,7 @@ export const clearanceDepartments = pgTable(
     iconName: varchar("icon_name", { length: 50 }).default("Building2").notNull(),
     floor: varchar("floor", { length: 50 }),
     room: varchar("room", { length: 50 }),
-    aiVerificationMode: varchar("ai_verification_mode", { length: 20 })
-      .default("two_factor")
-      .notNull(),
-    aiConfidenceThreshold: integer("ai_confidence_threshold")
-      .default(85)
-      .notNull(),
+
   },
   () => [
     pgPolicy("users can view departments", {
@@ -346,6 +341,24 @@ export const staffs = pgTable(
       as: "permissive",
       for: "all",
       to: authenticatedRole,
+      using: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+      withCheck: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
+    }),
+  ],
+);
+
+export const staffConfigurations = pgTable(
+  "staff_configurations",
+  {
+    staffId: varchar("staff_id").primaryKey().references(() => staffs.staffId, { onDelete: "cascade", onUpdate: "cascade" }),
+    aiVerificationMode: varchar("ai_verification_mode", { length: 20 }).default("two_factor").notNull(),
+    aiConfidenceThreshold: integer("ai_confidence_threshold").default(85).notNull(),
+  },
+  (table) => [
+    check("staff_configurations_mode_check", sql`${table.aiVerificationMode} IN ('two_factor', 'autonomous', 'manual')`),
+    check("staff_configurations_threshold_check", sql`${table.aiConfidenceThreshold} BETWEEN 50 AND 100`),
+    pgPolicy("staff manage own configuration", {
+      for: "all", to: authenticatedRole,
       using: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
       withCheck: sql`staff_id IN (SELECT user_id FROM public.users WHERE auth_id = auth.uid())`,
     }),

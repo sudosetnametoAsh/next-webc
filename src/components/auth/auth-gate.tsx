@@ -1,5 +1,6 @@
 "use client";
 import { ReactNode, useEffect } from "react";
+import { RoleRouter } from "@/modules/auth/domain/role-router";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { useRouter } from "next/navigation";
 import { useValidateToken } from "@/hooks/auth/vaildate-token";
@@ -18,15 +19,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
     const { role } = data;
 
-    if (role.includes("Admin")) {
-      router.replace("/admin/dashboard");
-    } else if (role.includes("Staff")) {
-      router.replace("/department/dashboard");
-    } else if (role.includes("Student")) {
-      router.replace("/student");
-    } else {
-      router.replace("/");
-    }
+    router.replace(RoleRouter.homePath(RoleRouter.parseRoles(role)));
   }, [data, router]);
 
   if (inProgress !== "none" || isLoading) {

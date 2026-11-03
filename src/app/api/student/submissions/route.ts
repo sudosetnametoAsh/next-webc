@@ -45,18 +45,26 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (taskFetchError || !taskData) {
-      console.warn("Could not fetch assigned task details:", taskFetchError);
+      return NextResponse.json({ error: "Assigned task not found" }, { status: 404 });
     }
 
     // 2. Fetch Department AI Configuration
     const { data: deptData } = await supabaseAdmin
       .from("clearance_departments")
-      .select("dept_id, dept_name, ai_verification_mode, ai_confidence_threshold")
+      .select("dept_id, dept_name")
       .ilike("dept_name", department.trim())
       .maybeSingle();
 
-    const aiMode = deptData?.ai_verification_mode || "two_factor";
-    const confidenceThreshold = deptData?.ai_confidence_threshold ?? 85;
+    const { data: configuration, error: configurationError } = await supabaseAdmin
+      .from("staff_configurations")
+      .select("ai_verification_mode, ai_confidence_threshold")
+      .eq("staff_id", taskData.staff_id)
+      .maybeSingle();
+    if (configurationError) {
+      return NextResponse.json({ error: "Failed to load staff configuration" }, { status: 500 });
+    }
+    const aiMode = configuration?.ai_verification_mode ?? "two_factor";
+    const confidenceThreshold = configuration?.ai_confidence_threshold ?? 85;
 
     // 3. Upload File to Supabase Storage
     const timestamp = Date.now();
@@ -162,7 +170,7 @@ export async function POST(req: NextRequest) {
       .update({
         status: newStatus,
         comments: commentText,
-        ai_audit_report: aiReport,
+        ai_audit_report: aiReport ? { ...aiReport, verificationMode: aiMode, confidenceThreshold } : null,
         dropbox: publicUrl,
         uploaded_at: new Date().toISOString(),
       })

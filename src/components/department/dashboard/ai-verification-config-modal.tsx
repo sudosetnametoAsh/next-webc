@@ -41,9 +41,9 @@ export default function AiVerificationConfigModal({
         const res = await fetch("/api/department/settings/ai-verification");
         if (!res.ok) throw new Error("Failed to fetch settings");
         const data = await res.json();
-        if (isMounted && data.department) {
-          setMode(data.department.aiVerificationMode || "two_factor");
-          setThreshold(data.department.aiConfidenceThreshold ?? 85);
+        if (isMounted && data.configuration) {
+          setMode(data.configuration.aiVerificationMode || "two_factor");
+          setThreshold(data.configuration.aiConfidenceThreshold ?? 85);
         }
       } catch (err) {
         console.error("Error loading AI settings:", err);
@@ -131,7 +131,7 @@ export default function AiVerificationConfigModal({
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-slate-400">
               <Loader2 className="h-8 w-8 animate-spin text-amber-400 mb-3" />
-              <p className="text-xs font-medium">Loading department configuration...</p>
+              <p className="text-xs font-medium">Loading your configuration...</p>
             </div>
           ) : (
             <>

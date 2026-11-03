@@ -1898,20 +1898,20 @@ INSERT INTO "public"."cashier_webhook_events" ("event_id", "user_id", "transacti
 -- Data for Name: clearance_departments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."clearance_departments" ("dept_id", "dept_name", "icon_name", "floor", "room", "ai_verification_mode", "ai_confidence_threshold") VALUES
-	(2, 'Cashier', 'Landmark', 'Ground Floor', 'Room 101', 'two_factor', 85),
-	(9, 'Computer Laboratory', 'Monitor', '3rd Floor', 'Lab 3', 'two_factor', 85),
-	(5, 'Guidance Office', 'Users', '2nd Floor', 'Room 204', 'two_factor', 85),
-	(7, 'Library', 'BookOpen', '2nd Floor', 'Main Library', 'two_factor', 85),
-	(8, 'Registrar', 'FileText', 'Ground Floor', 'Room 102', 'two_factor', 85),
-	(10, 'School Admin', 'Building2', '4th Floor', 'Admin Suite', 'two_factor', 85),
-	(12, 'fasfds', 'Building2', NULL, NULL, 'two_factor', 85),
-	(13, 'fasfsdafds', 'Building2', NULL, NULL, 'two_factor', 85),
-	(14, 'fsdafsadf', 'Building2', NULL, NULL, 'two_factor', 85),
-	(15, 'fdfasdfds', 'Building2', NULL, NULL, 'two_factor', 85),
-	(17, 'fsadfdsafds', 'Building2', NULL, NULL, 'two_factor', 85),
-	(16, 'hhhhhhh', 'Building2', 'Ground Floor', NULL, 'two_factor', 85),
-	(3, 'Clinic', 'Stethoscope', 'Ground Floor', 'Clinic Office', 'two_factor', 85);
+INSERT INTO "public"."clearance_departments" ("dept_id", "dept_name", "icon_name", "floor", "room") VALUES
+	(2, 'Cashier', 'Landmark', 'Ground Floor', 'Room 101'),
+	(9, 'Computer Laboratory', 'Monitor', '3rd Floor', 'Lab 3'),
+	(5, 'Guidance Office', 'Users', '2nd Floor', 'Room 204'),
+	(7, 'Library', 'BookOpen', '2nd Floor', 'Main Library'),
+	(8, 'Registrar', 'FileText', 'Ground Floor', 'Room 102'),
+	(10, 'School Admin', 'Building2', '4th Floor', 'Admin Suite'),
+	(12, 'fasfds', 'Building2', NULL, NULL),
+	(13, 'fasfsdafds', 'Building2', NULL, NULL),
+	(14, 'fsdafsadf', 'Building2', NULL, NULL),
+	(15, 'fdfasdfds', 'Building2', NULL, NULL),
+	(17, 'fsadfdsafds', 'Building2', NULL, NULL),
+	(16, 'hhhhhhh', 'Building2', 'Ground Floor', NULL),
+	(3, 'Clinic', 'Stethoscope', 'Ground Floor', 'Clinic Office');
 
 
 --
