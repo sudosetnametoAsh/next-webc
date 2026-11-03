@@ -38,7 +38,8 @@ export class RoleRouter {
       return roles.includes("Department");
     }
     if (inArea(path, "/clearance") || inArea(path, "/api/student")) {
-      return roles.includes("Client");
+      // Department officers also use this area for their own staff clearance.
+      return roles.includes("Client") || roles.includes("Department");
     }
     return roles.length > 0;
   }
