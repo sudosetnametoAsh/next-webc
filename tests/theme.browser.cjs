@@ -145,8 +145,12 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(220, 252, 231)");
       await page.getByTestId("amber-status").hover();
       assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 243, 199)");
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).color), "rgb(146, 64, 14)");
       await page.getByTestId("rose-status").hover();
       assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(254, 226, 226)");
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).color), "rgb(153, 27, 27)");
+      await page.getByTestId("blue-status").hover();
+      assert.equal(await page.getByTestId("blue-status").evaluate((el) => getComputedStyle(el).color), "rgb(29, 78, 216)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(248, 250, 252)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(23, 32, 51)");
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(255, 255, 255)");
@@ -237,8 +241,12 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(17, 53, 43)");
       await page.getByTestId("amber-status").hover();
       assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(55, 42, 19)");
+      assert.equal(await page.getByTestId("amber-status").evaluate((el) => getComputedStyle(el).color), "rgb(251, 191, 36)");
       await page.getByTestId("rose-status").hover();
       assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(63, 30, 38)");
+      assert.equal(await page.getByTestId("rose-status").evaluate((el) => getComputedStyle(el).color), "rgb(252, 165, 165)");
+      await page.getByTestId("blue-status").hover();
+      assert.equal(await page.getByTestId("blue-status").evaluate((el) => getComputedStyle(el).color), "rgb(147, 197, 253)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("body-overlay").evaluate((el) => getComputedStyle(el).color), "rgb(241, 245, 249)");
       assert.equal(await page.getByTestId("legacy-overlay-text").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");

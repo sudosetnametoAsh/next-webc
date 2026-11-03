@@ -420,6 +420,35 @@ html:has([data-portal]) .group:hover [class~="group-hover:text-amber-400"] {
   color: var(--portal-accent);
 }
 
+html:has([data-portal]) [class~="hover:text-emerald-200"]:hover,
+html:has([data-portal]) [class~="hover:text-emerald-300"]:hover,
+html:has([data-portal]) [class~="hover:text-emerald-400"]:hover,
+html:has([data-portal]) .group:hover [class~="group-hover:text-emerald-200"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-emerald-300"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-emerald-400"] {
+  color: var(--portal-success);
+}
+
+html:has([data-portal]) [class~="hover:text-rose-200"]:hover,
+html:has([data-portal]) [class~="hover:text-rose-300"]:hover,
+html:has([data-portal]) [class~="hover:text-rose-400"]:hover,
+html:has([data-portal]) .group:hover [class~="group-hover:text-rose-200"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-rose-300"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-rose-400"] {
+  color: var(--portal-danger);
+}
+
+html:has([data-portal]) [class~="hover:text-blue-100"]:hover,
+html:has([data-portal]) [class~="hover:text-blue-200"]:hover,
+html:has([data-portal]) [class~="hover:text-blue-300"]:hover,
+html:has([data-portal]) [class~="hover:text-blue-400"]:hover,
+html:has([data-portal]) .group:hover [class~="group-hover:text-blue-100"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-blue-200"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-blue-300"],
+html:has([data-portal]) .group:hover [class~="group-hover:text-blue-400"] {
+  color: var(--portal-info);
+}
+
 html:has([data-portal]) [class~="bg-blue-600"][class~="text-white"],
 html:has([data-portal]) [class~="bg-indigo-600"][class~="text-white"],
 html:has([data-portal]) [class~="bg-purple-600"][class~="text-white"],
