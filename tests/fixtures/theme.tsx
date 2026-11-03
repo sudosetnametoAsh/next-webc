@@ -20,7 +20,7 @@ function App() {
       >
         <p data-testid="resolved-area">{area}</p>
         <div className="theme-card bg-portal-surface" data-testid="theme-card">Themed surface</div>
-        <div className="phase-callout bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 to-transparent" data-testid="phase-callout">Phase callout</div>
+        <div className="phase-callout bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 dark:from-amber-950/30 dark:via-amber-950/15 to-transparent" data-testid="phase-callout">Phase callout</div>
         <div className="admin-card bg-[#0c1427] border border-slate-800 text-white" data-testid="admin-card">Admin card</div>
         <div className="department-card bg-[#101726] border border-slate-800 text-white" data-testid="department-card">Department card</div>
         <div className="clearance-card bg-[#091122] border border-slate-800 text-white" data-testid="clearance-card">Clearance card</div>

@@ -231,7 +231,9 @@ async function assertContrast(page, foregroundSelector, backgroundSelector, mini
       assert.equal(await page.getByTestId("department-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("clearance-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("clearance-panel").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(10, 16, 31)");
-      assert.match(await page.getByTestId("phase-callout").evaluate((el) => getComputedStyle(el).backgroundImage), /55, 42, 19/);
+      const darkPhaseGradient = await page.getByTestId("phase-callout").evaluate((el) => getComputedStyle(el).backgroundImage);
+      assert.match(darkPhaseGradient, /\/ 0\.3\)/);
+      assert.match(darkPhaseGradient, /\/ 0\.15\)/);
       assert.equal(await page.getByTestId("clearance-inset").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(7, 12, 24)");
       assert.equal(await page.getByTestId("expanded-document-row").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(6, 10, 20)");
       assert.equal(await page.getByTestId("cleared-card").evaluate((el) => getComputedStyle(el).backgroundColor), "rgb(17, 53, 43)");

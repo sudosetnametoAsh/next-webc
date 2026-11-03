@@ -599,7 +599,7 @@ export default function InstitutionalClearanceVerification({
               </div>
 
               {/* Next Step Alert Card */}
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 to-transparent p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 dark:from-amber-950/30 dark:via-amber-950/15 to-transparent p-5 shadow-sm">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
                   <div className="flex flex-col">
