@@ -8,7 +8,7 @@ export default function StatCard() {
       >
         <div
           id="total-department"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
+            className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-portal-surface p-6"
         >
           <span className="text-sm font-medium">Department(s)</span>
           <span className="text-4xl font-bold"></span>
@@ -16,7 +16,7 @@ export default function StatCard() {
 
         <div
           id="completed"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
+            className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-portal-surface p-6"
         >
           <span className="text-sm font-medium">Completed</span>
           <span className="text-4xl font-bold"></span>
@@ -24,7 +24,7 @@ export default function StatCard() {
 
         <div
           id="pendingu"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
+            className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-portal-surface p-6"
         >
           <span className="text-sm font-medium">Pending</span>
           <span className="text-4xl font-bold"></span>
@@ -32,7 +32,7 @@ export default function StatCard() {
 
         <div
           id="tasks"
-          className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-[#FFFFFF] p-6"
+            className="flex h-37.5 w-91 flex-col justify-center gap-2 rounded-md border-2 bg-portal-surface p-6"
         >
           <span className="text-sm font-medium">Task(s)</span>
           <span className="text-4xl font-bold"></span>

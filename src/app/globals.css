@@ -299,6 +299,8 @@ html.dark:has([data-portal]) {
 }
 
 [data-portal] [class*="bg-[#0a101f]"],
+[data-portal] [class*="bg-[#ffffff]"],
+[data-portal] [class*="bg-[#FFFFFF]"],
 [data-portal] [class*="bg-white"],
 [data-portal] [class*="bg-slate-900"],
 [data-portal] [class*="bg-slate-800"] {
@@ -308,6 +310,8 @@ html.dark:has([data-portal]) {
 [data-portal] [class*="bg-[#070c18]"],
 [data-portal] [class*="bg-[#0c1427]"],
 [data-portal] [class*="bg-[#0a141a]"],
+[data-portal] [class*="bg-[#101726]"],
+[data-portal] [class*="bg-[#F6F8FB]"],
 [data-portal] [class*="bg-slate-700"],
 [data-portal] [class*="bg-gray-100"] {
   background-color: var(--portal-inset);
