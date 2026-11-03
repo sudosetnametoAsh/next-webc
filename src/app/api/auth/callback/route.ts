@@ -4,35 +4,29 @@ import { makeAuthCallback } from "@/composition/auth/make-auth-callback";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
+  // Production request URLs can contain the server's internal bind address.
+  const redirectOrigin = process.env.NODE_ENV === "production"
+    ? new URL(process.env.NEXT_PUBLIC_APP_URL || origin).origin
+    : origin;
   const code = searchParams.get("code");
   // if "next" is in param, use it as the redirect URL
   let next = searchParams.get("next") ?? "/";
-  if (!next.startsWith("/")) {
+  if (!next.startsWith("/") || next.startsWith("//")) {
     // if "next" is not a relative URL, use the default
     next = "/";
   }
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/auth-code-error`);
+    return NextResponse.redirect(`${redirectOrigin}/auth-code-error`);
   }
 
   try {
     const authCallback = makeAuthCallback();
     const redirectPath = await authCallback.execute(code, next);
 
-    const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
-    const isLocalEnv = process.env.NODE_ENV === "development";
-
-    if (isLocalEnv) {
-      // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-      return NextResponse.redirect(`${origin}${redirectPath}`);
-    } else if (forwardedHost) {
-      return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
-    } else {
-      return NextResponse.redirect(`${origin}${redirectPath}`);
-    }
+    return NextResponse.redirect(`${redirectOrigin}${redirectPath}`);
   } catch (error) {
-    console.error(error)
-    return NextResponse.redirect(`${origin}/auth-error`);
+    console.error("Auth callback failed:", error);
+    return NextResponse.redirect(`${redirectOrigin}/auth-error`);
   }
 }

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/db/supabase-server";
 import { AuthRepository } from "../application/repository/auth-repository";
 import { InvalidAuthTokenError } from "../application/error";
+import { RoleRouter } from "../domain/role-router";
 
 export class SupabaseAuthRepository implements AuthRepository {
   async exchangeCodeForSession(code: string) {
@@ -21,7 +22,10 @@ export class SupabaseAuthRepository implements AuthRepository {
       throw new Error("Failed to retrieve user");
     }
 
-    const role = data.user.user_metadata.custom_claims.roles[0];
+    const role = RoleRouter.parseRoles(data.user?.user_metadata?.custom_claims?.roles)[0];
+    if (!role) {
+      throw new Error("Authenticated user has no supported Azure app role. Check Entra app role assignments.");
+    }
 
     return role;
   }
