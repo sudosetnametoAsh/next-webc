@@ -1,8 +1,9 @@
 import QueryProvider from "@/lib/providers/query-provider";
 import MSALProvider from "@/lib/providers/msal-provider";
+import { ThemeProvider } from "@/lib/providers/theme-provider";
 import "./globals.css";
 import { Geist } from "next/font/google";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "WebC: A Clearance App",
@@ -24,12 +25,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geist.className}>
+    <html lang="en" className={geist.className} suppressHydrationWarning>
       <body>
-        <MSALProvider>
-          <QueryProvider>{children}</QueryProvider>
-          <Toaster />
-        </MSALProvider>
+        <ThemeProvider>
+          <MSALProvider>
+            <QueryProvider>{children}</QueryProvider>
+            <Toaster />
+          </MSALProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

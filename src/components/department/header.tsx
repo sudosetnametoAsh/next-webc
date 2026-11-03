@@ -2,13 +2,14 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Moon, Menu, X, ChevronRight, Clock } from "lucide-react";
+import { Bell, Menu, X, ChevronRight, Clock } from "lucide-react";
 import { useDepartmentNav } from "./department-nav-context";
 import { useDepartmentContext } from "@/context/deparment";
 import { useNotifications } from "@/hooks/clearance/use-notifications";
 import DepartmentNotificationSidebar from "./notification-sidebar";
 import { ClearanceNotification } from "@/types/clearance";
 import { getNotificationVisual } from "@/lib/notification-icons";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   title?: string;
@@ -434,13 +435,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
         </div>
 
         {/* Theme Toggle Indicator (Dark Mode) */}
-        <button
-          type="button"
-          aria-label="Toggle theme"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-amber-400 cursor-pointer"
-        >
-          <Moon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-        </button>
+        <ThemeToggle />
       </div>
 
       {/* ── Right Notification Sidebar ── */}

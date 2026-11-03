@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  Moon,
   Menu,
   X,
   ChevronRight,
@@ -18,6 +17,7 @@ import {
   extractTaskTitleFromDescription,
 } from "@/lib/notification-navigation";
 import { useClearanceNav } from "./clearance-nav-context";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   title?: string;
@@ -449,13 +449,7 @@ export default function Header({ title, user }: HeaderProps) {
         </div>
 
         {/* Theme Toggle (Dark Mode Indicator) */}
-        <button
-          type="button"
-          aria-label="Toggle theme"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-amber-400 cursor-pointer"
-        >
-          <Moon className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-        </button>
+        <ThemeToggle />
       </div>
 
       {/* ── Right Notification Sidebar ── */}
