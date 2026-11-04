@@ -21,8 +21,7 @@ import ProgramCompletionTable from '@/components/admin/reports/program-completio
 import DepartmentComplianceTable from '@/components/admin/reports/department-compliance-table'
 import { exportClearanceReport } from '@/utils/export-clearance-report'
 import { getProgressBarColor } from '@/utils/formatters'
-import { ToastContainer } from '@/components/admin/toast'
-import { useToast } from '@/components/admin/use-toast'
+import { useToast } from '@/hooks/use-toast'
 
 // ———— Main Reports Page Component ———————————————————————————————————————————
 
@@ -30,10 +29,7 @@ export default function Reports() {
   const [activeRadarFilter, setActiveRadarFilter] = useState('')
   const [isExporting, setIsExporting] = useState(false)
 
-  const { toasts, dismiss, success, error } = useToast({
-    maxToasts: 3,
-    duration: 4000,
-  })
+  const { success, error } = useToast()
 
   // Data queries
   const { data: adminStats } = useFetchAdminStats()
@@ -108,8 +104,6 @@ export default function Reports() {
 
   return (
     <>
-      <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
-
       <div className="space-y-6">
         {/* ── 1. Page Header with Audit Export Button ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

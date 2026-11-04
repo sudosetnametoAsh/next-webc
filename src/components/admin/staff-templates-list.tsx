@@ -10,8 +10,8 @@ import { getProgressBarColor } from '@/utils/formatters'
 
 type Props = {
   searchQuery: string;
-  toastSuccess: (message: string, title?: string) => number;
-  toastError: (message: string, title?: string) => number;
+  toastSuccess: (message: string, title?: string) => string | number;
+  toastError: (message: string, title?: string) => string | number;
   showEmptyState?: boolean;
 }
 

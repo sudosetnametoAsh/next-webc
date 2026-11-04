@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   FlaskConical,
@@ -130,6 +131,9 @@ export default function SimulationClient() {
         status,
       };
       setLogs((prev) => [newLog, ...prev.slice(0, 49)]);
+      if (status === "success" || status === "error") {
+        toast[status](title, { description: detail });
+      }
     },
     []
   );

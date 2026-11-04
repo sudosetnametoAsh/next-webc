@@ -578,3 +578,79 @@ html.dark:has([data-portal]) textarea,
 html.dark:has([data-portal]) button {
   color-scheme: dark;
 }
+
+/* Shared feedback surface, mounted once outside the portal shells. */
+[data-sonner-toaster].toaster {
+  font-family: inherit;
+}
+
+[data-sonner-toaster].toaster [data-sonner-toast][data-styled="true"] {
+  padding: 16px 20px;
+  gap: 12px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+[data-sonner-toaster].toaster [data-content] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+[data-sonner-toaster].toaster [data-description] {
+  color: var(--portal-muted);
+  font-size: 14px;
+}
+
+[data-sonner-toaster].toaster [data-type="success"] [data-icon] { color: var(--portal-success); }
+[data-sonner-toaster].toaster [data-type="error"] [data-icon] { color: var(--portal-danger); }
+[data-sonner-toaster].toaster [data-type="warning"] [data-icon] { color: var(--portal-warning); }
+[data-sonner-toaster].toaster [data-type="info"] [data-icon] { color: var(--portal-info); }
+
+[data-sonner-toaster].toaster [data-close-button] {
+  width: 28px;
+  height: 28px;
+  background: var(--portal-surface);
+  color: var(--portal-muted);
+  border-color: var(--portal-border);
+}
+
+[data-sonner-toaster].toaster [data-close-button]:focus-visible {
+  outline: 2px solid var(--portal-accent);
+  outline-offset: 2px;
+}
+
+[data-sonner-toaster].toaster [data-sonner-toast]:not([data-type="loading"])::after {
+  content: "";
+  position: absolute;
+  inset: auto 12px 0;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--portal-info);
+  transform-origin: left;
+  animation: toast-countdown var(--toast-duration) linear forwards;
+  animation-play-state: var(--toast-play-state);
+  pointer-events: none;
+}
+
+[data-sonner-toaster].toaster [data-sonner-toast][data-type="success"]::after { background: var(--portal-success); }
+[data-sonner-toaster].toaster [data-sonner-toast][data-type="error"]::after { background: var(--portal-danger); }
+[data-sonner-toaster].toaster [data-sonner-toast][data-type="warning"]::after { background: var(--portal-warning); }
+
+[data-sonner-toaster].toaster [data-sonner-toast][data-expanded="true"]::after,
+[data-sonner-toaster].toaster [data-sonner-toast][data-swiping="true"]::after,
+[data-sonner-toaster].toaster:active [data-sonner-toast]::after {
+  animation-play-state: paused;
+}
+
+@keyframes toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sonner-toaster].toaster [data-sonner-toast]:not([data-type="loading"])::after {
+    animation-timing-function: steps(5, end);
+  }
+}

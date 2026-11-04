@@ -21,8 +21,8 @@ const SpinnerIcon = () => (
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  toastSuccess: (message: string, title?: string) => number;
-  toastError: (message: string, title?: string) => number;
+  toastSuccess: (message: string, title?: string) => string | number;
+  toastError: (message: string, title?: string) => string | number;
 }
 
 export default function DeleteAllTemplateModal({ open, onOpenChange, toastSuccess, toastError }: Props) {

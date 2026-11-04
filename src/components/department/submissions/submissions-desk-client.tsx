@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useDepartmentDashboard } from "@/hooks/department/use-department-dashboard";
 import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
@@ -229,10 +230,12 @@ export default function SubmissionsDeskClient({
       if (!res.ok) {
         throw new Error("Failed to batch authorize verified tasks");
       }
+      toast.success("Verified tasks authorized");
 
       router.refresh();
     } catch (err) {
       console.error("Batch authorize error:", err);
+      toast.error("Could not authorize verified tasks. Please try again.");
     } finally {
       setIsBatchAuthorizing(false);
     }

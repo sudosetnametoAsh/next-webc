@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
   X,
@@ -103,9 +104,11 @@ export default function EditTaskModal({
         dropbox: dropboxValue,
       });
 
+      toast.success("Task updated");
       onClose();
     } catch (err) {
       console.error("Failed to update task:", err);
+      toast.error("Could not update task. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import React, { useState, useEffect } from "react";
 import {
   FileText,
   Image as ImageIcon,
@@ -201,6 +201,7 @@ export default function SubmissionModal({
     setIsSubmitting(true);
     try {
       await onUpdateStatus("Cleared", comment || (comments ?? ""));
+      toast.success("Requirement cleared");
       resetAndClose();
     } catch (error) {
       console.error("Failed to approve", error);
@@ -216,10 +217,12 @@ export default function SubmissionModal({
     try {
       if (onUpdateFeedback) {
         await onUpdateFeedback(editedFeedback);
+        toast.success("Feedback saved");
       }
       setIsEditingFeedback(false);
     } catch (err) {
       console.error("Failed to update feedback", err);
+      toast.error("Could not save feedback. Please try again.");
     } finally {
       setIsSavingFeedback(false);
     }
@@ -241,6 +244,7 @@ export default function SubmissionModal({
     setIsSubmitting(true);
     try {
       await onRejectWithResubmit(comment);
+      toast.success("Submission rejected", { description: "The client can submit a replacement document." });
       resetAndClose();
     } catch (error) {
       console.error("Failed to reject with resubmit", error);
@@ -262,6 +266,7 @@ export default function SubmissionModal({
     setIsSubmitting(true);
     try {
       await onReopen();
+      toast.success("Requirement reopened");
       resetAndClose();
     } catch (error) {
       console.error("Failed to reopen requirement:", error);

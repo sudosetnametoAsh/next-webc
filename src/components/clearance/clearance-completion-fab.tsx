@@ -34,9 +34,9 @@ export default function ClearanceCompletionFab({
   }
 
   const handleExport = async () => {
+    const toastId = toast.loading("Preparing clearance certificate");
     try {
       setIsExporting(true);
-      toast.info("Preparing signed clearance document...", { duration: 1500 });
 
       // Slight timeout to let user see feedback and ensure smooth UI thread execution
       await new Promise((resolve) => setTimeout(resolve, 350));
@@ -49,11 +49,13 @@ export default function ClearanceCompletionFab({
       });
 
       toast.success("Clearance certificate exported successfully!", {
+        id: toastId,
         description: `Downloaded ${result.filename} with Student and School copies.`,
       });
     } catch (err) {
       console.error("Failed to export clearance PDF:", err);
       toast.error("Failed to export clearance certificate", {
+        id: toastId,
         description: "An unexpected error occurred while generating the PDF.",
       });
     } finally {

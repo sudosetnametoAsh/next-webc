@@ -13,8 +13,7 @@ import {
 import { DepartmentReportData } from "@/modules/staff/application/repository/dashboard-repository";
 import { exportDepartmentClearanceReport } from "@/utils/export-clearance-report";
 import { getDepartmentIcon } from "@/lib/department-icons";
-import { ToastContainer } from "@/components/admin/toast";
-import { useToast } from "@/components/admin/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import DailyThroughputChart from "./daily-throughput-chart";
 import SubmissionQualityCard from "./submission-quality-card";
 import SectionAuditTable from "./section-audit-table";
@@ -25,10 +24,7 @@ interface Props {
 
 export default function DepartmentReportsClient({ reportData }: Props) {
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const { toasts, dismiss, success, error } = useToast({
-    maxToasts: 3,
-    duration: 4000,
-  });
+  const { success, error } = useToast();
 
   const { departmentName, metrics, dailyThroughput, submissionQuality, programs, records } =
     reportData;
@@ -61,8 +57,6 @@ export default function DepartmentReportsClient({ reportData }: Props) {
 
   return (
     <>
-      <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
-
       <div className="space-y-6 pb-10">
         {/* ── 1. Page Header with Department Identity & CSV Export ── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

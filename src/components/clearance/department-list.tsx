@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import React, { useState } from "react";
 import { getClearanceRecordsPromise } from "@/modules/clearance/application/repository/dashboard-repository";
 import { makeGetDepartmentDetails } from "@/composition/clearance/make-get-department-details";
@@ -29,7 +30,7 @@ export default function DepartmenList({
       console.log(departmentTasks);
       setDepartmentTasks(departmentTasks);
     } catch (error) {
-      alert("Failed to fetch tasks");
+      toast.error("Failed to fetch tasks");
       console.error(error);
     }
   };

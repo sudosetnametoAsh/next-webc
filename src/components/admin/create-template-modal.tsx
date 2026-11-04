@@ -44,8 +44,8 @@ type Props = {
   departments: Departments[]
   courseIds?: number[]
   deptIds?: number[]
-  toastSuccess: (message: string, title?: string) => number
-  toastError: (message: string, title?: string) => number
+  toastSuccess: (message: string, title?: string) => string | number
+  toastError: (message: string, title?: string) => string | number
   editData?: EditTemplateData | null
   selectedCourses?: number[]
   setSelectedCourses?: React.Dispatch<React.SetStateAction<number[]>>

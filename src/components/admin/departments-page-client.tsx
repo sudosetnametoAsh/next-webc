@@ -22,8 +22,7 @@ import {
   useUpdateDepartment,
   useDeleteDepartment,
 } from "@/hooks/admin/departments";
-import { ToastContainer } from "@/components/admin/toast";
-import { useToast } from "@/components/admin/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import DepartmentFormModal from "@/components/admin/department-form-modal";
 import ConfirmationModal from "@/components/admin/confirmation-modal";
 import { getDepartmentIcon } from "@/lib/department-icons";
@@ -49,10 +48,7 @@ export default function AdminDepartmentsPage() {
   const updateMutation = useUpdateDepartment();
   const deleteMutation = useDeleteDepartment();
 
-  const { toasts, dismiss, success, error } = useToast({
-    maxToasts: 3,
-    duration: 4000,
-  });
+  const { success, error } = useToast();
 
   const totalPages = Math.ceil(departments.length / PAGE_SIZE) || 1;
   const paginatedDepartments = departments.slice(
@@ -119,8 +115,6 @@ export default function AdminDepartmentsPage() {
 
   return (
     <>
-      <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
-
       <div className="space-y-6">
         {/* ── 1. Top Header Row (Complimenting Clients Page) ── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

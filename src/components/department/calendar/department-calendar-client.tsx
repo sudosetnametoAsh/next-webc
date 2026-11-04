@@ -161,7 +161,6 @@ export default function DepartmentCalendarClient({
 
   const isEarlyOutActive = earlyOutDate === todayDateStr;
 
-  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const DeptIcon = getDepartmentIcon(iconName, departmentName);
@@ -306,7 +305,7 @@ export default function DepartmentCalendarClient({
       }
       return next;
     });
-    setSaveSuccess(false);
+
     setErrorMessage(null);
   };
 
@@ -380,10 +379,6 @@ export default function DepartmentCalendarClient({
         early_out_date: earlyOutDate,
       },
       {
-        onSuccess: () => {
-          setSaveSuccess(true);
-          setTimeout(() => setSaveSuccess(false), 3500);
-        },
         onError: (err: any) => {
           setErrorMessage(err.message || "Failed to save office hours.");
         },
@@ -731,15 +726,6 @@ export default function DepartmentCalendarClient({
                 <span>{errorMessage}</span>
               </div>
             )}
-
-            {saveSuccess && (
-              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs text-emerald-300">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <span>
-                  Weekly schedule saved successfully! All updates are live across student portals.
-                </span>
-              </div>
-            )}
           </div>
 
           {/* BOTTOM ACTIONS BAR */}
@@ -749,7 +735,6 @@ export default function DepartmentCalendarClient({
               onClick={() => {
                 setWeeklySchedule(buildDefaultWeeklySchedule(defaultIn, defaultOut, initialWeeklySchedule));
                 setSelectedDayKeys(new Set([currentDayKey]));
-                setSaveSuccess(false);
                 setErrorMessage(null);
               }}
               className="text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2 transition-ui cursor-pointer"

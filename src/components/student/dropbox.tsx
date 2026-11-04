@@ -9,7 +9,6 @@ import { useForm } from "@tanstack/react-form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useSubmitTask } from "@/hooks/student/submit-task";
-import { toast } from "sonner";
 
 export default function DropBox({
   task,
@@ -40,7 +39,6 @@ export default function DropBox({
       formData.append("studentId", studentId);
 
       mutate(formData);
-      toast("Task Submitted");
     },
   });
 

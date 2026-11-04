@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Payload = {
@@ -23,7 +24,9 @@ export function useUpdateTaskPreset() {
 
          return request.json();
       },
-      onSuccess: () => {
+      onError: (error) => toast.error(error.message),
+    onSuccess: () => {
+      toast.success("Preset updated");
          queryClient.invalidateQueries({
             queryKey: ['preset'],
          });

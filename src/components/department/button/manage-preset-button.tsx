@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -52,7 +53,7 @@ export default function ManagePresetButton({
 
   const submitTaskPreset = () => {
     if (addTaskTitle.trim() === "" || addTaskDescription.trim() === "") {
-      return alert("Please enter both a title and a description");
+      return toast.error("Please enter both a title and a description");
     }
 
     addTaskPreset({
@@ -67,7 +68,7 @@ export default function ManagePresetButton({
 
   const saveUpdatedTaskPreset = (taskId: string) => {
     if (editingTitle.trim() === "" || editingDescription.trim() === "") {
-      return alert("Title and description cannot be empty while editing");
+      return toast.error("Title and description cannot be empty while editing");
     }
     updateTaskPreset({
       task_id: taskId,

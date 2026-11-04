@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import {
   useMutation,
   UseMutationResult,
@@ -47,7 +48,9 @@ export function useAddClientTasks(
 
       return response.json();
     },
+    onError: (error) => toast.error(error.message),
     onSuccess: () => {
+      toast.success("Tasks assigned");
       queryClient.invalidateQueries({
         queryKey: ["department-clients"],
       });

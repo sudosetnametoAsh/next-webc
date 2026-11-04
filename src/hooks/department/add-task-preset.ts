@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useAddTaskPreset() {
@@ -18,7 +19,9 @@ export function useAddTaskPreset() {
 
          return request.json();
       },
-      onSuccess: () => {
+      onError: (error) => toast.error(error.message),
+    onSuccess: () => {
+      toast.success("Preset created");
          queryClient.invalidateQueries({
             queryKey: ['preset'],
          });

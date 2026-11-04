@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
   X,
@@ -29,7 +30,6 @@ export default function AiVerificationConfigModal({
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<VerificationMode>("two_factor");
   const [threshold, setThreshold] = useState<number>(85);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,6 +47,7 @@ export default function AiVerificationConfigModal({
         }
       } catch (err) {
         console.error("Error loading AI settings:", err);
+        if (isMounted) toast.error("Could not load AI settings. Close and reopen this dialog to try again.");
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -60,7 +61,6 @@ export default function AiVerificationConfigModal({
 
   const handleSave = async () => {
     setSaving(true);
-    setStatusMessage(null);
     try {
       const res = await fetch("/api/department/settings/ai-verification", {
         method: "PATCH",
@@ -76,14 +76,12 @@ export default function AiVerificationConfigModal({
         throw new Error(err.error || "Failed to save configuration");
       }
 
-      setStatusMessage("Settings updated successfully!");
+      toast.success("AI verification settings saved");
       if (onConfigSaved) onConfigSaved();
-      setTimeout(() => {
-        onClose();
-      }, 700);
+      onClose();
     } catch (err: any) {
       console.error("Error saving settings:", err);
-      setStatusMessage(err.message || "Failed to update configuration");
+      toast.error(err.message || "Failed to update configuration");
     } finally {
       setSaving(false);
     }
@@ -310,11 +308,6 @@ export default function AiVerificationConfigModal({
                 </div>
               )}
 
-              {statusMessage && (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-300 text-center">
-                  {statusMessage}
-                </div>
-              )}
             </>
           )}
         </div>

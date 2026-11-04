@@ -24,8 +24,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   setSelectedDepartments: React.Dispatch<React.SetStateAction<number[]>>;
   deptIds: number[];
-  toastSuccess: (message: string, title?: string) => number;
-  toastError: (message: string, title?: string) => number;
+  toastSuccess: (message: string, title?: string) => string | number;
+  toastError: (message: string, title?: string) => string | number;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────

@@ -27,7 +27,8 @@ export function useSignClient() {
     onError: (error) => {
       toast.error(error.message);
     },
-    onSuccess: () => {
+    onSuccess: (_data, payload) => {
+      toast.success(payload.status === "Signed" ? "Clearance signed" : "Clearance reopened");
       queryClient.invalidateQueries({ queryKey: ["department-dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["department-client-progress"] });
       queryClient.invalidateQueries({ queryKey: ["department-clients"] });

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -83,7 +84,7 @@ export default function AddPreset({
 
   const addTask = () => {
     if (clearanceId.length === 0) {
-      alert("Select at least one student");
+      toast.error("Select at least one student");
       return;
     }
 
@@ -94,7 +95,7 @@ export default function AddPreset({
     });
 
     if (targetTaskIds.length === 0) {
-      alert(
+      toast.error(
         rawTargetIds.length > 0
           ? "The selected preset requirement(s) are already assigned to this client."
           : "Please select at least one preset task to assign."

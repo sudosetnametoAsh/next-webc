@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type ApiResponse = {
   url: string;
@@ -19,5 +20,7 @@ export function useSubmitTask() {
 
       return response.json();
     },
+    onSuccess: () => toast.success("Document submitted for review"),
+    onError: (error) => toast.error(error.message),
   });
 }

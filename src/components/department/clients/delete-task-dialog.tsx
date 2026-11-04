@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import React, { useState } from "react";
 import { Trash2, AlertTriangle, Loader2 } from "lucide-react";
 
@@ -23,9 +24,11 @@ export default function DeleteTaskDialog({
     setIsDeleting(true);
     try {
       await onConfirm(task.assigned_task_id);
+      toast.success("Task deleted");
       onClose();
     } catch (err) {
       console.error("Failed to delete task:", err);
+      toast.error("Could not delete task. Please try again.");
     } finally {
       setIsDeleting(false);
     }

@@ -1,0 +1,49 @@
+.chart {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 200ms ease, transform 280ms var(--ease-out);
+}
+
+.breakdown > div {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 180ms ease, transform 180ms var(--ease-out);
+}
+
+.breakdown > div:nth-child(2) { transition-delay: 30ms; }
+.breakdown > div:nth-child(3) { transition-delay: 60ms; }
+.breakdown > div:nth-child(4) { transition-delay: 90ms; }
+
+@starting-style {
+  .chart {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  .breakdown > div {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.queueLink { transition: color 150ms ease; }
+.queueLink > svg { transition: transform 160ms var(--ease-out); }
+
+@media (hover: hover) and (pointer: fine) {
+  .queueLink:hover > svg { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart,
+  .breakdown > div {
+    transform: none;
+    transition: opacity 150ms ease;
+    transition-delay: 0ms;
+  }
+
+  .queueLink > svg,
+  .queueLink:hover > svg {
+    transform: none;
+    transition: none;
+  }
+}

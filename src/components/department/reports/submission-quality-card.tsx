@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { LabelList, Pie, PieChart, ResponsiveContainer } from "recharts";
 import {
   ShieldCheck,
   Sparkles,
@@ -11,6 +12,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { SubmissionQualityStats } from "@/modules/staff/application/repository/dashboard-repository";
+import styles from "./submission-quality-card.module.css";
 
 interface Props {
   submissionQuality: SubmissionQualityStats;
@@ -30,7 +32,13 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
   const aiPct = Math.round((aiVerified / total) * 100);
   const manualPct = Math.round((manuallyCleared / total) * 100);
   const flaggedPct = Math.round((flagged / total) * 100);
-  const pendingPct = Math.max(0, 100 - (aiPct + manualPct + flaggedPct));
+  const pendingPct = Math.round((pendingReview / total) * 100);
+  const distribution = [
+    { name: "AI Pre-Screened", value: aiVerified, fill: "#10b981" },
+    { name: "Direct Staff Authorizations", value: manuallyCleared, fill: "#06b6d4" },
+    { name: "Flagged Anomalies / Review Needed", value: flagged, fill: "#f43f5e" },
+    { name: "Pending Initial Review", value: pendingReview, fill: "#f59e0b" },
+  ];
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl">
@@ -61,7 +69,7 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
       {/* ── Body ── */}
       <div className="flex flex-1 flex-col justify-between p-6">
         <div>
-          {/* Segmented Distribution Bar */}
+          {/* Verification distribution and persistent category values. */}
           <div className="mb-6">
             <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
               <span>Verification Distribution</span>
@@ -70,40 +78,40 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
               </span>
             </div>
 
-            <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-900 border border-slate-800">
-              {aiPct > 0 && (
-                <div
-                  className="bg-emerald-500"
-                  style={{ width: `${aiPct}%` }}
-                  title={`AI Verified: ${aiVerified} (${aiPct}%)`}
-                />
-              )}
-              {manualPct > 0 && (
-                <div
-                  className="bg-cyan-500"
-                  style={{ width: `${manualPct}%` }}
-                  title={`Direct Cleared: ${manuallyCleared} (${manualPct}%)`}
-                />
-              )}
-              {flaggedPct > 0 && (
-                <div
-                  className="bg-rose-500"
-                  style={{ width: `${flaggedPct}%` }}
-                  title={`Flagged Anomalies: ${flagged} (${flaggedPct}%)`}
-                />
-              )}
-              {pendingPct > 0 && (
-                <div
-                  className="bg-amber-500"
-                  style={{ width: `${pendingPct}%` }}
-                  title={`Pending: ${pendingReview} (${pendingPct}%)`}
-                />
-              )}
-            </div>
+            {totalSubmissions > 0 ? (
+              <div className={`${styles.chart} relative h-52 w-full`} role="img" aria-label={`Verification distribution: ${aiVerified} AI pre-screened, ${manuallyCleared} staff authorized, ${flagged} flagged, ${pendingReview} pending review. Exact counts and percentages follow.`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={distribution.filter((item) => item.value > 0)}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="58%"
+                      outerRadius="90%"
+                      stroke="var(--portal-surface, #0a101f)"
+                      strokeWidth={2}
+                      isAnimationActive={false}
+                    >
+                      <LabelList dataKey="value" position="inside" fill="#07101f" fontSize={12} fontWeight={700} />
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-mono text-3xl font-bold text-white">{totalSubmissions}</span>
+                  <span className="text-xs text-slate-400">Submissions</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-52 items-center justify-center text-sm text-slate-400">
+                No submissions yet
+              </div>
+            )}
           </div>
 
           {/* Breakdown Items */}
-          <div className="space-y-3">
+          <div className={`${styles.breakdown} space-y-3`}>
             {/* Item 1: AI Verified */}
             <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
               <div className="flex items-center gap-2.5">
@@ -210,7 +218,7 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
         <div className="mt-5 border-t border-slate-800/80 pt-4">
           <Link
             href="/department/dashboard"
-            className="flex items-center justify-between text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+            className={`${styles.queueLink} flex items-center justify-between text-xs font-semibold text-amber-400 hover:text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400`}
           >
             <span>Open Review & Authorization Queue</span>
             <ArrowRight className="h-3.5 w-3.5" />

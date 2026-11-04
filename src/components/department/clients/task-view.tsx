@@ -491,7 +491,7 @@ export default function TaskView({
       }
     } catch (err) {
       console.error("Failed to edit task:", err);
-      alert("Failed to update task");
+      throw err;
     }
   };
 
@@ -541,7 +541,7 @@ export default function TaskView({
       queryClient.invalidateQueries({ queryKey: ["clients"] });
     } catch (err) {
       console.error("Failed to delete task:", err);
-      alert("Failed to remove task");
+      throw err;
     }
   };
 

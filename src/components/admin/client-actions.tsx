@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -36,7 +37,9 @@ export default function ClientActions({ client, onSuccess }: {
         queryClient.invalidateQueries({ queryKey: ['department'] }),
       ])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save changes')
+      const message = err instanceof Error ? err.message : 'Unable to save changes'
+      setError(message)
+      toast.error(message)
     } finally { setPending(false) }
   }
 

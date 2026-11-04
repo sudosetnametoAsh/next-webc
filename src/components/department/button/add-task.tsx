@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -66,18 +67,18 @@ export default function AddTask({
 
   const addTask = () => {
     if (clearanceId.length === 0) {
-      alert("Select at least one student");
+      toast.error("Select at least one student");
       return;
     }
 
     if (isTitleDuplicate) {
-      alert("A task with this title has already been assigned to this client.");
+      toast.error("A task with this title has already been assigned to this client.");
       return;
     }
 
     // Added validation for the new title state
     if (title.trim() === "" || description.trim() === "") {
-      return alert("Title and Description cannot be empty");
+      return toast.error("Title and Description cannot be empty");
     }
 
     const targetTaskIds = taskId && taskId.length > 0 ? taskId : [null];

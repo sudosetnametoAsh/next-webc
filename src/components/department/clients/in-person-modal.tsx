@@ -140,6 +140,7 @@ export default function InPersonModal({
         "Cleared",
         task.comments ?? ""
       );
+      toast.success("Requirement cleared");
       resetAndClose();
     } catch (error) {
       console.error("Failed to approve in-person requirement:", error);
@@ -156,10 +157,12 @@ export default function InPersonModal({
     try {
       if (onUpdateFeedback) {
         await onUpdateFeedback(task.assigned_task_id, editedFeedback);
+        toast.success("Feedback saved");
       }
       setIsEditingFeedback(false);
     } catch (err) {
       console.error("Failed to update feedback", err);
+      toast.error("Could not save feedback. Please try again.");
     } finally {
       setIsSavingFeedback(false);
     }
@@ -169,6 +172,7 @@ export default function InPersonModal({
     setIsSubmitting(true);
     try {
       await onUpdateStatus(task.assigned_task_id, "Pending", task.comments ?? "");
+      toast.success("Requirement reopened");
       resetAndClose();
     } catch (error) {
       console.error("Failed to reopen requirement:", error);

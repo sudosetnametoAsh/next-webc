@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
@@ -30,7 +31,9 @@ export function useUpdateSchedule() {
 
       return response.json();
     },
-    onSuccess: () => {
+    onError: (error) => toast.error(error.message),
+    onSuccess: (_data, payload) => {
+      toast.success(payload.action === "early_out" ? "Early out activated" : payload.action === "resume_schedule" ? "Office schedule resumed" : "Office hours saved");
       queryClient.invalidateQueries({ queryKey: ["staff-schedule"] });
     },
   });

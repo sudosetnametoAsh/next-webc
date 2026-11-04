@@ -74,9 +74,11 @@ export default function ActionQueueCard({
         headers: { "Content-Type": "application/json" },
       });
       if (!res.ok) throw new Error("Failed to batch authorize");
+      toast.success("Verified tasks authorized");
       router.refresh();
     } catch (err) {
       console.error("Batch authorize error:", err);
+      toast.error("Could not authorize verified tasks. Please try again.");
     } finally {
       setIsBatchAuthorizing(false);
     }
@@ -162,6 +164,7 @@ export default function ActionQueueCard({
         const body = await res.json().catch(() => null);
         throw new Error(body?.error || "Failed to sign clearance");
       }
+      toast.success("Clearance signed");
       router.refresh();
     } catch (err) {
       console.error("Signing failed:", err);

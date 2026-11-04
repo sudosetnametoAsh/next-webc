@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { Loader2, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
@@ -40,6 +41,11 @@ export default function DeleteSelectedClients({ clients, onDeleted }: {
       onDeleted(deleted)
       setDeletedCount((count) => count + deleted.length)
       setFailures(errors)
+      if (errors.length) {
+        toast.error("Some clients could not be deleted", { description: `${deleted.length} deleted; ${errors.length} failed. Review the details in this dialog.` })
+      } else {
+        toast.success(`${deleted.length} clients deleted`)
+      }
       if (!errors.length) setOpen(false)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['admin'] }),

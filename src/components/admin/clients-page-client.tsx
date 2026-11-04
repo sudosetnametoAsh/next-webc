@@ -18,8 +18,7 @@ import ClientEnrollmentModal from '@/components/admin/client-enrollment-modal'
 import ClientActions from '@/components/admin/client-actions'
 import DeleteSelectedClients from '@/components/admin/delete-selected-clients'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ToastContainer } from '@/components/admin/toast'
-import { useToast } from '@/components/admin/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { isClearanceOverdue } from '@/lib/clearance-overdue'
 import { computeClientOverdueStatus } from '@/lib/clearance-logic'
 import { GraduationCap, Briefcase, ChevronRight, UserPlus } from 'lucide-react'
@@ -171,7 +170,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
   const [selectedClient, setSelectedClient] = useState<ClientItem | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false)
-  const { toasts, dismiss, success, error } = useToast({ duration: 4500 })
+  const { success, error } = useToast()
 
   // Data Hooks
   const { isLoading: isLoadingAdminStats } = useFetchAdminStats()
@@ -1043,7 +1042,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
       />
 
       {/* ── Toast Notifications Container ── */}
-      <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4500} />
+
 
       {/* ── Client Enrollment & Bulk Roster Modal ── */}
       <ClientEnrollmentModal

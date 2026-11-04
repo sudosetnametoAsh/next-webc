@@ -336,7 +336,6 @@ export default function RequirementModal({
         return;
       }
       setSelectedFile(file);
-      toast.info(`Selected file: ${file.name}`);
     }
     e.target.value = "";
   };
@@ -395,16 +394,16 @@ export default function RequirementModal({
 
       if (data.status === "Verified") {
         toast.success(
-          "Document AI Verified (Factor 1 Passed)! Awaiting officer sign-off."
+          "Document verified. Awaiting staff approval."
         );
       } else if (data.status === "Cleared") {
-        toast.success("Document uploaded & cleared!");
+        toast.success("Document uploaded and cleared.");
       } else if (data.status === "Flagged") {
         toast.warning(
-          "Document uploaded with AI anomaly flags. An officer will manually review."
+          "Document submitted. Staff will review the issues found during verification."
         );
       } else {
-        toast.success("Document submitted successfully for review!");
+        toast.success("Document submitted for review.");
       }
 
       window.dispatchEvent(new Event("clearance_data_invalidated"));
@@ -499,7 +498,7 @@ export default function RequirementModal({
       const updatedReport = data.ai_audit_report;
       setLocalAiReport(updatedReport);
       setLocalStatus("For review");
-      toast.success("Appeal submitted! Prompted for review by department staff.");
+      toast.success("Appeal submitted for department review.");
       if (onAppealSuccess) {
         onAppealSuccess(task.id, updatedReport);
       }

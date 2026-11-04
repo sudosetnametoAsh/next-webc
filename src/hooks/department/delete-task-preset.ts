@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useDeleteTaskPreset() {
@@ -18,7 +19,9 @@ export function useDeleteTaskPreset() {
 
          return request.json();
       },
-      onSuccess: () => {
+      onError: (error) => toast.error(error.message),
+    onSuccess: () => {
+      toast.success("Preset deleted");
          queryClient.invalidateQueries({
             queryKey: ['preset'],
          });

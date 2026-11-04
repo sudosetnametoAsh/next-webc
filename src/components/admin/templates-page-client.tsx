@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { useToast } from '@/components/admin/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { useFetchCourses } from '@/hooks/admin/courses'
 import { useFetchDepartments } from '@/hooks/admin/departments'
 import {
@@ -12,7 +12,6 @@ import {
   useFetchStaffTemplates,
   useDeleteStaffTemplates,
 } from '@/hooks/admin/staff-templates'
-import { ToastContainer } from '@/components/admin/toast'
 import CreateTemplateModal, { type EditTemplateData } from '@/components/admin/create-template-modal'
 import ConfirmationModal, { type ImpactWarningInfo } from '@/components/admin/confirmation-modal'
 import TablePaginationFooter from '@/components/admin/table-pagination-footer'
@@ -434,10 +433,7 @@ export default function Templates() {
   // ————————————————————————————————————————
   // Toast Notification
   // ————————————————————————————————————————
-  const { toasts, dismiss, success, error } = useToast({
-    maxToasts: 3,
-    duration: 4000,
-  })
+  const { success, error } = useToast()
 
   // ————————————————————————————————————————
   // Edit Handler
@@ -478,8 +474,6 @@ export default function Templates() {
 
   return (
     <>
-      <ToastContainer toasts={toasts} onDismiss={dismiss} duration={4000} />
-
       <div className="space-y-6">
         {/* ── 1. Top Header Row ── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

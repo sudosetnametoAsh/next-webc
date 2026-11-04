@@ -10,8 +10,8 @@ import { getDepartmentIcon } from '@/lib/department-icons'
 
 type Props = {
   searchQuery: string;
-  toastSuccess: (message: string, title?: string) => number;
-  toastError: (message: string, title?: string) => number;
+  toastSuccess: (message: string, title?: string) => string | number;
+  toastError: (message: string, title?: string) => string | number;
   hideEmptyState?: boolean;
 }
 
