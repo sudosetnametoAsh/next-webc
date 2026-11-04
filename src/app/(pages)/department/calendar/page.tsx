@@ -16,8 +16,6 @@ export default async function DepartmentCalendarPage() {
       iconName={scheduleData.iconName}
       floor={scheduleData.floor}
       room={scheduleData.room}
-      initialTimeIn={scheduleData.timeIn}
-      initialTimeOut={scheduleData.timeOut}
       initialWeeklySchedule={scheduleData.weeklySchedule}
       initialEarlyOutDate={scheduleData.earlyOutDate}
     />

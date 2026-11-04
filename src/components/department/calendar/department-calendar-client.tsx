@@ -1,4 +1,5 @@
 "use client";
+import { campusClock, officeStatus as getOfficeStatus } from "@/lib/weekly-schedule";
 
 import React, { useState, useMemo } from "react";
 import {
@@ -44,8 +45,6 @@ interface DepartmentCalendarClientProps {
   iconName: string;
   floor: string;
   room: string;
-  initialTimeIn: string | null;
-  initialTimeOut: string | null;
   initialWeeklySchedule?: WeeklySchedule | null;
   initialEarlyOutDate?: string | null;
 }
@@ -80,18 +79,16 @@ function formatTimeString(timeStr?: string | null): string {
 }
 
 const buildDefaultWeeklySchedule = (
-  defaultIn: string,
-  defaultOut: string,
   existing?: WeeklySchedule | null
 ): WeeklySchedule => {
-  const normIn = defaultIn || "08:00";
-  const normOut = defaultOut || "17:00";
+  const normIn = "08:00";
+  const normOut = "17:00";
   return {
-    mon: existing?.mon ?? { active: true, time_in: normIn, time_out: normOut },
-    tue: existing?.tue ?? { active: true, time_in: normIn, time_out: normOut },
-    wed: existing?.wed ?? { active: true, time_in: normIn, time_out: normOut },
-    thu: existing?.thu ?? { active: true, time_in: normIn, time_out: normOut },
-    fri: existing?.fri ?? { active: true, time_in: normIn, time_out: normOut },
+    mon: existing?.mon ?? { active: false, time_in: normIn, time_out: normOut },
+    tue: existing?.tue ?? { active: false, time_in: normIn, time_out: normOut },
+    wed: existing?.wed ?? { active: false, time_in: normIn, time_out: normOut },
+    thu: existing?.thu ?? { active: false, time_in: normIn, time_out: normOut },
+    fri: existing?.fri ?? { active: false, time_in: normIn, time_out: normOut },
     sat: existing?.sat ?? { active: false, time_in: "08:00", time_out: "12:00" },
     sun: existing?.sun ?? { active: false, time_in: "08:00", time_out: "12:00" },
   };
@@ -104,23 +101,18 @@ export default function DepartmentCalendarClient({
   iconName,
   floor,
   room,
-  initialTimeIn,
-  initialTimeOut,
   initialWeeklySchedule,
   initialEarlyOutDate,
 }: DepartmentCalendarClientProps) {
   const { mutate: updateSchedule, isPending: isSaving } = useUpdateSchedule();
 
-  const defaultIn = initialTimeIn ? initialTimeIn.slice(0, 5) : "08:00";
-  const defaultOut = initialTimeOut ? initialTimeOut.slice(0, 5) : "17:00";
-
   // Dynamic Weekly Schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>(() =>
-    buildDefaultWeeklySchedule(defaultIn, defaultOut, initialWeeklySchedule)
+    buildDefaultWeeklySchedule(initialWeeklySchedule)
   );
 
   // Current day key in view
-  const dayIndex = useMemo(() => new Date().getDay(), []); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+  const dayIndex = useMemo(() => campusClock().dayIndex, []); // 0 = Sun, 1 = Mon, ..., 6 = Sat
   const dayMap = useMemo(() => ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], []);
   const currentDayKey = dayMap[dayIndex];
 
@@ -153,7 +145,7 @@ export default function DepartmentCalendarClient({
   };
 
   // Early Out state
-  const todayDateStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const todayDateStr = useMemo(() => campusClock().date, []);
   const [earlyOutDate, setEarlyOutDate] = useState<string | null>(initialEarlyOutDate || null);
   const [showEarlyOutDialog, setShowEarlyOutDialog] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
@@ -182,7 +174,7 @@ export default function DepartmentCalendarClient({
     }
 
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const currentMinutes = campusClock(now).minutes;
     const [inH, inM] = todaySched.time_in.split(":").map(Number);
     const [outH, outM] = todaySched.time_out.split(":").map(Number);
     const inTotal = inH * 60 + (inM || 0);
@@ -192,93 +184,13 @@ export default function DepartmentCalendarClient({
     return currentMinutes >= inTotal && currentMinutes < outTotal;
   }, [weeklySchedule, currentDayKey, isTodaySelected]);
 
-  // Live status calculation (Open vs Closed vs Lunch vs Early Out)
   const officeStatus = useMemo(() => {
-    const todaySched = weeklySchedule[currentDayKey];
-
-    // 1. Early Out check
-    if (isEarlyOutActive) {
-      const nextDayIdx = (dayIndex + 1) % 7;
-      const nextDayKey = dayMap[nextDayIdx];
-      const nextSched = weeklySchedule[nextDayKey];
-      const nextOpenTime = nextSched?.active ? formatTimeString(nextSched.time_in) : "8:00 AM";
-      const nextDayLabel = nextDayIdx === 1 && dayIndex === 6 ? "Monday" : "tomorrow";
-      return {
-        isOpen: false,
-        isEarlyOut: true,
-        isLunch: false,
-        label: `Closed early · Reopens ${nextDayLabel} at ${nextOpenTime}`,
-        shortBadge: "CLOSED EARLY",
-      };
-    }
-
-    // 2. Closed Today check
-    if (!todaySched || !todaySched.active || !todaySched.time_in || !todaySched.time_out) {
-      const dayName = DAYS_OF_WEEK.find((d) => d.key === currentDayKey)?.full || "Today";
-      return {
-        isOpen: false,
-        isEarlyOut: false,
-        isLunch: false,
-        label: `Closed Today (${dayName})`,
-        shortBadge: "CLOSED",
-      };
-    }
-
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const [inH, inM] = todaySched.time_in.split(":").map(Number);
-    const [outH, outM] = todaySched.time_out.split(":").map(Number);
-    const inTotal = inH * 60 + (inM || 0);
-    const outTotal = outH * 60 + (outM || 0);
-
-    // 3. Lunch Window check (12:00 PM – 1:00 PM)
-    if (currentMinutes >= 720 && currentMinutes < 780 && currentMinutes >= inTotal && currentMinutes < outTotal) {
-      return {
-        isOpen: false,
-        isEarlyOut: false,
-        isLunch: true,
-        label: "Lunch break · Resumes at 1:00 PM",
-        shortBadge: "LUNCH BREAK",
-      };
-    }
-
-    // 4. Open Now check
-    if (currentMinutes >= inTotal && currentMinutes < outTotal) {
-      return {
-        isOpen: true,
-        isEarlyOut: false,
-        isLunch: false,
-        label: `Open now · Closes ${formatTimeString(todaySched.time_out)}`,
-        shortBadge: "OPEN NOW",
-      };
-    }
-
-    // 5. Closed - Opens later today
-    if (currentMinutes < inTotal) {
-      return {
-        isOpen: false,
-        isEarlyOut: false,
-        isLunch: false,
-        label: `Closed · Opens today at ${formatTimeString(todaySched.time_in)}`,
-        shortBadge: "CLOSED",
-      };
-    }
-
-    // 6. Closed - Reopens next operating day
-    const nextDayIdx = (dayIndex + 1) % 7;
-    const nextDayKey = dayMap[nextDayIdx];
-    const nextSched = weeklySchedule[nextDayKey];
-    const nextOpenTime = nextSched?.active ? formatTimeString(nextSched.time_in) : "8:00 AM";
-    const nextDayText = nextDayIdx === 1 && dayIndex === 6 ? "Monday" : "tomorrow";
-
-    return {
-      isOpen: false,
-      isEarlyOut: false,
-      isLunch: false,
-      label: `Closed · Opens ${nextDayText} at ${nextOpenTime}`,
-      shortBadge: "CLOSED",
-    };
-  }, [weeklySchedule, currentDayKey, dayIndex, dayMap, isEarlyOutActive]);
+    const status = getOfficeStatus(weeklySchedule, earlyOutDate);
+    const isLunch = status.schedule.startsWith("Lunch break");
+    return { isOpen: status.isOpen, isEarlyOut: isEarlyOutActive, isLunch,
+      label: status.schedule,
+      shortBadge: isEarlyOutActive ? "CLOSED EARLY" : isLunch ? "LUNCH BREAK" : status.isOpen ? "OPEN NOW" : "CLOSED" };
+  }, [weeklySchedule, earlyOutDate, isEarlyOutActive]);
 
   // Selected Days configuration helpers
   const primarySelectedDayKey =
@@ -364,17 +276,8 @@ export default function DepartmentCalendarClient({
 
     setErrorMessage(null);
 
-    // Primary time_in/time_out fallback from Monday or first active day
-    const primaryActive =
-      Object.values(weeklySchedule).find((d) => d.active) || {
-        time_in: "08:00",
-        time_out: "17:00",
-      };
-
     updateSchedule(
       {
-        time_in: primaryActive.time_in,
-        time_out: primaryActive.time_out,
         weekly_schedule: weeklySchedule,
         early_out_date: earlyOutDate,
       },
@@ -733,7 +636,7 @@ export default function DepartmentCalendarClient({
             <button
               type="button"
               onClick={() => {
-                setWeeklySchedule(buildDefaultWeeklySchedule(defaultIn, defaultOut, initialWeeklySchedule));
+                setWeeklySchedule(buildDefaultWeeklySchedule(initialWeeklySchedule));
                 setSelectedDayKeys(new Set([currentDayKey]));
                 setErrorMessage(null);
               }}

@@ -1,4 +1,5 @@
 "use client";
+import { officeStatus, hasWeeklySchedule } from "@/lib/weekly-schedule";
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -74,103 +75,11 @@ function formatTime12(t?: string | null): string {
 }
 
 function getOfficeCurrentStatus(
-  timeIn?: string | null,
-  timeOut?: string | null,
   weeklySchedule?: Record<string, { active: boolean; time_in: string; time_out: string }> | null,
   earlyOutDate?: string | null,
-): {
-  statusText: string;
-  isOpenNow: boolean;
-  timeRange: string;
-  hasHoursToday: boolean;
-} {
-  const now = new Date();
-  const dayIndex = now.getDay(); // 0 = Sun, 6 = Sat
-  const dayMap = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-  const currentDayKey = dayMap[dayIndex];
-  const todayDateStr = now.toISOString().slice(0, 10);
-
-  // Check Early Out
-  if (earlyOutDate === todayDateStr) {
-    const nextDayIndex = (dayIndex + 1) % 7;
-    const nextDayKey = dayMap[nextDayIndex];
-    const nextSched = weeklySchedule?.[nextDayKey];
-    const nextIn = nextSched?.active ? formatTime12(nextSched.time_in) : (timeIn ? formatTime12(timeIn) : "8:00 AM");
-    return {
-      statusText: `Closed early · Reopens tomorrow at ${nextIn}`,
-      isOpenNow: false,
-      timeRange: "Closed Early",
-      hasHoursToday: false,
-    };
-  }
-
-  // Determine today's active time_in and time_out
-  let activeIn = timeIn;
-  let activeOut = timeOut;
-  let isDayActive = dayIndex !== 0; // Default: Sunday closed
-
-  if (weeklySchedule && weeklySchedule[currentDayKey]) {
-    const dayConfig = weeklySchedule[currentDayKey];
-    isDayActive = dayConfig.active;
-    activeIn = dayConfig.time_in;
-    activeOut = dayConfig.time_out;
-  }
-
-  if (!isDayActive || !activeIn || !activeOut) {
-    const nextActiveDayName = dayIndex === 6 ? "Mon" : "tomorrow";
-    return {
-      statusText: `Closed today · Opens ${nextActiveDayName}`,
-      isOpenNow: false,
-      timeRange: "Closed",
-      hasHoursToday: false,
-    };
-  }
-
-  const formattedIn = formatTime12(activeIn);
-  const formattedOut = formatTime12(activeOut);
-  const timeRange = `${formattedIn} – ${formattedOut}`;
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  const [inH, inM] = activeIn.split(":").map(Number);
-  const inMinutes = inH * 60 + (inM || 0);
-
-  const [outH, outM] = activeOut.split(":").map(Number);
-  const outMinutes = outH * 60 + (outM || 0);
-
-  // Lunch break check (12:00 PM - 1:00 PM)
-  if (currentMinutes >= 720 && currentMinutes < 780 && currentMinutes >= inMinutes && currentMinutes < outMinutes) {
-    return {
-      statusText: "Lunch break · Resumes at 1:00 PM",
-      isOpenNow: false,
-      timeRange,
-      hasHoursToday: true,
-    };
-  }
-
-  if (currentMinutes >= inMinutes && currentMinutes < outMinutes) {
-    return {
-      statusText: `Open now · Closes ${formattedOut}`,
-      isOpenNow: true,
-      timeRange,
-      hasHoursToday: true,
-    };
-  } else if (currentMinutes < inMinutes) {
-    return {
-      statusText: `Closed · Opens at ${formattedIn}`,
-      isOpenNow: false,
-      timeRange,
-      hasHoursToday: true,
-    };
-  } else {
-    const nextDayText = dayIndex === 6 ? "Mon" : "tomorrow";
-    return {
-      statusText: `Closed · Opens ${nextDayText} ${formattedIn}`,
-      isOpenNow: false,
-      timeRange,
-      hasHoursToday: true,
-    };
-  }
+) {
+  const status = officeStatus(weeklySchedule, earlyOutDate);
+  return { ...status, statusText: status.schedule, isOpenNow: status.isOpen };
 }
 
 interface ProcessedDepartmentSchedule {
@@ -250,8 +159,7 @@ export default function OfficeHours({
   const processedDepartments = useMemo(() => {
     return departments.map((d) => {
       const { statusText, isOpenNow, timeRange, hasHoursToday } = getOfficeCurrentStatus(
-        d.time_in,
-        d.time_out,
+
         d.weekly_schedule,
         d.early_out_date
       );
@@ -286,18 +194,7 @@ export default function OfficeHours({
           return { fullDay: `${formatTime12(cfg.time_in)} – ${formatTime12(cfg.time_out)}` };
         }
 
-        // Fallback for Saturday
-        if (key === "sat") {
-          const saturdayClosedDepts = ["Guidance Office", "Computer Laboratory"];
-          const isSatClosed =
-            saturdayClosedDepts.includes(d.dept_name) || !d.time_in || !d.time_out;
-          return isSatClosed ? { closed: true } : { fullDay: "8:00 AM – 12:00 PM" };
-        }
-
-        // Fallback for weekdays
-        return d.time_in && d.time_out
-          ? { fullDay: `${formatTime12(d.time_in)} – ${formatTime12(d.time_out)}` }
-          : { closed: true };
+        return { closed: true };
       };
 
       const schedule: Record<DayKey, OfficeScheduleSlot> = {
@@ -325,7 +222,7 @@ export default function OfficeHours({
         statusText,
         isOpenNow,
         hasHoursToday,
-        hasSchedule: Boolean(d.time_in && d.time_out),
+        hasSchedule: hasWeeklySchedule(d.weekly_schedule),
         timeRange,
         iconName: d.icon_name,
         location,

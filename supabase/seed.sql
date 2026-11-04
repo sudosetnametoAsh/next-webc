@@ -1918,97 +1918,21 @@ INSERT INTO "public"."clearance_departments" ("dept_id", "dept_name", "icon_name
 -- Data for Name: staffs; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."staffs" ("staff_id", "staff_name", "time_in", "time_out", "weekly_schedule", "early_out_date") VALUES
-	('02000079480', 'Edeline Mariano', NULL, NULL, NULL, NULL),
-	('02000607789', 'Vic Diaz', NULL, NULL, NULL, NULL),
-	('02000788068', 'Mrs. Camille', NULL, NULL, NULL, NULL),
-	('02000924567', 'Lalhaine Dhel Bamba', NULL, NULL, NULL, NULL),
-	('02000485347', 'Noemi Martillano', '09:00:00', '17:00:00', NULL, NULL),
-	('02000099262', 'JanJan Rodelas', NULL, NULL, NULL, NULL),
-	('02000351089', 'Dela Roca, Sean Mcihael (Student)', '08:00:00', '17:00:00', '{"fri": {"active": false, "time_in": "08:00", "time_out": "17:00"}, "mon": {"active": false, "time_in": "07:30", "time_out": "16:30"}, "sat": {"active": false, "time_in": "08:00", "time_out": "12:00"}, "sun": {"active": false, "time_in": "08:00", "time_out": "12:00"}, "thu": {"active": false, "time_in": "08:00", "time_out": "17:00"}, "tue": {"active": true, "time_in": "08:00", "time_out": "17:00"}, "wed": {"active": false, "time_in": "09:00", "time_out": "18:00"}}', NULL),
-	('02000353616', 'Lady Hennesy I. Rescober', NULL, NULL, NULL, NULL);
+INSERT INTO "public"."staffs" ("staff_id", "staff_name", "weekly_schedule", "early_out_date") VALUES
+	('02000079480', 'Edeline Mariano', NULL, NULL),
+	('02000607789', 'Vic Diaz', NULL, NULL),
+	('02000788068', 'Mrs. Camille', NULL, NULL),
+	('02000924567', 'Lalhaine Dhel Bamba', NULL, NULL),
+	('02000485347', 'Noemi Martillano', NULL, NULL),
+	('02000099262', 'JanJan Rodelas', NULL, NULL),
+	('02000351089', 'Dela Roca, Sean Mcihael (Student)', '{"fri": {"active": false, "time_in": "08:00", "time_out": "17:00"}, "mon": {"active": false, "time_in": "07:30", "time_out": "16:30"}, "sat": {"active": false, "time_in": "08:00", "time_out": "12:00"}, "sun": {"active": false, "time_in": "08:00", "time_out": "12:00"}, "thu": {"active": false, "time_in": "08:00", "time_out": "17:00"}, "tue": {"active": true, "time_in": "08:00", "time_out": "17:00"}, "wed": {"active": false, "time_in": "09:00", "time_out": "18:00"}}', NULL),
+	('02000353616', 'Lady Hennesy I. Rescober', NULL, NULL);
 
 
 --
--- Data for Name: clearance_logs; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."clearance_logs" ("log_id", "staff_id", "message", "created_at", "actions") VALUES
-	(2, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-04-24 00:30:32.772575+00', 'Assign Task'),
-	(3, '02000351089', 'Signed off on clearances for 2 student(s).', '2026-04-24 00:32:54.515004+00', 'Sign Clearance'),
-	(4, '02000351089', 'Signed off on clearances for 1 student(s).', '2026-04-24 01:00:04.59414+00', 'Sign Clearance'),
-	(5, '02000351089', 'Assigned "test data" to 1 student(s).', '2026-04-24 01:08:01.759856+00', 'Assign Task'),
-	(6, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-04-24 01:52:50.142411+00', 'Assign Task'),
-	(7, '02000351089', 'Assigned "test data" to 1 student(s).', '2026-04-24 02:02:42.48757+00', 'Assign Task'),
-	(8, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-04-24 02:11:21.708438+00', 'Assign Task'),
-	(9, '02000351089', 'Assigned "test data" to 1 student(s).', '2026-04-24 02:42:14.292576+00', 'Assign Task'),
-	(10, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-04-24 03:13:07.305491+00', 'Assign Task'),
-	(11, '02000351089', 'Signed off on clearances for 1 student(s).', '2026-04-24 04:16:43.604704+00', 'Sign Clearance'),
-	(12, '02000351089', 'Signed off on clearances for 1 student(s).', '2026-04-24 04:17:56.156583+00', 'Sign Clearance'),
-	(13, '02000351089', 'Signed off on clearances for 1 student(s).', '2026-04-24 04:41:34.734753+00', 'Sign Clearance'),
-	(14, '02000351089', 'Assigned "School bill" to 1 student(s).', '2026-04-24 04:44:01.279132+00', 'Assign Task'),
-	(15, '02000351089', 'Signed off on clearances for 22 user(s).', '2026-05-21 07:15:07.421715+00', 'Sign Clearance'),
-	(16, '02000351089', 'Signed off on clearances for 22 user(s).', '2026-05-21 07:15:34.47252+00', 'Sign Clearance'),
-	(17, '02000351089', 'Signed off on clearances for 25 user(s).', '2026-05-21 20:28:19.484843+00', 'Sign Clearance'),
-	(18, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-05-22 01:03:32.987087+00', 'Assign Task'),
-	(19, '02000351089', 'Assigned "drop " to 1 student(s).', '2026-05-22 01:12:23.600687+00', 'Assign Task'),
-	(20, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-05-22 02:02:47.359923+00', 'Sign Clearance'),
-	(21, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-05-22 03:01:52.85791+00', 'Sign Clearance'),
-	(22, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-05-22 03:03:53.633325+00', 'Sign Clearance'),
-	(23, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-19 14:41:14.864539+00', 'Assign Task'),
-	(24, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-19 14:42:59.442861+00', 'Sign Clearance'),
-	(25, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-19 14:47:42.679798+00', 'Sign Clearance'),
-	(26, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-19 14:50:22.875971+00', 'Assign Task'),
-	(27, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-19 16:10:31.246718+00', 'Sign Clearance'),
-	(28, '02000351089', 'Dela Roca, Sean Mcihael (Student) completed Factor-2 authorization for 2 AI-verified submission(s).', '2026-10-19 17:36:45.229153+00', 'Factor-2 Batch Authorization'),
-	(29, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-21 15:02:32.667003+00', 'Sign Clearance'),
-	(30, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-21 15:02:45.635868+00', 'Assign Task'),
-	(31, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-21 15:04:25.429799+00', 'Assign Task'),
-	(32, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-21 15:50:57.995108+00', 'Assign Task'),
-	(33, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-22 00:03:46.759846+00', 'Sign Clearance'),
-	(34, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-22 00:03:55.934467+00', 'Sign Clearance'),
-	(35, '02000351089', 'Assigned "Proof on Enrollment" to 1 student(s).', '2026-10-22 11:46:15.46939+00', 'Assign Task'),
-	(36, '02000351089', 'Assigned "Books" to 1 student(s).', '2026-10-22 12:00:00.316188+00', 'Assign Task'),
-	(37, '02000351089', 'Assigned "Test Task With a Very Very Long Description" to 1 student(s).', '2026-10-22 14:59:57.048808+00', 'Assign Task'),
-	(38, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-25 05:02:02.967351+00', 'Assign Task'),
-	(39, '02000351089', 'Dela Roca, Sean Mcihael (Student) completed Factor-2 authorization for 4 AI-verified submission(s).', '2026-10-25 06:01:55.39113+00', 'Factor-2 Batch Authorization'),
-	(40, '02000351089', 'Signed off on clearances for 7 user(s).', '2026-10-25 12:38:19.571178+00', 'Sign Clearance'),
-	(41, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-25 12:40:10.735736+00', 'Sign Clearance'),
-	(42, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-25 12:40:50.30554+00', 'Assign Task'),
-	(43, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-25 12:41:06.853287+00', 'Sign Clearance'),
-	(44, '02000351089', 'Signed off on clearances for 5 user(s).', '2026-10-25 12:48:25.072253+00', 'Sign Clearance'),
-	(45, '02000351089', 'Signed off on clearances for 3 user(s).', '2026-10-25 12:50:59.558579+00', 'Sign Clearance'),
-	(46, '02000351089', 'Assigned "Registration Assessment Form" to 1 student(s).', '2026-10-26 01:30:09.936194+00', 'Assign Task'),
-	(47, '02000351089', 'Assigned "This is a test task" to 1 student(s).', '2026-10-26 03:13:47.353997+00', 'Assign Task'),
-	(48, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 03:18:24.388812+00', 'Assign Task'),
-	(49, '02000351089', 'Signed off on clearances for 1 user(s).', '2026-10-26 03:29:08.394532+00', 'Sign Clearance'),
-	(50, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 03:29:55.701323+00', 'Assign Task'),
-	(51, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 03:30:53.218566+00', 'Assign Task'),
-	(52, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 03:42:20.447566+00', 'Assign Task'),
-	(53, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 03:49:28.824525+00', 'Assign Task'),
-	(54, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 05:45:34.785917+00', 'Assign Task'),
-	(55, '02000351089', 'Removed requirement "Missing Book" (ID: 122).', '2026-10-26 05:50:23.217331+00', 'Remove Task'),
-	(56, '02000351089', 'Removed requirement "Missing Book" (ID: 126).', '2026-10-26 05:50:34.096512+00', 'Remove Task'),
-	(57, '02000351089', 'Removed requirement "Missing Book" (ID: 125).', '2026-10-26 05:50:40.838209+00', 'Remove Task'),
-	(58, '02000351089', 'Updated task "Missing Book".', '2026-10-26 05:53:13.076754+00', 'Update Task'),
-	(59, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 05:54:12.384328+00', 'Assign Task'),
-	(60, '02000351089', 'Removed requirement "Missing Book" (ID: 128).', '2026-10-26 06:59:20.609961+00', 'Remove Task'),
-	(61, '02000351089', 'Removed requirement "Missing Book" (ID: 124).', '2026-10-26 06:59:25.814626+00', 'Remove Task'),
-	(62, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 15:12:54.243878+00', 'Assign Task'),
-	(63, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-26 15:17:08.01256+00', 'Assign Task'),
-	(64, '02000351089', 'Removed requirement "Missing Book" (ID: 115).', '2026-10-26 16:31:14.998359+00', 'Remove Task'),
-	(65, '02000351089', 'Removed requirement "Missing Book" (ID: 127).', '2026-10-26 16:31:34.798438+00', 'Remove Task'),
-	(66, '02000351089', 'Removed requirement "Missing Book" (ID: 123).', '2026-10-26 16:54:27.117482+00', 'Remove Task'),
-	(67, '02000351089', 'Removed requirement "Missing Book" (ID: 130).', '2026-10-27 00:52:41.109658+00', 'Remove Task'),
-	(68, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-27 00:52:48.721808+00', 'Assign Task'),
-	(69, '02000351089', 'Removed requirement "Missing Book" (ID: 131).', '2026-10-27 01:34:12.3895+00', 'Remove Task'),
-	(70, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-27 01:34:28.067692+00', 'Assign Task'),
-	(71, '02000351089', 'Updated task "Missing Book".', '2026-10-27 02:19:02.655292+00', 'Update Task'),
-	(72, '02000351089', 'Removed requirement "Missing Book" (ID: 129).', '2026-10-27 02:20:15.501102+00', 'Remove Task'),
-	(73, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-27 02:20:20.880022+00', 'Assign Task'),
-	(74, '02000351089', 'Removed requirement "Missing Book" (ID: 132).', '2026-10-27 15:49:08.927223+00', 'Remove Task'),
-	(75, '02000351089', 'Assigned "Missing Book" to 1 student(s).', '2026-10-27 15:49:37.459479+00', 'Assign Task'),
-	(76, '02000351089', 'Assigned "fjasl;kdfj;klsadjf" to 1 student(s).', '2026-10-27 16:00:27.30577+00', 'Assign Task'),
+kdfj;klsadjf" to 1 student(s).', '2026-10-27 16:00:27.30577+00', 'Assign Task'),
 	(77, '02000351089', 'Removed requirement "fjasl;kdfj;klsadjf" (ID: 135).', '2026-10-27 16:23:24.498328+00', 'Remove Task'),
 	(78, '02000351089', 'Assigned "fasfd" to 1 student(s).', '2026-10-27 16:23:31.565532+00', 'Assign Task'),
 	(79, '02000351089', 'Assigned "fasdfd" to 1 student(s).', '2026-10-27 16:26:52.048133+00', 'Assign Task'),
@@ -3619,10 +3543,8 @@ SELECT pg_catalog.setval('"drizzle"."__drizzle_migrations_id_seq"', 1, false);
 
 
 --
--- Name: activity_logs_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."activity_logs_log_id_seq"', 199, true);
 
 
 --

@@ -51,12 +51,6 @@ export type CourseVelocity = {
   rate: number;
 };
 
-export type getRecentActivityPromise = {
-  message: string;
-  actions: string;
-  created_at: string;
-};
-
 export type SectionAuditItem = {
   label: string;
   sectionNumber?: number;
@@ -131,6 +125,5 @@ export interface DashboardRepository {
   getRecentSubmissions(staffId: string): Promise<getRecentSubmissionsPromise[]>;
   getReadyToSignClients(staffId: string): Promise<ReadyToSignClient[]>;
   getCourseVelocity(staffId: string): Promise<CourseVelocity[]>;
-  getRecentActivity(staffId: string): Promise<getRecentActivityPromise[]>;
   getDepartmentReport(staffId: string, departmentName?: string): Promise<DepartmentReportData>;
 }

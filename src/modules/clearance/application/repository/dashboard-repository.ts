@@ -7,13 +7,14 @@ export type getClearanceRecordsPromise = {
     staff_id: string;
     task_count: number;
     cleared_task: number;
-    time_in: string | null;
-    time_out: string | null;
+
     tier?: number;
     icon_name?: string;
     floor?: string | null;
     room?: string | null;
     signed_at?: string | null;
+    weekly_schedule?: Record<string, { active: boolean; time_in: string; time_out: string }> | null;
+    early_out_date?: string | null;
 }[]
 
 export type getSummaryPromise = {
@@ -49,8 +50,7 @@ export type getOfficeHoursPromise = {
     dept_id: number;
     dept_name: string;
     staff_name: string | null;
-    time_in: string | null;
-    time_out: string | null;
+
     weekly_schedule?: Record<string, { active: boolean; time_in: string; time_out: string }> | null;
     early_out_date?: string | null;
     floor?: string | null;

@@ -80,5 +80,31 @@ const q = (value) => "'" + value.replace(/'/g, "''") + "'";
   }
   const visible = sql("SET request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; SET ROLE authenticated; SELECT user_id FROM public.clearance_records;").split('\n').filter((line) => line !== 'SET');
   assert.deepEqual(visible, [id], 'generated-ID staff can read their own clearance but no other staff clearance');
+  // Apply the actual retirement migrations against existing staff and clearance data.
+  sql(`ALTER TABLE public.staffs ADD COLUMN time_in time, ADD COLUMN time_out time,
+    ADD COLUMN weekly_schedule jsonb, ADD COLUMN early_out_date date;
+    CREATE TABLE public.clearance_logs(log_id serial PRIMARY KEY, staff_id text REFERENCES public.staffs(staff_id));
+    CREATE PUBLICATION retirement_test FOR TABLE public.clearance_logs;
+    INSERT INTO public.clearance_logs(staff_id) VALUES (${q(id)});
+    UPDATE public.staffs SET time_in='08:00', time_out='17:00' WHERE staff_id=${q(id)};
+    UPDATE public.staffs SET time_in='08:00', time_out='17:00', weekly_schedule='{"mon":{"active":false,"time_in":"10:00","time_out":"15:00"}}' WHERE staff_id=${q(afterLogin)};`);
+  const staffCount = sql('SELECT count(*) FROM public.staffs;');
+  const recordCount = sql('SELECT count(*) FROM public.clearance_records;');
+  const backfill = fs.readFileSync('supabase/migrations/20261104000002_backfill_staff_weekly_schedule.sql', 'utf8');
+  sql(backfill); sql(backfill);
+  assert.equal(sql(`SELECT weekly_schedule->'mon'->>'time_in' FROM public.staffs WHERE staff_id=${q(id)};`), '08:00');
+  assert.equal(sql(`SELECT weekly_schedule->'sat'->>'active' FROM public.staffs WHERE staff_id=${q(id)};`), 'false');
+  assert.equal(sql(`SELECT weekly_schedule->'mon'->>'time_in' FROM public.staffs WHERE staff_id=${q(afterLogin)};`), '10:00');
+  assert.equal(sql("SELECT weekly_schedule IS NULL FROM public.staffs WHERE staff_id='EMP001';"), 't');
+  const removal = fs.readFileSync('supabase/migrations/20261104000003_remove_legacy_staff_hours_and_clearance_logs.sql', 'utf8');
+  sql(removal); sql(removal);
+  assert.equal(sql("SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='staffs' AND column_name IN ('time_in','time_out');"), '0');
+  assert.equal(sql("SELECT to_regclass('public.clearance_logs') IS NULL;"), 't');
+  assert.equal(sql("SELECT count(*) FROM pg_publication_tables WHERE pubname='retirement_test';"), '0');
+  assert.equal(sql('SELECT count(*) FROM public.staffs;'), staffCount);
+  assert.equal(sql('SELECT count(*) FROM public.clearance_records;'), recordCount);
+  const newStaff = sql("SELECT public.enroll_staff_identity('afterdrop@example.edu','After Removal');");
+  assert.equal(sql(`SELECT count(*) FROM public.clearance_records WHERE user_id=${q(newStaff)};`), '1');
+  console.log('PASS: schedule backfill preserves saved weeks, leaves missing hours unset, and is repeatable; retirement drops only legacy hours and logs, removes its publication entry, preserves clearance records, and staff enrollment still creates clearances.');
   console.log('PASS: generated IDs, repeat enrollment, preserved legacy IDs, login/JWT linking, own-record RLS queries, clearance creation, rollback, service-only access, conflicting identities, and eight concurrent enrollments.');
 })().catch((error) => { console.error(error.message); process.exitCode = 1; });

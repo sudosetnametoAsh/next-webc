@@ -1,7 +1,6 @@
 import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
-import { logActivity } from "@/lib/log-activity";
 import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
 import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
 import { NextRequest, NextResponse } from "next/server";
@@ -215,12 +214,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  await logActivity(
-    user_id,
-    "Assign Task",
-    `Assigned "${taskTitle}" to ${updatedClearanceIds.length} student(s).`,
-  );
-
   invalidateServerDepartmentCache(user_id);
   invalidateServerClearanceCache();
 
@@ -293,12 +286,6 @@ export async function PATCH(req: NextRequest) {
       console.error("Failed to update notification titles:", notifUpdateErr);
     }
   }
-
-  await logActivity(
-    user_id,
-    "Update Task",
-    `Updated task "${updatedTask?.title || "Task"}".`,
-  );
 
   invalidateServerDepartmentCache(user_id);
   invalidateServerClearanceCache();
@@ -394,12 +381,6 @@ export async function DELETE(
   } catch (notifDeleteErr) {
     console.error("Failed to delete notifications for deleted task:", notifDeleteErr);
   }
-
-  await logActivity(
-    user_id,
-    "Remove Task",
-    `Removed requirement "${taskTitle || "Task"}" (ID: ${taskId}).`,
-  );
 
   invalidateServerDepartmentCache(user_id);
   if (studentUserId) {

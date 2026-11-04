@@ -6,7 +6,6 @@ import {
   DashboardRepository,
   DepartmentClientRecord,
   DepartmentReportData,
-  getRecentActivityPromise,
   getRecentSubmissionsPromise,
   getStatCardValuePromise,
   ProgramAuditItem,
@@ -16,7 +15,6 @@ import {
 
 import {
   clearanceDepartments,
-  clearanceLogs,
   clearanceTasks,
   clearanceTemplates,
   courses,
@@ -256,24 +254,6 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
         };
       })
       .sort((a, b) => a.rate - b.rate);
-  }
-
-  async getRecentActivity(
-    staffId: string,
-  ): Promise<getRecentActivityPromise[]> {
-    const response = await db
-      .select({
-        message: clearanceLogs.message,
-        actions: clearanceLogs.actions,
-        created_at: clearanceLogs.createdAt,
-      })
-      .from(clearanceLogs)
-      .innerJoin(staffs, eq(staffs.staffId, clearanceLogs.staffId))
-      .where(eq(clearanceLogs.staffId, staffId))
-      .orderBy(desc(clearanceLogs.createdAt))
-      .limit(10);
-
-    return response;
   }
 
   async getDepartmentReport(

@@ -1,3 +1,4 @@
+import { validateWeeklySchedule, campusClock } from "@/lib/weekly-schedule";
 import { makeGetSchedule } from "@/composition/staff/make-get-schedule";
 import { makeSetSchedule } from "@/composition/staff/make-set-schedule";
 import { getSession } from "@/lib/auth/get-session";
@@ -15,13 +16,11 @@ export async function GET() {
     const use_case = makeGetSchedule();
 
     let schedule: {
-      time_in: string | null;
-      time_out: string | null;
+
       weekly_schedule?: any;
       early_out_date?: string | null;
     } = {
-      time_in: null,
-      time_out: null,
+
       weekly_schedule: null,
       early_out_date: null,
     };
@@ -29,8 +28,7 @@ export async function GET() {
     try {
       const response = await use_case.execute(user_id);
       schedule = {
-        time_in: response.time_in,
-        time_out: response.time_out,
+
         weekly_schedule: response.weekly_schedule || null,
         early_out_date: response.early_out_date || null,
       };
@@ -90,8 +88,7 @@ export async function GET() {
     return NextResponse.json(
       {
         data: {
-          time_in: schedule.time_in,
-          time_out: schedule.time_out,
+
           weekly_schedule: schedule.weekly_schedule,
           early_out_date: schedule.early_out_date,
           staff_name: user_name,
@@ -116,14 +113,14 @@ export async function PATCH(req: NextRequest) {
   try {
     const { user_id, user_name } = await getSession();
     const body = await req.json();
-    const { action, time_in, time_out, weekly_schedule, early_out_date } = body;
+    const { action, weekly_schedule, early_out_date } = body;
 
     const supabase = await createClient();
 
     // 1. Handle quick Early Out or Resume Schedule actions
     if (action === "early_out" || action === "resume_schedule") {
       const targetDate = action === "early_out"
-        ? (early_out_date || new Date().toISOString().slice(0, 10))
+        ? (early_out_date || campusClock().date)
         : null;
 
       const { error: updateError } = await supabase
@@ -148,32 +145,17 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // 2. Full Schedule Configuration (Dynamic Weekly Schedule + default hours)
-    if (!time_in || !time_out) {
-      return NextResponse.json(
-        { error: "Both start time and end time are required." },
-        { status: 400 },
-      );
-    }
-
-    // Normalize to HH:mm:ss if HH:mm was sent
-    const normalizedTimeIn = time_in.length === 5 ? `${time_in}:00` : time_in;
-    const normalizedTimeOut = time_out.length === 5 ? `${time_out}:00` : time_out;
-
-    if (normalizedTimeOut <= normalizedTimeIn) {
-      return NextResponse.json(
-        { error: "Office hours closing time must be later than opening time." },
-        { status: 400 },
-      );
+    let validatedSchedule;
+    try { validatedSchedule = validateWeeklySchedule(weekly_schedule); }
+    catch (error) {
+      return NextResponse.json({ error: (error as Error).message }, { status: 400 });
     }
 
     const use_case = makeSetSchedule();
     await use_case.execute(
       user_id,
-      normalizedTimeIn,
-      normalizedTimeOut,
       user_name,
-      weekly_schedule || null,
+      validatedSchedule,
       early_out_date !== undefined ? early_out_date : null,
     );
 
@@ -199,15 +181,14 @@ export async function PATCH(req: NextRequest) {
         department_id: dept?.dept_id || null,
         category: "schedule",
         title: "Department Schedule Updated",
-        description: `${deptName} updated their office hours (${normalizedTimeIn.slice(0, 5)} - ${normalizedTimeOut.slice(0, 5)}).`,
+        description: `${deptName} updated their weekly office hours.`,
         type: "Info",
         ref_url: "/clearance/schedules",
         is_read: false,
         metadata: {
           departmentId: dept?.dept_id,
           departmentName: deptName,
-          timeIn: normalizedTimeIn,
-          timeOut: normalizedTimeOut,
+          weeklySchedule: validatedSchedule,
         },
       });
     } catch (schedNotifErr) {
@@ -222,9 +203,7 @@ export async function PATCH(req: NextRequest) {
         success: true,
         message: "Office hours updated successfully",
         data: {
-          time_in: normalizedTimeIn,
-          time_out: normalizedTimeOut,
-          weekly_schedule: weekly_schedule || null,
+          weekly_schedule: validatedSchedule,
           early_out_date: early_out_date || null,
         },
       },

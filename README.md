@@ -187,3 +187,11 @@ Replace `<full-commit-sha>` before running these commands. Put an HTTPS reverse 
 - Configure Supabase Auth's production Site URL and allowed redirect URL (`https://YOUR_DOMAIN/api/auth/callback`), and the Azure provider's callback URL. The checked-in Supabase config is for local development.
 - Use a database, Supabase service, and SMS gateway reachable from the container. `localhost` inside it refers to the container itself. Provision the production database/schema separately; this image does not run migrations or host Supabase.
 - Building, publishing, and triggering a Dokploy redeploy does not configure DNS/TLS or certify the app's authorization/security for public access.
+
+### Weekly schedule and activity-log cleanup
+
+Apply `supabase/migrations/20261104000002_backfill_staff_weekly_schedule.sql` before deploying the weekly-only application. It preserves existing weekly schedules and converts valid legacy hours into Monday–Friday schedules with weekends closed. Staff without saved hours remain unset.
+
+Deploy the application and stop old instances, then apply `supabase/migrations/20261104000003_remove_legacy_staff_hours_and_clearance_logs.sql`. This permanently removes clearance activity history and the legacy staff hour columns. Task, clearance, and notification records remain in place. Do not apply both migrations together before updating a running production application.
+
+Verify schedule saving, closed days, early-out/resume, signing/undo, and task updates after deployment. The PostgreSQL integration script `tests/staff-enrollment.postgres.cjs` exercises both migrations in a designated disposable container, including clearance preservation and enrollment after removal.

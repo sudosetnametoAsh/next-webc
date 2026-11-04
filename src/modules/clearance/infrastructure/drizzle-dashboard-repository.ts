@@ -83,13 +83,14 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           department: clearanceDepartments.deptName,
           task_count: sql<number>`count(${clearanceTasks.assignedTaskId})::int`,
           cleared_task: sql<number>`COUNT(*) FILTER (WHERE ${clearanceTasks.status} IN ('Cleared', 'Flagged', 'Verified'))::int`,
-          time_in: staffs.timeIn,
-          time_out: staffs.timeOut,
+
           tier: clearanceTemplates.tier,
           icon_name: clearanceDepartments.iconName,
           floor: clearanceDepartments.floor,
           room: clearanceDepartments.room,
           signed_at: clearanceRecords.signedAt,
+          weekly_schedule: staffs.weeklySchedule,
+          early_out_date: staffs.earlyOutDate,
         })
         .from(clearanceRecords)
         .innerJoin(
@@ -114,8 +115,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
 
       return query.groupBy(
         staffs.staffName,
-        staffs.timeIn,
-        staffs.timeOut,
+        staffs.weeklySchedule,
+        staffs.earlyOutDate,
+
         clearanceDepartments.deptName,
         clearanceRecords.clearanceId,
         clearanceRecords.signedAt,
@@ -225,8 +227,7 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           dept_id: clearanceDepartments.deptId,
           dept_name: clearanceDepartments.deptName,
           staff_name: staffs.staffName,
-          time_in: staffs.timeIn,
-          time_out: staffs.timeOut,
+
           weekly_schedule: staffs.weeklySchedule,
           early_out_date: staffs.earlyOutDate,
           floor: clearanceDepartments.floor,
@@ -258,8 +259,7 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
           clearanceDepartments.deptId,
           clearanceDepartments.deptName,
           staffs.staffName,
-          staffs.timeIn,
-          staffs.timeOut,
+
           staffs.weeklySchedule,
           staffs.earlyOutDate,
           clearanceDepartments.floor,

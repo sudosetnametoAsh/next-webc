@@ -7,7 +7,6 @@ import {
   integer,
   varchar,
   jsonb,
-  time,
   pgPolicy,
   check,
   uuid,
@@ -17,41 +16,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { anonRole, authenticatedRole } from "drizzle-orm/supabase";
 import { sql } from "drizzle-orm";
-
-export const clearanceLogs = pgTable(
-  "clearance_logs",
-  {
-    logId: serial("log_id").primaryKey().notNull(),
-    staffId: text("staff_id").notNull(),
-    message: text().notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    actions: text().notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.staffId],
-      foreignColumns: [staffs.staffId],
-      name: "activity_log_staff_id_fkey",
-    })
-      .onUpdate("cascade")
-      .onDelete("cascade"),
-    pgPolicy("users can view logs", {
-      as: "permissive",
-      for: "select",
-      to: authenticatedRole,
-      using: sql`true`,
-    }),
-    pgPolicy("department staff can make changes", {
-      as: "permissive",
-      for: "all",
-      to: authenticatedRole,
-      using: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
-      withCheck: sql`(auth.jwt() -> 'user_metadata' -> 'custom_claims' -> 'roles') ?| ARRAY['Department', 'Staff']`,
-    }),
-  ],
-);
 
 export const clearanceTasks = pgTable(
   "clearance_tasks",
@@ -318,8 +282,6 @@ export const staffs = pgTable(
   {
     staffId: varchar("staff_id").primaryKey().notNull(),
     staffName: varchar("staff_name").notNull(),
-    timeIn: time("time_in"),
-    timeOut: time("time_out"),
     weeklySchedule: jsonb("weekly_schedule").$type<Record<string, { active: boolean; time_in: string; time_out: string }>>(),
     earlyOutDate: varchar("early_out_date", { length: 10 }),
   },

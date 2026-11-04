@@ -1,3 +1,4 @@
+import DepartmentCalendarClient from "@/components/department/calendar/department-calendar-client";
 import React, { useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -28,7 +29,10 @@ function ReviewFixture() {
   }] : [], [taskMode]);
   return <QueryClientProvider client={queryClient}>
     <DepartmentHeader user_id="test-officer" user_name="Test Officer" department="Clinic" />
-    {showAdmin ? <>
+    {new URLSearchParams(location.search).has("calendar") ? <DepartmentCalendarClient
+      userId="test-officer" userName="Test Officer" departmentName="Clinic" iconName="Building2" floor="1" room="101"
+      initialWeeklySchedule={new URLSearchParams(location.search).has("savedweek") ? { mon: { active: true, time_in: "09:00", time_out: "16:00" } } : null}
+    /> : showAdmin ? <>
       <AdminRealtimeListener />
       <div data-testid="report-programs"><ProgramCompletionTable /></div>
       <div data-testid="admin-clients"><AdminClientsClient /></div>

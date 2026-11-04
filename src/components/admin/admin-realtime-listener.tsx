@@ -24,7 +24,7 @@ export default function AdminRealtimeListener() {
         do {
           pending = false;
           await Promise.all([
-            "stats", "pipeline-radar", "activity", "departments", "student-templates",
+            "stats", "pipeline-radar", "departments", "student-templates",
             "course-templates", "staff-templates", "staff", "courses",
           ].map((key) => queryClient.invalidateQueries({ queryKey: ["admin", key] })));
         } while (pending && !disposed);
@@ -51,9 +51,6 @@ export default function AdminRealtimeListener() {
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_tasks" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_departments" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_templates" }, triggerRefresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "clearance_logs" }, () => {
-        void queryClient.invalidateQueries({ queryKey: ["admin", "activity"] });
-      })
       .subscribe((status, error) => {
         if (disposed) return;
         if (status === "SUBSCRIBED") {

@@ -1,5 +1,4 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { logActivity } from "@/lib/log-activity";
 import { dispatchReadyForSigningNotifications } from "@/lib/services/ready-for-signing-notifications";
 import { checkAndDispatchAdminCompletion, revokeAdminCompletion } from "@/lib/services/admin-notifications";
 import { checkAndDispatchStudentCompletion, revokeStudentCompletionNotification } from "@/lib/services/student-completion";
@@ -116,12 +115,7 @@ async function reconcile(options: Options): Promise<SigningRecord[]> {
 }
 
 export async function runClearanceSigningEffects(options: Options) {
-  const activity = safely("Clearance activity log failed:", () => logActivity(
-    options.actorId, options.status === "Signed" ? "Sign Clearance" : "Undo Clearance Sign",
-    `${options.status === "Signed" ? "Signed" : "Reopened"} ${options.records.length} clearance record(s).`, options.userClient,
-  ));
   try {
     await queueForClients([...new Set(options.records.map((r) => r.user_id))], () => reconcile(options));
   } catch (error) { console.error("Clearance follow-up failed:", error); }
-  await activity;
 }

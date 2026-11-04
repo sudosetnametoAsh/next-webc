@@ -61,17 +61,6 @@ export async function POST(req: NextRequest) {
       throw updateError;
     }
 
-    // Log the batch action in clearance_logs
-    try {
-      await supabaseAdmin.from("clearance_logs").insert({
-        staff_id: user_id,
-        actions: "Factor-2 Batch Authorization",
-        message: `${user_name || "Staff"} completed Factor-2 authorization for ${targetIds.length} AI-verified submission(s).`,
-      });
-    } catch (logErr) {
-      console.warn("Could not insert clearance_log entry:", logErr);
-    }
-
     invalidateServerDepartmentCache(user_id);
     invalidateServerClearanceCache();
 

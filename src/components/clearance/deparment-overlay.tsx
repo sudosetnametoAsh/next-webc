@@ -1,4 +1,6 @@
 "use client";
+import { officeStatus, campusClock, hasWeeklySchedule, formatOfficeTime } from "@/lib/weekly-schedule";
+import type { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { getClearanceRecordsPromise } from "@/modules/clearance/application/repository/dashboard-repository";
@@ -51,209 +53,18 @@ const getInitials = (name?: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-type CustomDaySchedule =
-  | string
-  | { timeIn?: string | null; timeOut?: string | null; closed?: boolean }
-  | null
-  | undefined;
-
-type WeeklyScheduleMap = Record<string, CustomDaySchedule>;
-
-function hasValidTime(t?: string | null): boolean {
-  return Boolean(t && t.trim() !== "" && t !== "null" && t !== "undefined");
+function getOfficeHoursStatus(schedule?: WeeklySchedule | null, earlyOutDate?: string | null) {
+  return officeStatus(schedule, earlyOutDate);
 }
-
-function checkHasCustomSchedule(
-  customSchedule?: WeeklyScheduleMap | null
-): boolean {
-  if (!customSchedule || typeof customSchedule !== "object") return false;
-  const keys = Object.keys(customSchedule);
-  if (keys.length === 0) return false;
-  return keys.some((k) => {
-    const val = customSchedule[k];
-    if (typeof val === "string") {
-      const trimmed = val.trim();
-      return (
-        trimmed.length > 0 &&
-        trimmed.toLowerCase() !== "null" &&
-        trimmed.toLowerCase() !== "undefined"
-      );
-    }
-    if (val && typeof val === "object") {
-      return (
-        val.closed === true ||
-        (hasValidTime(val.timeIn) && hasValidTime(val.timeOut))
-      );
-    }
-    return false;
-  });
-}
-
-function getOfficeHoursStatus(
-  timeIn?: string | null,
-  timeOut?: string | null,
-  customWeeklySchedule?: WeeklyScheduleMap | null
-): {
-  schedule: string;
-  isOpen: boolean;
-  timeRange: string;
-  hasSchedule: boolean;
-} {
-  const hasBaseSchedule = hasValidTime(timeIn) && hasValidTime(timeOut);
-  const hasCustomSchedule = checkHasCustomSchedule(customWeeklySchedule);
-
-  if (!hasBaseSchedule && !hasCustomSchedule) {
-    return {
-      schedule: "Pending Schedule",
-      isOpen: false,
-      timeRange: "Hours to be announced",
-      hasSchedule: false,
-    };
-  }
-
-  const now = new Date();
-  const dayIndex = now.getDay(); // 0 = Sun, 1 = Mon, ... 6 = Sat
-  const dayKeyMap = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-  const todayKey = dayKeyMap[dayIndex];
-
-  let effectiveIn = hasBaseSchedule ? timeIn : null;
-  let effectiveOut = hasBaseSchedule ? timeOut : null;
-  let isTodayClosed = dayIndex === 0; // Sun closed by default
-
-  // Saturday default half-day if base times exist
-  if (dayIndex === 6 && hasBaseSchedule) {
-    effectiveOut = "12:00";
-  }
-
-  if (customWeeklySchedule && customWeeklySchedule[todayKey]) {
-    const val = customWeeklySchedule[todayKey];
-    if (typeof val === "string") {
-      if (val.toLowerCase().includes("closed")) {
-        isTodayClosed = true;
-      }
-    } else if (val && typeof val === "object") {
-      if (val.closed) {
-        isTodayClosed = true;
-      } else if (hasValidTime(val.timeIn) && hasValidTime(val.timeOut)) {
-        effectiveIn = val.timeIn!;
-        effectiveOut = val.timeOut!;
-        isTodayClosed = false;
-      }
-    }
-  }
-
-  if (isTodayClosed || !hasValidTime(effectiveIn) || !hasValidTime(effectiveOut)) {
-    const nextDayText = dayIndex === 0 ? "Mon" : "tomorrow";
-    const nextFormatted = hasValidTime(timeIn) ? formatTime12(timeIn) : "";
-    return {
-      schedule: nextFormatted ? `Closed · Opens ${nextDayText} ${nextFormatted}` : "Closed",
-      isOpen: false,
-      timeRange: hasValidTime(timeIn) && hasValidTime(timeOut) ? `${formatTime12(timeIn)} – ${formatTime12(timeOut)}` : "Hours to be announced",
-      hasSchedule: true,
-    };
-  }
-
-  const formattedIn = formatTime12(effectiveIn!);
-  const formattedOut = formatTime12(effectiveOut!);
-  const timeRange = `${formattedIn} – ${formattedOut}`;
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  const [inH, inM] = effectiveIn!.split(":").map(Number);
-  const inMinutes = inH * 60 + (inM || 0);
-
-  const [outH, outM] = effectiveOut!.split(":").map(Number);
-  const outMinutes = outH * 60 + (outM || 0);
-
-  if (currentMinutes >= inMinutes && currentMinutes < outMinutes) {
-    return {
-      schedule: `Open now · Closes ${formattedOut}`,
-      isOpen: true,
-      timeRange,
-      hasSchedule: true,
-    };
-  } else if (currentMinutes < inMinutes) {
-    return {
-      schedule: `Closed · Opens at ${formattedIn}`,
-      isOpen: false,
-      timeRange,
-      hasSchedule: true,
-    };
-  } else {
-    const nextDayText = dayIndex === 6 ? "Mon" : "tomorrow";
-    return {
-      schedule: `Closed · Opens ${nextDayText} ${formattedIn}`,
-      isOpen: false,
-      timeRange,
-      hasSchedule: true,
-    };
-  }
-}
-
-function getWeeklyScheduleList(
-  timeIn?: string | null,
-  timeOut?: string | null,
-  customWeeklySchedule?: WeeklyScheduleMap | null
-): { list: DayScheduleItem[]; hasSchedule: boolean } {
-  const hasBaseSchedule = hasValidTime(timeIn) && hasValidTime(timeOut);
-  const hasCustomSchedule = checkHasCustomSchedule(customWeeklySchedule);
-
-  if (!hasBaseSchedule && !hasCustomSchedule) {
-    return { list: [], hasSchedule: false };
-  }
-
-  const now = new Date();
-  const todayDayIndex = now.getDay(); // 0 = Sun, 1 = Mon, ... 6 = Sat
-
-  const defaultWeekdayHours = hasBaseSchedule
-    ? `${formatTime12(timeIn)} – ${formatTime12(timeOut)}`
-    : "Closed";
-  const defaultSaturdayHours = hasBaseSchedule
-    ? `${formatTime12(timeIn)} – 12:00 PM`
-    : "Closed";
-
-  const daysDef = [
-    { key: "mon", name: "Monday", shortName: "Mon", dayIndex: 1, defaultHours: defaultWeekdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "tue", name: "Tuesday", shortName: "Tue", dayIndex: 2, defaultHours: defaultWeekdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "wed", name: "Wednesday", shortName: "Wed", dayIndex: 3, defaultHours: defaultWeekdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "thu", name: "Thursday", shortName: "Thu", dayIndex: 4, defaultHours: defaultWeekdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "fri", name: "Friday", shortName: "Fri", dayIndex: 5, defaultHours: defaultWeekdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "sat", name: "Saturday", shortName: "Sat", dayIndex: 6, defaultHours: defaultSaturdayHours, defaultClosed: !hasBaseSchedule },
-    { key: "sun", name: "Sunday", shortName: "Sun", dayIndex: 0, defaultHours: "Closed", defaultClosed: true },
-  ];
-
-  const list = daysDef.map((d) => {
-    const isToday = todayDayIndex === d.dayIndex;
-    let hours = d.defaultHours;
-    let isClosed = d.defaultClosed;
-
-    if (customWeeklySchedule && customWeeklySchedule[d.key]) {
-      const val = customWeeklySchedule[d.key];
-      if (typeof val === "string") {
-        hours = val;
-        isClosed = val.toLowerCase().includes("closed");
-      } else if (val && typeof val === "object") {
-        if (val.closed) {
-          hours = "Closed";
-          isClosed = true;
-        } else if (hasValidTime(val.timeIn) && hasValidTime(val.timeOut)) {
-          hours = `${formatTime12(val.timeIn!)} – ${formatTime12(val.timeOut!)}`;
-          isClosed = false;
-        }
-      }
-    }
-
-    return {
-      key: d.key,
-      name: d.name,
-      shortName: d.shortName,
-      hours,
-      isToday,
-      isClosed,
-    };
-  });
-
-  return { list, hasSchedule: true };
+function getWeeklyScheduleList(schedule?: WeeklySchedule | null): { list: DayScheduleItem[]; hasSchedule: boolean } {
+  const today = campusClock().dayKey;
+  const days = [["mon", "Monday"], ["tue", "Tuesday"], ["wed", "Wednesday"], ["thu", "Thursday"], ["fri", "Friday"], ["sat", "Saturday"], ["sun", "Sunday"]];
+  return { hasSchedule: hasWeeklySchedule(schedule), list: days.map(([key, name]) => {
+    const day = schedule?.[key];
+    const isClosed = !day?.active || !day.time_in || !day.time_out;
+    return { key, name, shortName: name.slice(0, 3), isToday: key === today, isClosed,
+      hours: isClosed ? "Closed" : `${formatOfficeTime(day.time_in)} – ${formatOfficeTime(day.time_out)}` };
+  }) };
 }
 
 function parseDropboxFiles(
@@ -465,14 +276,13 @@ export default function DepartmentOverlay({
     isOpen,
     hasSchedule,
   } = getOfficeHoursStatus(
-    selectedRecord?.time_in,
-    selectedRecord?.time_out,
-    customSchedule
+
+    customSchedule,
+    (selectedRecord as any)?.early_out_date
   );
 
   const { list: weeklyScheduleList } = getWeeklyScheduleList(
-    selectedRecord?.time_in,
-    selectedRecord?.time_out,
+
     customSchedule
   );
 

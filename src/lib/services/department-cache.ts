@@ -26,8 +26,7 @@ export interface DepartmentScheduleBundle {
   iconName: string;
   floor: string;
   room: string;
-  timeIn: string;
-  timeOut: string;
+
   weeklySchedule: any;
   earlyOutDate: string | null;
 }
@@ -187,18 +186,16 @@ export async function getCachedDepartmentSchedule(
       const getSchedule = makeGetSchedule();
 
       let initialSchedule = {
-        time_in: "08:00:00",
-        time_out: "17:00:00",
+
         weekly_schedule: null as any,
         early_out_date: null as string | null,
       };
 
       try {
         const res = await getSchedule.execute(staffUserId);
-        if (res.time_in && res.time_out) {
+        if (res.weekly_schedule) {
           initialSchedule = {
-            time_in: res.time_in,
-            time_out: res.time_out,
+
             weekly_schedule: res.weekly_schedule || null,
             early_out_date: res.early_out_date || null,
           };
@@ -260,8 +257,7 @@ export async function getCachedDepartmentSchedule(
         iconName,
         floor,
         room,
-        timeIn: initialSchedule.time_in,
-        timeOut: initialSchedule.time_out,
+
         weeklySchedule: initialSchedule.weekly_schedule,
         earlyOutDate: initialSchedule.early_out_date,
       };

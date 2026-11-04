@@ -1,4 +1,5 @@
 "use client";
+import { officeStatus } from "@/lib/weekly-schedule";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -50,98 +51,12 @@ const INSTITUTIONAL_PRIORITY: Record<string, number> = {
 };
 
 function getOfficeHoursStatus(
-  timeIn?: string | null,
-  timeOut?: string | null,
   weeklySchedule?: Record<string, { active: boolean; time_in: string; time_out: string }> | null,
   earlyOutDate?: string | null,
-): {
-  schedule: string;
-  isOpen: boolean;
-} {
-  const now = new Date();
-  const dayIndex = now.getDay(); // 0 = Sun, 6 = Sat
-  const dayMap = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-  const currentDayKey = dayMap[dayIndex];
-  const todayDateStr = now.toISOString().slice(0, 10);
-
-  const formatTime12 = (t: string) => {
-    const [hStr, mStr] = t.split(":");
-    let h = parseInt(hStr, 10);
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `${h}:${mStr} ${ampm}`;
-  };
-
-  // 1. Check Early Out
-  if (earlyOutDate === todayDateStr) {
-    const nextDayIndex = (dayIndex + 1) % 7;
-    const nextDayKey = dayMap[nextDayIndex];
-    const nextSched = weeklySchedule?.[nextDayKey];
-    const nextIn = nextSched?.active ? formatTime12(nextSched.time_in) : (timeIn ? formatTime12(timeIn) : "8:00 AM");
-    return {
-      schedule: `Closed early · Reopens tomorrow at ${nextIn}`,
-      isOpen: false,
-    };
-  }
-
-  // 2. Resolve today's effective schedule
-  let activeIn = timeIn;
-  let activeOut = timeOut;
-  let isDayActive = dayIndex !== 0;
-
-  if (weeklySchedule && weeklySchedule[currentDayKey]) {
-    const dayConfig = weeklySchedule[currentDayKey];
-    isDayActive = dayConfig.active;
-    activeIn = dayConfig.time_in;
-    activeOut = dayConfig.time_out;
-  }
-
-  if (!isDayActive || !activeIn || !activeOut) {
-    const nextActiveDayName = dayIndex === 6 ? "Mon" : "tomorrow";
-    return {
-      schedule: `Closed today · Opens ${nextActiveDayName}`,
-      isOpen: false,
-    };
-  }
-
-  const formattedIn = formatTime12(activeIn);
-  const formattedOut = formatTime12(activeOut);
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  const [inH, inM] = activeIn.split(":").map(Number);
-  const inMinutes = inH * 60 + (inM || 0);
-
-  const [outH, outM] = activeOut.split(":").map(Number);
-  const outMinutes = outH * 60 + (outM || 0);
-
-  // Lunch break check (12:00 PM – 1:00 PM)
-  if (currentMinutes >= 720 && currentMinutes < 780 && currentMinutes >= inMinutes && currentMinutes < outMinutes) {
-    return {
-      schedule: "Lunch break · Resumes at 1:00 PM",
-      isOpen: false,
-    };
-  }
-
-  if (currentMinutes >= inMinutes && currentMinutes < outMinutes) {
-    return {
-      schedule: `Open now · Closes ${formattedOut}`,
-      isOpen: true,
-    };
-  } else if (currentMinutes < inMinutes) {
-    return {
-      schedule: `Closed · Opens at ${formattedIn}`,
-      isOpen: false,
-    };
-  } else {
-    const nextDayText = dayIndex === 6 ? "Mon" : "tomorrow";
-    return {
-      schedule: `Closed · Opens ${nextDayText} ${formattedIn}`,
-      isOpen: false,
-    };
-  }
+) {
+  const status = officeStatus(weeklySchedule, earlyOutDate);
+  return { ...status, statusText: status.schedule, isOpenNow: status.isOpen };
 }
-
 export default function InstitutionalClearanceVerification({
   summary: propSummary,
   records: propRecords,
@@ -457,8 +372,7 @@ export default function InstitutionalClearanceVerification({
           dept_id: r.clearance_id,
           dept_name: r.department,
           staff_name: r.staff,
-          time_in: r.time_in,
-          time_out: r.time_out,
+
           floor: r.floor,
           room: r.room,
           icon_name: r.icon_name,
@@ -467,7 +381,7 @@ export default function InstitutionalClearanceVerification({
         }));
 
   const openOfficesCount = officeHoursList.filter(
-    (o) => getOfficeHoursStatus(o.time_in, o.time_out, o.weekly_schedule, o.early_out_date).isOpen,
+    (o) => getOfficeHoursStatus(o.weekly_schedule, o.early_out_date).isOpen,
   ).length;
 
   const totalOfficeHoursPages = Math.ceil(
@@ -904,8 +818,7 @@ export default function InstitutionalClearanceVerification({
                     office.dept_name,
                   );
                   const { schedule, isOpen } = getOfficeHoursStatus(
-                    office.time_in,
-                    office.time_out,
+
                     office.weekly_schedule,
                     office.early_out_date,
                   );

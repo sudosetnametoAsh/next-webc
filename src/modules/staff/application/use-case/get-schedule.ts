@@ -7,7 +7,7 @@ export class GetSchedule {
   async execute(id: string) {
     const schedule = await this.repository.getSchedule(id)
 
-    if(schedule.time_in === null && schedule.time_out === null ) throw new NotFoundError("Schedule not found");
+    if(!schedule.weekly_schedule || Object.keys(schedule.weekly_schedule).length === 0) throw new NotFoundError("Schedule not found");
 
     return schedule
   }

@@ -269,6 +269,24 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     clinicStatus = 'Signed';
     await page.evaluate(() => window.emitTestRecord({ user_id: 'test-client', status: 'Signed' }));
     await progressSection.getByText('2 / 2 Cleared', { exact: true }).waitFor();
+    const scheduleWrites = [];
+    await page.route('**/api/department/availability', async (route) => {
+      scheduleWrites.push(route.request().postDataJSON());
+      await route.fulfill({ json: { success: true } });
+    });
+    for (const preset of ['', '&savedweek']) {
+      await page.goto(`http://127.0.0.1:${server.address().port}/?calendar${preset}`);
+      await page.getByRole('button', { name: 'Save Weekly Schedule', exact: true }).click();
+      await page.getByText('Office hours saved', { exact: true }).waitFor();
+      const payload = scheduleWrites.at(-1);
+      assert.equal(payload.time_in, undefined);
+      assert.equal(payload.time_out, undefined);
+      assert.equal(Object.keys(payload.weekly_schedule).length, 7);
+      assert.equal(payload.weekly_schedule.mon.active, Boolean(preset));
+      assert.equal(payload.weekly_schedule.mon.time_in, preset ? '09:00' : '08:00');
+      assert.equal(payload.weekly_schedule.tue.active, false, 'missing days do not inherit hours');
+    }
+    console.log('PASS: real calendar saves new all-closed and existing weekly schedules without legacy hour fields.');
     assert.deepEqual(errors, [], 'no React runtime errors');
     console.log(`PASS: rejection failure stays open, success persists and closes; incoming popup rendered in ${elapsed}ms despite a ${notificationDelay}ms API delay; another officer's alert excluded.`);
     console.log('PASS: TaskView shows loading and query errors, retries successfully, and updates progress after signing and realtime changes without reloading.');

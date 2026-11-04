@@ -3,8 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
 export type UpdateSchedulePayload = {
-  time_in?: string;
-  time_out?: string;
   weekly_schedule?: WeeklySchedule;
   early_out_date?: string | null;
   action?: "early_out" | "resume_schedule";

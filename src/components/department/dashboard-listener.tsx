@@ -50,7 +50,6 @@ export default function RealtimeDashboardListener() {
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_records" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_tasks" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, triggerRefresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "clearance_logs" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_templates" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["courses"] });
         triggerRefresh();

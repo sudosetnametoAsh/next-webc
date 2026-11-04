@@ -51,7 +51,6 @@ function harness(options = {}) {
     }; return query;
   } };
   const service = load('src/lib/services/clearance-signing-effects.ts', {
-    '@/lib/log-activity': { logActivity: async (...args) => { assert.equal(args[3], client); calls.push('log'); } },
     '@/lib/services/sms-gateway': { default: async (message) => { calls.push('sms'); if (options.sms) await options.sms(message, notices); } },
     '@/lib/services/ready-for-signing-notifications': { dispatchReadyForSigningNotifications: async () => { calls.push('ready'); } },
     '@/lib/services/admin-notifications': {
@@ -83,7 +82,6 @@ test('an obsolete sign callback does not notify after undo', async () => {
   const h = harness({ currentStatus: 'Pending' });
   await h.run();
   assert.equal(h.notices.length, 0); assert.equal(h.calls.includes('ready'), false);
-  assert.ok(h.calls.includes('log'), 'still audit the committed action');
 });
 test('an older sign callback cannot supersede a newer signature', async () => {
   const h = harness({ signedAt: '2026-11-04T00:00:01.000Z' });
