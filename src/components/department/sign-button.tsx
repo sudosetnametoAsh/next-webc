@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSignClient } from "@/hooks/department/sign-client";
 import { CheckCircle2, RotateCcw, Loader2, AlertTriangle, X } from "lucide-react";
 
@@ -25,8 +25,12 @@ export default function SignToggleButton({
 }: Props) {
   const { mutate, isPending } = useSignClient();
   const [showPendingConfirm, setShowPendingConfirm] = useState(false);
+  const selectionKey = clearanceId.join(",");
+  const [confirmed, setConfirmed] = useState<{ key: string; status: string } | null>(null);
+  useEffect(() => { setConfirmed(null); }, [currentStatus, selectionKey]);
 
-  const isSigned = currentStatus === "Signed";
+  const effectiveStatus = confirmed?.key === selectionKey ? confirmed.status : currentStatus;
+  const isSigned = effectiveStatus === "Signed";
   const targetStatus = isSigned ? "Pending" : "Signed";
 
   const isDisabled = disabled || isPending || clearanceId.length === 0;
@@ -51,6 +55,9 @@ export default function SignToggleButton({
       ids: clearanceId,
       status: targetStatus,
       signed_at: dateNow,
+    }, {
+      // Reflect the persisted result while list/progress refetches finish.
+      onSuccess: () => setConfirmed({ key: selectionKey, status: targetStatus }),
     });
   };
 

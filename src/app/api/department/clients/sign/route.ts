@@ -1,35 +1,28 @@
 import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
-import { logActivity } from "@/lib/log-activity";
-import smsGateWay from "@/lib/services/sms-gateway";
-import { shrinkCourseName } from "@/utils/formatters";
-import { dispatchReadyForSigningNotifications } from "@/lib/services/ready-for-signing-notifications";
-import { checkAndDispatchAdminCompletion, revokeAdminCompletion } from "@/lib/services/admin-notifications";
-import { checkAndDispatchStudentCompletion, revokeStudentCompletionNotification } from "@/lib/services/student-completion";
 import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
 import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
 import { invalidateServerAdminCache } from "@/lib/services/admin-cache";
 import { PostgrestError } from "@supabase/supabase-js";
-import { NextRequest, NextResponse } from "next/server";
-
-type Data = {
-  students: { phone_number: string } | null;
-};
+import { after, NextRequest, NextResponse } from "next/server";
+import { runClearanceSigningEffects } from "@/lib/services/clearance-signing-effects";
 
 export async function PATCH(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { user_id } = await getSession();
-    const { ids, status, signed_at } = await req.json();
-
-    if (!Array.isArray(ids) || ids.length === 0) {
+    const { ids: requestedIds, status } = await req.json();
+    if (!Array.isArray(requestedIds) || requestedIds.length === 0 || !["Signed", "Pending"].includes(status) ||
+      requestedIds.some((id) => !["string", "number"].includes(typeof id) || !/^\d+$/.test(String(id)) || !Number.isSafeInteger(Number(id)) || Number(id) <= 0)) {
       return NextResponse.json(
-        { error: "Request body must be a non-empty array of IDs." },
+        { error: "A non-empty list of clearance IDs and a valid status are required." },
         { status: 400 },
       );
     }
 
+    const ids: number[] = [...new Set<number>(requestedIds.map(Number))];
+    const signed_at = status === "Signed" ? new Date().toISOString() : null;
     const adminClient = getSupabaseAdmin();
 
     // Fetch target records and department info using admin client to ensure full visibility
@@ -39,6 +32,8 @@ export async function PATCH(req: NextRequest) {
         clearance_id,
         user_id,
         clearance_templates (
+          staff_id,
+          is_active,
           tier,
           course_id,
           clearance_departments (
@@ -58,6 +53,13 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    if (!targetRecords || targetRecords.length !== ids.length || targetRecords.some((record) => {
+      const template = Array.isArray(record.clearance_templates) ? record.clearance_templates[0] : record.clearance_templates;
+      return template?.staff_id !== user_id || template?.is_active === false;
+    })) {
+      return NextResponse.json({ error: "One or more clearances are not assigned to you." }, { status: 403 });
+    }
+
     if (status === "Signed") {
       // Check each clearance's tier eligibility
       if (!fetchErr && targetRecords) {
@@ -70,9 +72,13 @@ export async function PATCH(req: NextRequest) {
           .map((r: any) => r.user_id);
 
         if (studentUserIds.length > 0) {
-          const { data: allUserClearances, error: prerequisitesError } = await adminClient
-            .from("clearance_records")
-            .select(`
+          const allUserClearances: any[] = [];
+          const uniqueStudentIds = [...new Set(studentUserIds)];
+          // Supabase caps ordinary reads; inspect every prerequisite in a bulk action.
+          for (let offset = 0; ; offset += 500) {
+            const { data: page, error: prerequisitesError } = await adminClient
+              .from("clearance_records")
+              .select(`
               clearance_id,
               user_id,
               status,
@@ -84,13 +90,19 @@ export async function PATCH(req: NextRequest) {
                 )
               )
             `)
-            .in("user_id", studentUserIds);
-
-          if (prerequisitesError) {
-            return NextResponse.json(
-              { error: "Unable to check clearance prerequisites. Please try again." },
-              { status: 500 },
-            );
+              .in("user_id", uniqueStudentIds)
+              .order("clearance_id", { ascending: true })
+              .range(offset, offset + 499);
+            if (prerequisitesError) {
+              return NextResponse.json({ error: "Unable to check clearance prerequisites. Please try again." }, { status: 500 });
+            }
+            allUserClearances.push(...(page || []));
+            if (!page || page.length < 500) break;
+          }
+          const byUser = new Map<string, typeof allUserClearances>();
+          for (const record of allUserClearances) {
+            if (!byUser.has(record.user_id)) byUser.set(record.user_id, []);
+            byUser.get(record.user_id)!.push(record);
           }
 
           if (allUserClearances) {
@@ -99,7 +111,7 @@ export async function PATCH(req: NextRequest) {
               if (!template?.course_id) continue; // Staff clearances are exempt
 
               const currentTier = template.tier ?? 1;
-              const userClearances = allUserClearances.filter((c: any) => c.user_id === target.user_id);
+              const userClearances = byUser.get(target.user_id) || [];
               const blocking = userClearances.filter((c: any) => {
                 const t = Array.isArray(c.clearance_templates) ? c.clearance_templates[0] : c.clearance_templates;
                 const itemIsActive = t?.is_active !== false;
@@ -143,7 +155,7 @@ export async function PATCH(req: NextRequest) {
       .from("clearance_records")
       .update({ status: status, signed_at: signed_at })
       .in("clearance_id", ids)
-      .select(`users(students(phone_number))`);
+      .select("clearance_id, status, signed_at");
 
     if (error) {
       console.error("Supabase update error:", error);
@@ -153,170 +165,26 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Invalidate server-side clearance cache for signed clients
-    targetRecords?.forEach((r) => {
-      if (r.user_id) invalidateServerClearanceCache(r.user_id);
-    });
-    // Invalidate server department dashboard & report cache
-    invalidateServerDepartmentCache();
-    // Invalidate server admin stats & pipeline radar cache
-    invalidateServerAdminCache();
-
-    if (status === "Signed" && data) {
-      const sms_promise = data
-        .filter((record) => {
-           const userData = Array.isArray(record.users) ? record.users[0] : record.users;
-           return userData?.students?.phone_number;
-        })
-        .map((record) => {
-          const userData = Array.isArray(record.users) ? record.users[0] : record.users;
-          const phone_number = userData?.students?.phone_number;
-
-          return smsGateWay({ phone_number: phone_number || "+639453853772", department: "Academic Head" });
-        });
-
-      await Promise.allSettled(sms_promise);
-
-      // Create notifications for the students whose clearances were signed
-      if (targetRecords && targetRecords.length > 0) {
-        try {
-          const notifsToInsert: any[] = [];
-
-          for (const r of targetRecords) {
-            const tpl = Array.isArray(r.clearance_templates)
-              ? r.clearance_templates[0]
-              : r.clearance_templates;
-            const dept = Array.isArray(tpl?.clearance_departments)
-              ? tpl.clearance_departments[0]
-              : tpl?.clearance_departments;
-            const deptName = dept?.dept_name || "department staff";
-            const signDesc = `Your clearance for ${deptName} has been approved and signed.`;
-
-            // Clean up any previous sign-off notification for this department to avoid duplicates and ensure a fresh unread alert
-            await adminClient
-              .from("notifications")
-              .delete()
-              .eq("user_id", r.user_id)
-              .eq("title", "Clearance Signed Off")
-              .ilike("description", `%${deptName}%`);
-
-            notifsToInsert.push({
-              user_id: r.user_id,
-              target_role: "student",
-              category: "clearance",
-              title: "Clearance Signed Off",
-              description: signDesc,
-              type: "Success",
-              ref_url: "/clearance",
-              is_read: false,
-              metadata: {
-                studentId: r.user_id,
-                clearanceId: r.clearance_id,
-                departmentName: deptName,
-              },
-            });
-          }
-
-          if (notifsToInsert.length > 0) {
-            await adminClient.from("notifications").insert(notifsToInsert);
-          }
-        } catch (notifErr) {
-          console.error("Failed to insert student notifications for signed clearance:", notifErr);
-        }
-
-        // Clean up any pending "Ready for Signing" notifications for the signing department
-        for (const r of targetRecords) {
-          const tpl = Array.isArray(r.clearance_templates) ? r.clearance_templates[0] : r.clearance_templates;
-          const dept = Array.isArray(tpl?.clearance_departments) ? tpl.clearance_departments[0] : tpl?.clearance_departments;
-          const deptId = dept?.dept_id;
-          if (deptId) {
-            await adminClient
-              .from("notifications")
-              .delete()
-              .eq("department_id", deptId)
-              .eq("title", "Ready for Signing")
-              .contains("metadata", { studentId: r.user_id });
-          }
-        }
-
-        // Generate "Ready for Signing" notifications strictly for subsequent prerequisite departments
-        const signedTiersByUser = new Map<string, Set<number>>();
-        for (const tr of targetRecords) {
-          const tpl = Array.isArray(tr.clearance_templates) ? tr.clearance_templates[0] : tr.clearance_templates;
-          const tier = tpl?.tier ?? 1;
-          if (!signedTiersByUser.has(tr.user_id)) {
-            signedTiersByUser.set(tr.user_id, new Set());
-          }
-          signedTiersByUser.get(tr.user_id)!.add(tier);
-        }
-
-        await dispatchReadyForSigningNotifications({
-          signedUserIds: Array.from(new Set(targetRecords.map((r: any) => r.user_id))),
-          signedTiersByUser,
-          adminClient,
-          isSingleRecordSign: ids.length === 1,
-        });
-
-        // Check if any client has completed all template clearances and alert admin & student
-        const uniqueUserIds = Array.from(new Set(targetRecords.map((r: any) => r.user_id)));
-        for (const uid of uniqueUserIds) {
-          await checkAndDispatchAdminCompletion(uid, adminClient);
-          await checkAndDispatchStudentCompletion(uid, adminClient);
-        }
-      }
-    } else if (status === "Pending" && targetRecords && targetRecords.length > 0) {
-      // Reopening clearance / Undo Sign: remove obsolete notifications
-      try {
-        for (const r of targetRecords) {
-          const tpl = Array.isArray(r.clearance_templates)
-            ? r.clearance_templates[0]
-            : r.clearance_templates;
-          const dept = Array.isArray(tpl?.clearance_departments)
-            ? tpl.clearance_departments[0]
-            : tpl?.clearance_departments;
-          const deptName = dept?.dept_name;
-
-          if (deptName) {
-            await adminClient
-              .from("notifications")
-              .delete()
-              .eq("user_id", r.user_id)
-              .eq("title", "Clearance Signed Off")
-              .ilike("description", `%${deptName}%`);
-          }
-
-          // Also clean up any pending "Ready for Signing" notifications mentioning this user
-          await adminClient
-            .from("notifications")
-            .delete()
-            .eq("target_role", "department")
-            .eq("title", "Ready for Signing")
-            .ilike("description", `%${r.user_id}%`);
-
-          // Revoke admin and student completion notifications if user is reopened
-          await revokeAdminCompletion(r.user_id, adminClient);
-          await revokeStudentCompletionNotification(r.user_id, adminClient);
-        }
-      } catch (undoNotifErr) {
-        console.error("Failed to remove sign notifications on undo:", undoNotifErr);
-      }
+    const savedIds = new Set((data || []).map((record) => Number(record.clearance_id)));
+    if (savedIds.size !== ids.length || ids.some((id) => !savedIds.has(id)) || data?.some((record) => record.status !== status)) {
+      return NextResponse.json({ error: "Not all clearances were saved. Refresh and try again." }, { status: 500 });
     }
 
-    await logActivity(
-      user_id,
-      "Sign Clearance",
-      `Signed off on clearances for ${ids.length} user(s).`,
-    );
+    for (const record of targetRecords || []) {
+      if (record.user_id) invalidateServerClearanceCache(record.user_id);
+    }
+    invalidateServerDepartmentCache();
+    invalidateServerAdminCache();
 
-    return NextResponse.json(
-      { data, message: "Clearances signed successfully" },
-      { status: 200 },
-    );
+    // Next.js keeps this work alive after the response on self-hosted Node.
+    // Pass captured clients; do not read request cookies in background helpers.
+    after(() => runClearanceSigningEffects({
+      records: targetRecords || [], status, signedAt: signed_at, actorId: user_id,
+      adminClient, userClient: supabase, isSingleRecordSign: ids.length === 1,
+    }));
+    return NextResponse.json({ data, message: status === "Signed" ? "Clearances signed successfully" : "Clearances reopened successfully" });
   } catch (error) {
     console.error("Server error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

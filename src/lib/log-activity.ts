@@ -1,13 +1,14 @@
 import { createClient } from "@/lib/db/supabase-server"; // Adjust path if needed
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export async function logActivity(
   staffId: string,
   actions: string,
-  message: string
+  message: string,
+  client?: SupabaseClient
 ) {
   // We use the server client to safely insert the log
-  const supabase = await createClient();
-  console.log("executed")
+  const supabase = client ?? await createClient();
 
   const { error } = await supabase
     .from("clearance_logs")
