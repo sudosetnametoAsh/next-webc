@@ -1,5 +1,6 @@
 "use client";
 
+import { usePortalPrefetch } from "@/hooks/navigation/use-portal-prefetch";
 import { Drawer } from "@/components/ui/drawer";
 
 import { useEffect, useState } from "react";
@@ -34,6 +35,7 @@ interface StudentSidebarProps {
     avatarInitials?: string;
     department?: string;
     userId?: string;
+    canAccessDepartment?: boolean;
   };
 }
 
@@ -82,7 +84,7 @@ export default function Sidebar({ user }: StudentSidebarProps) {
     }
   }, [user?.department, user?.role, user?.userId, isStudent]);
 
-  // Role switching is strictly exclusive to department staff who manage an actual department
+  // Department names describe assignments; authenticated roles control portal access.
   const effectiveDepartment =
     !isStudent &&
     user?.department &&
@@ -97,7 +99,8 @@ export default function Sidebar({ user }: StudentSidebarProps) {
       ? cachedDept
       : undefined;
 
-  const isDepartmentStaff = Boolean(effectiveDepartment);
+  const isDepartmentStaff = user?.canAccessDepartment ?? Boolean(effectiveDepartment);
+  const prefetchDepartment = usePortalPrefetch("/department/dashboard", isDepartmentStaff);
 
   // Pre-warm all clearance routes into Client Router Cache on mount
   useEffect(() => {
@@ -105,7 +108,6 @@ export default function Sidebar({ user }: StudentSidebarProps) {
     router.prefetch("/clearance/tasks");
     router.prefetch("/clearance/schedules");
     if (isDepartmentStaff) {
-      router.prefetch("/department/dashboard");
       router.prefetch("/department/clients");
     }
     if (user?.userId) {
@@ -115,7 +117,7 @@ export default function Sidebar({ user }: StudentSidebarProps) {
 
   const userName = user?.name || "Jaro, Jose Raphael (C.)";
   const userRole = isDepartmentStaff
-    ? `${effectiveDepartment} Staff`
+    ? (effectiveDepartment ? `${effectiveDepartment} Staff` : "Department Staff")
     : user?.role || "Student";
   const avatarInitials = user?.avatarInitials || "N";
 
@@ -173,11 +175,14 @@ export default function Sidebar({ user }: StudentSidebarProps) {
 
         {/* Role Pill Indicator / Switcher */}
         {isDepartmentStaff ? (
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => { if (open) prefetchDepartment(); }}>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
                 className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-emerald-950/20 px-3 py-2 text-emerald-400 transition-ui hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:outline-hidden focus:ring-1 focus:ring-emerald-500/50 cursor-pointer select-none text-left"
+                onPointerEnter={prefetchDepartment}
+                onFocus={prefetchDepartment}
+                onPointerDown={prefetchDepartment}
                 aria-label="Switch portal view"
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -197,27 +202,18 @@ export default function Sidebar({ user }: StudentSidebarProps) {
             >
               {/* Single Target Entry: Department Staff (Yellow color) */}
               <DropdownMenuItem
-                onMouseEnter={() => {
-                  router.prefetch("/department/dashboard");
-                  router.prefetch("/department/clients");
-                }}
-                onFocus={() => {
-                  router.prefetch("/department/dashboard");
-                  router.prefetch("/department/clients");
-                }}
-                onClick={() => {
-                  router.push("/department/dashboard");
-                  if (isMobile) closeMobile();
-                }}
+                asChild
                 className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-[#060a14] px-3 py-2 text-amber-400 transition-ui hover:bg-amber-950/40 hover:border-amber-500/50 focus:bg-amber-950/40 focus:border-amber-500/50 focus:text-amber-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
-                  <span className="text-xs font-semibold tracking-wide truncate">
-                    Department Staff
-                  </span>
-                </div>
-                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80" />
+                <Link href="/department/dashboard" prefetch={true} onClick={() => { if (isMobile) closeMobile(); }}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
+                    <span className="text-xs font-semibold tracking-wide truncate">
+                      Department Staff
+                    </span>
+                  </div>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80" />
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

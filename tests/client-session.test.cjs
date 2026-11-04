@@ -15,6 +15,7 @@ function load(options = {}) {
       vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/auth/client-enrollment.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: module });
       return module;
     }
+      if (name === 'react') return { cache: (fn) => fn };
       if (name === 'jwt-decode') return { jwtDecode: () => ({ user_id: 'old-deleted-id', department: 'Clinic' }) };
       if (name.includes('supabase-server')) return { createClient: async () => ({ from: () => query, auth: {
         getUser: async () => ({ data: { user }, error: null }), getSession: async () => ({ data: { session: { access_token: 'stale-token' } } }),
@@ -35,4 +36,9 @@ test('database verification failures never fall back to stale JWT IDs', async ()
 });
 test('administrators without client enrollment retain their existing session behavior', async () => {
   assert.equal((await load({ roles: ['Admin'] })()).user_id, 'auth-id');
+});
+
+test('department portal access comes from verified roles rather than a department label', async () => {
+  assert.equal((await load({ currentId: 'officer', roles: ['Department'] })()).isDepartmentStaff, true);
+  assert.equal((await load({ currentId: 'client', roles: ['Client'] })()).isDepartmentStaff, false);
 });

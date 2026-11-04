@@ -25,6 +25,7 @@ export default async function ClearanceLayout({
         avatarInitials?: string;
         department?: string;
         userId?: string;
+        canAccessDepartment?: boolean;
       }
     | undefined;
 
@@ -33,10 +34,13 @@ export default async function ClearanceLayout({
     user = {
       name: session.user_name,
       email: session.user_email,
-      role: session.department ? `${session.department} Staff` : "Student",
+      role: session.isDepartmentStaff
+        ? (session.department ? `${session.department} Staff` : "Department Staff")
+        : "Student",
       avatarInitials: session.user_name ? session.user_name.charAt(0).toUpperCase() : undefined,
       department: session.department || undefined,
       userId: session.user_id,
+      canAccessDepartment: session.isDepartmentStaff,
     };
   } catch (error) {
     if (error instanceof ClientNotEnrolledError) redirect(ENROLLMENT_NOTICE_URL);

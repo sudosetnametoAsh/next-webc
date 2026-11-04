@@ -1,9 +1,8 @@
-import { Courses } from "@/types/courses";
-import { serverFetch } from "./server-fetch";
+import { cache } from "react";
+import { getSession } from "@/lib/auth/get-session";
+import { getDepartmentCourses } from "@/lib/services/department-courses";
 
-export async function fetchCourseServer(): Promise<Courses[]> {
-  const response = await serverFetch(`/api/department/courses`);
-  const json = await response.json();
-  if (!response.ok) throw new Error("Failed to fetch");
-  return json.data;
-}
+export const fetchCourseServer = cache(async () => {
+  const { user_id, department } = await getSession();
+  return getDepartmentCourses(user_id, department);
+});

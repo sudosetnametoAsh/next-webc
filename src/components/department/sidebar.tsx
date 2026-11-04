@@ -1,5 +1,6 @@
 "use client";
 
+import { usePortalPrefetch } from "@/hooks/navigation/use-portal-prefetch";
 import { Drawer } from "@/components/ui/drawer";
 
 import { useEffect } from "react";
@@ -38,6 +39,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { mobileOpen, closeMobile } = useDepartmentNav();
+  const prefetchClearance = usePortalPrefetch("/clearance");
 
   // Only persist a department context when the staff member has an assignment.
   const hasAssignedDepartment = Boolean(
@@ -66,7 +68,6 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
     router.prefetch("/department/clients");
     router.prefetch("/department/calendar");
     router.prefetch("/department/reports");
-    router.prefetch("/clearance");
     prefetchDepartmentClients(queryClient);
   }, [router, queryClient, department, user_id, hasAssignedDepartment]);
 
@@ -138,11 +139,14 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
         </div>
 
         {/* Role Pill Indicator / Switcher */}
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={(open) => { if (open) prefetchClearance(); }}>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 transition-ui hover:bg-amber-950/40 hover:border-amber-500/50 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer select-none text-left"
+              onPointerEnter={prefetchClearance}
+              onFocus={prefetchClearance}
+              onPointerDown={prefetchClearance}
               aria-label="Switch portal view"
             >
               <div className="flex items-center gap-2 min-w-0">
@@ -162,21 +166,18 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
           >
             {/* Single Target Entry: Client Clearance (Green color) */}
             <DropdownMenuItem
-              onMouseEnter={() => router.prefetch("/clearance")}
-              onFocus={() => router.prefetch("/clearance")}
-              onClick={() => {
-                router.push("/clearance");
-                if (isMobile) closeMobile();
-              }}
+              asChild
               className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-[#060a14] px-3 py-2 text-emerald-400 transition-ui hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:bg-emerald-950/40 focus:border-emerald-500/50 focus:text-emerald-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <User className="h-4 w-4 shrink-0 text-emerald-400" />
-                <span className="text-xs font-semibold tracking-wide truncate">
-                  Client Clearance
-                </span>
-              </div>
-              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
+              <Link href="/clearance" prefetch={true} onClick={() => { if (isMobile) closeMobile(); }}>
+                <div className="flex items-center gap-2 min-w-0">
+                  <User className="h-4 w-4 shrink-0 text-emerald-400" />
+                  <span className="text-xs font-semibold tracking-wide truncate">
+                    Client Clearance
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

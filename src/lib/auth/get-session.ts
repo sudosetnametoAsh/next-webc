@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { ClientNotEnrolledError } from "./client-enrollment";
 import { jwtDecode } from "jwt-decode";
 import { createClient } from "../db/supabase-server";
@@ -11,11 +12,13 @@ type CustomPayload = {
   department?: string;
 };
 
-export async function getSession(): Promise<{
+// React cache deduplicates verification within one server render, never across users.
+export const getSession = cache(async function getSession(): Promise<{
   user_id: string;
   user_email: string;
   user_name: string;
   department: string;
+  isDepartmentStaff: boolean;
 }> {
   const supabase = await createClient();
 
@@ -106,5 +109,6 @@ export async function getSession(): Promise<{
     user_email: payload.email || user.email || "",
     user_name: payload.user_metadata?.full_name || (user.user_metadata as any)?.full_name || user.email || "",
     department: department,
+    isDepartmentStaff: Array.isArray(roles) && roles.includes("Department"),
   };
-}
+});
