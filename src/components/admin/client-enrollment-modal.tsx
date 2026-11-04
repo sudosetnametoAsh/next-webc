@@ -22,7 +22,6 @@ import {
   Sparkles,
   ChevronDown,
   Info,
-  Phone,
   Mail,
   User,
   FileText,
@@ -46,7 +45,6 @@ interface ParsedBulkRow {
   id: string;
   name: string;
   email: string;
-  phone?: string;
   course?: string;
   year?: number;
   semester?: number;
@@ -68,7 +66,6 @@ export default function ClientEnrollmentModal({
   const [singleId, setSingleId] = useState("");
   const [singleName, setSingleName] = useState("");
   const [singleEmail, setSingleEmail] = useState("");
-  const [singlePhone, setSinglePhone] = useState("");
 
   // Course & Section State for Student
   const [selectedCourseId, setSelectedCourseId] = useState<string>("auto");
@@ -99,7 +96,6 @@ export default function ClientEnrollmentModal({
     setSingleId("");
     setSingleName("");
     setSingleEmail("");
-    setSinglePhone("");
     setSelectedCourseId("auto");
     setCustomCourseName("");
     setSectionMode("existing");
@@ -137,7 +133,7 @@ export default function ClientEnrollmentModal({
 
   // Validation for Single Enrollment
   const isSingleValid = useMemo(() => {
-    if (!singleId.trim() || singleId.trim().length > 11 || !singleName.trim() || !singleEmail.trim()) {
+    if ((clientType === "student" && (!singleId.trim() || singleId.trim().length > 11)) || !singleName.trim() || !singleEmail.trim()) {
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -166,7 +162,6 @@ export default function ClientEnrollmentModal({
               student_id: singleId.trim(),
               name: singleName.trim(),
               email: singleEmail.trim(),
-              phoneNumber: singlePhone.trim() || undefined,
               course_name: activeCourseName,
               section_id:
                 sectionMode === "existing" && selectedSectionId !== "auto"
@@ -194,7 +189,6 @@ export default function ClientEnrollmentModal({
           type: "staff" as const,
           clients: [
             {
-              staff_id: singleId.trim(),
               name: singleName.trim(),
               email: singleEmail.trim(),
             },
@@ -208,7 +202,7 @@ export default function ClientEnrollmentModal({
         }
 
         toastSuccess?.(
-          `Staff member "${singleName.trim()}" (${singleId.trim()}) registered successfully! Staff clearance generated.`,
+          `Staff member "${singleName.trim()}" (${singleEmail.trim()}) registered successfully! Staff clearance generated.`,
           "Staff Enrolled"
         );
       }
@@ -227,15 +221,15 @@ export default function ClientEnrollmentModal({
     if (type === "student") {
       filename = "student_enrollment_template.csv";
       csvContent =
-        "student_id,name,email,course_name,year,semester,section_number,phone_number\n" +
-        "02000301199,Jyrum Jaro,jyrum.301199@urdaneta.sti.edu.ph,Bachelor of Science and Computer Science,4,1,1,09123456789\n" +
-        "02000301200,Maria Santos,maria.301200@urdaneta.sti.edu.ph,BSIT,3,1,2,09187654321\n";
+        "student_id,name,email,course_name,year,semester,section_number\n" +
+        "02000301199,Jyrum Jaro,jyrum.301199@urdaneta.sti.edu.ph,Bachelor of Science and Computer Science,4,1,1\n" +
+        "02000301200,Maria Santos,maria.301200@urdaneta.sti.edu.ph,BSIT,3,1,2\n";
     } else {
       filename = "staff_enrollment_template.csv";
       csvContent =
-        "staff_id,name,email\n" +
-        "EMP-2024-001,Dr. Alan Turing,alan.turing@urdaneta.sti.edu.ph\n" +
-        "EMP-2024-002,Prof. Ada Lovelace,ada.lovelace@urdaneta.sti.edu.ph\n";
+        "name,email\n" +
+        "Dr. Alan Turing,alan.turing@urdaneta.sti.edu.ph\n" +
+        "Prof. Ada Lovelace,ada.lovelace@urdaneta.sti.edu.ph\n";
     }
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -274,15 +268,15 @@ export default function ClientEnrollmentModal({
               const id = (item.student_id || item.staff_id || item.id || "").toString().trim();
               const name = (item.name || item.student_name || item.staff_name || "").toString().trim();
               const email = (item.email || "").toString().trim();
-              const phone = (item.phone || item.phone_number || item.phoneNumber || "").toString().trim();
               const course = (item.course_name || item.course || item.program || "").toString().trim();
               const year = item.year ? Number(item.year) : 1;
               const semester = item.semester ? Number(item.semester) : 1;
               const section = item.section_number || item.section ? Number(item.section_number || item.section) : 1;
 
-              const isValid = Boolean(id && id.length <= 11 && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+              const isValid = Boolean((type === "staff" ? name && (!id || id.length <= 11) : id && id.length <= 11) && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
               let error = "";
-              if (!id) error = "Missing ID";
+              if (type === "student" && !id) error = "Missing ID";
+        else if (type === "staff" && !name) error = "Missing Name";
               else if (id.length > 11) error = "ID exceeds 11 chars";
               else if (!email) error = "Missing Email";
               else if (!isValid) error = "Invalid Email";
@@ -292,7 +286,6 @@ export default function ClientEnrollmentModal({
                 id,
                 name: name || id,
                 email,
-                phone,
                 course,
                 year,
                 semester,
@@ -330,19 +323,18 @@ export default function ClientEnrollmentModal({
       let yearIdx = headers.findIndex((h) => h.includes("year"));
       let semIdx = headers.findIndex((h) => h.includes("sem"));
       let secIdx = headers.findIndex((h) => h.includes("sec"));
-      let phoneIdx = headers.findIndex((h) => h.includes("phone") || h.includes("contact"));
 
       // Default positional indices if header not detected
       if (!hasHeader) {
-        idIdx = 0;
-        nameIdx = 1;
-        emailIdx = 2;
+        const staffWithoutId = type === "staff" && lines[0].split(delimiter).length === 2;
+        idIdx = staffWithoutId ? -1 : 0;
+        nameIdx = staffWithoutId ? 0 : 1;
+        emailIdx = staffWithoutId ? 1 : 2;
         if (type === "student") {
           courseIdx = 3;
           yearIdx = 4;
           semIdx = 5;
           secIdx = 6;
-          phoneIdx = 7;
         }
       }
 
@@ -371,12 +363,12 @@ export default function ClientEnrollmentModal({
         const year = yearIdx !== -1 && !isNaN(Number(cols[yearIdx])) ? Number(cols[yearIdx]) : 1;
         const semester = semIdx !== -1 && !isNaN(Number(cols[semIdx])) ? Number(cols[semIdx]) : 1;
         const section = secIdx !== -1 && !isNaN(Number(cols[secIdx])) ? Number(cols[secIdx]) : 1;
-        const phone = phoneIdx !== -1 && cols[phoneIdx] ? cols[phoneIdx].trim() : undefined;
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isValid = Boolean(id && id.length <= 11 && email && emailRegex.test(email));
+        const isValid = Boolean((type === "staff" ? name && (!id || id.length <= 11) : id && id.length <= 11) && email && emailRegex.test(email));
         let error = "";
-        if (!id) error = "Missing ID";
+        if (type === "student" && !id) error = "Missing ID";
+              else if (type === "staff" && !name) error = "Missing Name";
         else if (id.length > 11) error = "ID exceeds 11 chars";
         else if (!email) error = "Missing Email";
         else if (!emailRegex.test(email)) error = "Invalid Email";
@@ -386,7 +378,6 @@ export default function ClientEnrollmentModal({
           id,
           name: name || id,
           email,
-          phone,
           course: course || (type === "student" ? "General Course" : undefined),
           year,
           semester,
@@ -435,10 +426,9 @@ export default function ClientEnrollmentModal({
         type: bulkClientType,
         clients: validBulkRows.map((r) => ({
           student_id: bulkClientType === "student" ? r.id : undefined,
-          staff_id: bulkClientType === "staff" ? r.id : undefined,
+          staff_id: bulkClientType === "staff" ? r.id || undefined : undefined,
           name: r.name,
           email: r.email,
-          phoneNumber: r.phone,
           course_name: r.course,
           year: r.year,
           semester: r.semester,
@@ -590,12 +580,12 @@ export default function ClientEnrollmentModal({
                   Client details
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* ID Field */}
-                  <div>
+                <div className={`grid grid-cols-1 ${clientType === "student" ? "sm:grid-cols-2" : ""} gap-4`}>
+                  {/* Student IDs are supplied; staff identities are generated by enrollment. */}
+                  {clientType === "student" && <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
                       <span>
-                        {clientType === "student" ? "Student ID Number" : "Employee / Staff ID"}{" "}
+                        Student ID Number{" "}
                         <span className="text-amber-400">*</span>
                       </span>
                       <span className="text-[10px] text-slate-500 font-normal">Max 11 chars</span>
@@ -607,10 +597,10 @@ export default function ClientEnrollmentModal({
                       aria-label="Client ID"
                       value={singleId}
                       onChange={(e) => setSingleId(e.target.value)}
-                      placeholder={clientType === "student" ? "e.g. 02000301199" : "e.g. EMP-2024-01"}
+                      placeholder="e.g. 02000301199"
                       className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors font-mono"
                     />
-                  </div>
+                  </div>}
 
                   {/* Full Name */}
                   <div>
@@ -629,7 +619,7 @@ export default function ClientEnrollmentModal({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
                   {/* Institutional Email */}
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
@@ -647,27 +637,7 @@ export default function ClientEnrollmentModal({
                     />
                   </div>
 
-                  {/* Phone Number (Student only) */}
-                  {clientType === "student" ? (
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-                        <Phone className="h-3 w-3 text-slate-400" />
-                        Contact Number <span className="text-slate-500 font-normal">(Optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        aria-label="Contact number"
-                      value={singlePhone}
-                        onChange={(e) => setSinglePhone(e.target.value)}
-                        placeholder="e.g. +63 912 345 6789"
-                        className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-xs text-slate-400 italic pt-6">
-                      Staff accounts link directly to campus-wide departments.
-                    </div>
-                  )}
+
                 </div>
               </div>
 
@@ -973,8 +943,8 @@ export default function ClientEnrollmentModal({
                     onChange={handlePastedTextChange}
                     placeholder={
                       bulkClientType === "student"
-                        ? "student_id,name,email,course_name,year,semester,section_number,phone_number\n02000301199,Jyrum Jaro,jyrum@urdaneta.sti.edu.ph,BSCS,4,1,1,09123456789"
-                        : "staff_id,name,email\nEMP-101,Dr. Alan Turing,turing@urdaneta.sti.edu.ph"
+                        ? "student_id,name,email,course_name,year,semester,section_number\n02000301199,Jyrum Jaro,jyrum@urdaneta.sti.edu.ph,BSCS,4,1,1"
+                        : "name,email\nDr. Alan Turing,turing@urdaneta.sti.edu.ph"
                     }
                     className="w-full p-3 bg-[#070c18] border border-slate-800 rounded-xl font-mono text-xs text-slate-200 placeholder-slate-600 focus:outline-hidden focus:border-amber-500/60 transition-colors"
                   />
@@ -1007,7 +977,7 @@ export default function ClientEnrollmentModal({
                       <thead className="bg-slate-900/90 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0 border-b border-slate-800">
                         <tr>
                           <th className="py-2 px-3">#</th>
-                          <th className="py-2 px-3">ID</th>
+                          {bulkClientType === "student" && <th className="py-2 px-3">ID</th>}
                           <th className="py-2 px-3">Name</th>
                           <th className="py-2 px-3">Email</th>
                           {bulkClientType === "student" && <th className="py-2 px-3">Program/Sec</th>}
@@ -1023,7 +993,7 @@ export default function ClientEnrollmentModal({
                             }`}
                           >
                             <td className="py-1.5 px-3 font-mono text-slate-500">{r.rowNum}</td>
-                            <td className="py-1.5 px-3 font-mono font-medium text-white">{r.id || "—"}</td>
+                            {bulkClientType === "student" && <td className="py-1.5 px-3 font-mono font-medium text-white">{r.id || "—"}</td>}
                             <td className="py-1.5 px-3 truncate max-w-[120px]">{r.name}</td>
                             <td className="py-1.5 px-3 truncate max-w-[150px]">{r.email || "—"}</td>
                             {bulkClientType === "student" && (

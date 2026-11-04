@@ -32,6 +32,7 @@ type Props = {
 export type ClientItem = {
   id: string
   name: string
+  email?: string | null
   type: 'student' | 'staff'
   overallStatus: 'Incomplete' | 'Pending' | 'Signed'
   totalDepartments: number
@@ -421,6 +422,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
       return {
         id: String(st.staff_id),
         name: st.staff_name,
+        email: st.email,
         type: 'staff' as const,
         overallStatus: st.overallStatus || 'Incomplete',
         totalDepartments: totalDepts,
@@ -622,13 +624,14 @@ function AdminClientsContent({ setAdminPage }: Props) {
       data = data.filter((c) => {
         const nameMatch = c.name.toLowerCase().includes(q)
         const idMatch = c.id.toLowerCase().includes(q)
+        const emailMatch = Boolean(c.email?.toLowerCase().includes(q))
         const courseMatch =
           c.courseName &&
           (c.courseName.toLowerCase().includes(q) ||
             shrinkCourseName(c.courseName).toLowerCase().includes(q) ||
             expandCourseAbbreviation(c.courseName).toLowerCase().includes(q))
         const sectionMatch = c.sectionCode && c.sectionCode.toLowerCase().includes(q)
-        return nameMatch || idMatch || Boolean(courseMatch) || Boolean(sectionMatch)
+        return nameMatch || idMatch || emailMatch || Boolean(courseMatch) || Boolean(sectionMatch)
       })
     }
 
@@ -872,7 +875,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                               {client.name}
                             </div>
                             <div className="font-mono text-xs text-slate-500 truncate">
-                              {client.id}
+                              {client.type === 'staff' ? client.email || 'Email unavailable' : client.id}
                             </div>
                           </div>
                         </div>
@@ -968,7 +971,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
                           {client.name}
                         </p>
                         <p className="text-xs text-slate-500 font-mono">
-                          {client.id}
+                          {client.type === 'staff' ? client.email || 'Email unavailable' : client.id}
                         </p>
                       </div>
                     </div>

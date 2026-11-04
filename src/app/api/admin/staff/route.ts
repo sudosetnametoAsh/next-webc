@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const { data: staffs, error: staffError } = await supabase
       .from('staffs')
-      .select('staff_id, staff_name')
+      .select('staff_id, staff_name, users(email)')
       .order('staff_name', { ascending: true })
 
     if (staffError) {
@@ -126,6 +126,7 @@ export async function GET() {
       return {
         staff_id: staff.staff_id,
         staff_name: staff.staff_name,
+        email: (Array.isArray(staff.users) ? staff.users[0] : staff.users)?.email ?? null,
         overallStatus,
         total_departments: totalDepts,
         signed_departments: signedDepts,

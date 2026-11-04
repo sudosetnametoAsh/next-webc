@@ -431,7 +431,6 @@ export const students = pgTable(
   {
     studentId: varchar("student_id", { length: 11 }).primaryKey().notNull(),
     studentName: text("student_name"),
-    phoneNumber: varchar("phone_number", { length: 15 }),
   },
   (table) => [
     foreignKey({

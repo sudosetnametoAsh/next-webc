@@ -16,8 +16,6 @@ interface StudentImportRecord {
   student_name?: string;
   studentName?: string;
   email: string;
-  phone_number?: string;
-  phoneNumber?: string;
   balance?: number | string;
   section_id?: number | string;
   sectionId?: number | string;
@@ -42,7 +40,7 @@ interface StaffImportRecord {
   balance?: number | string;
 }
 
-type ImportRecord = StudentImportRecord & StaffImportRecord;
+type ImportRecord = Omit<StudentImportRecord, "type"> & Omit<StaffImportRecord, "type"> & { type?: "student" | "staff" };
 
 export async function POST(req: NextRequest) {
   try {
@@ -96,9 +94,11 @@ export async function POST(req: NextRequest) {
         const rawEmail = rec.email?.toString().trim().toLowerCase();
         const initialBalance = rec.balance !== undefined && !isNaN(Number(rec.balance)) ? Number(rec.balance) : 0.00;
 
-        if (!rawId) {
+        if (recordType !== "student" && recordType !== "staff") throw new Error("Invalid client type.");
+
+        if (recordType === "student" && !rawId) {
           results.failedCount++;
-          results.errors.push({ row: rowNum, error: "Missing required identifier (student_id or staff_id)." });
+          results.errors.push({ row: rowNum, error: "Missing required student ID." });
           continue;
         }
 
@@ -108,6 +108,19 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) throw new Error("Invalid email address.");
+        if (rawId && rawId.length > 11) throw new Error("ID exceeds 11 characters.");
+        if (recordType === "staff") {
+          const { data: staffId, error: staffError } = await adminClient.rpc("enroll_staff_identity", {
+            p_email: rawEmail, p_name: rawName || "", p_staff_id: rawId || null,
+          });
+          if (staffError) throw new Error(`Failed to enroll staff: ${staffError.message}`);
+          if (typeof staffId !== "string" || !staffId) throw new Error("Staff enrollment did not return an internal ID.");
+          results.successCount++;
+          continue;
+        }
+
+        // Student IDs remain required and supplied by the enrollment roster.
         // 1. Upsert into public.users (Identity Base)
         const { error: userError } = await adminClient
           .from("users")
@@ -123,25 +136,8 @@ export async function POST(req: NextRequest) {
           throw new Error(`Failed to insert into users: ${userError.message}`);
         }
 
-        if (recordType === "staff") {
-          // --- STAFF ENROLLMENT FLOW ---
-          // Upsert into staffs (fires tr_staff_create_clearance to auto-generate clearance records)
-          const { error: staffError } = await adminClient
-            .from("staffs")
-            .upsert(
-              {
-                staff_id: rawId,
-                staff_name: rawName || rawId,
-              },
-              { onConflict: "staff_id" }
-            );
-
-          if (staffError) {
-            throw new Error(`Failed to insert staff: ${staffError.message}`);
-          }
-        } else {
+        {
           // --- STUDENT ENROLLMENT FLOW ---
-          const rawPhone = (rec.phone_number || rec.phoneNumber)?.toString().trim() || null;
 
           const { error: studentError } = await adminClient
             .from("students")
@@ -149,7 +145,6 @@ export async function POST(req: NextRequest) {
               {
                 student_id: rawId,
                 student_name: rawName || rawId,
-                phone_number: rawPhone,
               },
               { onConflict: "student_id" }
             );

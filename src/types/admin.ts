@@ -45,6 +45,7 @@ export type DepartmentClearanceDetail = {
 export type Staff = {
   staff_id: string;
   staff_name: string;
+  email?: string | null;
   overallStatus?: 'Incomplete' | 'Pending' | 'Signed';
   total_departments?: number;
   signed_departments?: number;

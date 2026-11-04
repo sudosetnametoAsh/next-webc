@@ -8,7 +8,6 @@ export interface BulkImportPayload {
     staff_id?: string;
     name?: string;
     email: string;
-    phoneNumber?: string;
     course_name?: string;
     year?: number;
     semester?: number;

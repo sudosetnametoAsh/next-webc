@@ -53,6 +53,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     let failRejection = true, requestBody, notificationDelay = 0;
     let failProgress = true, progressDelay = 500, clinicStatus = 'Pending';
     let adminSigned = 0;
+    const enrollmentRequests = [];
+    let enrolledStaff = [];
     let failTaskStatus = true;
     const statusRequests = [];
     let notifications = [];
@@ -85,6 +87,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     }] } }));
     await page.route('**/api/admin/**', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname.endsWith('/enrollments/import')) {
+        const payload = route.request().postDataJSON();
+        enrollmentRequests.push(payload);
+        enrolledStaff = payload.clients.map((staff) => ({ staff_id: 'S1234567890', staff_name: staff.name, email: staff.email, departments: [], overallStatus: 'Pending' }));
+        await route.fulfill({ json: { success: true, summary: { successCount: payload.clients.length, failedCount: 0, errors: [] } } });
+        return;
+      }
       const departments = [
         { clearance_id: 1, dept_id: 1, dept_name: 'Cashier', tier: 1, status: adminSigned >= 1 ? 'Signed' : 'Pending' },
         { clearance_id: 2, dept_id: 2, dept_name: 'Clinic', tier: 2, status: adminSigned >= 2 ? 'Signed' : 'Pending' },
@@ -97,6 +106,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
         overallStatus: adminSigned === 2 ? 'Signed' : adminSigned ? 'Incomplete' : 'Pending', pending_departments: [], departments, isOverdue: false,
       }];
       if (url.pathname.endsWith('/departments')) data = departments;
+      if (url.pathname.endsWith('/staff')) data = enrolledStaff;
       if (url.pathname.endsWith('/courses')) data = [{ course_id: 1, course_name: 'BS Computer Science', course_sections: [] }];
       if (url.pathname.endsWith('/stats')) {
         assert.equal(url.searchParams.get('fresh'), 'true');
@@ -218,6 +228,39 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await programs.getByText(`${signed * 50}%`, { exact: true }).waitFor();
       await dossier.getByText(`${signed} of 2 Departments`, { exact: true }).waitFor();
     }
+    await dossier.getByRole('button', { name: 'Close drawer', exact: true }).click();
+    await page.getByRole('button', { name: 'Enroll Client', exact: true }).click();
+    const enrollment = page.getByRole('dialog', { name: 'Enroll clients', exact: true });
+    assert.equal(await enrollment.getByLabel('Contact number', { exact: true }).count(), 0);
+    await enrollment.getByLabel('Full name', { exact: true }).fill('Generated Staff');
+    await enrollment.getByLabel('Email address', { exact: true }).fill('generated@example.edu');
+    assert.equal(await enrollment.getByRole('button', { name: 'Enroll Student', exact: true }).isEnabled(), false, 'student ID is still mandatory');
+    await enrollment.getByRole('button', { name: /^Staff Member/ }).click();
+    assert.equal(await enrollment.getByLabel('Client ID', { exact: true }).count(), 0, 'staff form does not ask for an ID');
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      const nameBox = await enrollment.getByLabel('Full name', { exact: true }).boundingBox();
+      const emailBox = await enrollment.getByLabel('Email address', { exact: true }).boundingBox();
+      assert.ok(Math.abs(nameBox.width - emailBox.width) < 2, 'staff inputs use the same full width');
+      assert.ok(Math.abs(nameBox.x - emailBox.x) < 2, 'staff inputs align on desktop and mobile');
+    }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await enrollment.getByRole('button', { name: 'Enroll Staff Member', exact: true }).click();
+    await enrollment.waitFor({ state: 'hidden' });
+    assert.equal(enrollmentRequests.at(-1).clients[0].staff_id, undefined);
+    assert.equal(enrollmentRequests.at(-1).clients[0].email, 'generated@example.edu');
+    await page.getByTestId('admin-clients').getByText('generated@example.edu', { exact: true }).first().waitFor();
+    assert.equal(await page.getByTestId('admin-clients').getByText('S1234567890', { exact: true }).count(), 0);
+    for (const content of ['name,email\nCSV Staff,csv@example.edu', '[{"name":"JSON Staff","email":"json@example.edu"}]']) {
+      await page.getByRole('button', { name: 'Enroll Client', exact: true }).click();
+      await enrollment.getByRole('button', { name: 'Bulk import', exact: true }).click();
+      await enrollment.getByRole('button', { name: 'Staff', exact: true }).click();
+      await enrollment.getByRole('button', { name: /Paste/ }).click();
+      await enrollment.getByLabel('Roster content', { exact: true }).fill(content);
+      await enrollment.getByRole('button', { name: 'Import 1 Staff', exact: true }).click();
+      await enrollment.waitFor({ state: 'hidden' });
+      assert.equal(enrollmentRequests.at(-1).clients[0].staff_id, undefined);
+    }
     // Verify the supplied department clients page also refreshes its open TaskView.
     clinicStatus = 'Pending';
     await page.goto(`http://127.0.0.1:${server.address().port}/?deptclients`);
@@ -232,6 +275,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     console.log('PASS: actual digital and in-person TaskView flows show clear failures, persist successful clears through the API, and reopen cleared tasks.');
     console.log(`PASS: sign button updated in ${signButtonMs}ms and undo in ${undoButtonMs}ms despite a 2000ms progress-refetch delay (simulated API).`);
     console.log('PASS: report completion and the open admin dossier update through sign/undo events; the department clients page refreshes its open progress panel without reloading.');
+    console.log('PASS: staff enrollment accepts name/email without an ID in the single form, CSV, and JSON; students still require IDs; staff list displays email.');
     await page.close();
   } finally {
     await browser?.close();

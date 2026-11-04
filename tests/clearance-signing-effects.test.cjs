@@ -9,7 +9,6 @@ const recordsFor = (count = 1) => Array.from({ length: count }, (_, i) => ({
     tier: 1, course_id: 1, clearance_departments: { dept_id: 1, dept_name: 'Clinic' },
   },
 }));
-function deferred() { let resolve; const promise = new Promise((yes) => { resolve = yes; }); return { promise, resolve }; }
 function load(path, dependencies, globals = {}) {
   const exports = {};
   const source = ts.transpileModule(fs.readFileSync(path, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
@@ -37,7 +36,6 @@ function harness(options = {}) {
       async then(resolve, reject) {
         try {
           if (table === 'clearance_records') return resolve({ data: current.filter((row) => filters.every((match) => match(row))), error: null });
-          if (table === 'users') return resolve({ data: records.map((r) => ({ user_id: r.user_id, students: { phone_number: '555-' + r.user_id } })), error: null });
           assert.equal(table, 'notifications');
           if (deleting) {
             for (let i = notices.length - 1; i >= 0; i--) if (filters.every((match) => match(notices[i]))) notices.splice(i, 1);
@@ -70,13 +68,15 @@ function harness(options = {}) {
   };
 }
 
-test('sign follow-up emits alerts and completion checks before attempting SMS', async () => {
+test('sign follow-up emits alerts and completion checks without student contact data', async () => {
   const h = harness({ sms: async (message, notices) => {
     assert.equal(notices.length, 1); assert.equal(message.department, 'Clinic');
   } });
   await h.run();
   assert.equal(h.notices[0].title, 'Clearance Signed Off');
-  assert.ok(h.calls.indexOf('ready') < h.calls.indexOf('sms'));
+  assert.ok(h.calls.includes('ready'));
+  assert.equal(h.calls.includes('sms'), false);
+  assert.equal(h.errors.length, 0);
   assert.ok(h.calls.includes('student-complete'));
 });
 test('an obsolete sign callback does not notify after undo', async () => {
@@ -90,21 +90,15 @@ test('an older sign callback cannot supersede a newer signature', async () => {
   await h.run();
   assert.equal(h.notices.length, 0); assert.equal(h.calls.includes('ready'), false);
 });
-test('slow SMS does not block undo notification reconciliation', async () => {
-  const smsStarted = deferred(), smsFinish = deferred();
-  const h = harness({ sms: async () => { smsStarted.resolve(); await smsFinish.promise; } });
-  const signing = h.run();
-  await smsStarted.promise;
+test('undo reconciles notifications without requiring student contact data', async () => {
+  const h = harness();
+  await h.run();
   h.current[0].status = 'Pending'; h.current[0].signed_at = null;
-  let undone = false;
-  const undo = h.run('Pending').then(() => { undone = true; });
-  await new Promise(setImmediate);
-  try {
-    assert.equal(undone, true);
-    assert.equal(h.notices.length, 0);
-    assert.ok(h.calls.includes('admin-revoke'));
-    assert.ok(h.calls.includes('student-revoke'));
-  } finally { smsFinish.resolve(); await Promise.all([signing, undo]); }
+  await h.run('Pending');
+  assert.equal(h.notices.length, 0);
+  assert.ok(h.calls.includes('admin-revoke'));
+  assert.ok(h.calls.includes('student-revoke'));
+  assert.equal(h.errors.length, 0);
 });
 test('bulk notification work has bounded concurrency instead of one connection per record', async () => {
   const h = harness({ count: 20, insertDelay: true });

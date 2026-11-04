@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logActivity } from "@/lib/log-activity";
-import smsGateWay from "@/lib/services/sms-gateway";
 import { dispatchReadyForSigningNotifications } from "@/lib/services/ready-for-signing-notifications";
 import { checkAndDispatchAdminCompletion, revokeAdminCompletion } from "@/lib/services/admin-notifications";
 import { checkAndDispatchStudentCompletion, revokeStudentCompletionNotification } from "@/lib/services/student-completion";
@@ -23,7 +22,6 @@ interface Options {
 }
 
 // Serialize notification effects for overlapping clients in this server process.
-// A slow SMS gateway is deliberately outside this queue so undo can reconcile.
 const pendingByClient = new Map<string, Promise<unknown>>();
 async function queueForClients<T>(ids: string[], work: () => Promise<T>): Promise<T> {
   const previous = [...new Set(ids.map((id) => pendingByClient.get(id)).filter(Boolean))];
@@ -117,40 +115,13 @@ async function reconcile(options: Options): Promise<SigningRecord[]> {
   return status === "Signed" ? active : [];
 }
 
-async function sendSms(records: SigningRecord[], admin: SupabaseClient, signedAt: string | null) {
-  if (!records.length || !process.env.LOCAL_IP || !process.env.SMS_USERNAME || !process.env.SMS_PASSWORD) return;
-  const { data: current, error: currentError } = await admin.from("clearance_records")
-    .select("clearance_id").in("clearance_id", records.map((r) => r.clearance_id)).eq("status", "Signed").eq("signed_at", signedAt);
-  if (currentError) throw currentError;
-  const currentIds = new Set((current || []).map((r) => r.clearance_id));
-  const active = records.filter((r) => currentIds.has(r.clearance_id));
-  if (!active.length) return;
-  const { data: users, error } = await admin.from("users").select("user_id, students(phone_number)")
-    .in("user_id", [...new Set(active.map((r) => r.user_id))]);
-  if (error) throw error;
-  const phones = new Map((users || []).map((user) => {
-    const student = Array.isArray(user.students) ? user.students[0] : user.students;
-    return [user.user_id, student?.phone_number];
-  }));
-  const sent = new Set<string>();
-  await limited(active, async (record) => {
-    const phone = phones.get(record.user_id);
-    const department = departmentOf(record)?.dept_name || "your department";
-    const key = `${phone}:${department}`;
-    if (!phone || sent.has(key)) return;
-    sent.add(key);
-    await smsGateWay({ phone_number: phone, department });
-  });
-}
-
 export async function runClearanceSigningEffects(options: Options) {
   const activity = safely("Clearance activity log failed:", () => logActivity(
     options.actorId, options.status === "Signed" ? "Sign Clearance" : "Undo Clearance Sign",
     `${options.status === "Signed" ? "Signed" : "Reopened"} ${options.records.length} clearance record(s).`, options.userClient,
   ));
   try {
-    const records = await queueForClients([...new Set(options.records.map((r) => r.user_id))], () => reconcile(options));
-    await safely("Clearance SMS failed:", () => sendSms(records, options.adminClient, options.signedAt));
+    await queueForClients([...new Set(options.records.map((r) => r.user_id))], () => reconcile(options));
   } catch (error) { console.error("Clearance follow-up failed:", error); }
   await activity;
 }
