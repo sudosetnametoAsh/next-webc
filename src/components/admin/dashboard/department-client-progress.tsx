@@ -34,7 +34,7 @@ export default function DepartmentClientProgress({
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] p-6 shadow-xl space-y-4">
+      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] min-h-0 max-h-full overflow-y-auto p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
           <div className="space-y-1.5">
             <div className="h-5 w-48 bg-slate-800 rounded animate-pulse" />
@@ -54,7 +54,7 @@ export default function DepartmentClientProgress({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex flex-col h-full">
+    <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex min-h-0 max-h-full flex-col">
       {/* ── Card Header ── */}
       <div className="px-6 py-4 border-b border-slate-800 bg-[#070c18] flex items-center justify-between gap-4 shrink-0">
         <div className="min-w-0">
@@ -81,7 +81,7 @@ export default function DepartmentClientProgress({
       </div>
 
       {/* ── Compact 5-Department List ── */}
-      <div className="p-4 sm:p-5 space-y-2.5 flex-1 overflow-y-auto scrollbar-thin">
+      <div className="p-4 sm:p-5 space-y-2.5 min-h-0 flex-1 overflow-y-auto scrollbar-thin">
         {topDepartments.length === 0 ? (
           <div className="text-center py-10">
             <Building2 className="mx-auto h-8 w-8 text-slate-600 mb-2" />

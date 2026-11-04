@@ -712,7 +712,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
   if (isLoadingAdminStats || isLoadingCourseTemplates || isLoadingStudentTemplates) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center text-sm text-slate-400">
+      <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-slate-400">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
           <span>Loading clients data...</span>
@@ -722,7 +722,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
       {/* ── Top Header with Enroll Client Action ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -812,9 +812,9 @@ function AdminClientsContent({ setAdminPage }: Props) {
       }} />}
 
       {/* ── Clients Table Card (Dark Theme) ── */}
-      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
         {/* Desktop Table (CLIENT, TYPE, CLEARANCE PROGRESS, STATUS, Action Chevron) */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden min-h-0 flex-1 overflow-auto md:block">
           <table className="w-full table-fixed">
             <colgroup>
               <col className="w-[36%]" />
@@ -823,7 +823,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
               <col className="w-[16%]" />
               <col className="w-[4%]" />
             </colgroup>
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="border-b border-slate-800 bg-[#070c18]">
                 <th className="px-6 py-4 text-left text-[11px] font-bold tracking-wider uppercase text-slate-400">
                   <div className="flex items-center gap-3">{selectAllCheckbox()}<span>CLIENT</span></div>
@@ -939,7 +939,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
         </div>
 
         {/* Mobile View */}
-        <div className="md:hidden divide-y divide-slate-800/60">
+        <div className="min-h-0 flex-1 overflow-auto md:hidden divide-y divide-slate-800/60">
           <div className="flex items-center gap-3 bg-[#070c18] px-4 py-4 text-xs text-slate-400">
             {selectAllCheckbox()}<span>Select all</span>
           </div>

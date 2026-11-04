@@ -654,3 +654,18 @@ html.dark:has([data-portal]) button {
     animation-timing-function: steps(5, end);
   }
 }
+
+/* Increase admin typography slightly on laptop-sized viewports. */
+@media (1024px <= width < 1536px) {
+  [data-portal="admin"] {
+    --text-xs: 0.81rem;
+    --text-sm: 0.945rem;
+    --text-base: 1.08rem;
+    --text-lg: 1.215rem;
+    --text-xl: 1.35rem;
+    --text-2xl: 1.62rem;
+    --text-3xl: 2.025rem;
+    --text-4xl: 2.43rem;
+    --text-5xl: 3.24rem;
+  }
+}

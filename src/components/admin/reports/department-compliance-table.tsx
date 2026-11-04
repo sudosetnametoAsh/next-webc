@@ -179,7 +179,7 @@ export default function DepartmentComplianceTable({
                           ) : (
                             <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-xs text-slate-500 italic">
                               <MapPin className="h-3 w-3 shrink-0 text-slate-600" />
-                              <span>No location configured</span>
+                              <span>—</span>
                             </p>
                           )}
                         </div>
@@ -287,8 +287,9 @@ export default function DepartmentComplianceTable({
                           </span>
                         </p>
                       ) : (
-                        <p className="mt-0.5 font-mono text-xs text-slate-500 italic">
-                          No location set
+                        <p className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-slate-500">
+                          <MapPin className="h-3 w-3 shrink-0 text-slate-600" />
+                          <span>—</span>
                         </p>
                       )}
                     </div>

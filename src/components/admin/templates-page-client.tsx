@@ -474,7 +474,7 @@ export default function Templates() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
         {/* ── 1. Top Header Row ── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -609,9 +609,9 @@ export default function Templates() {
         </div>
 
         {/* ── 3. Compact Templates Table Card (Matching Departments Page Design) ── */}
-        <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden min-h-0 flex-1 overflow-auto md:block">
             <table className="w-full">
               <colgroup>
                 <col className="w-auto min-w-[260px]" />
@@ -620,7 +620,7 @@ export default function Templates() {
                 <col className="w-auto min-w-[240px]" />
                 <col className="w-14" />
               </colgroup>
-              <thead>
+              <thead className="sticky top-0 z-10">
                 <tr className="border-b border-slate-800 bg-[#070c18]">
                   <th className="px-6 py-4 text-left text-[11px] font-bold tracking-wider uppercase text-slate-400">
                     CLEARANCE TEMPLATE
@@ -799,7 +799,7 @@ export default function Templates() {
           </div>
 
           {/* Mobile Card List View */}
-          <div className="md:hidden divide-y divide-slate-800/60">
+          <div className="min-h-0 flex-1 overflow-auto md:hidden divide-y divide-slate-800/60">
             {isLoading ? (
               <div className="px-6 py-16 text-center text-sm text-slate-400">
                 <Loader2 className="mx-auto h-5 w-5 animate-spin text-amber-400 mb-2" />
