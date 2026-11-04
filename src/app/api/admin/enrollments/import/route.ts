@@ -1,3 +1,4 @@
+import { parseEnrollmentName, resolveEnrollmentEmail, isEnrollmentEmail } from "@/lib/enrollment";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { shrinkCourseName } from "@/utils/formatters";
 import { dispatchReadyForSigningNotifications } from "@/lib/services/ready-for-signing-notifications";
@@ -90,8 +91,8 @@ export async function POST(req: NextRequest) {
 
       try {
         const rawId = (rec.student_id || rec.studentId || rec.staff_id || rec.staffId || rec.id || rec.userId)?.toString().trim();
-        const rawName = (rec.name || rec.student_name || rec.studentName || rec.staff_name || rec.staffName)?.toString().trim();
-        const rawEmail = rec.email?.toString().trim().toLowerCase();
+        const nameInput = (rec.name || rec.student_name || rec.studentName || rec.staff_name || rec.staffName)?.toString().trim();
+        const rawEmail = resolveEnrollmentEmail(rec.email?.toString() || "");
         const initialBalance = rec.balance !== undefined && !isNaN(Number(rec.balance)) ? Number(rec.balance) : 0.00;
 
         if (recordType !== "student" && recordType !== "staff") throw new Error("Invalid client type.");
@@ -108,7 +109,10 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) throw new Error("Invalid email address.");
+        if (!isEnrollmentEmail(rawEmail)) throw new Error("Invalid email address.");
+        const parsedName = parseEnrollmentName(nameInput || "");
+        if (!parsedName) throw new Error("Full name must use Last Name, First Name (for example Dela Cruz, Juan).");
+        const rawName = parsedName.fullName;
         if (rawId && rawId.length > 11) throw new Error("ID exceeds 11 characters.");
         if (recordType === "staff") {
           const { data: staffId, error: staffError } = await adminClient.rpc("enroll_staff_identity", {

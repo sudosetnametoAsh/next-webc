@@ -28,9 +28,10 @@ export interface Section {
 }
 
 // 1. Fetch course sections
-export function useFetchSections(courseId?: number) {
+export function useFetchSections(courseId?: number, options?: { enabled?: boolean }) {
   return useQuery<Section[]>({
     queryKey: ["admin", "sections", courseId || "all"],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       const url = courseId ? `/api/admin/sections?course_id=${courseId}` : `/api/admin/sections`;
       const res = await fetch(url);

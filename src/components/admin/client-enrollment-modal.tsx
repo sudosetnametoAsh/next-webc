@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +20,8 @@ import {
   Loader2,
   X,
   Sparkles,
-  ChevronDown,
   Info,
+  ChevronDown,
   Mail,
   User,
   FileText,
@@ -29,6 +29,13 @@ import {
 import { useFetchCourses } from "@/hooks/admin/courses";
 import { useFetchSections, useBulkImportRoster } from "@/hooks/admin/enrollments";
 import { shrinkCourseName } from "@/utils/formatters";
+
+import EnrollmentSuggestionInput from "./enrollment-suggestion-input";
+import {
+  ENROLLMENT_EMAIL_DOMAIN, STUDENT_ID_PREFIX, parseEnrollmentName,
+  suggestEnrollmentEmail, enrollmentEmailLocalPart, isEmailLocalPart,
+  enrollmentCsvTemplate, parseEnrollmentRoster, type ParsedEnrollmentRow,
+} from "@/lib/enrollment";
 
 interface ClientEnrollmentModalProps {
   isOpen: boolean;
@@ -40,18 +47,15 @@ interface ClientEnrollmentModalProps {
 type TabMode = "single" | "bulk";
 type ClientType = "student" | "staff";
 
-interface ParsedBulkRow {
-  rowNum: number;
+interface ClientDraft {
   id: string;
   name: string;
   email: string;
-  course?: string;
-  year?: number;
-  semester?: number;
-  section?: number;
-  isValid: boolean;
-  error?: string;
+  nameTouched: boolean;
+  emailTouched: boolean;
 }
+const emptyClientDraft = (): ClientDraft => ({ id: "", name: "", email: "", nameTouched: false, emailTouched: false });
+const emptyBulkDraft = () => ({ text: "", fileName: null as string | null });
 
 export default function ClientEnrollmentModal({
   isOpen,
@@ -62,10 +66,18 @@ export default function ClientEnrollmentModal({
   const [activeTab, setActiveTab] = useState<TabMode>("single");
   const [clientType, setClientType] = useState<ClientType>("student");
 
-  // Single Enrollment Form State
-  const [singleId, setSingleId] = useState("");
-  const [singleName, setSingleName] = useState("");
-  const [singleEmail, setSingleEmail] = useState("");
+  // Each role owns its draft; changing the selected role never changes its values.
+  const [clientDrafts, setClientDrafts] = useState(() => ({ student: emptyClientDraft(), staff: emptyClientDraft() }));
+  const { id: singleId, name: singleName, email: singleEmail, nameTouched, emailTouched } = clientDrafts[clientType];
+  const updateClientDraft = <K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) => {
+    setClientDrafts((drafts) => ({ ...drafts, [clientType]: { ...drafts[clientType], [key]: value } }));
+  };
+  const setSingleId = (value: string) => updateClientDraft("id", value);
+  const setSingleName = (value: string) => updateClientDraft("name", value);
+  const setSingleEmail = (value: string) => updateClientDraft("email", value);
+  const setNameTouched = (value: boolean) => updateClientDraft("nameTouched", value);
+  const setEmailTouched = (value: boolean) => updateClientDraft("emailTouched", value);
+  const [parseError, setParseError] = useState("");
 
   // Course & Section State for Student
   const [selectedCourseId, setSelectedCourseId] = useState<string>("auto");
@@ -79,23 +91,28 @@ export default function ClientEnrollmentModal({
   // Bulk Import State
   const [bulkClientType, setBulkClientType] = useState<ClientType>("student");
   const [bulkInputMode, setBulkInputMode] = useState<"upload" | "paste">("upload");
-  const [rawPastedText, setRawPastedText] = useState("");
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [parsedRows, setParsedRows] = useState<ParsedBulkRow[]>([]);
+  const [bulkDrafts, setBulkDrafts] = useState(() => ({ student: emptyBulkDraft(), staff: emptyBulkDraft() }));
+  const { text: rawPastedText, fileName } = bulkDrafts[bulkClientType];
+  const setRawPastedText = (value: string) => setBulkDrafts((drafts) => ({ ...drafts, [bulkClientType]: { ...drafts[bulkClientType], text: value } }));
+  const setFileName = (value: string | null) => setBulkDrafts((drafts) => ({ ...drafts, [bulkClientType]: { ...drafts[bulkClientType], fileName: value } }));
+  const [parsedRows, setParsedRows] = useState<ParsedEnrollmentRow[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const readerRef = useRef<FileReader | null>(null);
+  const [rosterRevision, setRosterRevision] = useState(0);
 
   // Queries & Mutations
-  const { data: courses = [], isLoading: isLoadingCourses } = useFetchCourses();
-  const numericCourseId = selectedCourseId !== "auto" && selectedCourseId !== "custom" ? Number(selectedCourseId) : undefined;
-  const { data: sections = [], isLoading: isLoadingSections } = useFetchSections(numericCourseId);
+  const { data: courses = [], isLoading: isLoadingCourses } = useFetchCourses({ enabled: isOpen && activeTab === "single" && clientType === "student" });
+  const numericCourseId = selectedCourseId === "auto" ? courses[0]?.course_id : selectedCourseId !== "custom" ? Number(selectedCourseId) : undefined;
+  const { data: sections = [], isLoading: isLoadingSections } = useFetchSections(numericCourseId, { enabled: isOpen && activeTab === "single" && clientType === "student" && sectionMode === "existing" && numericCourseId !== undefined });
   const { mutateAsync: importRoster, isPending: isSubmitting } = useBulkImportRoster();
 
-  // Reset form when closing or switching tabs
-  const handleReset = () => {
-    setSingleId("");
-    setSingleName("");
-    setSingleEmail("");
+  // Clear all role drafts only when the modal closes.
+  const handleReset = useCallback(() => {
+    setClientDrafts({ student: emptyClientDraft(), staff: emptyClientDraft() });
+    setBulkDrafts({ student: emptyBulkDraft(), staff: emptyBulkDraft() });
+    setParseError("");
+    setIsParsing(false);
     setSelectedCourseId("auto");
     setCustomCourseName("");
     setSectionMode("existing");
@@ -104,13 +121,15 @@ export default function ClientEnrollmentModal({
     setNewSemester(1);
     setNewSectionNumber(1);
 
-    setFileName(null);
-    setRawPastedText("");
+    readerRef.current?.abort();
+    readerRef.current = null;
     setParsedRows([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
+  }, []);
+
+  useEffect(() => { if (!isOpen) handleReset(); }, [isOpen, handleReset]);
 
   const handleModalClose = () => {
     if (!isSubmitting) {
@@ -131,22 +150,20 @@ export default function ClientEnrollmentModal({
     return courses[0]?.course_name || "";
   }, [selectedCourseId, customCourseName, courses]);
 
-  // Validation for Single Enrollment
-  const isSingleValid = useMemo(() => {
-    if ((clientType === "student" && (!singleId.trim() || singleId.trim().length > 11)) || !singleName.trim() || !singleEmail.trim()) {
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(singleEmail.trim())) {
-      return false;
-    }
-    if (clientType === "student") {
-      if (selectedCourseId === "custom" && !customCourseName.trim()) {
-        return false;
-      }
-    }
-    return true;
-  }, [singleId, singleName, singleEmail, clientType, selectedCourseId, customCourseName]);
+  const parsedName = useMemo(() => parseEnrollmentName(singleName), [singleName]);
+  const emailSuggestion = useMemo(() => suggestEnrollmentEmail(clientType, singleName, singleId), [clientType, singleName, singleId]);
+  const fullEmail = `${singleEmail.trim().toLowerCase()}@${ENROLLMENT_EMAIL_DOMAIN}`;
+  const isSingleValid = Boolean(
+    (clientType !== "student" || (singleId.trim() && singleId.trim().length <= 11)) &&
+    parsedName && isEmailLocalPart(singleEmail.trim()) &&
+    (clientType !== "student" || selectedCourseId !== "custom" || customCourseName.trim()) &&
+    (clientType !== "student" || sectionMode !== "new" || [newYear, newSemester, newSectionNumber].every((n) => Number.isInteger(n) && n > 0))
+  );
+
+  const handleClientTypeChange = (type: ClientType) => {
+    if (type === clientType) return;
+    setClientType(type);
+  };
 
   // Single Submission Handler
   const handleSingleSubmit = async (e: React.FormEvent) => {
@@ -160,8 +177,8 @@ export default function ClientEnrollmentModal({
           clients: [
             {
               student_id: singleId.trim(),
-              name: singleName.trim(),
-              email: singleEmail.trim(),
+              name: parsedName!.fullName,
+              email: fullEmail,
               course_name: activeCourseName,
               section_id:
                 sectionMode === "existing" && selectedSectionId !== "auto"
@@ -189,8 +206,8 @@ export default function ClientEnrollmentModal({
           type: "staff" as const,
           clients: [
             {
-              name: singleName.trim(),
-              email: singleEmail.trim(),
+              name: parsedName!.fullName,
+              email: fullEmail,
             },
           ],
         };
@@ -202,7 +219,7 @@ export default function ClientEnrollmentModal({
         }
 
         toastSuccess?.(
-          `Staff member "${singleName.trim()}" (${singleEmail.trim()}) registered successfully! Staff clearance generated.`,
+          `Staff member "${singleName.trim()}" (${fullEmail}) registered successfully! Staff clearance generated.`,
           "Staff Enrolled"
         );
       }
@@ -215,22 +232,8 @@ export default function ClientEnrollmentModal({
 
   // CSV Template Generator & Downloader
   const downloadCsvTemplate = (type: ClientType) => {
-    let csvContent = "";
-    let filename = "";
-
-    if (type === "student") {
-      filename = "student_enrollment_template.csv";
-      csvContent =
-        "student_id,name,email,course_name,year,semester,section_number\n" +
-        "02000301199,Jyrum Jaro,jyrum.301199@urdaneta.sti.edu.ph,Bachelor of Science and Computer Science,4,1,1\n" +
-        "02000301200,Maria Santos,maria.301200@urdaneta.sti.edu.ph,BSIT,3,1,2\n";
-    } else {
-      filename = "staff_enrollment_template.csv";
-      csvContent =
-        "name,email\n" +
-        "Dr. Alan Turing,alan.turing@urdaneta.sti.edu.ph\n" +
-        "Prof. Ada Lovelace,ada.lovelace@urdaneta.sti.edu.ph\n";
-    }
+    const csvContent = enrollmentCsvTemplate(type);
+    const filename = `${type}_enrollment_template.csv`;
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -243,175 +246,47 @@ export default function ClientEnrollmentModal({
     URL.revokeObjectURL(url);
   };
 
-  // CSV / Text Parser
-  const parseRawText = (text: string, type: ClientType) => {
+  // Debounce roster previews so typing and pasting do not rebuild a large table per keystroke.
+  useEffect(() => {
+    if (!isOpen || activeTab !== "bulk") return;
     setIsParsing(true);
-    try {
-      const cleanText = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
-      if (!cleanText) {
+    const timer = setTimeout(() => {
+      try {
+        setParsedRows(parseEnrollmentRoster(rawPastedText, bulkClientType));
+        setParseError("");
+      } catch (error) {
         setParsedRows([]);
-        return;
+        setParseError(error instanceof Error ? error.message : "Could not read the roster.");
+      } finally {
+        setIsParsing(false);
       }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [rawPastedText, bulkClientType, activeTab, isOpen, rosterRevision]);
 
-      const lines = cleanText.split("\n").filter((l) => l.trim().length > 0);
-      if (lines.length === 0) {
-        setParsedRows([]);
-        return;
-      }
-
-      // Check for JSON array format
-      if (cleanText.startsWith("[") && cleanText.endsWith("]")) {
-        try {
-          const parsedJson = JSON.parse(cleanText);
-          if (Array.isArray(parsedJson)) {
-            const rows: ParsedBulkRow[] = parsedJson.map((item, index) => {
-              const id = (item.student_id || item.staff_id || item.id || "").toString().trim();
-              const name = (item.name || item.student_name || item.staff_name || "").toString().trim();
-              const email = (item.email || "").toString().trim();
-              const course = (item.course_name || item.course || item.program || "").toString().trim();
-              const year = item.year ? Number(item.year) : 1;
-              const semester = item.semester ? Number(item.semester) : 1;
-              const section = item.section_number || item.section ? Number(item.section_number || item.section) : 1;
-
-              const isValid = Boolean((type === "staff" ? name && (!id || id.length <= 11) : id && id.length <= 11) && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-              let error = "";
-              if (type === "student" && !id) error = "Missing ID";
-        else if (type === "staff" && !name) error = "Missing Name";
-              else if (id.length > 11) error = "ID exceeds 11 chars";
-              else if (!email) error = "Missing Email";
-              else if (!isValid) error = "Invalid Email";
-
-              return {
-                rowNum: index + 1,
-                id,
-                name: name || id,
-                email,
-                course,
-                year,
-                semester,
-                section,
-                isValid,
-                error,
-              };
-            });
-            setParsedRows(rows);
-            return;
-          }
-        } catch {
-          // Fall back to CSV parsing
-        }
-      }
-
-      // CSV parsing
-      const firstLine = lines[0].toLowerCase();
-      const delimiter = firstLine.includes("\t") ? "\t" : ",";
-
-      // Detect header row
-      const headers = lines[0].split(delimiter).map((h) => h.trim().replace(/^["']|["']$/g, "").toLowerCase());
-      const hasHeader =
-        headers.some((h) => h.includes("id")) ||
-        headers.some((h) => h.includes("email")) ||
-        headers.some((h) => h.includes("name"));
-
-      const dataLines = hasHeader ? lines.slice(1) : lines;
-
-      // Map header column indices if available
-      let idIdx = headers.findIndex((h) => h.includes("id"));
-      let nameIdx = headers.findIndex((h) => h.includes("name"));
-      let emailIdx = headers.findIndex((h) => h.includes("email"));
-      let courseIdx = headers.findIndex((h) => h.includes("course") || h.includes("program"));
-      let yearIdx = headers.findIndex((h) => h.includes("year"));
-      let semIdx = headers.findIndex((h) => h.includes("sem"));
-      let secIdx = headers.findIndex((h) => h.includes("sec"));
-
-      // Default positional indices if header not detected
-      if (!hasHeader) {
-        const staffWithoutId = type === "staff" && lines[0].split(delimiter).length === 2;
-        idIdx = staffWithoutId ? -1 : 0;
-        nameIdx = staffWithoutId ? 0 : 1;
-        emailIdx = staffWithoutId ? 1 : 2;
-        if (type === "student") {
-          courseIdx = 3;
-          yearIdx = 4;
-          semIdx = 5;
-          secIdx = 6;
-        }
-      }
-
-      const rows: ParsedBulkRow[] = dataLines.map((line, idx) => {
-        // Handle basic CSV quotes
-        const cols: string[] = [];
-        let cur = "";
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"' || char === "'") {
-            inQuotes = !inQuotes;
-          } else if (char === delimiter && !inQuotes) {
-            cols.push(cur.trim().replace(/^["']|["']$/g, ""));
-            cur = "";
-          } else {
-            cur += char;
-          }
-        }
-        cols.push(cur.trim().replace(/^["']|["']$/g, ""));
-
-        const id = (cols[idIdx] || "").trim();
-        const name = (cols[nameIdx] || "").trim();
-        const email = (cols[emailIdx] || "").trim();
-        const course = courseIdx !== -1 && cols[courseIdx] ? cols[courseIdx].trim() : "";
-        const year = yearIdx !== -1 && !isNaN(Number(cols[yearIdx])) ? Number(cols[yearIdx]) : 1;
-        const semester = semIdx !== -1 && !isNaN(Number(cols[semIdx])) ? Number(cols[semIdx]) : 1;
-        const section = secIdx !== -1 && !isNaN(Number(cols[secIdx])) ? Number(cols[secIdx]) : 1;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isValid = Boolean((type === "staff" ? name && (!id || id.length <= 11) : id && id.length <= 11) && email && emailRegex.test(email));
-        let error = "";
-        if (type === "student" && !id) error = "Missing ID";
-              else if (type === "staff" && !name) error = "Missing Name";
-        else if (id.length > 11) error = "ID exceeds 11 chars";
-        else if (!email) error = "Missing Email";
-        else if (!emailRegex.test(email)) error = "Invalid Email";
-
-        return {
-          rowNum: idx + 1,
-          id,
-          name: name || id,
-          email,
-          course: course || (type === "student" ? "General Course" : undefined),
-          year,
-          semester,
-          section,
-          isValid,
-          error,
-        };
-      });
-
-      setParsedRows(rows);
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
-
     setFileName(file.name);
+    setIsParsing(true);
+    setParsedRows([]);
+    readerRef.current?.abort();
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        parseRawText(content, bulkClientType);
-      }
+    readerRef.current = reader;
+    reader.onload = () => {
+      if (readerRef.current !== reader) return;
+      setRawPastedText(String(reader.result || ""));
+      setRosterRevision((revision) => revision + 1);
     };
+    reader.onerror = () => { setParseError("Could not read the file. Please select it again."); setIsParsing(false); };
     reader.readAsText(file);
   };
 
-  const handlePastedTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    setRawPastedText(val);
-    parseRawText(val, bulkClientType);
+  useEffect(() => () => { readerRef.current?.abort(); }, []);
+
+  const handlePastedTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setIsParsing(true);
+    setRawPastedText(event.target.value);
   };
 
   // Bulk Submit Handler
@@ -419,7 +294,7 @@ export default function ClientEnrollmentModal({
   const invalidBulkRows = useMemo(() => parsedRows.filter((r) => !r.isValid), [parsedRows]);
 
   const handleBulkSubmit = async () => {
-    if (validBulkRows.length === 0) return;
+    if (isParsing || validBulkRows.length === 0) return;
 
     try {
       const payload = {
@@ -495,7 +370,7 @@ export default function ClientEnrollmentModal({
             <button
               type="button"
               aria-pressed={activeTab === "bulk"}
-              onClick={() => setActiveTab("bulk")}
+              onClick={() => { if (activeTab !== "bulk") { setActiveTab("bulk"); setIsParsing(true); } }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-ui ${
                 activeTab === "bulk"
                   ? "bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/30"
@@ -524,7 +399,7 @@ export default function ClientEnrollmentModal({
                   <button
                     type="button"
                     aria-pressed={clientType === "student"}
-                    onClick={() => setClientType("student")}
+                    onClick={() => handleClientTypeChange("student")}
                     className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-ui ${
                       clientType === "student"
                         ? "bg-amber-400/5 border-amber-400/40 text-white shadow-xs"
@@ -549,7 +424,7 @@ export default function ClientEnrollmentModal({
                   <button
                     type="button"
                     aria-pressed={clientType === "staff"}
-                    onClick={() => setClientType("staff")}
+                    onClick={() => handleClientTypeChange("staff")}
                     className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-ui ${
                       clientType === "staff"
                         ? "bg-amber-400/5 border-amber-400/40 text-white shadow-xs"
@@ -590,13 +465,15 @@ export default function ClientEnrollmentModal({
                       </span>
                       <span className="text-[10px] text-slate-500 font-normal">Max 11 chars</span>
                     </label>
-                    <input
+                    <EnrollmentSuggestionInput
                       type="text"
                       required
+                      autoComplete="off"
                       maxLength={11}
                       aria-label="Client ID"
                       value={singleId}
-                      onChange={(e) => setSingleId(e.target.value)}
+                      suggestion={STUDENT_ID_PREFIX}
+                      onValueChange={setSingleId}
                       placeholder="e.g. 02000301199"
                       className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors font-mono"
                     />
@@ -605,7 +482,7 @@ export default function ClientEnrollmentModal({
                   {/* Full Name */}
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                      Full Name <span className="text-amber-400">*</span>
+                      Full Name (Last Name, First Name) <span className="text-amber-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -613,9 +490,17 @@ export default function ClientEnrollmentModal({
                       aria-label="Full name"
                       value={singleName}
                       onChange={(e) => setSingleName(e.target.value)}
-                      placeholder="e.g. Jyrum Jaro or Santos, Maria"
+                      placeholder="Dela Cruz, Juan"
+                      autoComplete="off"
+                      maxLength={255}
+                      onBlur={() => setNameTouched(true)}
+                      aria-invalid={nameTouched && !parsedName}
+                      aria-describedby={nameTouched && !parsedName ? "enrollment-name-format" : undefined}
                       className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                     />
+                    {nameTouched && !parsedName && (
+                      <p id="enrollment-name-format" className="mt-1 text-[11px] text-rose-400">Enter both names separated by one comma: Dela Cruz, Juan.</p>
+                    )}
                   </div>
                 </div>
 
@@ -626,15 +511,29 @@ export default function ClientEnrollmentModal({
                       <Mail className="h-3 w-3 text-slate-400" />
                       STI Email Address <span className="text-amber-400">*</span>
                     </label>
-                    <input
-                      type="email"
-                      required
-                      aria-label="Email address"
-                      value={singleEmail}
-                      onChange={(e) => setSingleEmail(e.target.value)}
-                      placeholder="username@urdaneta.sti.edu.ph"
-                      className="w-full px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] placeholder-slate-500 focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
-                    />
+                    <div className="grid min-w-0 grid-cols-1 items-start gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                      <EnrollmentSuggestionInput
+                        type="text"
+                        inputMode="email"
+                        autoComplete="off"
+                        spellCheck={false}
+                        required
+                        maxLength={100}
+                        aria-label="Email address"
+                        aria-describedby={`enrollment-email-domain${emailTouched && !isEmailLocalPart(singleEmail.trim()) ? " enrollment-email-hint" : ""}`}
+                        aria-invalid={emailTouched && !isEmailLocalPart(singleEmail.trim())}
+                        value={singleEmail}
+                        suggestion={emailSuggestion}
+                        onValueChange={(value) => setSingleEmail(enrollmentEmailLocalPart(value))}
+                        onBlur={() => setEmailTouched(true)}
+                        placeholder={clientType === "student" ? "delacruz.123456" : "juan.delacruz"}
+                        className="w-full min-w-0 rounded-lg border border-slate-700 bg-[#070c18] px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-amber-500/60 focus:outline-hidden focus:ring-1 focus:ring-amber-500/30"
+                      />
+                      <span id="enrollment-email-domain" className="py-2 text-xs text-slate-400 sm:text-sm">@{ENROLLMENT_EMAIL_DOMAIN}</span>
+                    </div>
+                    {emailTouched && !isEmailLocalPart(singleEmail.trim()) && (
+                      <p id="enrollment-email-hint" className="mt-1 text-[11px] text-rose-400">Enter only the email username; the campus domain is added automatically.</p>
+                    )}
                   </div>
 
 
@@ -662,24 +561,16 @@ export default function ClientEnrollmentModal({
                     <div className="relative">
                       <select
                         aria-label="Degree program"
-                      value={selectedCourseId}
-                        onChange={(e) => {
-                          setSelectedCourseId(e.target.value);
-                          setSelectedSectionId("auto");
-                        }}
-                        className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
+                        value={selectedCourseId}
+                        disabled={isLoadingCourses}
+                        onChange={(event) => { setSelectedCourseId(event.target.value); setSelectedSectionId("auto"); }}
+                        className="w-full appearance-none rounded-lg border border-slate-700 bg-[#070c18] px-3 py-2 pr-8 text-sm text-slate-100 [color-scheme:dark] focus:border-amber-500/60 focus:outline-hidden focus:ring-1 focus:ring-amber-500/30"
                       >
-                        <option value="auto">
-                          -- Select Academic Program --
-                        </option>
-                        {courses.map((c) => (
-                          <option key={c.course_id} value={String(c.course_id)}>
-                            {c.course_name} ({shrinkCourseName(c.course_name)})
-                          </option>
-                        ))}
+                        <option value="auto">-- Select Academic Program --</option>
+                        {courses.map((course) => <option key={course.course_id} value={String(course.course_id)}>{course.course_name} ({shrinkCourseName(course.course_name)})</option>)}
                         <option value="custom">+ Create / Specify New Program...</option>
                       </select>
-                      <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                      <ChevronDown className="pointer-events-none absolute top-2.5 right-3 h-3.5 w-3.5 text-slate-400" />
                     </div>
                   </div>
 
@@ -740,22 +631,17 @@ export default function ClientEnrollmentModal({
                         <div className="relative">
                           <select
                             aria-label="Section"
-                      value={selectedSectionId}
-                            onChange={(e) => setSelectedSectionId(e.target.value)}
-                            className="w-full appearance-none px-3 py-2 bg-[#070c18] border border-slate-700 rounded-lg text-sm text-slate-100 [color-scheme:dark] focus:outline-hidden focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors pr-8"
+                            value={selectedSectionId}
+                            disabled={isLoadingSections && numericCourseId !== undefined}
+                            onChange={(event) => setSelectedSectionId(event.target.value)}
+                            className="w-full appearance-none rounded-lg border border-slate-700 bg-[#070c18] px-3 py-2 pr-8 text-sm text-slate-100 [color-scheme:dark] focus:border-amber-500/60 focus:outline-hidden focus:ring-1 focus:ring-amber-500/30"
                           >
-                            <option value="auto">
-                              -- Auto-assign or Default Section --
-                            </option>
-                            {sections.map((sec) => (
-                              <option key={sec.section_id} value={String(sec.section_id)}>
-                                {sec.section_code} ({sec.enrolled_count} students)
-                              </option>
-                            ))}
+                            <option value="auto">-- Auto-assign or Default Section --</option>
+                            {sections.filter((section) => section.course_id === numericCourseId).map((section) => <option key={section.section_id} value={String(section.section_id)}>{section.section_code} ({section.enrolled_count} students)</option>)}
                           </select>
-                          <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                          <ChevronDown className="pointer-events-none absolute top-2.5 right-3 h-3.5 w-3.5 text-slate-400" />
                         </div>
-                        {sections.length === 0 && selectedCourseId !== "auto" && (
+                        {!isLoadingSections && sections.length === 0 && numericCourseId !== undefined && (
                           <p className="text-[11px] text-amber-400/80 mt-1.5 flex items-center gap-1">
                             <Info className="h-3 w-3" />
                             No sections exist yet for this program. A default Year 1 Section 1 will be created.
@@ -822,9 +708,15 @@ export default function ClientEnrollmentModal({
                   <div className="flex items-center gap-1 p-0.5 bg-[#070c18] rounded-lg border border-slate-800 text-xs">
                     <button
                       type="button"
+                      aria-pressed={bulkClientType === "student"}
                       onClick={() => {
-                        setBulkClientType("student");
-                        if (rawPastedText) parseRawText(rawPastedText, "student");
+                        if (bulkClientType !== "student") {
+                          setBulkClientType("student");
+                          setParsedRows([]);
+                          setParseError("");
+                          setIsParsing(true);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }
                       }}
                       className={`px-3 py-1 rounded-md transition-ui font-semibold ${
                         bulkClientType === "student"
@@ -836,9 +728,15 @@ export default function ClientEnrollmentModal({
                     </button>
                     <button
                       type="button"
+                      aria-pressed={bulkClientType === "staff"}
                       onClick={() => {
-                        setBulkClientType("staff");
-                        if (rawPastedText) parseRawText(rawPastedText, "staff");
+                        if (bulkClientType !== "staff") {
+                          setBulkClientType("staff");
+                          setParsedRows([]);
+                          setParseError("");
+                          setIsParsing(true);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }
                       }}
                       className={`px-3 py-1 rounded-md transition-ui font-semibold ${
                         bulkClientType === "staff"
@@ -942,14 +840,14 @@ export default function ClientEnrollmentModal({
                       value={rawPastedText}
                     onChange={handlePastedTextChange}
                     placeholder={
-                      bulkClientType === "student"
-                        ? "student_id,name,email,course_name,year,semester,section_number\n02000301199,Jyrum Jaro,jyrum@urdaneta.sti.edu.ph,BSCS,4,1,1"
-                        : "name,email\nDr. Alan Turing,turing@urdaneta.sti.edu.ph"
+                      enrollmentCsvTemplate(bulkClientType)
                     }
                     className="w-full p-3 bg-[#070c18] border border-slate-800 rounded-xl font-mono text-xs text-slate-200 placeholder-slate-600 focus:outline-hidden focus:border-amber-500/60 transition-colors"
                   />
                 </div>
               )}
+
+              {parseError && <p role="alert" className="text-xs text-rose-400">{parseError}</p>}
 
               {/* Live Parsing Preview & Statistics */}
               {parsedRows.length > 0 && (
@@ -971,6 +869,7 @@ export default function ClientEnrollmentModal({
                     </div>
                   </div>
 
+                  {parsedRows.length > 100 && <p className="text-[11px] text-slate-500">Showing the first 100 rows. All {validBulkRows.length} valid rows will be imported.</p>}
                   {/* Preview Table */}
                   <div className="rounded-xl border border-slate-800 bg-[#070c18] max-h-56 overflow-auto">
                     <table className="w-full text-left text-xs">
@@ -985,7 +884,7 @@ export default function ClientEnrollmentModal({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800/60 text-slate-300 text-[11px]">
-                        {parsedRows.map((r) => (
+                        {parsedRows.slice(0, 100).map((r) => (
                           <tr
                             key={r.rowNum}
                             className={`hover:bg-[#070c18] ${
@@ -1067,7 +966,7 @@ export default function ClientEnrollmentModal({
                 <button
                   type="button"
                   onClick={handleBulkSubmit}
-                  disabled={validBulkRows.length === 0 || isSubmitting}
+                  disabled={isParsing || validBulkRows.length === 0 || isSubmitting}
                   className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-slate-950 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                 >
                   {isSubmitting ? (

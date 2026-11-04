@@ -1,9 +1,10 @@
 import { Courses } from '@/types/admin'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-export function useFetchCourses() {
+export function useFetchCourses(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['admin', 'courses'],
+    enabled: options?.enabled ?? true,
     queryFn: fetchCourses,
     staleTime: 1000 * 60 * 5,
   })
