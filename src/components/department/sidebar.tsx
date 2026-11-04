@@ -8,7 +8,6 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
-  Award,
   Calendar,
   BarChart3,
   ShieldCheck,
@@ -40,8 +39,8 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
   const queryClient = useQueryClient();
   const { mobileOpen, closeMobile } = useDepartmentNav();
 
-  // Role switching is strictly exclusive to genuine department staff
-  const isDepartmentStaff = Boolean(
+  // Only persist a department context when the staff member has an assignment.
+  const hasAssignedDepartment = Boolean(
     department &&
     department.trim() !== "" &&
     !["staff", "student", "admin", "all"].includes(department.toLowerCase())
@@ -50,7 +49,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
   // Pre-warm all department routes into the Client Router Cache on mount and persist staff department context
   useEffect(() => {
     try {
-      if (isDepartmentStaff) {
+      if (hasAssignedDepartment) {
         sessionStorage.setItem("clearance_staff_department", department);
         if (user_id) {
           sessionStorage.setItem(`clearance_staff_dept_${user_id}`, department);
@@ -67,11 +66,9 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
     router.prefetch("/department/clients");
     router.prefetch("/department/calendar");
     router.prefetch("/department/reports");
-    if (isDepartmentStaff) {
-      router.prefetch("/clearance");
-    }
+    router.prefetch("/clearance");
     prefetchDepartmentClients(queryClient);
-  }, [router, queryClient, department, user_id, isDepartmentStaff]);
+  }, [router, queryClient, department, user_id, hasAssignedDepartment]);
 
   const avatarInitials = user_name
     ? user_name
@@ -141,57 +138,48 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
         </div>
 
         {/* Role Pill Indicator / Switcher */}
-        {isDepartmentStaff ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 transition-ui hover:bg-amber-950/40 hover:border-amber-500/50 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer select-none text-left"
-                aria-label="Switch portal view"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
-                  <span className="text-xs font-semibold tracking-wide truncate">
-                    Department Staff
-                  </span>
-                </div>
-                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              side="bottom"
-              sideOffset={4}
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-[200px] border-0 bg-transparent p-0 shadow-2xl shadow-black/90 z-50 rounded-lg overflow-hidden"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 transition-ui hover:bg-amber-950/40 hover:border-amber-500/50 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer select-none text-left"
+              aria-label="Switch portal view"
             >
-              {/* Single Target Entry: Client Clearance (Green color) */}
-              <DropdownMenuItem
-                onMouseEnter={() => router.prefetch("/clearance")}
-                onFocus={() => router.prefetch("/clearance")}
-                onClick={() => {
-                  router.push("/clearance");
-                  if (isMobile) closeMobile();
-                }}
-                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-[#060a14] px-3 py-2 text-emerald-400 transition-ui hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:bg-emerald-950/40 focus:border-emerald-500/50 focus:text-emerald-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <User className="h-4 w-4 shrink-0 text-emerald-400" />
-                  <span className="text-xs font-semibold tracking-wide truncate">
-                    Client Clearance
-                  </span>
-                </div>
-                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-amber-400 select-none">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
-            <span className="text-xs font-semibold tracking-wide truncate">
-              Department Staff
-            </span>
-          </div>
-        )}
+              <div className="flex items-center gap-2 min-w-0">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
+                <span className="text-xs font-semibold tracking-wide truncate">
+                  Department Staff
+                </span>
+              </div>
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            side="bottom"
+            sideOffset={4}
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-[200px] border-0 bg-transparent p-0 shadow-2xl shadow-black/90 z-50 rounded-lg overflow-hidden"
+          >
+            {/* Single Target Entry: Client Clearance (Green color) */}
+            <DropdownMenuItem
+              onMouseEnter={() => router.prefetch("/clearance")}
+              onFocus={() => router.prefetch("/clearance")}
+              onClick={() => {
+                router.push("/clearance");
+                if (isMobile) closeMobile();
+              }}
+              className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-[#060a14] px-3 py-2 text-emerald-400 transition-ui hover:bg-emerald-950/40 hover:border-emerald-500/50 focus:bg-emerald-950/40 focus:border-emerald-500/50 focus:text-emerald-400 cursor-pointer select-none text-left shadow-lg shadow-black/80 ring-0 outline-hidden"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <User className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span className="text-xs font-semibold tracking-wide truncate">
+                  Client Clearance
+                </span>
+              </div>
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* ── Scrollable Menu Content ── */}
