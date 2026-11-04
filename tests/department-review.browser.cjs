@@ -29,7 +29,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
            const emit=(table,row)=>{for(const channel of channels)for(const binding of channel.callbacks)if(binding.table===table)binding.callback({eventType:'INSERT',new:row})};
            window.emitTestNotification=(row)=>emit('notifications',row);
            window.emitTestRecord=(row)=>emit('clearance_records',row);
-           const client={channel(){const channel={callbacks:[],on(event,filter,callback){this.callbacks.push({table:filter.table,callback});return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
+           const client={from(){const query={select(){return query},eq(){return query},async single(){return {data:{dropbox:'[]',uploaded_at:'2026-11-04T00:00:00Z',ai_audit_report:{isAuthentic:false,flags:['Wrong receipt']}},error:null}}};return query},channel(){const channel={callbacks:[],on(event,filter,callback){this.callbacks.push({table:filter.table,callback});return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
            export const createClient=()=>client;`,
         }));
       } }],
@@ -52,6 +52,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     page.on('pageerror', (error) => errors.push(error.message));
     let failRejection = true, requestBody, notificationDelay = 0;
     let failProgress = true, progressDelay = 500, clinicStatus = 'Pending';
+    let failTaskStatus = true;
+    const statusRequests = [];
     let notifications = [];
     await page.route('**/api/student/notifications?*', async (route) => {
       const snapshot = notifications;
@@ -63,6 +65,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await route.fulfill(failRejection
         ? { status: 500, json: { error: 'Could not save rejection. Please try again.' } }
         : { json: { data: { status: 'Rejected', comments: requestBody.reason } } });
+    });
+    await page.route('**/api/department/clients/tasks/status', async (route) => {
+      assert.equal(route.request().method(), 'PATCH');
+      const body = route.request().postDataJSON();
+      statusRequests.push(body);
+      await route.fulfill(failTaskStatus
+        ? { status: 500, json: { error: 'Task update failed for test.' } }
+        : { json: { data: { assigned_task_id: body.taskId, status: body.status, comments: body.comment } } });
     });
     await page.route('**/api/department/presets', (route) => route.fulfill({ json: { data: [], id: 'test-officer' } }));
     await page.route('**/api/department/clients/sign', (route) => {
@@ -125,9 +135,36 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     clinicStatus = 'Pending';
     await page.evaluate(() => window.emitTestRecord({ user_id: 'test-client', status: 'Pending' }));
     await progressSection.getByText('1 / 2 Cleared', { exact: true }).waitFor();
+    for (const mode of ['digital', 'person']) {
+      failTaskStatus = true;
+      await page.goto(`http://127.0.0.1:${server.address().port}/?progress&task=${mode}`);
+      const title = mode === 'digital' ? 'Digital Receipt' : 'Office Visit';
+      await page.getByText(title, { exact: true }).first().click();
+      const approve = async () => {
+        await page.getByRole('button', { name: 'Approve & Clear', exact: true }).click();
+        if (mode === 'digital') await page.getByRole('button', { name: 'Override & Approve', exact: true }).click();
+      };
+      await approve();
+      await page.getByText('Task update failed for test.', { exact: true }).waitFor();
+      assert.equal(await page.getByRole('button', { name: 'Approve & Clear', exact: true }).isVisible(), true, 'failed clear keeps the modal open');
+      failTaskStatus = false;
+      await approve();
+      const taskSection = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Required Tasks', exact: true }) });
+      await taskSection.getByText('Cleared', { exact: true }).waitFor();
+      await page.getByRole('button', { name: 'Requirement Cleared', exact: true }).waitFor({ state: 'hidden' });
+      assert.equal(await page.getByRole('button', { name: 'Approve & Clear', exact: true }).count(), 0);
+      assert.equal(statusRequests.at(-1).status, 'Cleared');
+      assert.equal(statusRequests.at(-1).taskId, 12);
+      await page.getByText(title, { exact: true }).first().click();
+      await page.getByRole('button', { name: 'Reopen (Mark Pending)', exact: true }).click();
+      await page.getByRole('button', { name: 'Confirm Reopen', exact: true }).click();
+      await page.waitForFunction(() => ![...document.querySelectorAll('button')].some((button) => button.textContent.trim() === 'Confirm Reopen'));
+      assert.equal(statusRequests.at(-1).status, 'Pending');
+    }
     assert.deepEqual(errors, [], 'no React runtime errors');
     console.log(`PASS: rejection failure stays open, success persists and closes; incoming popup rendered in ${elapsed}ms despite a ${notificationDelay}ms API delay; another officer's alert excluded.`);
     console.log('PASS: TaskView shows loading and query errors, retries successfully, and updates progress after signing and realtime changes without reloading.');
+    console.log('PASS: actual digital and in-person TaskView flows show clear failures, persist successful clears through the API, and reopen cleared tasks.');
     await page.close();
   } finally {
     await browser?.close();

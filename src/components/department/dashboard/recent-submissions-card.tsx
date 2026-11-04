@@ -1,5 +1,6 @@
 "use client";
 
+import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 
 import { useState, useMemo, useEffect } from "react";
@@ -19,7 +20,6 @@ import type {
 import SubmissionModal, {
   SubmittedFile,
 } from "../clients/sumission-modal";
-import { createClient } from "@/lib/db/supabase-client";
 import { shrinkCourseName } from "@/utils/formatters";
 
 interface RecentSubmissionsCardProps {
@@ -47,7 +47,6 @@ export default function RecentSubmissionsCard({
   submissions = [],
 }: RecentSubmissionsCardProps) {
   const router = useRouter();
-  const supabase = createClient();
 
   // Local state to support instant optimistic updates on approval / resubmission
   const [localSubmissions, setLocalSubmissions] =
@@ -192,58 +191,12 @@ export default function RecentSubmissionsCard({
   };
 
   const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged", comment: string) => {
-    if (!activeSubmission) return;
+    if (!activeSubmission) throw new Error("Select a submission first.");
     const currentSub = activeSubmission;
-    try {
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({ status: newStatus, comments: comment })
-        .eq("assigned_task_id", currentSub.assignedTaskId);
-
-      if (error) throw error;
-
-      if (newStatus === "Cleared" && currentSub.studentId) {
-        try {
-          await supabase.from("notifications").insert({
-            user_id: currentSub.studentId,
-            target_role: "student",
-            category: "submission",
-            title: "Requirement Cleared",
-            description: `Your requirement "${currentSub.taskTitle || "requirement"}" has been approved and cleared.`,
-            type: "Success",
-            ref_url: `/clearance/tasks?taskId=${currentSub.assignedTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId: currentSub.studentId,
-              taskId: currentSub.assignedTaskId,
-              taskTitle: currentSub.taskTitle,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert clear notification:", notifErr);
-        }
-      }
-
-      // Optimistically update local submissions state
-      if (newStatus === "Cleared") {
-        setLocalSubmissions((prev) =>
-          prev.filter((s) => s.assignedTaskId !== currentSub.assignedTaskId)
-        );
-      } else {
-        setLocalSubmissions((prev) =>
-          prev.map((s) =>
-            s.assignedTaskId === currentSub.assignedTaskId
-              ? { ...s, status: newStatus, comments: comment }
-              : s
-          )
-        );
-      }
-
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to update task status:", err);
-    }
+    await updateTaskStatus(currentSub.assignedTaskId, newStatus, comment);
+    setLocalSubmissions((prev) => prev.filter((s) => s.assignedTaskId !== currentSub.assignedTaskId));
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
   const handleRejectWithResubmit = async (comment: string) => {

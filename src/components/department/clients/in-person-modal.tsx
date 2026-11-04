@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
   X,
@@ -142,6 +143,7 @@ export default function InPersonModal({
       resetAndClose();
     } catch (error) {
       console.error("Failed to approve in-person requirement:", error);
+      toast.error(error instanceof Error ? error.message : "Could not update task status.");
     } finally {
       setIsSubmitting(false);
       setShowFlaggedApproveConfirm(false);
@@ -170,6 +172,7 @@ export default function InPersonModal({
       resetAndClose();
     } catch (error) {
       console.error("Failed to reopen requirement:", error);
+      toast.error(error instanceof Error ? error.message : "Could not update task status.");
     } finally {
       setIsSubmitting(false);
     }

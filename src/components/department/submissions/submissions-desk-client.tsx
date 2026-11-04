@@ -1,6 +1,7 @@
 "use client";
 
 import { useDepartmentDashboard } from "@/hooks/department/use-department-dashboard";
+import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 
 import { useState, useMemo, useEffect } from "react";
@@ -25,7 +26,6 @@ import type { getRecentSubmissionsPromise } from "@/modules/staff/application/re
 import SubmissionModal, {
   SubmittedFile,
 } from "../clients/sumission-modal";
-import { createClient } from "@/lib/db/supabase-client";
 import { shrinkCourseName } from "@/utils/formatters";
 
 interface SubmissionsDeskClientProps {
@@ -75,7 +75,6 @@ export default function SubmissionsDeskClient({
   userName = "Staff Officer",
 }: SubmissionsDeskClientProps) {
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
   const { data: dashboard } = useDepartmentDashboard();
 
   const [submissions, setSubmissions] = useState<getRecentSubmissionsPromise[]>(initialSubmissions);
@@ -198,22 +197,13 @@ export default function SubmissionsDeskClient({
 
   // Status update handler (Approve / Clear)
   const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged", comment: string) => {
-    if (!activeSubmission) return;
-    try {
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({ status: newStatus, comments: comment })
-        .eq("assigned_task_id", activeSubmission.assignedTaskId);
-
-      if (error) throw error;
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to update task status:", err);
-    }
+    if (!activeSubmission) throw new Error("Select a submission first.");
+    const currentSub = activeSubmission;
+    await updateTaskStatus(currentSub.assignedTaskId, newStatus, comment);
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
-  // Rejection handler
   const handleRejectWithResubmit = async (comment: string) => {
     if (!activeSubmission) throw new Error("Select a submission first.");
     const currentSub = activeSubmission;

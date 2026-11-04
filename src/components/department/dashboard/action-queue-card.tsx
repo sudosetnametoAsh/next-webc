@@ -1,5 +1,6 @@
 "use client";
 
+import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 
 import { useState } from "react";
@@ -25,7 +26,6 @@ import type {
 import SubmissionModal, {
   SubmittedFile,
 } from "../clients/sumission-modal";
-import { createClient } from "@/lib/db/supabase-client";
 import { toast } from "sonner";
 
 interface ActionQueueCardProps {
@@ -55,7 +55,6 @@ export default function ActionQueueCard({
   readyToSignClients = [],
 }: ActionQueueCardProps) {
   const router = useRouter();
-  const supabase = createClient();
   const [activeTab, setActiveTab] = useState<"submissions" | "ready">("submissions");
 
   // Review modal state
@@ -131,19 +130,11 @@ export default function ActionQueueCard({
   };
 
   const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged", comment: string) => {
-    if (!activeSubmission) return;
-    try {
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({ status: newStatus, comments: comment })
-        .eq("assigned_task_id", activeSubmission.assignedTaskId);
-
-      if (error) throw error;
-      setReviewModalOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to update task status:", err);
-    }
+    if (!activeSubmission) throw new Error("Select a submission first.");
+    const currentSub = activeSubmission;
+    await updateTaskStatus(currentSub.assignedTaskId, newStatus, comment);
+    setReviewModalOpen(false);
+    router.refresh();
   };
 
   const handleRejectWithResubmit = async (comment: string) => {

@@ -204,6 +204,7 @@ export default function SubmissionModal({
       resetAndClose();
     } catch (error) {
       console.error("Failed to approve", error);
+      toast.error(error instanceof Error ? error.message : "Could not update task status.");
     } finally {
       setIsSubmitting(false);
       setShowFlaggedApproveConfirm(false);
@@ -264,6 +265,7 @@ export default function SubmissionModal({
       resetAndClose();
     } catch (error) {
       console.error("Failed to reopen requirement:", error);
+      toast.error(error instanceof Error ? error.message : "Could not update task status.");
     } finally {
       setIsSubmitting(false);
     }

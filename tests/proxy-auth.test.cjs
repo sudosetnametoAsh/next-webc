@@ -94,7 +94,7 @@ test('Department cannot access admin APIs through personal clearance permissions
     assert.equal((await h.proxy(new NextRequest('http://localhost'+path))).status,403,path);
   }
 });
-for(const path of ['/api/admin/enrollments/import','/api/admin/simulation','/api/department/clients','/api/department/clients/progress','/api/dashboard']) {
+for(const path of ['/api/admin/enrollments/import','/api/admin/simulation','/api/department/clients','/api/department/clients/progress','/api/department/clients/tasks/status','/api/dashboard']) {
   test('Client cannot access '+path,async()=>{
     assert.equal((await load({user:roleUser('Client')}).proxy(new NextRequest('http://localhost'+path))).status,403);
   });

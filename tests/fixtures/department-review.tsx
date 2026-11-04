@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -13,11 +13,18 @@ function ReviewFixture() {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("Flagged");
   const showProgress = new URLSearchParams(location.search).has("progress");
+  const taskMode = new URLSearchParams(location.search).get("task");
+  const fixtureTasks = useMemo(() => taskMode ? [{
+    assigned_task_id: 12, title: taskMode === "digital" ? "Digital Receipt" : "Office Visit",
+    description: "Test requirement", dropbox: taskMode === "digital" ? "[]" : "",
+    status: taskMode === "digital" ? "Flagged" as const : "Pending" as const,
+    assigned_at: "2026-11-04T00:00:00Z", ai_audit_report: taskMode === "digital" ? { isAuthentic: false, flags: ["Wrong receipt"] } : null,
+  }] : [], [taskMode]);
   return <QueryClientProvider client={queryClient}>
     <DepartmentHeader user_id="test-officer" user_name="Test Officer" department="Clinic" />
     {showProgress ? <>
       <RealtimeDashboardListener />
-      <TaskView studentTasks={[]} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
+      <TaskView studentTasks={fixtureTasks} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
     </> : <>
     <main>
       <output data-testid="saved-status">{status}</output>

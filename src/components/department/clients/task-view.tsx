@@ -1,6 +1,7 @@
 "use client";
 
 import { useClientClearanceProgress } from "@/hooks/department/use-client-clearance-progress";
+import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -31,7 +32,6 @@ import SignToggleButton from "../sign-button";
 import AddTask from "../button/add-task";
 import AddPreset from "../button/add-preset";
 import { useFetchPreset } from "@/hooks/department/fetch-presets";
-import { useDepartmentContext } from "@/context/deparment";
 
 type TaskStatus = "Cleared" | "Pending" | "Flagged" | "Submitted" | "Rejected" | "Verified";
 
@@ -218,8 +218,6 @@ export default function TaskView({
   const supabase = useMemo(() => createClient(), []);
   const { data: fetchedPreset } = useFetchPreset();
   const activePreset = preset || fetchedPreset;
-  const deptCtx = useDepartmentContext();
-  const currentDeptName = deptCtx?.departmentName || "Department Staff";
 
   const [tasks, setTasks] = useState<Tasks[]>(studentTasks);
   const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
@@ -694,77 +692,18 @@ export default function TaskView({
     }
   };
 
+  const saveTaskStatus = async (taskId: number, status: string, comment: string) => {
+    const saved = await updateTaskStatus(taskId, status, comment);
+    setTasks((prev) => prev.map((task) => task.assigned_task_id === taskId
+      ? { ...task, status: saved.status, comments: saved.comments } : task));
+    await Promise.all([
+      "department-clients", "clients", "staff-clearance", "client-tasks", "department-client-progress", "department-dashboard",
+    ].map((key) => queryClient.invalidateQueries({ queryKey: [key] })));
+  };
+
   const handleUpdateStatus = async (newStatus: "Cleared" | "Flagged" | "Pending", comment: string) => {
-    if (activeTaskId === null) return;
-    const targetTaskId = activeTaskId; // Capture ID before modal closes
-    const targetTask = tasks.find((t) => t.assigned_task_id === targetTaskId);
-
-    setTasks((prev) => prev.map((t) => t.assigned_task_id === targetTaskId ? { ...t, status: newStatus, comments: comment } : t));
-    try {
-      const { error } = await supabase.from("clearance_tasks").update({ status: newStatus, comments: comment }).eq("assigned_task_id", targetTaskId);
-      if (error) throw error;
-
-      // Check remaining tasks for this client to synchronize clearance_records status:
-      // If all tasks are cleared/completed, set to "Pending"
-      // If any unfulfilled tasks remain, set to "Incomplete"
-      const updatedTasks = tasks.map((t) =>
-        t.assigned_task_id === targetTaskId ? { ...t, status: newStatus, comments: comment } : t
-      );
-      const hasRemainingUnfulfilled = updatedTasks.some(
-        (t) => t.status !== "Cleared"
-      );
-
-      if (clearanceId && clientStatus !== "Signed") {
-        const nextRecordStatus = hasRemainingUnfulfilled ? "Incomplete" : "Pending";
-        await supabase
-          .from("clearance_records")
-          .update({ status: nextRecordStatus })
-          .eq("clearance_id", clearanceId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["department-clients"] });
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-
-      if (newStatus === "Cleared" && studentId) {
-        const taskTitle = targetTask?.title || "Clearance Requirement";
-
-        // Remove any prior returned or rejected notifications for this task
-        await supabase
-          .from("notifications")
-          .delete()
-          .eq("user_id", studentId)
-          .or(`title.ilike.%Returned%,title.ilike.%Rejected%`)
-          .ilike("description", `%"${taskTitle}"%`);
-
-        try {
-          await supabase.from("notifications").insert({
-            user_id: studentId,
-            target_role: "student",
-            category: "task",
-            title: "Requirement Cleared",
-            description: `Your requirement "${taskTitle}" has been approved and cleared by ${currentDeptName}.`,
-            type: "Success",
-            ref_url: `/clearance/tasks?taskId=${targetTaskId}`,
-            is_read: false,
-            metadata: {
-              studentId,
-              taskId: targetTaskId,
-              taskTitle,
-              departmentName: currentDeptName,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert cleared notification:", notifErr);
-        }
-      }
-    } catch (error) {
-      if (targetTask) {
-        setTasks((prev) => prev.map((task) =>
-          task.assigned_task_id === targetTaskId ? targetTask : task
-        ));
-      }
-      console.error("Error updating task status:", error);
-      throw error;
-    }
+    if (activeTaskId === null) throw new Error("Select a submission first.");
+    await saveTaskStatus(activeTaskId, newStatus, comment);
   };
 
   const handleRejectWithResubmit = async (comment: string) => {
@@ -825,90 +764,8 @@ export default function TaskView({
     return !originallyRequiredDropbox(task);
   };
 
-  const handleUpdateInPersonTaskStatus = async (
-    taskId: number,
-    newStatus: TaskStatus,
-    comment: string
-  ) => {
-    const targetTask = tasks.find((t) => t.assigned_task_id === taskId);
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.assigned_task_id === taskId
-          ? { ...t, status: newStatus, comments: comment }
-          : t
-      )
-    );
-    try {
-      const { error } = await supabase
-        .from("clearance_tasks")
-        .update({ status: newStatus, comments: comment })
-        .eq("assigned_task_id", taskId);
-      if (error) throw error;
-
-      // Check remaining tasks for this client to synchronize clearance_records status:
-      // If all tasks are cleared/completed, set to "Pending"
-      // If any unfulfilled tasks remain, set to "Incomplete"
-      const updatedTasks = tasks.map((t) =>
-        t.assigned_task_id === taskId ? { ...t, status: newStatus, comments: comment } : t
-      );
-      const hasRemainingUnfulfilled = updatedTasks.some(
-        (t) => t.status !== "Cleared"
-      );
-
-      if (clearanceId && clientStatus !== "Signed") {
-        const nextRecordStatus = hasRemainingUnfulfilled ? "Incomplete" : "Pending";
-        await supabase
-          .from("clearance_records")
-          .update({ status: nextRecordStatus })
-          .eq("clearance_id", clearanceId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["department-clients"] });
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-
-      if (newStatus === "Cleared" && studentId) {
-        const taskTitle = targetTask?.title || "In-Person Requirement";
-
-        // Remove any prior returned notifications
-        await supabase
-          .from("notifications")
-          .delete()
-          .eq("user_id", studentId)
-          .ilike("title", "%Returned%")
-          .ilike("description", `%"${taskTitle}"%`);
-
-        try {
-          await supabase.from("notifications").insert({
-            user_id: studentId,
-            target_role: "student",
-            category: "task",
-            title: "Requirement Cleared",
-            description: `Your requirement "${taskTitle}" has been approved and cleared by ${currentDeptName}.`,
-            type: "Success",
-            ref_url: `/clearance/tasks?taskId=${taskId}`,
-            is_read: false,
-            metadata: {
-              studentId,
-              taskId,
-              taskTitle,
-              departmentName: currentDeptName,
-            },
-          });
-        } catch (notifErr) {
-          console.error("Failed to insert in-person cleared notification:", notifErr);
-        }
-      } else if (newStatus === "Pending" && studentId && targetTask?.title) {
-        // If reverted to pending, clean up "Requirement Cleared" notification
-        await supabase
-          .from("notifications")
-          .delete()
-          .eq("user_id", studentId)
-          .ilike("title", "%Cleared%")
-          .ilike("description", `%"${targetTask.title}"%`);
-      }
-    } catch (error) {
-      console.error("Error updating in-person task status:", error);
-      throw error;
-    }
+  const handleUpdateInPersonTaskStatus = async (taskId: number, newStatus: TaskStatus, comment: string) => {
+    await saveTaskStatus(taskId, newStatus, comment);
   };
 
   const handleUpdateInPersonFeedback = async (taskId: number, newComment: string) => {
