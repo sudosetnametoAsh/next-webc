@@ -10,7 +10,7 @@ export default function AuthGate({ children, enrollmentRequired = false }: { chi
   const { inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
 
-  const { data, isLoading } = useValidateToken({
+  const { data } = useValidateToken({
     enabled: !enrollmentRequired && isAuthenticated && inProgress === "none",
   });
 
@@ -22,15 +22,7 @@ export default function AuthGate({ children, enrollmentRequired = false }: { chi
     router.replace(RoleRouter.homePath(RoleRouter.parseRoles(role)));
   }, [data, router, enrollmentRequired]);
 
-  if (enrollmentRequired) return <>{children}</>;
-
-  if (inProgress !== "none" || isLoading) {
-    return null;
-  }
-
-  if (!isAuthenticated) {
-    return <>{children}</>;
-  }
-
-  return null;
+  // This screen is public. Render it on the server and while MSAL initializes;
+  // verified sessions still redirect through the effect above.
+  return <>{children}</>;
 }

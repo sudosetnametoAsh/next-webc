@@ -23,9 +23,17 @@
 
   /* Background image with a dark overlay for contrast */
   background: linear-gradient(rgba(10, 20, 60, 0.55), rgba(10, 20, 60, 0.65)),
-    url(/sti-login-enhanced.png) center/cover no-repeat fixed;
+    url(/sti-login-desktop.webp) center/cover no-repeat fixed;
 
   font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Avoid sending the desktop background to narrow screens. */
+@media (max-width: 767px) {
+  .container {
+    background-image: linear-gradient(rgba(10, 20, 60, 0.55), rgba(10, 20, 60, 0.65)),
+      url(/sti-login-mobile.webp);
+  }
 }
 
 /* ── Decorative blobs ──────────────────────────────────── */

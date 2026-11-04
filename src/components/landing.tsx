@@ -5,6 +5,9 @@ import AzureLoginButton from "./auth/azure-sign-in-button";
 
 export default function Login({ notEnrolled = false }: { notEnrolled?: boolean }) {
   return (
+    <>
+    <link rel="preload" as="image" href="/sti-login-mobile.webp" media="(max-width: 767px)" />
+    <link rel="preload" as="image" href="/sti-login-desktop.webp" media="(min-width: 768px)" />
     <div className={styles.container}>
       
       <div className={styles.blob1} />
@@ -56,5 +59,6 @@ export default function Login({ notEnrolled = false }: { notEnrolled?: boolean }
         </div>
       </div>
     </div>
+    </>
   );
 }
