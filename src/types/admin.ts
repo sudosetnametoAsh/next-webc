@@ -68,6 +68,7 @@ export type StaffAssignment = {
 
 export type DepartmentTag = {
   dept_id: number;
+  staff_id: string | null;
   dept_name: string;
   staff_name: string | null;
   tier?: number;

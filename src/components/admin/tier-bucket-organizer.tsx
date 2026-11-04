@@ -1,281 +1,113 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import {
-  GripVertical,
-  Plus,
-  Trash2,
-  User,
-  AlertCircle,
-  Building2,
-  ChevronDown,
-  ArrowUp,
-  ArrowDown,
-  ShieldCheck,
-} from "lucide-react";
-import { StaffAssignment } from "@/types/admin";
-import { getDepartmentIcon } from "@/lib/department-icons";
+import { useEffect, useState, type DragEvent } from 'react'
+import { GripVertical, Plus, Trash2, User, ArrowUp, ArrowDown, Undo2 } from 'lucide-react'
+import { StaffAssignment } from '@/types/admin'
+import { getDepartmentIcon } from '@/lib/department-icons'
 
-interface TierBucketOrganizerProps {
-  assignments: StaffAssignment[];
-  onAssignmentsChange: (assignments: StaffAssignment[]) => void;
-  onSelectDepartmentForStaff: (deptId: number) => void;
+type Props = {
+  assignments: StaffAssignment[]
+  onEmptyPhasesChange: (hasEmptyPhases: boolean) => void
+  onAssignmentsChange: (assignments: StaffAssignment[]) => void
+  onSelectDepartmentForStaff: (deptId: number) => void
 }
 
-export default function TierBucketOrganizer({
-  assignments,
-  onAssignmentsChange,
-  onSelectDepartmentForStaff,
-}: TierBucketOrganizerProps) {
-  // Determine highest tier currently in assignments, with a minimum of 2 phases
-  const currentMaxTier = Math.max(
-    ...assignments.map((a) => a.tier || 1),
-    2
-  );
-  const [phaseCount, setPhaseCount] = useState<number>(Math.max(currentMaxTier, 3));
-  const [draggedDeptId, setDraggedDeptId] = useState<number | null>(null);
+export default function TierBucketOrganizer({ assignments, onAssignmentsChange, onSelectDepartmentForStaff, onEmptyPhasesChange }: Props) {
+  const [phaseCount, setPhaseCount] = useState(() => Math.max(1, ...assignments.map(a => a.tier ?? 0)))
+  const [activePhase, setActivePhase] = useState(1)
+  const [draggedDeptId, setDraggedDeptId] = useState<number | null>(null)
+  const unassigned = assignments.filter(a => !a.tier)
+  const hasEmptyPhases = Array.from({ length: phaseCount }, (_, i) => i + 1)
+    .some(phase => !assignments.some(assignment => assignment.tier === phase))
 
-  // Group assignments by tier
-  const phases = Array.from({ length: phaseCount }, (_, i) => i + 1);
+  useEffect(() => {
+    onEmptyPhasesChange(hasEmptyPhases)
+  }, [hasEmptyPhases, onEmptyPhasesChange])
 
-  const getPhaseAssignments = (phaseNum: number) => {
-    return assignments.filter((a) => (a.tier || 1) === phaseNum);
-  };
-
-  const handleMoveTier = (deptId: number, targetTier: number) => {
-    onAssignmentsChange(
-      assignments.map((a) =>
-        a.dept_id === deptId ? { ...a, tier: targetTier } : a
-      )
-    );
-  };
-
-  const handleAddPhase = () => {
-    setPhaseCount((prev) => prev + 1);
-  };
-
-  const handleRemovePhase = (phaseNum: number) => {
-    if (phaseCount <= 1) return;
-    // Move any departments in this phase down to phase - 1 (or 1)
-    const targetPhase = Math.max(1, phaseNum - 1);
-    const updated = assignments.map((a) => {
-      const currentTier = a.tier || 1;
-      if (currentTier === phaseNum) {
-        return { ...a, tier: targetPhase };
-      }
-      if (currentTier > phaseNum) {
-        return { ...a, tier: currentTier - 1 };
-      }
-      return a;
-    });
-    onAssignmentsChange(updated);
-    setPhaseCount((prev) => prev - 1);
-  };
-
-  // Drag and drop handlers
-  const handleDragStart = (e: React.DragEvent, deptId: number) => {
-    e.dataTransfer.setData("text/plain", deptId.toString());
-    e.dataTransfer.effectAllowed = "move";
-    setDraggedDeptId(deptId);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const handleDrop = (e: React.DragEvent, targetTier: number) => {
-    e.preventDefault();
-    const deptIdStr = e.dataTransfer.getData("text/plain");
-    const deptId = Number(deptIdStr) || draggedDeptId;
-    if (deptId !== null) {
-      handleMoveTier(deptId, targetTier);
-    }
-    setDraggedDeptId(null);
-  };
-
-  const getPhaseSubtitle = (phaseNum: number, total: number) => {
-    if (phaseNum === 1) return "Initial Prerequisite · Signs First";
-    if (phaseNum === total) return "Final Endorsement · Signs Last";
-    return "Parallel Clearance · Signs in Any Order";
-  };
+  const move = (deptId: number, tier: number) => {
+    onAssignmentsChange(assignments.map(a => a.dept_id === deptId ? { ...a, tier } : a))
+  }
+  const drop = (event: DragEvent, tier: number) => {
+    event.preventDefault()
+    const value = event.dataTransfer.getData('text/plain')
+    const deptId = value ? Number(value) : draggedDeptId
+    if (deptId !== null && assignments.some(a => a.dept_id === deptId)) move(deptId, tier)
+    setDraggedDeptId(null)
+  }
+  const removePhase = (phase: number) => {
+    onAssignmentsChange(assignments.map(a => a.tier === phase ? { ...a, tier: 0 } : (a.tier ?? 0) > phase ? { ...a, tier: a.tier! - 1 } : a))
+    setPhaseCount(Math.max(1, phaseCount - 1))
+    setActivePhase(current => current === phase ? Math.max(1, phase - 1) : current > phase ? current - 1 : current)
+  }
+  const dragProps = (deptId: number) => ({
+    draggable: true,
+    onDragStart: (event: DragEvent) => {
+      event.dataTransfer.setData('text/plain', String(deptId))
+      event.dataTransfer.effectAllowed = 'move'
+      setDraggedDeptId(deptId)
+    },
+    onDragEnd: () => setDraggedDeptId(null),
+  })
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-sm font-bold text-white">
-            Phase / Tier Priority Organizer
-          </h4>
-          <p className="text-xs text-slate-400">
-            Departments in Phase 1 must sign first. Departments in the same phase can sign in any order.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleAddPhase}
-          className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-semibold text-slate-200 shadow-xs hover:bg-slate-700 hover:text-white transition-colors cursor-pointer"
-        >
-          <Plus className="h-3.5 w-3.5 text-amber-400" />
-          <span>Add Phase</span>
-        </button>
-      </div>
-
-      {/* Phase Buckets Container */}
-      <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-        {phases.map((phaseNum) => {
-          const deptsInPhase = getPhaseAssignments(phaseNum);
-          const isFirst = phaseNum === 1;
-          const isLast = phaseNum === phaseCount;
-
-          return (
-            <div
-              key={phaseNum}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, phaseNum)}
-              className={`rounded-2xl border transition-ui ${
-                draggedDeptId !== null
-                  ? "border-dashed border-amber-500/60 bg-amber-500/10"
-                  : "border-slate-800 bg-[#070c18]"
-              } p-3.5 space-y-2.5`}
-            >
-              {/* Phase Bucket Header */}
-              <div className="flex items-center justify-between">
+      {hasEmptyPhases && <p role="status" className="text-xs text-amber-300">Each phase needs at least one department. Add a department or delete the empty phase before saving.</p>}
+      <div className="grid items-start gap-4 md:grid-cols-2">
+        <section aria-label="Unassigned departments" onDragOver={e => e.preventDefault()} onDrop={e => drop(e, 0)} className="min-w-0 space-y-3 md:sticky md:top-0">
+          <div className="flex min-h-8 items-center"><h4 className="text-sm font-semibold text-white">Departments <span className="text-slate-500">({unassigned.length})</span></h4></div>
+          <div className="space-y-3 rounded-xl border border-slate-800 bg-[#070c18] p-3">
+          {unassigned.length > 0 && <p className="text-[11px] text-slate-400">Choose a department to add to Phase {activePhase}.</p>}
+          {unassigned.length === 0 && <p className="py-4 text-center text-xs text-slate-500">All departments assigned</p>}
+          {unassigned.map(assignment => {
+            const Icon = getDepartmentIcon(assignment.icon_name, assignment.dept_name)
+            return <button key={assignment.dept_id} type="button" {...dragProps(assignment.dept_id)} onClick={() => move(assignment.dept_id, activePhase)} className="flex w-full items-center gap-2 rounded-lg border border-slate-800 p-3 text-left hover:border-amber-400/40 hover:bg-amber-400/5"><GripVertical className="h-4 w-4 shrink-0 cursor-grab text-slate-500" /><Icon className="h-4 w-4 shrink-0 text-amber-400" /><span className="flex-1 break-words text-xs font-medium text-slate-200">{assignment.dept_name}</span><Plus className="h-3.5 w-3.5 shrink-0 text-amber-300" /></button>
+          })}
+          </div>
+        </section>
+        <section className="min-w-0 space-y-3" aria-label="Clearance phases">
+          <div className="flex min-h-8 items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold text-white">Phases</h4>
+            <button type="button" onClick={() => { setPhaseCount(phaseCount + 1); setActivePhase(phaseCount + 1) }} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-1.5 text-xs text-amber-300 hover:bg-slate-800">
+              <Plus className="h-3.5 w-3.5" /> Add phase
+            </button>
+          </div>
+          {Array.from({ length: phaseCount }, (_, i) => i + 1).map(phase => {
+            const departments = assignments.filter(a => a.tier === phase)
+            return (
+              <div key={phase} onClick={event => { if (!(event.target as HTMLElement).closest('button')) setActivePhase(phase) }} onDragOver={e => e.preventDefault()} onDrop={e => drop(e, phase)} className={`cursor-pointer rounded-xl border p-3 space-y-3 ${activePhase === phase ? 'border-amber-400/50 bg-amber-400/5' : 'border-slate-800 bg-[#070c18]'} ${draggedDeptId !== null ? 'border-dashed' : ''}`}>
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-lg text-xs font-extrabold shadow-xs ${
-                      isFirst
-                        ? "bg-amber-500 text-slate-950"
-                        : isLast
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-200 border border-slate-700"
-                    }`}
-                  >
-                    {phaseNum}
-                  </span>
-                  <div>
-                    <span className="text-xs font-bold text-white mr-2">
-                      Phase {phaseNum}
-                    </span>
-                    <span className="text-[11px] font-medium text-slate-400">
-                      ({getPhaseSubtitle(phaseNum, phaseCount)})
-                    </span>
-                  </div>
+                  <button type="button" aria-pressed={activePhase === phase} onClick={() => setActivePhase(phase)} className="flex flex-1 items-center justify-between gap-2 text-left">
+                    <span className="text-sm font-semibold text-white">Phase {phase}</span>
+                  </button>
+                  {<button type="button" aria-label={`Delete phase ${phase}`} title="Delete phase and return its departments" onClick={() => removePhase(phase)} className="p-1 text-slate-500 hover:text-rose-400"><Trash2 className="h-3.5 w-3.5" /></button>}
                 </div>
-
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] font-medium text-slate-500">
-                    {deptsInPhase.length} {deptsInPhase.length === 1 ? "dept" : "depts"}
-                  </span>
-
-                  {phaseCount > 1 && deptsInPhase.length === 0 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePhase(phaseNum)}
-                      className="rounded-lg p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer"
-                      title="Remove empty phase"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Department Cards inside this Phase */}
-              <div className="space-y-2 min-h-[50px] rounded-xl p-1.5 bg-[#0a101f]/70 border border-slate-800/80">
-                {deptsInPhase.length === 0 ? (
-                  <div className="flex items-center justify-center py-4 text-xs italic text-slate-500 border border-dashed border-slate-800 rounded-lg">
-                    Drag departments here or use quick move buttons
-                  </div>
-                ) : (
-                  deptsInPhase.map((assignment) => {
-                    const hasStaff = assignment.staff_id !== null;
-
-                    return (
-                      <div
-                        key={assignment.dept_id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, assignment.dept_id)}
-                        className="group flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#0a101f] p-2.5 shadow-xs hover:border-slate-700 transition-ui"
-                      >
-                        {/* Drag Handle & Info */}
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="cursor-grab text-slate-500 hover:text-slate-300 active:cursor-grabbing">
-                            <GripVertical className="h-4 w-4" />
-                          </div>
-
-                          {(() => {
-                            const DeptIcon = getDepartmentIcon(assignment.icon_name, assignment.dept_name);
-                            return (
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
-                                <DeptIcon className="h-3.5 w-3.5" />
-                              </div>
-                            );
-                          })()}
-
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold text-white truncate">
-                              {assignment.dept_name}
-                            </span>
-
-                            {/* Staff Assign Trigger */}
-                            <button
-                              type="button"
-                              onClick={() => onSelectDepartmentForStaff(assignment.dept_id)}
-                              className={`flex items-center gap-1 text-[11px] font-medium transition-colors text-left truncate cursor-pointer ${
-                                hasStaff
-                                  ? "text-slate-400 hover:text-white"
-                                  : "text-amber-400 font-semibold hover:text-amber-300"
-                              }`}
-                            >
-                              {hasStaff ? (
-                                <User className="h-3 w-3 shrink-0 text-slate-400" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3 shrink-0 text-amber-400" />
-                              )}
-                              <span className="truncate">
-                                {hasStaff
-                                  ? assignment.staff_name
-                                  : "Assign Staff Officer"}
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Quick Tier Move Buttons */}
-                        <div className="flex items-center gap-1 shrink-0">
-                          {/* Move up a phase */}
-                          <button
-                            type="button"
-                            disabled={phaseNum <= 1}
-                            onClick={() => handleMoveTier(assignment.dept_id, phaseNum - 1)}
-                            className="rounded-lg p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-200 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
-                            title="Move to previous phase"
-                          >
-                            <ArrowUp className="h-3.5 w-3.5" />
-                          </button>
-
-                          {/* Move down a phase */}
-                          <button
-                            type="button"
-                            disabled={phaseNum >= phaseCount}
-                            onClick={() => handleMoveTier(assignment.dept_id, phaseNum + 1)}
-                            className="rounded-lg p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-200 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
-                            title="Move to next phase"
-                          >
-                            <ArrowDown className="h-3.5 w-3.5" />
-                          </button>
+                {departments.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-4 text-center text-xs text-slate-500">{activePhase === phase ? 'Select departments from the left or drag them here.' : 'Drop departments here.'}</p>}
+                {departments.map(assignment => {
+                  const Icon = getDepartmentIcon(assignment.icon_name, assignment.dept_name)
+                  return (
+                    <div key={assignment.dept_id} {...dragProps(assignment.dept_id)} className="rounded-lg border border-slate-800 bg-[#0a101f] p-2.5 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-slate-500" />
+                        <Icon className="h-4 w-4 shrink-0 text-amber-400" />
+                        <span className="min-w-0 flex-1 break-words text-xs font-semibold text-white">{assignment.dept_name}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1">
+                        <button type="button" onClick={() => onSelectDepartmentForStaff(assignment.dept_id)} className="flex min-w-0 items-center gap-1 text-left text-[11px] text-amber-300 hover:text-amber-200"><User className="h-3 w-3 shrink-0" /><span className="truncate">{assignment.staff_name || 'Assign staff officer'}</span></button>
+                        <div className="flex shrink-0 items-center">
+                          <button type="button" aria-label={`Move ${assignment.dept_name} to previous phase`} disabled={phase === 1} onClick={() => move(assignment.dept_id, phase - 1)} className="rounded p-1 text-slate-400 hover:bg-slate-800 disabled:opacity-20"><ArrowUp className="h-3.5 w-3.5" /></button>
+                          <button type="button" aria-label={`Move ${assignment.dept_name} to next phase`} disabled={phase === phaseCount} onClick={() => move(assignment.dept_id, phase + 1)} className="rounded p-1 text-slate-400 hover:bg-slate-800 disabled:opacity-20"><ArrowDown className="h-3.5 w-3.5" /></button>
+                          <button type="button" aria-label={`Return ${assignment.dept_name} to unassigned departments`} onClick={() => move(assignment.dept_id, 0)} className="rounded p-1 text-slate-400 hover:bg-slate-800"><Undo2 className="h-3.5 w-3.5" /></button>
                         </div>
                       </div>
-                    );
-                  })
-                )}
+                    </div>
+                  )
+                })}
               </div>
-            </div>
-          );
-        })}
+            )
+          })}
+        </section>
+
       </div>
     </div>
-  );
+  )
 }

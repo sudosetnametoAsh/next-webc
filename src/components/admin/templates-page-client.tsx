@@ -943,6 +943,7 @@ export default function Templates() {
         departments={departments}
         toastSuccess={success}
         toastError={error}
+        existingCourseIds={courseTemplates.map((template) => template.course_id).filter((id): id is number => id !== null)}
         editData={studentEditData}
       />
 

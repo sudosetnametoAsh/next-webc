@@ -23,6 +23,7 @@ export async function GET() {
         clearance_templates (
           template_id,
           dept_id,
+          staff_id,
           tier,
           is_active,
           clearance_departments ( dept_name, icon_name ),
@@ -105,6 +106,7 @@ export async function GET() {
             dept_id: t.dept_id,
             dept_name: t.clearance_departments?.dept_name || 'Unknown',
             icon_name: t.clearance_departments?.icon_name || 'Building2',
+            staff_id: t.staff_id,
             staff_name: t.staffs?.staff_name || null,
             tier: t.tier ?? 1
           })).sort((a: any, b: any) => (a.tier ?? 1) - (b.tier ?? 1) || a.dept_name.localeCompare(b.dept_name)),
@@ -141,6 +143,10 @@ export async function POST(req: NextRequest) {
     const missingStaff = assignments.filter(a => !a.staff_id)
     if (missingStaff.length > 0) {
       return NextResponse.json({ error: 'All departments must have assigned staff' }, { status: 400 })
+    }
+
+    if (new Set(assignments.map((a: { staff_id: string | null }) => a.staff_id)).size !== assignments.length) {
+      return NextResponse.json({ error: 'Each staff officer can only be assigned to one department per template' }, { status: 400 })
     }
 
     // 1. Fetch existing templates for these courses to check for staff reassignments

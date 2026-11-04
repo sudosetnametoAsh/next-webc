@@ -42,6 +42,7 @@ type Props = {
   mode: 'student' | 'staff'
   courses: Courses[]
   departments: Departments[]
+  existingCourseIds?: number[]
   courseIds?: number[]
   deptIds?: number[]
   toastSuccess: (message: string, title?: string) => string | number
@@ -59,8 +60,7 @@ export default function CreateTemplateModal({
   mode,
   courses,
   departments,
-  courseIds,
-  deptIds,
+  existingCourseIds = [],
   toastSuccess,
   toastError,
   editData = null,
@@ -76,6 +76,7 @@ export default function CreateTemplateModal({
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>([])
   const [staffAssignments, setStaffAssignments] = useState<StaffAssignment[]>([])
+  const [hasEmptyPhases, setHasEmptyPhases] = useState(true)
   const [activeDeptId, setActiveDeptId] = useState<number | null>(null)
 
   const isStaff = mode === 'staff'
@@ -109,8 +110,8 @@ export default function CreateTemplateModal({
       setStep('select')
       setActiveDeptId(null)
     } else {
-      setSelectedCourses(courses.map((c) => c.course_id))
-      setSelectedDepartments(departments.map((d) => d.dept_id))
+      setSelectedCourses([])
+      setSelectedDepartments(isStaff ? departments.map((d) => d.dept_id) : [])
       setStaffAssignments([])
       setStep('select')
       setActiveDeptId(null)
@@ -147,6 +148,15 @@ export default function CreateTemplateModal({
   }
 
   const toggleCourse = (course_id: number) => {
+    if (isEdit && course_id === editData?.courseId) return
+    if (existingCourseIds.includes(course_id)) {
+      toastError('This course already has a clearance template. Edit its existing template instead.')
+      return
+    }
+    if (isEdit) {
+      toastError('The course cannot be changed while editing a template.')
+      return
+    }
     setSelectedCourses((prev) =>
       prev.includes(course_id)
         ? prev.filter((id) => id !== course_id)
@@ -181,19 +191,13 @@ export default function CreateTemplateModal({
 
       const dept = departments?.find((d) => d.dept_id === dept_id)
       const deptName = dept?.dept_name ?? ''
-      // Auto-assign smart default tier
-      const defaultTier = deptName.toLowerCase().includes('cashier')
-        ? 1
-        : deptName.toLowerCase().includes('registrar')
-        ? 3
-        : 2
 
       return {
         dept_id,
         dept_name: deptName,
         staff_id: null,
         staff_name: null,
-        tier: defaultTier,
+        tier: 0,
         icon_name: dept?.icon_name || 'Building2',
       }
     })
@@ -203,6 +207,10 @@ export default function CreateTemplateModal({
   }
 
   const assignStaff = (dept_id: number, staff_id: string, staff_name: string) => {
+    if (staffAssignments.some((a) => a.dept_id !== dept_id && a.staff_id === staff_id)) {
+      toastError('This staff officer is already assigned to another department in this template.')
+      return
+    }
     setStaffAssignments((prev) =>
       prev.map((a) =>
         a.dept_id === dept_id ? { ...a, staff_id, staff_name } : a
@@ -212,9 +220,22 @@ export default function CreateTemplateModal({
   }
 
   const handleConfirm = async () => {
+    if (hasEmptyPhases) {
+      toastError('Add at least one department to every phase or delete the empty phase before saving.')
+      return
+    }
+    if (staffAssignments.some((a) => !a.tier)) {
+      toastError('Please assign every department to a phase before saving.')
+      return
+    }
     const allAssigned = staffAssignments.every((a) => a.staff_id !== null)
     if (!allAssigned) {
       toastError('Please ensure all departments have assigned staff.', 'Failed to create templates.')
+      return
+    }
+
+    if (new Set(staffAssignments.map((a) => a.staff_id)).size !== staffAssignments.length) {
+      toastError('Each staff officer can only be assigned to one department per template.')
       return
     }
 
@@ -324,6 +345,8 @@ export default function CreateTemplateModal({
           {step === 'select' ? (
             <SelectionStep
               mode={mode}
+              existingCourseIds={existingCourseIds}
+              isEdit={isEdit}
               courses={courses}
               departments={departments}
               selectedCourses={selectedCourses}
@@ -333,20 +356,23 @@ export default function CreateTemplateModal({
               setSelectedCourses={setSelectedCourses}
               setSelectedDepartments={setSelectedDepartments}
             />
-          ) : activeDeptId !== null ? (
-            <StaffSelectionStep
+          ) : (
+            <div className="space-y-4">
+            {activeDeptId !== null && <StaffSelectionStep
               staffList={staff}
+              assignedStaffIds={staffAssignments.filter((a) => a.dept_id !== activeDeptId && a.staff_id).map((a) => a.staff_id!)}
               department={departments?.find((d) => d.dept_id === activeDeptId)}
               onSelect={(staff_id, staff_name) => assignStaff(activeDeptId, staff_id, staff_name)}
               onCancel={() => setActiveDeptId(null)}
-            />
-          ) : (
-            <div className="space-y-4">
+            />}
+            <div hidden={activeDeptId !== null}>
               <TierBucketOrganizer
                 assignments={staffAssignments}
+                onEmptyPhasesChange={setHasEmptyPhases}
                 onAssignmentsChange={setStaffAssignments}
                 onSelectDepartmentForStaff={setActiveDeptId}
               />
+            </div>
 
               <ConfirmationModal
                 isOpen={isConfirmOpen}
@@ -406,7 +432,7 @@ export default function CreateTemplateModal({
                 <button
                   type="button"
                   onClick={() => setIsConfirmOpen(true)}
-                  disabled={isPending}
+                  disabled={isPending || hasEmptyPhases || staffAssignments.some((a) => !a.tier || !a.staff_id)}
                   className='flex items-center gap-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold px-5 py-2 text-xs transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
                 >
                   <Check className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -427,6 +453,8 @@ export default function CreateTemplateModal({
 
 function SelectionStep({
   mode,
+  existingCourseIds,
+  isEdit,
   courses,
   departments,
   selectedCourses,
@@ -437,6 +465,8 @@ function SelectionStep({
   setSelectedDepartments,
 }: {
   mode: 'student' | 'staff'
+  existingCourseIds: number[]
+  isEdit: boolean
   courses: Courses[]
   departments: Departments[]
   selectedCourses: number[]
@@ -446,12 +476,13 @@ function SelectionStep({
   setSelectedCourses: React.Dispatch<React.SetStateAction<number[]>>
   setSelectedDepartments: React.Dispatch<React.SetStateAction<number[]>>
 }) {
-  const allCoursesSelected = courses.length > 0 && selectedCourses.length === courses.length
+  const availableCourses = courses.filter((course) => !existingCourseIds.includes(course.course_id))
+  const allCoursesSelected = availableCourses.length > 0 && availableCourses.every((course) => selectedCourses.includes(course.course_id))
   const toggleAllCourses = () => {
     if (allCoursesSelected) {
       setSelectedCourses([])
     } else {
-      setSelectedCourses(courses.map((c) => c.course_id))
+      setSelectedCourses(availableCourses.map((c) => c.course_id))
     }
   }
 
@@ -475,10 +506,10 @@ function SelectionStep({
                 Courses <span className="text-amber-400">*</span>
               </label>
               <span className="rounded-md border border-slate-700/60 bg-slate-800/60 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-400">
-                ({selectedCourses.length}/{courses.length})
+                ({selectedCourses.length}/{isEdit ? selectedCourses.length : availableCourses.length})
               </span>
             </div>
-            {courses.length > 0 && (
+            {!isEdit && availableCourses.length > 0 && (
               <button
                 type="button"
                 onClick={toggleAllCourses}
@@ -492,15 +523,19 @@ function SelectionStep({
           <div className='grid grid-cols-1 gap-2 max-h-80 overflow-y-auto pr-1'>
             {courses.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-5 text-center text-xs text-slate-500">No courses available.</p>}
             {courses.map((course) => {
+              const hasTemplate = existingCourseIds.includes(course.course_id)
               const isChecked = selectedCourses.includes(course.course_id)
               return (
                 <button
                   key={course.course_id}
                   type="button"
                   aria-pressed={isChecked}
+                  aria-disabled={hasTemplate || isEdit}
                   onClick={() => toggleCourse(course.course_id)}
                   className={`group relative flex items-center gap-3 p-3 rounded-xl border transition-ui text-left cursor-pointer w-full ${
-                    isChecked
+                    (hasTemplate || isEdit) && !isChecked
+                      ? 'cursor-not-allowed border-slate-800 bg-slate-900/50 text-slate-500 opacity-60'
+                      : isChecked
                       ? 'border-amber-400/40 bg-amber-400/5 text-slate-100'
                       : 'border-slate-800/90 bg-[#070c18]/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-200'
                   }`}
@@ -526,7 +561,6 @@ function SelectionStep({
                       {expandCourseAbbreviation(course.course_name) || course.course_name}
                     </p>
                   </div>
-                  {isChecked && <Check className="h-4 w-4 shrink-0 text-amber-300" />}
                 </button>
               )
             })}
@@ -608,7 +642,6 @@ function SelectionStep({
                     </p>
                   )}
                 </div>
-                {isChecked && <Check className="h-4 w-4 shrink-0 text-amber-300" />}
               </button>
             )
           })}
@@ -624,10 +657,12 @@ function SelectionStep({
 
 function StaffSelectionStep({
   staffList,
+  assignedStaffIds,
   department,
   onSelect,
   onCancel,
 }: {
+  assignedStaffIds: string[]
   staffList: { staff_id: string; staff_name: string }[]
   department?: Departments
   onSelect: (staff_id: string, staff_name: string) => void
@@ -700,8 +735,9 @@ function StaffSelectionStep({
             <button
               key={s.staff_id}
               type="button"
+              disabled={assignedStaffIds.includes(s.staff_id)}
               onClick={() => onSelect(s.staff_id, s.staff_name)}
-              className='w-full flex flex-wrap items-center justify-between gap-2 p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-ui text-left cursor-pointer group'
+              className='w-full flex flex-wrap items-center justify-between gap-2 p-3 bg-[#070c18] rounded-xl border border-slate-800 hover:border-amber-500/60 hover:bg-amber-500/5 transition-ui text-left cursor-pointer group disabled:opacity-40 disabled:cursor-not-allowed'
             >
               <div className='flex items-center gap-3 min-w-0'>
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">
@@ -717,7 +753,7 @@ function StaffSelectionStep({
                 </div>
               </div>
               <span className="text-[11px] font-bold text-amber-300 transition-colors">
-                Select →
+                {assignedStaffIds.includes(s.staff_id) ? 'Already assigned' : 'Select →'}
               </span>
             </button>
           ))
