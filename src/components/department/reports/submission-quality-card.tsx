@@ -6,9 +6,6 @@ import { LabelList, Pie, PieChart, ResponsiveContainer } from "recharts";
 import {
   ShieldCheck,
   Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
   ArrowRight,
 } from "lucide-react";
 import { SubmissionQualityStats } from "@/modules/staff/application/repository/dashboard-repository";
@@ -28,11 +25,6 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
     aiPassRate,
   } = submissionQuality;
 
-  const total = Math.max(totalSubmissions, 1);
-  const aiPct = Math.round((aiVerified / total) * 100);
-  const manualPct = Math.round((manuallyCleared / total) * 100);
-  const flaggedPct = Math.round((flagged / total) * 100);
-  const pendingPct = Math.round((pendingReview / total) * 100);
   const distribution = [
     { name: "AI Pre-Screened", value: aiVerified, fill: "#10b981" },
     { name: "Direct Staff Authorizations", value: manuallyCleared, fill: "#06b6d4" },
@@ -69,7 +61,7 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
       {/* ── Body ── */}
       <div className="flex flex-1 flex-col justify-between p-6">
         <div>
-          {/* Verification distribution and persistent category values. */}
+          {/* Verification distribution */}
           <div className="mb-6">
             <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
               <span>Verification Distribution</span>
@@ -79,7 +71,7 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
             </div>
 
             {totalSubmissions > 0 ? (
-              <div className={`${styles.chart} relative h-52 w-full`} role="img" aria-label={`Verification distribution: ${aiVerified} AI pre-screened, ${manuallyCleared} staff authorized, ${flagged} flagged, ${pendingReview} pending review. Exact counts and percentages follow.`}>
+              <div className={`${styles.chart} relative h-52 w-full`} role="img" aria-label={`Verification distribution: ${aiVerified} AI pre-screened, ${manuallyCleared} staff authorized, ${flagged} flagged, ${pendingReview} pending review.`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -110,108 +102,7 @@ export default function SubmissionQualityCard({ submissionQuality }: Props) {
             )}
           </div>
 
-          {/* Breakdown Items */}
-          <div className={`${styles.breakdown} space-y-3`}>
-            {/* Item 1: AI Verified */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
-                  <Sparkles className="h-3.5 w-3.5" />
-                </span>
-                <div>
-                  <div className="text-xs font-semibold text-white">
-                    AI Pre-Screened (Factor 1 Passed)
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    High-confidence authentic seals & signatures
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="font-mono text-xs font-bold text-emerald-400">
-                  {aiVerified}
-                </span>
-                <span className="ml-1 text-[10px] text-slate-500">
-                  ({aiPct}%)
-                </span>
-              </div>
-            </div>
 
-            {/* Item 2: Direct Staff Authorizations */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                </span>
-                <div>
-                  <div className="text-xs font-semibold text-white">
-                    Direct Staff Authorizations
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    Officially cleared and verified by department
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="font-mono text-xs font-bold text-cyan-400">
-                  {manuallyCleared}
-                </span>
-                <span className="ml-1 text-[10px] text-slate-500">
-                  ({manualPct}%)
-                </span>
-              </div>
-            </div>
-
-            {/* Item 3: Flagged Anomalies */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md border border-rose-500/30 bg-rose-500/10 text-rose-400">
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                </span>
-                <div>
-                  <div className="text-xs font-semibold text-white">
-                    Flagged Anomalies / Review Needed
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    ID mismatch or missing verification marks
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="font-mono text-xs font-bold text-rose-400">
-                  {flagged}
-                </span>
-                <span className="ml-1 text-[10px] text-slate-500">
-                  ({flaggedPct}%)
-                </span>
-              </div>
-            </div>
-
-            {/* Item 4: Pending Review */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                  <Clock className="h-3.5 w-3.5" />
-                </span>
-                <div>
-                  <div className="text-xs font-semibold text-white">
-                    Pending Initial Review
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    Submissions awaiting processing
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="font-mono text-xs font-bold text-amber-400">
-                  {pendingReview}
-                </span>
-                <span className="ml-1 text-[10px] text-slate-500">
-                  ({pendingPct}%)
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* ── Footer Link ── */}
