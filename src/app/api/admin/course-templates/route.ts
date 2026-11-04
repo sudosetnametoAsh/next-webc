@@ -46,20 +46,22 @@ export async function GET() {
         )
 
         // A. Get Sections
-        const { data: sections } = await supabase
+        const { data: sections, error: sectionsError } = await supabase
            .from('course_sections')
            .select('section_id')
            .eq('course_id', course.course_id)
         
+        if (sectionsError) throw sectionsError
         const sectionIds = sections?.map(s => s.section_id) || []
 
         // B. Get Enrollment Count
         let studentsEnrolled = 0
         if (sectionIds.length > 0) {
-            const { count } = await supabase
+            const { count, error: enrollmentError } = await supabase
             .from('enrollments')
             .select('*', { count: 'exact', head: true })
             .in('section_id', sectionIds)
+            if (enrollmentError) throw enrollmentError
             studentsEnrolled = count || 0
         }
 
@@ -68,14 +70,16 @@ export async function GET() {
         let completionRate = 0
 
         if (templateIds.length > 0 && studentsEnrolled > 0) {
-          const { data: clearances } = await supabase
+          const { count: signedCount, error: clearanceError } = await supabase
             .from('clearance_records')
-            .select('user_id, status')
+            .select('clearance_id', { count: 'exact', head: true })
             .in('template_id', templateIds)
+            .eq('status', 'Signed')
+          if (clearanceError) throw clearanceError
           
-          if (clearances && clearances.length > 0) {
+          if (signedCount != null) {
             const totalPossibleSignatures = studentsEnrolled * templateIds.length
-            const signedSignatures = clearances.filter((c: any) => c.status === 'Signed').length
+            const signedSignatures = signedCount
             
             completionRate = totalPossibleSignatures > 0
               ? Math.round((signedSignatures / totalPossibleSignatures) * 100)
@@ -109,7 +113,7 @@ export async function GET() {
       })
     )
 
-    return NextResponse.json({ data: courseTemplates }, { status: 200 })
+    return NextResponse.json({ data: courseTemplates }, { status: 200, headers: { 'Cache-Control': 'private, no-store' } })
 
   } catch (error: any) {
     console.error('GET Error:', error)

@@ -12,17 +12,19 @@ export function useFetchAdminActivity() {
     queryFn: fetchAdminActivity,
     staleTime: 1000 * 60, // 1 minute
     gcTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   })
 }
 
 export function useFetchPipelineRadar(filter: string = 'all') {
   return useQuery({
     queryKey: adminPipelineRadarQueryKey(filter),
-    queryFn: () => fetchPipelineRadar(filter),
+    queryFn: ({ signal }) => fetchPipelineRadar(filter, signal),
     staleTime: 1000 * 60 * 3, // 3 minutes
     gcTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   })
 }
 
@@ -32,7 +34,7 @@ export async function prefetchPipelineRadar(
 ): Promise<void> {
   await queryClient.prefetchQuery({
     queryKey: adminPipelineRadarQueryKey(filter),
-    queryFn: () => fetchPipelineRadar(filter),
+    queryFn: ({ signal }) => fetchPipelineRadar(filter, signal),
     staleTime: 1000 * 60 * 3,
   })
 }
@@ -52,8 +54,8 @@ export async function fetchAdminActivity(): Promise<ActivityItem[]> {
   return json.data || []
 }
 
-export async function fetchPipelineRadar(filter: string = 'all'): Promise<PipelineRadarData> {
-  const response = await fetch(`/api/admin/pipeline-radar?filter=${encodeURIComponent(filter)}`)
+export async function fetchPipelineRadar(filter: string = 'all', signal?: AbortSignal): Promise<PipelineRadarData> {
+  const response = await fetch(`/api/admin/pipeline-radar?filter=${encodeURIComponent(filter)}&fresh=true`, { signal, cache: 'no-store' })
   const json = await response.json()
 
   if (!response.ok) {

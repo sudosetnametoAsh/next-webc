@@ -1177,9 +1177,9 @@ export async function GET(request: NextRequest) {
     }
 
     return payload
-  })
+  }, { fresh: searchParams.get('fresh') === 'true' })
 
-  return NextResponse.json({ data: payload })
+  return NextResponse.json({ data: payload }, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error: any) {
     console.error('Error fetching pipeline radar data:', error)
     return NextResponse.json(

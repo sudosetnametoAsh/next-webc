@@ -7,12 +7,18 @@ import SubmissionModal from "@/components/department/clients/sumission-modal";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 import TaskView from "@/components/department/clients/task-view";
 import RealtimeDashboardListener from "@/components/department/dashboard-listener";
+import AdminRealtimeListener from "@/components/admin/admin-realtime-listener";
+import ProgramCompletionTable from "@/components/admin/reports/program-completion-table";
+import AdminClientsClient from "@/components/admin/clients-page-client";
+import DepartmentClientsClient from "@/components/department/clients/clients-client";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 function ReviewFixture() {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("Flagged");
   const showProgress = new URLSearchParams(location.search).has("progress");
+  const showAdmin = new URLSearchParams(location.search).has("adminprogress");
+  const showDepartmentClients = new URLSearchParams(location.search).has("deptclients");
   const taskMode = new URLSearchParams(location.search).get("task");
   const fixtureTasks = useMemo(() => taskMode ? [{
     assigned_task_id: 12, title: taskMode === "digital" ? "Digital Receipt" : "Office Visit",
@@ -22,7 +28,14 @@ function ReviewFixture() {
   }] : [], [taskMode]);
   return <QueryClientProvider client={queryClient}>
     <DepartmentHeader user_id="test-officer" user_name="Test Officer" department="Clinic" />
-    {showProgress ? <>
+    {showAdmin ? <>
+      <AdminRealtimeListener />
+      <div data-testid="report-programs"><ProgramCompletionTable /></div>
+      <div data-testid="admin-clients"><AdminClientsClient /></div>
+    </> : showDepartmentClients ? <>
+      <RealtimeDashboardListener />
+      <DepartmentClientsClient />
+    </> : showProgress ? <>
       <RealtimeDashboardListener />
       <TaskView studentTasks={fixtureTasks} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
     </> : <>

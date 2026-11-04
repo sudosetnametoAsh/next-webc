@@ -4,8 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 export function useFetchStaffTemplates() {
   return useQuery({
     queryKey: ['admin', 'staff-templates'],
-    queryFn: fetchStaffTemplates,
+    queryFn: ({ signal }) => fetchStaffTemplates(signal),
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   })
 }
 
@@ -85,8 +87,8 @@ async function deleteStaffTemplates(deptIds: number[]): Promise<void> {
   return json
 }
 
-async function fetchStaffTemplates(): Promise<CourseTemplateStats[]> {
-  const response = await fetch('/api/admin/staff-templates')
+async function fetchStaffTemplates(signal?: AbortSignal): Promise<CourseTemplateStats[]> {
+  const response = await fetch('/api/admin/staff-templates', { signal, cache: 'no-store' })
   const json = await response.json()
 
   if (!response.ok) {

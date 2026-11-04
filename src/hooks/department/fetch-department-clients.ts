@@ -4,17 +4,20 @@ import { useQuery, QueryClient } from "@tanstack/react-query";
 export function useFetchDepartmentClients() {
   return useQuery<DepartmentClientItem[]>({
     queryKey: ["department-clients"],
-    queryFn: fetchDepartmentClients,
+    queryFn: ({ signal }) => fetchDepartmentClients(signal),
     staleTime: 1000 * 60 * 2, // 2 minutes fresh window
     refetchInterval: 30000, // 30-second background poll fallback
     refetchIntervalInBackground: false, // pause polling when browser window is inactive/minimized
-    refetchOnWindowFocus: false, // prevent aggressive refetches on focus (realtime handles sync)
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
 }
 
-export async function fetchDepartmentClients(): Promise<DepartmentClientItem[]> {
+export async function fetchDepartmentClients(signal?: AbortSignal): Promise<DepartmentClientItem[]> {
   const response = await fetch("/api/department/clients", {
     credentials: "include",
+    signal,
+    cache: "no-store",
   });
   const json = await response.json();
   if (!response.ok) {
@@ -29,7 +32,7 @@ export async function fetchDepartmentClients(): Promise<DepartmentClientItem[]> 
 export async function prefetchDepartmentClients(queryClient: QueryClient) {
   return queryClient.prefetchQuery({
     queryKey: ["department-clients"],
-    queryFn: fetchDepartmentClients,
+    queryFn: ({ signal }) => fetchDepartmentClients(signal),
     staleTime: 1000 * 60 * 2,
   });
 }

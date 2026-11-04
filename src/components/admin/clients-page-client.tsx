@@ -669,6 +669,12 @@ function AdminClientsContent({ setAdminPage }: Props) {
   ])
 
   // Selection follows the filtered list and remains available across its pages.
+  // Keep an open inspection overlay on the current query result, including
+  // signatures received from another department while it remains open.
+  const liveSelectedClient = selectedClient
+    ? unifiedClients.find((client) => client.id === selectedClient.id && client.type === selectedClient.type) ?? null
+    : null
+
   const selectedClients = filteredClients.filter((client) => selectedKeys.has(`${client.type}:${client.id}`))
   const allSelected = filteredClients.length > 0 && selectedClients.length === filteredClients.length
   useEffect(() => {
@@ -1022,11 +1028,11 @@ function AdminClientsContent({ setAdminPage }: Props) {
 
       {/* ── Client Clearance Sidebar Overlay ── */}
       <ClientClearanceOverlay
-        client={selectedClient}
-        actions={selectedClient && (
+        client={liveSelectedClient}
+        actions={liveSelectedClient && (
           <ClientActions
-            key={`${selectedClient.type}-${selectedClient.id}`}
-            client={selectedClient}
+            key={`${liveSelectedClient.type}-${liveSelectedClient.id}`}
+            client={liveSelectedClient}
             onSuccess={(message, result) => {
               success(message)
               setSelectedClient((current) => result.deleted ? null : current && { ...current, name: result.name })

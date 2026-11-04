@@ -48,16 +48,17 @@ export async function GET() {
     const templateIds = templates.map(t => t.template_id)
 
     if (templateIds.length > 0 && staffCount && staffCount > 0) {
-      const { data: clearances, error: clearanceError } = await supabase
+      const { count: signedCount, error: clearanceError } = await supabase
         .from('clearance_records')
-        .select('user_id, status')
+        .select('clearance_id', { count: 'exact', head: true })
         .in('template_id', templateIds)
+        .eq('status', 'Signed')
 
       if (clearanceError) throw clearanceError
 
-      if (clearances && clearances.length > 0) {
+      if (signedCount != null) {
         const totalPossibleSignatures = staffCount * templateIds.length
-        const signedSignatures = clearances.filter((c: any) => c.status === 'Signed').length
+        const signedSignatures = signedCount
         
         completionRate = totalPossibleSignatures > 0
           ? Math.round((signedSignatures / totalPossibleSignatures) * 100)
@@ -95,7 +96,7 @@ export async function GET() {
       updated_at: new Date().toISOString()
     }
 
-    return NextResponse.json({ data: [staffTemplate] }, { status: 200 })
+    return NextResponse.json({ data: [staffTemplate] }, { status: 200, headers: { 'Cache-Control': 'private, no-store' } })
 
   } catch (err: any) {
     console.error('Fetch staff templates error', err)

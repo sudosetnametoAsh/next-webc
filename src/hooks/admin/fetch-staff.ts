@@ -4,17 +4,18 @@ import { QueryClient, useQuery } from '@tanstack/react-query'
 export function useFetchStaff() {
   return useQuery({
     queryKey: ['admin', 'staff'],
-    queryFn: fetchStaff,
+    queryFn: ({ signal }) => fetchStaff(signal),
     staleTime: 1000 * 60 * 3,
     gcTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   })
 }
 
 export async function prefetchStaff(queryClient: QueryClient) {
   return queryClient.prefetchQuery({
     queryKey: ['admin', 'staff'],
-    queryFn: fetchStaff,
+    queryFn: ({ signal }) => fetchStaff(signal),
     staleTime: 1000 * 60 * 3,
   })
 }
@@ -25,8 +26,8 @@ export function invalidateStaff(queryClient: QueryClient) {
   })
 }
 
-async function fetchStaff(): Promise<Staff[]> {
-  const response = await fetch('/api/admin/staff')
+async function fetchStaff(signal?: AbortSignal): Promise<Staff[]> {
+  const response = await fetch('/api/admin/staff', { signal, cache: 'no-store' })
   const json = await response.json()
 
   if (!response.ok) {

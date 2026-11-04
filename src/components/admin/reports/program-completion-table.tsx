@@ -25,9 +25,9 @@ interface ProgramItem {
 const PAGE_SIZE = 10;
 
 export default function ProgramCompletionTable() {
-  const { data: courseTemplates = [], isLoading: isLoadingCourses } =
+  const { data: courseTemplates = [], isLoading: isLoadingCourses, error: courseError, refetch: refetchCourses } =
     useFetchCourseTemplates();
-  const { data: staffTemplates = [], isLoading: isLoadingStaff } =
+  const { data: staffTemplates = [], isLoading: isLoadingStaff, error: staffError, refetch: refetchStaff } =
     useFetchStaffTemplates();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -120,6 +120,14 @@ export default function ProgramCompletionTable() {
                     <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
                     <span>Loading program completion rates...</span>
                   </div>
+                </td>
+              </tr>
+            ) : courseError || staffError ? (
+              <tr>
+                <td colSpan={4} className="px-5 py-12 text-center text-sm text-rose-300">
+                  <p role="alert">Could not load completion rates.</p>
+                  <button type="button" className="mt-3 rounded-lg border border-slate-700 px-3 py-2 text-slate-200"
+                    onClick={() => void Promise.all([refetchCourses(), refetchStaff()])}>Retry</button>
                 </td>
               </tr>
             ) : paginatedPrograms.length === 0 ? (

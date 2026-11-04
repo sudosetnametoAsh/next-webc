@@ -7,7 +7,6 @@ import { useFetchDepartmentClients } from "@/hooks/department/fetch-department-c
 import { useFetchCourses } from "@/hooks/department/fetch-courses";
 import { useFetchPreset } from "@/hooks/department/fetch-presets";
 import { DepartmentClientItem } from "@/app/api/department/clients/route";
-import { createClient } from "@/lib/db/supabase-client";
 import { useQueryClient } from "@tanstack/react-query";
 import ClientFilterToolbar, {
   ClientType,
@@ -132,7 +131,6 @@ function getClientDefaultSortRank(client: DepartmentClientItem): number {
 
 export default function StudentsClient() {
   const { departmentName } = useDepartmentContext();
-  const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
 
   // Queries
@@ -1081,35 +1079,8 @@ export default function StudentsClient() {
     return selected.flatMap((c) => c.tasks);
   }, [clearanceId, clientsData]);
 
-  // Realtime Supabase Sync
-  useEffect(() => {
-    const channelId = `dept-clients-sync-${Math.random().toString(36).substring(2, 9)}`;
-    const channel = supabase
-      .channel(channelId)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "clearance_records" },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["department-clients"] });
-          queryClient.invalidateQueries({ queryKey: ["students"] });
-          queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "clearance_tasks" },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["department-clients"] });
-          queryClient.invalidateQueries({ queryKey: ["students"] });
-          queryClient.invalidateQueries({ queryKey: ["staff-clearance"] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient, supabase]);
+  // The department layout owns realtime invalidation for this list and drawer.
+  // A second subscription here used to cancel the layout's active refetches.
 
   // Sync selectedClient with live query data updates (e.g. after approving a task)
   useEffect(() => {

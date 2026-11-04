@@ -4,8 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 export function useFetchCourseTemplates() {
   return useQuery({
     queryKey: ['admin', 'course-templates'],
-    queryFn: fetchCourseTemplates,
+    queryFn: ({ signal }) => fetchCourseTemplates(signal),
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   })
 }
 
@@ -35,8 +37,8 @@ export function useDeleteTemplates() {
   })
 }
 
-async function fetchCourseTemplates(): Promise<CourseTemplateStats[]> {
-  const response = await fetch('/api/admin/course-templates')
+async function fetchCourseTemplates(signal?: AbortSignal): Promise<CourseTemplateStats[]> {
+  const response = await fetch('/api/admin/course-templates', { signal, cache: 'no-store' })
   const json = await response.json()
 
   if (!response.ok) {

@@ -22,7 +22,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       plugins: [{ name: 'simulated-external-services', setup(build) {
         build.onResolve({ filter: /^(next\/navigation|@\/context\/deparment|@\/lib\/db\/supabase-client|\.\/department-nav-context)$/ }, args => ({ path: args.path, namespace: 'boundary' }));
         build.onLoad({ filter: /.*/, namespace: 'boundary' }, ({ path: name }) => ({ loader: 'js', contents:
-          name === 'next/navigation' ? `const router={push(){},refresh(){},prefetch(){}}; export const useRouter=()=>router; export const usePathname=()=>'/department/dashboard';` :
+          name === 'next/navigation' ? `const params=new URLSearchParams(location.search);const router={push(){},replace(){},refresh(){},prefetch(){}}; export const useRouter=()=>router; export const usePathname=()=>'/department/dashboard';export const useSearchParams=()=>params;` :
           name.includes('deparment') ? `export const useDepartmentContext=()=>({userId:'test-officer',departmentName:'Clinic'});` :
           name.includes('department-nav-context') ? `export const useDepartmentNav=()=>({toggleMobile(){}});` :
           `const channels=new Set();
@@ -52,6 +52,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     page.on('pageerror', (error) => errors.push(error.message));
     let failRejection = true, requestBody, notificationDelay = 0;
     let failProgress = true, progressDelay = 500, clinicStatus = 'Pending';
+    let adminSigned = 0;
     let failTaskStatus = true;
     const statusRequests = [];
     let notifications = [];
@@ -75,6 +76,34 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
         : { json: { data: { assigned_task_id: body.taskId, status: body.status, comments: body.comment } } });
     });
     await page.route('**/api/department/presets', (route) => route.fulfill({ json: { data: [], id: 'test-officer' } }));
+    await page.route('**/api/department/courses', (route) => route.fulfill({ json: { data: [] } }));
+    await page.route('**/api/department/clients', (route) => route.fulfill({ json: { data: [{
+      id: 'test-client', name: 'Realtime Dept Client', type: 'student', clearanceId: '2', status: clinicStatus,
+      departmentStatus: clinicStatus === 'Signed' ? 'cleared' : 'pending', isLocked: false,
+      totalDepartments: 2, signedDepartments: clinicStatus === 'Signed' ? 2 : 1,
+      tasks: [], courseId: 1, courseName: 'BS Computer Science', sectionId: 1, sectionNumber: 1, courseYear: 1, semester: 1,
+    }] } }));
+    await page.route('**/api/admin/**', async (route) => {
+      const url = new URL(route.request().url());
+      const departments = [
+        { clearance_id: 1, dept_id: 1, dept_name: 'Cashier', tier: 1, status: adminSigned >= 1 ? 'Signed' : 'Pending' },
+        { clearance_id: 2, dept_id: 2, dept_name: 'Clinic', tier: 2, status: adminSigned >= 2 ? 'Signed' : 'Pending' },
+      ];
+      let data = [];
+      if (url.pathname.endsWith('/course-templates')) data = [{ course_id: 1, course_name: 'BS Computer Science', students_enrolled: 1, completion_rate: adminSigned * 50, departments }];
+      if (url.pathname.endsWith('/student-templates')) data = [{
+        student_id: 'test-client', student_name: 'Realtime Client', course_id: 1, course_name: 'BS Computer Science',
+        course_year: 1, section_number: 1, semester: 1, total_departments: 2, signed_departments: adminSigned,
+        overallStatus: adminSigned === 2 ? 'Signed' : adminSigned ? 'Incomplete' : 'Pending', pending_departments: [], departments, isOverdue: false,
+      }];
+      if (url.pathname.endsWith('/departments')) data = departments;
+      if (url.pathname.endsWith('/courses')) data = [{ course_id: 1, course_name: 'BS Computer Science', course_sections: [] }];
+      if (url.pathname.endsWith('/stats')) {
+        assert.equal(url.searchParams.get('fresh'), 'true');
+        data = { totalStudents: 1, totalStaff: 0, totalClients: 1, signed: adminSigned === 2 ? 1 : 0, pending: 1, incomplete: 0 };
+      }
+      await route.fulfill({ json: { data } });
+    });
     await page.route('**/api/department/clients/sign', (route) => {
       clinicStatus = route.request().postDataJSON().status;
       return route.fulfill({ json: { data: [], message: 'Clearances signed successfully' } });
@@ -176,11 +205,33 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await page.waitForFunction(() => ![...document.querySelectorAll('button')].some((button) => button.textContent.trim() === 'Confirm Reopen'));
       assert.equal(statusRequests.at(-1).status, 'Pending');
     }
+    // Both the report table and an already-open admin overlay must follow updates.
+    await page.goto(`http://127.0.0.1:${server.address().port}/?adminprogress`);
+    const programs = page.getByTestId('report-programs');
+    await programs.getByText('0%', { exact: true }).waitFor();
+    await page.getByTestId('admin-clients').getByText('Realtime Client', { exact: true }).first().click();
+    const dossier = page.getByRole('dialog');
+    await dossier.getByText('0 of 2 Departments', { exact: true }).waitFor();
+    for (const signed of [1, 2, 1]) {
+      adminSigned = signed;
+      await page.evaluate(() => window.emitTestRecord({ user_id: 'test-client' }));
+      await programs.getByText(`${signed * 50}%`, { exact: true }).waitFor();
+      await dossier.getByText(`${signed} of 2 Departments`, { exact: true }).waitFor();
+    }
+    // Verify the supplied department clients page also refreshes its open TaskView.
+    clinicStatus = 'Pending';
+    await page.goto(`http://127.0.0.1:${server.address().port}/?deptclients`);
+    await page.getByText('Realtime Dept Client', { exact: true }).first().click();
+    await progressSection.getByText('1 / 2 Cleared', { exact: true }).waitFor();
+    clinicStatus = 'Signed';
+    await page.evaluate(() => window.emitTestRecord({ user_id: 'test-client', status: 'Signed' }));
+    await progressSection.getByText('2 / 2 Cleared', { exact: true }).waitFor();
     assert.deepEqual(errors, [], 'no React runtime errors');
     console.log(`PASS: rejection failure stays open, success persists and closes; incoming popup rendered in ${elapsed}ms despite a ${notificationDelay}ms API delay; another officer's alert excluded.`);
     console.log('PASS: TaskView shows loading and query errors, retries successfully, and updates progress after signing and realtime changes without reloading.');
     console.log('PASS: actual digital and in-person TaskView flows show clear failures, persist successful clears through the API, and reopen cleared tasks.');
     console.log(`PASS: sign button updated in ${signButtonMs}ms and undo in ${undoButtonMs}ms despite a 2000ms progress-refetch delay (simulated API).`);
+    console.log('PASS: report completion and the open admin dossier update through sign/undo events; the department clients page refreshes its open progress panel without reloading.');
     await page.close();
   } finally {
     await browser?.close();
