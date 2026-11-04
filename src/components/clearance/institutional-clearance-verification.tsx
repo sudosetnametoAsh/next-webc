@@ -1,4 +1,7 @@
 "use client";
+
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
 import { officeStatus } from "@/lib/weekly-schedule";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -278,6 +281,7 @@ export default function InstitutionalClearanceVerification({
     const now = new Date();
     setTodayStr(
       now.toLocaleDateString("en-US", {
+        timeZone: APP_TIME_ZONE,
         weekday: "short",
         month: "short",
         day: "numeric",

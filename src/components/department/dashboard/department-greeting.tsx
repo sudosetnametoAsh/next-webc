@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import {
   Users,
   Clock,
@@ -21,6 +24,7 @@ export default function DepartmentGreeting({
   stats,
 }: DepartmentGreetingProps) {
   const today = new Date().toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
     weekday: "long",
     year: "numeric",
     month: "long",

@@ -416,8 +416,8 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
         (r) =>
           r.status === "Signed" &&
           r.signedAt &&
-          r.signedAt >= ds &&
-          r.signedAt < de,
+          new Date(r.signedAt).getTime() >= new Date(ds).getTime() &&
+          new Date(r.signedAt).getTime() < new Date(de).getTime(),
       ).length;
 
       dailyThroughput.push({
@@ -448,7 +448,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
     const overdueCount = uniqueRecords.filter((r) => {
       if (r.status === "Signed") return false;
       return (
-        (r.createdAt && r.createdAt < twentyFourHoursAgo) ||
+        (r.createdAt && new Date(r.createdAt).getTime() < new Date(twentyFourHoursAgo).getTime()) ||
         r.status === "Pending"
       );
     }).length;

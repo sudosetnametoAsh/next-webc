@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import { useClientClearanceProgress } from "@/hooks/department/use-client-clearance-progress";
 import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
@@ -439,7 +442,7 @@ export default function TaskView({
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return new Date(dateString).toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" });
   };
 
   const isTaskOverdue = (task: Tasks) => {
@@ -566,6 +569,7 @@ export default function TaskView({
     if (existingTask) {
       if (existingTask.uploaded_at) {
         const formattedDate = new Date(existingTask.uploaded_at).toLocaleDateString("en-US", {
+          timeZone: APP_TIME_ZONE,
           month: "short",
           day: "numeric",
           year: "numeric",
@@ -593,6 +597,7 @@ export default function TaskView({
               type: file.type || (file.name?.endsWith(".pdf") ? "pdf" : "image"),
               uploadDate: existingTask.uploaded_at
                 ? new Date(existingTask.uploaded_at).toLocaleDateString("en-US", {
+                    timeZone: APP_TIME_ZONE,
                     month: "short",
                     day: "numeric",
                     year: "numeric",
@@ -611,6 +616,7 @@ export default function TaskView({
               type: isPdf ? "pdf" : "image",
               uploadDate: existingTask.uploaded_at
                 ? new Date(existingTask.uploaded_at).toLocaleDateString("en-US", {
+                    timeZone: APP_TIME_ZONE,
                     month: "short",
                     day: "numeric",
                     year: "numeric",
@@ -633,6 +639,7 @@ export default function TaskView({
 
       const formattedDate = data.uploaded_at
         ? new Date(data.uploaded_at).toLocaleDateString("en-US", {
+            timeZone: APP_TIME_ZONE,
             month: "short",
             day: "numeric",
             year: "numeric",

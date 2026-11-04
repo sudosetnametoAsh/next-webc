@@ -333,7 +333,7 @@ export const clearanceRecords = pgTable(
     clearanceId: serial("clearance_id").primaryKey().notNull(),
     userId: varchar("user_id", { length: 11 }).notNull(),
     status: varchar({ length: 20 }).default("Pending").notNull(),
-    signedAt: timestamp("signed_at", { mode: "string" }),
+    signedAt: timestamp("signed_at", { withTimezone: true, mode: "string" }),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()
       .notNull(),

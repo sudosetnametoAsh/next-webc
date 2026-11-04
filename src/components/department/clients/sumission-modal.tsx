@@ -1,3 +1,4 @@
+import { APP_TIME_ZONE } from "@/lib/date-time";
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
@@ -97,6 +98,7 @@ function formatDate(dateString?: string | null): string {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
     return d.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -112,12 +114,14 @@ function formatUploadedAt(dateStr?: string | null): string {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     const dateFormatted = d.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       month: "short",
       day: "numeric",
       year: "numeric",
     });
     if (dateStr.includes("T") || dateStr.includes(":")) {
       const timeFormatted = d.toLocaleTimeString("en-US", {
+        timeZone: APP_TIME_ZONE,
         hour: "numeric",
         minute: "2-digit",
         hour12: true,

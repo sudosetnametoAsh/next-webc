@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import { useState, useMemo, useEffect, useRef, Suspense, Fragment } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDepartmentContext } from "@/context/deparment";
@@ -1641,7 +1644,7 @@ export default function StudentsClient() {
                                   <>
                                     <span className="text-slate-600">·</span>
                                     <span
-                                      title={`Submitted: ${new Date(subTime).toLocaleString()}`}
+                                      title={`Submitted: ${new Date(subTime).toLocaleString("en-US", { timeZone: APP_TIME_ZONE })}`}
                                       className="text-slate-500 font-normal"
                                     >
                                       {formatTimeElapsed(subTime)}
@@ -1794,7 +1797,7 @@ export default function StudentsClient() {
                               <>
                                 <span className="text-slate-600">·</span>
                                 <span
-                                  title={`Submitted: ${new Date(subTime).toLocaleString()}`}
+                                  title={`Submitted: ${new Date(subTime).toLocaleString("en-US", { timeZone: APP_TIME_ZONE })}`}
                                   className="text-slate-500 font-normal"
                                 >
                                   {formatTimeElapsed(subTime)}

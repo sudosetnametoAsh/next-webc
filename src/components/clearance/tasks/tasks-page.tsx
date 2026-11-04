@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import React, { useState, useMemo, useEffect, useRef, Fragment } from "react";
 import {
   Search,
@@ -146,6 +149,7 @@ function formatRelativeTimestamp(isoDateStr?: string | null): string {
   if (diffDays < 7) return `${diffDays}d ago`;
 
   return date.toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
     month: "short",
     day: "numeric",
   });
@@ -168,6 +172,7 @@ function formatSubmittedTime(isoDateStr?: string | null): string {
   if (diffDays < 7) return `Submitted ${diffDays}d ago`;
 
   return `Submitted on ${date.toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
     month: "short",
     day: "numeric",
   })}`;
@@ -754,7 +759,7 @@ export default function TasksPage({
       if (t.due_date) {
         formattedDueDate = `Due on ${new Date(t.due_date).toLocaleDateString(
           "en-US",
-          { month: "short", day: "numeric", year: "numeric" }
+          { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" }
         )}`;
       } else {
         formattedDueDate = "No deadline";
@@ -1696,7 +1701,7 @@ export default function TasksPage({
                             {t.isOverdue ? (
                               <span className="text-rose-400 font-bold flex items-center gap-1">
                                 <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                                Overdue ({new Date(t.rawDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })})
+                                Overdue ({new Date(t.rawDueDate).toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric" })})
                               </span>
                             ) : t.isDueSoon ? (
                               <span className="text-rose-400 font-bold flex items-center gap-1">

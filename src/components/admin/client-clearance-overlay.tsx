@@ -1,5 +1,6 @@
-'use client'
+"use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
 import React, { useEffect, useMemo } from 'react'
 import {
   X,
@@ -75,6 +76,7 @@ function formatSignedDate(dateStr?: string | null): string | null {
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) return null
     return date.toLocaleDateString('en-US', {
+      timeZone: APP_TIME_ZONE,
       month: 'short',
       day: 'numeric',
       year: 'numeric',

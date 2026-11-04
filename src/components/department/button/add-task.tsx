@@ -1,5 +1,7 @@
 "use client";
 
+import { APP_TIME_ZONE, campusEndOfDay } from "@/lib/date-time";
+
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,7 +102,7 @@ export default function AddTask({
 
         const dropbox = hasDropBox ? "pending" : "NULL";
         // The selected deadline is end of day in the user's local timezone.
-        const formattedDueDate = dueDate ? new Date(`${dueDate}T23:59:59`).toISOString() : null;
+        const formattedDueDate = dueDate ? campusEndOfDay(dueDate) : null;
 
         return {
           clearance_id: student,
@@ -225,7 +227,7 @@ export default function AddTask({
               />
               <p className="text-xs text-slate-500">
                 {dueDate
-                  ? `Clients must complete this requirement by ${new Date(dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`
+                  ? `Clients must complete this requirement by ${new Date(dueDate + "T00:00:00+08:00").toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" })}.`
                   : "Leave blank to allow completion until the end of the clearance season."}
               </p>
             </div>

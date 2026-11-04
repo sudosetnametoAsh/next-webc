@@ -1,3 +1,4 @@
+import { APP_TIME_ZONE } from "@/lib/date-time";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 
 /**
@@ -145,7 +146,7 @@ export async function syncStudentDueNotifications(
 
     // 4. Batch insert new due notifications
     const newNotifications = tasksToNotify.map((qt) => {
-      const formattedDate = new Date(qt.dueDate).toLocaleDateString("en-US", {
+      const formattedDate = new Date(qt.dueDate).toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE,
         month: "short",
         day: "numeric",
         hour: "numeric",

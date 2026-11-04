@@ -1,4 +1,7 @@
 "use client";
+
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
 import { officeStatus, hasWeeklySchedule } from "@/lib/weekly-schedule";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -143,11 +146,13 @@ export default function OfficeHours({
     }
 
     const dateFormatted = now.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       weekday: "short",
       month: "short",
       day: "numeric",
     });
     const timeFormatted = now.toLocaleTimeString("en-US", {
+      timeZone: APP_TIME_ZONE,
       hour: "numeric",
       minute: "2-digit",
       hour12: true,

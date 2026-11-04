@@ -1,3 +1,4 @@
+import { APP_TIME_ZONE } from "@/lib/date-time";
 import { StudentTemplates, Staff, CourseTemplateStats } from '@/types/admin'
 import { expandCourseAbbreviation } from '@/utils/formatters'
 import { formatSectionCode } from '@/components/admin/client-filter-toolbar'
@@ -189,7 +190,7 @@ export function exportDepartmentClearanceReport({
     escapeCsvField(r.program),
     escapeCsvField(r.section),
     escapeCsvField(r.status),
-    escapeCsvField(r.signedAt ? new Date(r.signedAt).toLocaleString() : 'Unsigned'),
+    escapeCsvField(r.signedAt ? new Date(r.signedAt).toLocaleString("en-US", { timeZone: APP_TIME_ZONE }) : 'Unsigned'),
     escapeCsvField(r.incompleteTasks),
     escapeCsvField(departmentName),
     escapeCsvField(now),

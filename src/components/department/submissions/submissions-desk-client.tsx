@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import { toast } from "sonner";
 import { useDepartmentDashboard } from "@/hooks/department/use-department-dashboard";
 import { updateTaskStatus } from "@/lib/api/update-task-status";
@@ -48,7 +51,7 @@ function formatRelativeTime(dateString: string | null): string {
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric" });
   } catch {
     return "Recently";
   }
@@ -59,6 +62,7 @@ function formatExactDate(dateString: string | null): string {
   try {
     const d = new Date(dateString);
     return d.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -153,6 +157,7 @@ export default function SubmissionsDeskClient({
     setActiveSubmission(submission);
     const formattedDate = submission.uploadedAt
       ? new Date(submission.uploadedAt).toLocaleDateString("en-US", {
+          timeZone: APP_TIME_ZONE,
           month: "short",
           day: "numeric",
           year: "numeric",

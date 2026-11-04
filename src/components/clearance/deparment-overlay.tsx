@@ -1,4 +1,7 @@
 "use client";
+
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
 import { officeStatus, campusClock, hasWeeklySchedule, formatOfficeTime } from "@/lib/weekly-schedule";
 import type { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
@@ -130,6 +133,7 @@ function formatDate(dateString?: string | null): string {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
     return d.toLocaleDateString("en-US", {
+      timeZone: APP_TIME_ZONE,
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -157,6 +161,7 @@ function formatSubmittedTime(isoDateStr?: string | null): string {
   if (diffDays < 7) return `Submitted ${diffDays}d ago`;
 
   return `Submitted on ${date.toLocaleDateString("en-US", {
+    timeZone: APP_TIME_ZONE,
     month: "short",
     day: "numeric",
   })}`;

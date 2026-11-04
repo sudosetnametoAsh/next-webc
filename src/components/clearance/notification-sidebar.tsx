@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import { useState } from "react";
 import { Drawer } from "@/components/ui/drawer";
 import { useRouter } from "next/navigation";
@@ -39,7 +42,7 @@ function formatRelativeTime(date: Date): string {
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays === 1) return "Yesterday";
   if (diffInDays < 7) return `${diffInDays}d ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return date.toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric" });
 }
 
 export default function NotificationSidebar({

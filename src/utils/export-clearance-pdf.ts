@@ -1,3 +1,4 @@
+import { APP_TIME_ZONE } from "@/lib/date-time";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -65,7 +66,7 @@ export function exportClearancePDF({
     : "First Semester";
   const academicTerm = `${termStr} · ${ayYear}`;
 
-  const issueDate = new Date().toLocaleDateString("en-US", {
+  const issueDate = new Date().toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE,
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -75,7 +76,7 @@ export function exportClearancePDF({
   const tableData = sortedRecords.map((rec, index) => {
     const isSigned = rec.status === "Signed";
     const signedDate = rec.signed_at
-      ? new Date(rec.signed_at).toLocaleDateString("en-US", {
+      ? new Date(rec.signed_at).toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE,
           year: "numeric",
           month: "short",
           day: "numeric",

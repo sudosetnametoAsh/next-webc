@@ -1,5 +1,8 @@
 "use client";
 
+import { APP_TIME_ZONE } from "@/lib/date-time";
+
+
 import { toast } from "sonner";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -124,7 +127,7 @@ export default function SimulationClient() {
     ) => {
       const newLog: SimulationLog = {
         id: Math.random().toString(36).substring(7),
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toLocaleTimeString("en-US", { timeZone: APP_TIME_ZONE }),
         type,
         title,
         detail,

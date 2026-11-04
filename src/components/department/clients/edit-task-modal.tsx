@@ -1,4 +1,6 @@
 "use client";
+
+import { APP_TIME_ZONE, campusEndOfDay, campusDateInput } from "@/lib/date-time";
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
@@ -57,11 +59,7 @@ export default function EditTaskModal({
           task.dropbox.toLowerCase() !== "null"
       );
       setHasDropbox(isOnline);
-      // Use the same local calendar date shown in the task view, not the UTC date.
-      const deadline = task.due_date ? new Date(task.due_date) : null;
-      setDueDate(deadline
-        ? `${deadline.getFullYear()}-${String(deadline.getMonth() + 1).padStart(2, "0")}-${String(deadline.getDate()).padStart(2, "0")}`
-        : "");
+      setDueDate(task.due_date ? campusDateInput(task.due_date) : "");
       setTitleError("");
     }
   }, [task, isOpen]);
@@ -78,7 +76,7 @@ export default function EditTaskModal({
     setIsSubmitting(true);
     try {
       const formattedDueDate = dueDate
-        ? new Date(`${dueDate}T23:59:59`).toISOString()
+        ? campusEndOfDay(dueDate)
         : null;
 
       // Determine dropbox value:
@@ -255,7 +253,7 @@ export default function EditTaskModal({
             />
             <p className="text-[10px] text-slate-500">
               {dueDate
-                ? `Clients must settle this task by ${new Date(dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`
+                ? `Clients must settle this task by ${new Date(dueDate + "T00:00:00+08:00").toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" })}.`
                 : "Leave blank for clearance season (—)."}
             </p>
           </div>

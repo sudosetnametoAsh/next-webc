@@ -1,5 +1,7 @@
 "use client";
 
+import { APP_TIME_ZONE, campusEndOfDay } from "@/lib/date-time";
+
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -121,7 +123,7 @@ export default function AddPreset({
         // Determine effective due date (custom per-preset override -> batch due date -> null)
         const effectiveDueDate = (tId && presetDueDates[tId]) || batchDueDate || null;
         const formattedDueDate = effectiveDueDate
-          ? new Date(`${effectiveDueDate}T23:59:59`).toISOString()
+          ? campusEndOfDay(effectiveDueDate)
           : null;
 
         return {
@@ -240,7 +242,7 @@ export default function AddPreset({
               />
               <p className="text-xs text-slate-500">
                 {batchDueDate
-                  ? `Selected presets will be due by ${new Date(batchDueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`
+                  ? `Selected presets will be due by ${new Date(batchDueDate + "T00:00:00+08:00").toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" })}.`
                   : "Leave blank to allow completion until the end of the clearance season."}
               </p>
             </div>
