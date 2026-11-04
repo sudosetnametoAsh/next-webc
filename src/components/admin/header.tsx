@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatedNotificationPopups, useNotificationPopupTimeout } from "@/components/notifications/animated-notification-popups";
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, Menu, X, ChevronRight, Clock, AlertTriangle, ShieldCheck } from "lucide-react";
@@ -53,7 +55,6 @@ export default function AdminHeader({ title, user }: HeaderProps) {
 
   // Active Drop-down Floating Notifications (max 2 items)
   const [activePopups, setActivePopups] = useState<ClearanceNotification[]>([]);
-  const [isHovered, setIsHovered] = useState(false);
   const initialLoadRef = useRef(true);
   const shownPopupIdsRef = useRef<Set<string>>(new Set());
   const dismissedPopupIdsRef = useRef<Set<string>>(new Set());
@@ -155,29 +156,15 @@ export default function AdminHeader({ title, user }: HeaderProps) {
     setActivePopups((prev) => prev.filter((p) => unreadIds.has(String(p.id))));
   }, [notifications, activePopups.length]);
 
-  // Auto-dismiss popup after 8 seconds of inactivity
-  useEffect(() => {
-    if (activePopups.length === 0 || isHovered) return;
+  // Expiring a popup does not mark the notification as read.
+  useNotificationPopupTimeout(activePopups, (id) => {
+    dismissedPopupIdsRef.current.add(String(id));
+    try {
+      localStorage.setItem("admin_dismissed_popups", JSON.stringify(Array.from(dismissedPopupIdsRef.current)));
+    } catch {}
 
-    const timer = setTimeout(() => {
-      setActivePopups((prev) => {
-        if (prev.length > 0) {
-          const removed = prev[0];
-          dismissedPopupIdsRef.current.add(String(removed.id));
-          try {
-            localStorage.setItem(
-              "admin_dismissed_popups",
-              JSON.stringify(Array.from(dismissedPopupIdsRef.current))
-            );
-          } catch {}
-          return prev.slice(1);
-        }
-        return prev;
-      });
-    }, 8000);
-
-    return () => clearTimeout(timer);
-  }, [activePopups, isHovered]);
+    setActivePopups((prev) => prev.filter((popup) => popup.id !== id));
+  });
 
   const handleDismissPopup = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -263,11 +250,9 @@ export default function AdminHeader({ title, user }: HeaderProps) {
           </button>
 
           {/* Active Dropdown Popups for Admin Alerts */}
-          {activePopups.length > 0 && !isNotificationSidebarOpen && (
-            <div
-              className="absolute right-0 top-12 z-50 flex w-80 max-w-[calc(100vw-2rem)] sm:w-96 flex-col gap-2 transition-ui duration-200 animate-in ease-out fade-in slide-in-from-top-3"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+          {!isNotificationSidebarOpen && (
+            <AnimatedNotificationPopups
+              className="absolute right-0 top-12 z-50 flex w-80 max-w-[calc(100vw-2rem)] sm:w-96 flex-col gap-2"
             >
               {activePopups.map((notif) => {
                 const { icon, containerStyle, dotStyle } = getNotificationVisual(notif);
@@ -319,7 +304,7 @@ export default function AdminHeader({ title, user }: HeaderProps) {
                   </div>
                 );
               })}
-            </div>
+            </AnimatedNotificationPopups>
           )}
         </div>
 

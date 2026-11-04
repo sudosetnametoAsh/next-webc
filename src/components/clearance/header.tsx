@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatedNotificationPopups, useNotificationPopupTimeout } from "@/components/notifications/animated-notification-popups";
+
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -65,7 +67,6 @@ export default function Header({ title, user }: HeaderProps) {
 
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
   const [activePopups, setActivePopups] = useState<ClearanceNotification[]>([]);
-  const [isHovered, setIsHovered] = useState(false);
 
   const dismissedPopupIdsRef = useRef<Set<string>>(getStoredSet("clearance_dismissed_popups"));
   const shownPopupIdsRef = useRef<Set<string>>(getStoredSet("clearance_shown_popups"));
@@ -208,33 +209,21 @@ export default function Header({ title, user }: HeaderProps) {
     setActivePopups((prev) => prev.filter((p) => !readIds.has(String(p.id))));
   }, [notifications]);
 
-  // Auto-dismiss active popups after 8s unless hovered
-  useEffect(() => {
-    if (activePopups.length === 0 || isHovered) return;
-
-    const timer = setTimeout(() => {
-      setActivePopups((prev) => {
-        if (prev.length === 0) return prev;
-        const dropped = prev[prev.length - 1];
-        if (dropped) {
-          const idStr = String(dropped.id);
-          dismissedPopupIdsRef.current.add(idStr);
-          shownPopupIdsRef.current.add(idStr);
-          try {
-            const disArr = JSON.stringify(Array.from(dismissedPopupIdsRef.current));
-            const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
-            localStorage.setItem("clearance_dismissed_popups", disArr);
-            sessionStorage.setItem("clearance_dismissed_popups", disArr);
-            localStorage.setItem("clearance_shown_popups", shownArr);
-            sessionStorage.setItem("clearance_shown_popups", shownArr);
-          } catch {}
-        }
-        return prev.slice(0, -1);
-      });
-    }, 8000);
-
-    return () => clearTimeout(timer);
-  }, [activePopups, isHovered]);
+  // Expiring a popup does not mark the notification as read.
+  useNotificationPopupTimeout(activePopups, (id) => {
+    const idStr = String(id);
+    dismissedPopupIdsRef.current.add(idStr);
+    shownPopupIdsRef.current.add(idStr);
+    try {
+      const disArr = JSON.stringify(Array.from(dismissedPopupIdsRef.current));
+      const shownArr = JSON.stringify(Array.from(shownPopupIdsRef.current));
+      localStorage.setItem("clearance_dismissed_popups", disArr);
+      sessionStorage.setItem("clearance_dismissed_popups", disArr);
+      localStorage.setItem("clearance_shown_popups", shownArr);
+      sessionStorage.setItem("clearance_shown_popups", shownArr);
+    } catch {}
+    setActivePopups((prev) => prev.filter((popup) => popup.id !== id));
+  });
 
   const handleDismissPopup = (id: string, e?: React.MouseEvent) => {
     if (e) {
@@ -378,11 +367,9 @@ export default function Header({ title, user }: HeaderProps) {
           </button>
 
           {/* Dropping Down Pop-up Notifications (Strictly max 2 items) */}
-          {activePopups.length > 0 && !isNotificationSidebarOpen && (
-            <div
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              className="absolute top-full right-0 mt-2 z-40 flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 pointer-events-auto animate-in ease-out fade-in slide-in-from-top-2 duration-200 select-none"
+          {!isNotificationSidebarOpen && (
+            <AnimatedNotificationPopups
+              className="absolute top-full right-0 mt-2 z-40 flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 pointer-events-auto select-none"
             >
               {activePopups.map((notif) => {
                 const { icon, containerStyle, dotStyle } = getNotificationVisual(notif);
@@ -444,7 +431,7 @@ export default function Header({ title, user }: HeaderProps) {
                   </div>
                 );
               })}
-            </div>
+            </AnimatedNotificationPopups>
           )}
         </div>
 
