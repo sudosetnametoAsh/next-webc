@@ -663,7 +663,7 @@ function StaffSelectionStep({
   onCancel,
 }: {
   assignedStaffIds: string[]
-  staffList: { staff_id: string; staff_name: string }[]
+  staffList: { staff_id: string; staff_name: string; email?: string | null }[]
   department?: Departments
   onSelect: (staff_id: string, staff_name: string) => void
   onCancel: () => void
@@ -676,7 +676,7 @@ function StaffSelectionStep({
     return staffList.filter(
       (s) =>
         s.staff_name.toLowerCase().includes(q) ||
-        s.staff_id.toLowerCase().includes(q)
+        (s.email || '').toLowerCase().includes(q)
     )
   }, [staffList, search])
 
@@ -715,10 +715,10 @@ function StaffSelectionStep({
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
         <input
           type="search"
-          aria-label="Search staff by name or ID"
+          aria-label="Search staff by name or email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search staff officer by name or ID..."
+          placeholder="Search staff officer by name or email..."
           autoFocus
           className="w-full rounded-xl border border-slate-700/80 bg-slate-900/90 pl-9 pr-3.5 py-2 text-xs text-white placeholder:text-slate-500 shadow-inner focus:border-amber-500/60 focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition-ui"
         />
@@ -748,7 +748,7 @@ function StaffSelectionStep({
                     {s.staff_name}
                   </span>
                   <span className='text-[10px] text-slate-500 font-mono'>
-                    ID: {s.staff_id}
+                    {s.email || 'No email available'}
                   </span>
                 </div>
               </div>

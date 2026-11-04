@@ -272,7 +272,7 @@ export default function ClientFilterToolbar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search clients by name or ID..."
+            placeholder={clientType === "staff" ? "Search staff by name or email..." : "Search clients by name, ID or email..."}
             className="w-full rounded-xl border border-slate-800 bg-[#070c18] pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/40 transition-colors"
           />
         </div>

@@ -1174,8 +1174,9 @@ export default function StudentsClient() {
         const query = search.trim().toLowerCase();
         const matchesName = client.name.toLowerCase().includes(query);
         const matchesId = client.id.toLowerCase().includes(query);
+        const matchesEmail = client.email?.toLowerCase().includes(query) ?? false;
         const matchesCourse = client.courseName?.toLowerCase().includes(query) ?? false;
-        if (!matchesName && !matchesId && !matchesCourse) return false;
+        if (!matchesName && !matchesId && !matchesEmail && !matchesCourse) return false;
       }
 
       return true;
@@ -1636,7 +1637,7 @@ export default function StudentsClient() {
                               </span>
                             </div>
                             <div className="font-mono text-xs text-slate-500 truncate flex items-center gap-1.5">
-                              <span>{client.id}</span>
+                              <span>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
                               {selectedStatus === "submissions" && (() => {
                                 const subTime = getLatestSubmissionTime(client);
                                 if (!subTime) return null;
@@ -1789,7 +1790,7 @@ export default function StudentsClient() {
                           {client.name}
                         </p>
                         <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5">
-                          <span>{client.id}</span>
+                          <span>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
                           {selectedStatus === "submissions" && (() => {
                             const subTime = getLatestSubmissionTime(client);
                             if (!subTime) return null;

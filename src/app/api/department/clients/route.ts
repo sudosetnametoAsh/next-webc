@@ -21,6 +21,7 @@ export interface DepartmentClientTask {
 export interface DepartmentClientItem {
   id: string;
   name: string;
+  email?: string | null;
   type: "student" | "staff";
   clearanceId: string;
   status: "Signed" | "Pending";
@@ -173,7 +174,7 @@ export async function GET(_req: NextRequest) {
         .in("student_id", userIds),
       supabase
         .from("staffs")
-        .select("staff_id, staff_name")
+        .select("staff_id, staff_name, users(email)")
         .in("staff_id", userIds),
       // Match the signing endpoint's visibility across prerequisite departments.
       // Limit this privileged read to clients from the officer's authorized records above.
@@ -231,7 +232,7 @@ export async function GET(_req: NextRequest) {
       enrollmentMap.set(e.student_id, e);
     }
 
-    const staffMap = new Map<string, { staff_id: string; staff_name: string }>();
+    const staffMap = new Map<string, { staff_id: string; staff_name: string; users: { email: string | null } | { email: string | null }[] | null }>();
     for (const st of staffsRes.data || []) {
       staffMap.set(st.staff_id, st);
     }
@@ -359,6 +360,7 @@ export async function GET(_req: NextRequest) {
       clients.push({
         id: record.user_id,
         name,
+        email: isStaff ? (Array.isArray(staffInfo?.users) ? staffInfo.users[0] : staffInfo?.users)?.email ?? null : null,
         type,
         clearanceId: String(record.clearance_id),
         status,
