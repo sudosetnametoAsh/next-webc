@@ -1,11 +1,12 @@
 import Landing from "@/components/landing";
 import AuthGate from "@/components/auth/auth-gate";
 
-export default function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
+    const notEnrolled = (await searchParams).notice === "not-enrolled";
     return (
         <>
-            <AuthGate>
-                <Landing />
+            <AuthGate enrollmentRequired={notEnrolled}>
+                <Landing notEnrolled={notEnrolled} />
             </AuthGate>
         </>
     );

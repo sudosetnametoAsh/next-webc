@@ -1,3 +1,4 @@
+import { ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
 import { useMsal } from "@azure/msal-react";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
@@ -18,8 +19,6 @@ export function useValidateToken(options: Options) {
         account: accounts[0],
       });
 
-      console.log("id token: ", token.idTokenClaims);
-      console.log("access token: ", token.accessToken);
 
       const response = await fetch("/api/session", {
         method: "POST",
@@ -28,8 +27,12 @@ export function useValidateToken(options: Options) {
         body: JSON.stringify({ accessToken: token.accessToken }),
       });
 
+      if (response.status === 403 && (await response.clone().json()).code === "NOT_ENROLLED") {
+        window.location.replace(ENROLLMENT_NOTICE_URL);
+        throw new Error("Client enrollment is required");
+      }
       if (!response.ok) {
-        instance.logoutRedirect();
+        if (response.status === 401) void instance.logoutRedirect();
         throw new Error("Token validation failed");
       }
 

@@ -1,3 +1,4 @@
+import { ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { RoleRouter } from "./modules/auth/domain/role-router";
@@ -7,6 +8,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/api/auth/callback" ||
     pathname === "/api/auth/clear-session" ||
+    pathname === "/api/auth/enrollment" ||
     pathname === "/api/session" ||
     pathname === "/api/webhooks/cashier"
   ) {
@@ -61,6 +63,24 @@ export async function proxy(request: NextRequest) {
       return withCookies(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
     }
     return withCookies(NextResponse.redirect(new URL(RoleRouter.homePath(roles), origin)));
+  }
+
+  // Auth accounts outlive enrollment; a stale JWT must not restore removed client access.
+  const clientArea = pathname === "/clearance" || pathname.startsWith("/clearance/") || pathname.startsWith("/api/student/");
+  if (user && clientArea && !roles.includes("Admin") && !roles.includes("Department")) {
+    const { data: identity, error: identityError } = await supabase.from("users")
+      .select("user_id, students(student_id), staffs(staff_id)").eq("auth_id", user.id).maybeSingle();
+    if (identityError) {
+      return withCookies(NextResponse.json({ error: "Unable to verify enrollment. Please try again." }, { status: 503 }));
+    }
+    const enrolled = identity && ([identity.students, identity.staffs].some((profile) =>
+      Array.isArray(profile) ? profile.length > 0 : Boolean(profile)));
+    if (!enrolled) {
+      await supabase.auth.signOut({ scope: "local" });
+      return withCookies(pathname.startsWith("/api/")
+        ? NextResponse.json({ error: "Client enrollment is required.", code: "NOT_ENROLLED" }, { status: 403 })
+        : NextResponse.redirect(new URL(ENROLLMENT_NOTICE_URL, origin)));
+    }
   }
 
   return response;

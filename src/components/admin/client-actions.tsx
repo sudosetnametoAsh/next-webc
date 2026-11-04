@@ -51,7 +51,7 @@ export default function ClientActions({ client, onSuccess }: {
         <DialogContent className="border-slate-700 bg-slate-950 text-slate-100" showCloseButton={!pending} onEscapeKeyDown={(event) => { if (pending) event.preventDefault(); event.stopPropagation() }}>
           <DialogTitle>{action === 'delete' ? 'Delete client' : 'Update client'}</DialogTitle>
           <DialogDescription className="text-slate-400">
-            {action === 'delete' ? `Delete ${client.name} (${client.id})? Their enrollment and clearance records will be permanently removed. Their login identity will be retained.` : `Update the name for ${client.type} ${client.id}.`}
+            {action === 'delete' ? `Delete ${client.name} (${client.id})? Their enrollment, clearance records, personal notifications, and application user record will be permanently removed. Re-enrollment is required to restore clearance access.` : `Update the name for ${client.type} ${client.id}.`}
           </DialogDescription>
           <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void submit() }}>
             {action === 'edit' && <div className="space-y-2"><label htmlFor={`client-name-${client.type}-${client.id}`} className="text-sm">Full name</label><input id={`client-name-${client.type}-${client.id}`} autoFocus required maxLength={255} value={name} onChange={(event) => setName(event.target.value)} disabled={pending} className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm" /></div>}

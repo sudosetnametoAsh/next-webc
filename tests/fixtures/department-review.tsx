@@ -1,3 +1,5 @@
+import ClientEnrollmentGuard from "@/components/auth/client-enrollment-guard";
+import EnrollmentNotice from "@/components/auth/enrollment-notice";
 import DepartmentCalendarClient from "@/components/department/calendar/department-calendar-client";
 import React, { useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
@@ -29,7 +31,7 @@ function ReviewFixture() {
   }] : [], [taskMode]);
   return <QueryClientProvider client={queryClient}>
     <DepartmentHeader user_id="test-officer" user_name="Test Officer" department="Clinic" />
-    {new URLSearchParams(location.search).has("calendar") ? <DepartmentCalendarClient
+    {new URLSearchParams(location.search).get("notice") === "not-enrolled" ? <EnrollmentNotice /> : new URLSearchParams(location.search).has("enrollment") ? <ClientEnrollmentGuard userId="test-client"><div data-testid="private-clearance">Private clearance data</div></ClientEnrollmentGuard> : new URLSearchParams(location.search).has("calendar") ? <DepartmentCalendarClient
       userId="test-officer" userName="Test Officer" departmentName="Clinic" iconName="Building2" floor="1" room="101"
       initialWeeklySchedule={new URLSearchParams(location.search).has("savedweek") ? { mon: { active: true, time_in: "09:00", time_out: "16:00" } } : null}
     /> : showAdmin ? <>

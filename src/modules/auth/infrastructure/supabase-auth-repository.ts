@@ -1,3 +1,4 @@
+import { readClientEnrollment, requiresClientEnrollment, ClientNotEnrolledError } from "@/lib/auth/client-enrollment";
 import { createClient } from "@/lib/db/supabase-server";
 import { AuthRepository } from "../application/repository/auth-repository";
 import { InvalidAuthTokenError } from "../application/error";
@@ -22,9 +23,15 @@ export class SupabaseAuthRepository implements AuthRepository {
       throw new Error("Failed to retrieve user");
     }
 
-    const role = RoleRouter.parseRoles(data.user?.user_metadata?.custom_claims?.roles)[0];
+    const roles = RoleRouter.parseRoles(data.user?.user_metadata?.custom_claims?.roles);
+    const role = roles[0];
     if (!role) {
       throw new Error("Authenticated user has no supported Azure app role. Check Entra app role assignments.");
+    }
+
+    if (data.user && requiresClientEnrollment(roles) && !await readClientEnrollment(supabase, data.user.id)) {
+      await supabase.auth.signOut({ scope: "local" });
+      throw new ClientNotEnrolledError();
     }
 
     return role;

@@ -1,8 +1,9 @@
+import EnrollmentNotice from "./auth/enrollment-notice";
 import styles from "@/styles/sti-login.module.css";
 import Image from "next/image";
 import AzureLoginButton from "./auth/azure-sign-in-button";
 
-export default function Login() {
+export default function Login({ notEnrolled = false }: { notEnrolled?: boolean }) {
   return (
     <div className={styles.container}>
       
@@ -46,6 +47,7 @@ export default function Login() {
             <h1>Login Now</h1>
           </div>
 
+          {notEnrolled && <EnrollmentNotice />}
           <AzureLoginButton />
 
           <div className={styles.footer}>

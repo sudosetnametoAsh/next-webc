@@ -26,10 +26,11 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
           name.includes('deparment') ? `export const useDepartmentContext=()=>({userId:'test-officer',departmentName:'Clinic'});` :
           name.includes('department-nav-context') ? `export const useDepartmentNav=()=>({toggleMobile(){}});` :
           `const channels=new Set();
-           const emit=(table,row)=>{for(const channel of channels)for(const binding of channel.callbacks)if(binding.table===table)binding.callback({eventType:'INSERT',new:row})};
+           const emit=(table,row,eventType='INSERT')=>{for(const channel of channels)for(const binding of channel.callbacks)if(binding.table===table&&(binding.event==='*'||binding.event===eventType))binding.callback({eventType,new:row,old:row})};
+           window.emitTestDeletion=(table,row)=>emit(table,row,'DELETE');
            window.emitTestNotification=(row)=>emit('notifications',row);
            window.emitTestRecord=(row)=>emit('clearance_records',row);
-           const client={from(){const query={select(){return query},eq(){return query},async single(){return {data:{dropbox:'[]',uploaded_at:'2026-11-04T00:00:00Z',ai_audit_report:{isAuthentic:false,flags:['Wrong receipt']}},error:null}}};return query},channel(){const channel={callbacks:[],on(event,filter,callback){this.callbacks.push({table:filter.table,callback});return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
+           const client={auth:{async signOut(){sessionStorage.setItem('enrollment-signed-out','true')},onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},from(){const query={select(){return query},eq(){return query},async single(){return {data:{dropbox:'[]',uploaded_at:'2026-11-04T00:00:00Z',ai_audit_report:{isAuthentic:false,flags:['Wrong receipt']}},error:null}}};return query},channel(){const channel={callbacks:[],on(event,filter,callback){this.callbacks.push({table:filter.table,event:filter.event,callback});return this},subscribe(callback){channels.add(this);setTimeout(()=>callback?.('SUBSCRIBED'),0);return this}};return channel},removeChannel(channel){channels.delete(channel)}};
            export const createClient=()=>client;`,
         }));
       } }],
@@ -287,6 +288,26 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       assert.equal(payload.weekly_schedule.tue.active, false, 'missing days do not inherit hours');
     }
     console.log('PASS: real calendar saves new all-closed and existing weekly schedules without legacy hour fields.');
+    let enrollmentStatus = 200;
+    await page.route('**/api/auth/enrollment', async (route) => route.fulfill({ status: enrollmentStatus, json: { code: enrollmentStatus === 403 ? 'NOT_ENROLLED' : 'ENROLLMENT_CHECK_FAILED', enrolled: enrollmentStatus === 200 } }));
+    const verified = page.waitForResponse((response) => response.url().endsWith('/api/auth/enrollment'));
+    await page.goto(`http://127.0.0.1:${server.address().port}/?enrollment`);
+    await verified;
+    await page.getByTestId('private-clearance').waitFor();
+    enrollmentStatus = 503;
+    const temporaryFailure = page.waitForResponse((response) => response.url().endsWith('/api/auth/enrollment') && response.status() === 503);
+    await page.evaluate(() => window.emitTestDeletion('clearance_records', { clearance_id: 2 }));
+    await temporaryFailure;
+    assert.equal(await page.getByTestId('private-clearance').isVisible(), true);
+    assert.equal(await page.evaluate(() => sessionStorage.getItem('enrollment-signed-out')), null);
+    enrollmentStatus = 403;
+    await page.evaluate(() => window.emitTestDeletion('clearance_records', { clearance_id: 2 }));
+    await page.waitForURL('**/?notice=not-enrolled');
+    await page.getByRole('alert').getByText('Account not enrolled', { exact: true }).waitFor();
+    await page.getByText('You are not enrolled in the system. Please contact the administrator to enroll your account.', { exact: true }).waitFor();
+    assert.equal(await page.getByTestId('private-clearance').count(), 0);
+    assert.equal(await page.evaluate(() => sessionStorage.getItem('enrollment-signed-out')), 'true');
+    console.log('PASS: real client guard preserves an active session during a temporary outage, then signs out and displays the enrollment notice after confirmed removal.');
     assert.deepEqual(errors, [], 'no React runtime errors');
     console.log(`PASS: rejection failure stays open, success persists and closes; incoming popup rendered in ${elapsed}ms despite a ${notificationDelay}ms API delay; another officer's alert excluded.`);
     console.log('PASS: TaskView shows loading and query errors, retries successfully, and updates progress after signing and realtime changes without reloading.');

@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+import { ClientNotEnrolledError, ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
+import ClientEnrollmentGuard from "@/components/auth/client-enrollment-guard";
 import Header from "@/components/clearance/header";
 import Sidebar from "@/components/clearance/sidebar";
 import { ClearanceNavProvider } from "@/components/clearance/clearance-nav-context";
@@ -35,18 +38,13 @@ export default async function ClearanceLayout({
       department: session.department || undefined,
       userId: session.user_id,
     };
-  } catch {
-    // Fallback to default mock user if session is unavailable
-    user = {
-      name: "Jaro, Jose Raphael (C.)",
-      email: "02000248919@iacademy.edu.ph",
-      role: "Student",
-      avatarInitials: "JR",
-      userId: "02000248919",
-    };
+  } catch (error) {
+    if (error instanceof ClientNotEnrolledError) redirect(ENROLLMENT_NOTICE_URL);
+    throw error;
   }
 
   return (
+    <ClientEnrollmentGuard userId={user?.userId}>
     <ClearanceNavProvider>
       <DashBoardRealtimeProvider studentId={user?.userId}>
         <div data-portal="clearance" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
@@ -61,5 +59,6 @@ export default async function ClearanceLayout({
         </div>
       </DashBoardRealtimeProvider>
     </ClearanceNavProvider>
+    </ClientEnrollmentGuard>
   );
 }

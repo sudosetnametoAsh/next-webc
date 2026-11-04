@@ -3,7 +3,8 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createClient } from '@/lib/db/supabase-server'
 import { db } from '@/lib/db'
-import { students, staffs, clearanceRecords, clearanceTemplates } from '@/lib/db/schema'
+import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
+import { students, staffs, users, notifications, clearanceTasks, clearanceRecords, clearanceTemplates } from '@/lib/db/schema'
 import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
 import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
 import { invalidateServerClearanceCache } from '@/lib/services/clearance-cache'
@@ -29,6 +30,8 @@ async function mutate(req: NextRequest, deleting: boolean) {
   const { id, type } = parsed.data
   try {
     const result = await db.transaction(async (tx) => {
+      // Lock the identity before its profile so enrollment and deletion cannot interleave.
+      const [account] = deleting ? await tx.select().from(users).where(eq(users.userId, id)).for('update') : []
       const table = type === 'student' ? students : staffs
       const key = type === 'student' ? students.studentId : staffs.staffId
       const existing = await tx.select().from(table).where(eq(key, id)).for('update')
@@ -38,13 +41,29 @@ async function mutate(req: NextRequest, deleting: boolean) {
           ? await tx.select({ id: staffs.staffId }).from(staffs).where(eq(staffs.staffId, id)).limit(1)
           : await tx.select({ id: students.studentId }).from(students).where(eq(students.studentId, id)).limit(1)
         if (otherProfile.length) return { error: 'This identity has both student and staff profiles. Resolve the shared profiles before deleting their clearance records.', status: 409 }
-        if (type === 'staff') {
+        if (account && (account.authId === user.id || account.email.toLowerCase() === user.email?.toLowerCase())) {
+          return { error: 'You cannot delete your own account from the client list.', status: 409 }
+        }
+        if (account?.authId) {
+          const { data, error } = await getSupabaseAdmin().auth.admin.getUserById(account.authId)
+          if (error && error.code !== 'user_not_found') throw error
+          const targetRoles = data?.user?.user_metadata?.custom_claims?.roles
+          if (Array.isArray(targetRoles) && targetRoles.some((role) => ['Admin', 'Department', 'Staff'].includes(role))) {
+            return { error: 'This client also holds an administrator or department role. Remove their protected responsibilities before deleting the identity.', status: 409 }
+          }
+        }
+        {
           const assigned = await tx.select({ id: clearanceTemplates.templateId }).from(clearanceTemplates).where(eq(clearanceTemplates.staffId, id)).limit(1)
           if (assigned.length) return { error: 'Reassign this staff member’s clearance templates before deleting them.', status: 409 }
         }
-        // Keep the login identity; remove this client's clearance and profile atomically.
+        const assignedTasks = await tx.select({ id: clearanceTasks.assignedTaskId }).from(clearanceTasks).where(eq(clearanceTasks.staffId, id)).limit(1)
+        if (assignedTasks.length) return { error: 'This client owns assigned tasks. Reassign their department responsibilities before deleting them.', status: 409 }
+        // Remove personal notification ownership and the application identity atomically.
+        // The separate Supabase Auth account is retained for future re-enrollment.
+        await tx.delete(notifications).where(eq(notifications.userId, id))
         await tx.delete(clearanceRecords).where(eq(clearanceRecords.userId, id))
         await tx.delete(table).where(eq(key, id))
+        await tx.delete(users).where(eq(users.userId, id))
       } else {
         const { name } = update.parse(body)
         if (type === 'student') await tx.update(students).set({ studentName: name }).where(eq(students.studentId, id))

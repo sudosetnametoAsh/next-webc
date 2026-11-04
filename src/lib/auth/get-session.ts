@@ -1,3 +1,4 @@
+import { ClientNotEnrolledError } from "./client-enrollment";
 import { jwtDecode } from "jwt-decode";
 import { createClient } from "../db/supabase-server";
 
@@ -40,7 +41,8 @@ export async function getSession(): Promise<{
     ? jwtDecode<CustomPayload>(session.access_token)
     : ({} as Partial<CustomPayload>);
   
-  let user_id = payload.user_id;
+  // Resolve the current identity instead of trusting a JWT issued before removal/re-enrollment.
+  let user_id: string | undefined;
   let department =
     payload.department ||
     (user.user_metadata as any)?.department ||
@@ -50,24 +52,26 @@ export async function getSession(): Promise<{
     department = "";
   }
 
-  // Fallback: Fetch user_id from the public.users table if not in JWT
+  // Resolve the current enrollment from the authenticated identity
   if (!user_id) {
-    const { data: userData } = await supabase
+    const { data: userData, error: identityError } = await supabase
       .from("users")
       .select("user_id")
       .eq("auth_id", user.id)
       .maybeSingle();
     
+    if (identityError) throw new Error("Unable to verify enrollment");
     if (userData) {
       user_id = userData.user_id;
     } else if (user.email) {
       // Secondary fallback: Match by pre-enrolled email
-      const { data: userByEmail } = await supabase
+      const { data: userByEmail, error: emailError } = await supabase
         .from("users")
         .select("user_id")
         .ilike("email", user.email)
         .maybeSingle();
 
+      if (emailError) throw new Error("Unable to verify enrollment");
       if (userByEmail) {
         user_id = userByEmail.user_id;
       }
@@ -92,11 +96,9 @@ export async function getSession(): Promise<{
     }
   }
 
-  if (!user_id) {
-     // If still not found, we might be in a state where the user record is not yet linked.
-     // For now, we'll use the sub as a last resort or throw.
-     // But according to the schema, we need the custom ID for joins.
-     console.warn("Custom user_id not found for auth user:", user.id);
+  const roles = (user.user_metadata as any)?.custom_claims?.roles;
+  if (!user_id && !(Array.isArray(roles) && roles.includes("Admin"))) {
+    throw new ClientNotEnrolledError();
   }
 
   return {

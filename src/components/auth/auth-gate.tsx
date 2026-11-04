@@ -5,22 +5,24 @@ import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { useRouter } from "next/navigation";
 import { useValidateToken } from "@/hooks/auth/vaildate-token";
 
-export default function AuthGate({ children }: { children: ReactNode }) {
+export default function AuthGate({ children, enrollmentRequired = false }: { children: ReactNode; enrollmentRequired?: boolean }) {
   const router = useRouter();
   const { inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
 
   const { data, isLoading } = useValidateToken({
-    enabled: isAuthenticated && inProgress === "none",
+    enabled: !enrollmentRequired && isAuthenticated && inProgress === "none",
   });
 
   useEffect(() => {
-    if (!data) return;
+    if (enrollmentRequired || !data) return;
 
     const { role } = data;
 
     router.replace(RoleRouter.homePath(RoleRouter.parseRoles(role)));
-  }, [data, router]);
+  }, [data, router, enrollmentRequired]);
+
+  if (enrollmentRequired) return <>{children}</>;
 
   if (inProgress !== "none" || isLoading) {
     return null;

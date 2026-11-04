@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { createClient } from "@/lib/db/supabase-client";
+import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
+import { hasClientProfile, requiresClientEnrollment } from "@/lib/auth/client-enrollment";
+import { RoleRouter } from "@/modules/auth/domain/role-router";
 
 declare module "jose" {
   interface JWTPayload {
@@ -12,7 +14,7 @@ declare module "jose" {
 
 const tenantId = process.env.AZURE_AD_TENANT_ID!;
 const clientId = process.env.AZURE_AD_CLIENT_ID!;
-const supabase = createClient();
+
 
 const jwks = createRemoteJWKSet(
   new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`),
@@ -40,19 +42,20 @@ export async function POST(req: NextRequest) {
 
     // Extract user information from the token payload
     const email = payload.preferred_username;
-    const role = payload.roles?.[0];
+    const roles = RoleRouter.parseRoles(payload.roles);
+    const role = roles[0];
+    if (!email || !role) return NextResponse.json({ error: "Invalid account" }, { status: 403 });
     const name = payload.name;
 
-    // Insert email into Supabase if non-existent
-    const { data, error } = await supabase
+    // Signing in must never enroll a client or recreate a deleted identity.
+    const { data, error } = await getSupabaseAdmin()
       .from("users")
-      .upsert({ email }, { onConflict: "email" })
-      .select("user_id")
-      .single();
-
-    if (error) {
-      console.error("Supabase upsert error:", error);
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
+      .select("user_id, students(student_id), staffs(staff_id)")
+      .ilike("email", email.replace(/[\\%_]/g, "\\$&"))
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: "Unable to verify enrollment" }, { status: 503 });
+    if (requiresClientEnrollment(roles) && !hasClientProfile(data)) {
+      return NextResponse.json({ code: "NOT_ENROLLED", error: "Please contact the administrator to enroll your account." }, { status: 403 });
     }
 
     // Create token
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
       email,
       role: role,
       name,
-      id: data.user_id,
+      id: data?.user_id || payload.sub,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
       .sign(SESSION_SECRET);
 
     // Set the session token in cookies
-    const response = NextResponse.json({ success: true, role });
+    const response = NextResponse.json({ success: true, role: roles });
 
     response.cookies.set("session_token", session_token, {
       httpOnly: true,

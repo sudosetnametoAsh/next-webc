@@ -1,3 +1,4 @@
+import { ClientNotEnrolledError, ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
 import { NextResponse } from "next/server";
 
 import { makeAuthCallback } from "@/composition/auth/make-auth-callback";
@@ -26,6 +27,9 @@ export async function GET(request: Request) {
 
     return NextResponse.redirect(`${redirectOrigin}${redirectPath}`);
   } catch (error) {
+    if (error instanceof ClientNotEnrolledError) {
+      return NextResponse.redirect(new URL(ENROLLMENT_NOTICE_URL, redirectOrigin));
+    }
     console.error("Auth callback failed:", error);
     return NextResponse.redirect(`${redirectOrigin}/auth-error`);
   }

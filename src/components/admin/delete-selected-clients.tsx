@@ -65,7 +65,7 @@ export default function DeleteSelectedClients({ clients, onDeleted }: {
         <DialogContent showCloseButton={!pending} className="flex max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-800 bg-[#0a101f] p-0 text-slate-100 sm:max-w-lg" onEscapeKeyDown={(event) => { if (pending) event.preventDefault() }}>
           <div className="space-y-2 border-b border-slate-800 p-5 pr-10">
             <DialogTitle className="text-lg font-semibold">Delete selected clients?</DialogTitle>
-            <DialogDescription className="text-xs leading-relaxed text-slate-400">Permanently remove enrollment and clearance records for the selected clients. Login identities will be retained.</DialogDescription>
+            <DialogDescription className="text-xs leading-relaxed text-slate-400">Permanently remove enrollment, clearance records, personal notifications, and application user records for the selected clients. Re-enrollment is required to restore clearance access.</DialogDescription>
           </div>
           <div className="min-h-0 space-y-3 overflow-y-auto p-5">
             {deletedCount > 0 && <p role="status" className="text-sm text-emerald-300">{deletedCount} clients deleted.</p>}

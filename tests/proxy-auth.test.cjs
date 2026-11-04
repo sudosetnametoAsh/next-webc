@@ -5,18 +5,23 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const {NextRequest,NextResponse} = require('next/server');
 
-function load({user=null,error=null,refresh=false}={}) {
+function load({user=null,error=null,refresh=false,enrolled=true,identityError=null}={}) {
   let signedOut=false,calls=0;
   const exports={};
   const source=ts.transpileModule(fs.readFileSync('src/proxy.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
   vm.runInNewContext(source,{exports,Headers,URL,process,require(name){
+    if (name.includes('client-enrollment')) {
+      const module = {};
+      vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/auth/client-enrollment.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: module });
+      return module;
+    }
     if(name.includes('role-router')) {
       const policy={};
       vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/modules/auth/domain/role-router.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:policy});
       return policy;
     }
     if(name==='next/server')return {NextResponse};
-    if(name==='@supabase/ssr')return {createServerClient:(url,key,{cookies})=>({auth:{
+    if(name==='@supabase/ssr')return {createServerClient:(url,key,{cookies})=>({from:()=>{const query={select(){return query;},eq(){return query;},maybeSingle:async()=>({data:enrolled?{user_id:'client',students:[{student_id:'client'}],staffs:[]}:null,error:identityError})};return query;},auth:{
       getUser:async()=>{
         calls++;
         if(refresh)cookies.setAll([{name:'sb-test-auth-token',value:'refreshed',options:{path:'/'}}]);
@@ -121,4 +126,19 @@ test('notifications remain available to all recognized roles',async()=>{
 test('denied page redirects preserve refreshed cookies',async()=>{
   const res=await load({user:roleUser('Client'),refresh:true}).proxy(new NextRequest('http://localhost/admin'));
   assert.equal(res.status,307);assert.equal(res.cookies.get('sb-test-auth-token').value,'refreshed');
+});
+
+test('removed client cannot reuse a valid Auth session or stale role claim', async () => {
+  const h = load({ user: roleUser('Client'), enrolled: false });
+  const response = await h.proxy(new NextRequest('http://localhost/clearance/tasks'));
+  assert.equal(response.status, 307); assert.equal(h.signedOut, true);
+});
+test('removed client API is denied while the Auth account still exists', async () => {
+  const h = load({ user: roleUser('Client'), enrolled: false });
+  assert.equal((await h.proxy(new NextRequest('http://localhost/api/student/submissions'))).status, 403);
+});
+test('enrollment lookup failures deny access without signing out', async () => {
+  const h = load({ user: roleUser('Client'), identityError: { message: 'Unavailable' } });
+  assert.equal((await h.proxy(new NextRequest('http://localhost/clearance'))).status, 503);
+  assert.equal(h.signedOut, false);
 });
