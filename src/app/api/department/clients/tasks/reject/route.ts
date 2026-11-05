@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const admin = getSupabaseAdmin();
     // Scope the privileged write to the authenticated officer's assigned task.
-    const { data: task, error: readError } = await admin.from("clearance_tasks")
+    const { data: task, error: readError } = await admin.from("current_clearance_tasks")
       .select("assigned_task_id, title, clearance_id, status, ai_audit_report, clearance_records(user_id)")
       .eq("assigned_task_id", taskId).eq("staff_id", user_id).maybeSingle();
     if (readError) throw readError;
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       report = Object.keys(rest).length ? rest : null;
     }
 
-    const { data: saved, error: writeError } = await admin.from("clearance_tasks")
+    const { data: saved, error: writeError } = await admin.from("current_clearance_tasks")
       .update({ status: "Rejected", comments: reason.trim(), ai_audit_report: report })
       .eq("assigned_task_id", taskId).eq("staff_id", user_id).eq("status", task.status)
       .select("assigned_task_id, status, comments, ai_audit_report").single();
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     invalidateServerDepartmentCache(user_id);
     if (studentId) invalidateServerClearanceCache(studentId);
 
-    const { error: statusError } = await admin.from("clearance_records")
+    const { error: statusError } = await admin.from("current_clearance_records")
       .update({ status: "Incomplete" }).eq("clearance_id", task.clearance_id).neq("status", "Signed");
     if (statusError) console.error("Rejected task clearance status sync failed:", statusError);
 

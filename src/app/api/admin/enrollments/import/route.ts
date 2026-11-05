@@ -1,3 +1,4 @@
+import { requireActiveAcademicPeriod } from "@/lib/services/academic-periods";
 import { parseEnrollmentName, resolveEnrollmentEmail, isEnrollmentEmail } from "@/lib/enrollment";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { shrinkCourseName } from "@/utils/formatters";
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
   try {
     const adminClient = getSupabaseAdmin();
     const body = await req.json();
+    const activePeriod = await requireActiveAcademicPeriod(adminClient);
 
     const globalType = body.type as "student" | "staff" | undefined;
     const records: ImportRecord[] = Array.isArray(body.clients)
@@ -115,8 +117,8 @@ export async function POST(req: NextRequest) {
         const rawName = parsedName.fullName;
         if (rawId && rawId.length > 11) throw new Error("ID exceeds 11 characters.");
         if (recordType === "staff") {
-          const { data: staffId, error: staffError } = await adminClient.rpc("enroll_staff_identity", {
-            p_email: rawEmail, p_name: rawName || "", p_staff_id: rawId || null,
+          const { data: staffId, error: staffError } = await adminClient.rpc("enroll_staff_for_period", {
+            p_email: rawEmail, p_name: rawName || "", p_staff_id: rawId || null, p_period_id: activePeriod.period_id,
           });
           if (staffError) throw new Error(`Failed to enroll staff: ${staffError.message}`);
           if (typeof staffId !== "string" || !staffId) throw new Error("Staff enrollment did not return an internal ID.");
@@ -252,8 +254,10 @@ export async function POST(req: NextRequest) {
                 {
                   student_id: rawId,
                   section_id: targetSectionId,
+                  period_id: activePeriod.period_id,
+                  is_active: true,
                 },
-                { onConflict: "student_id, section_id" }
+                { onConflict: "student_id, period_id" }
               );
 
             if (enrollError) {

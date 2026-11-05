@@ -13,7 +13,7 @@ import {
   useDeleteStaffTemplates,
 } from '@/hooks/admin/staff-templates'
 import CreateTemplateModal, { type EditTemplateData } from '@/components/admin/create-template-modal'
-import ConfirmationModal, { type ImpactWarningInfo } from '@/components/admin/confirmation-modal'
+import ConfirmationModal from '@/components/admin/confirmation-modal'
 import TablePaginationFooter from '@/components/admin/table-pagination-footer'
 import {
   DropdownMenu,
@@ -290,57 +290,6 @@ export default function Templates() {
   const [deleteTarget, setDeleteTarget] = useState<UnifiedTemplateItem | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [deleteImpact, setDeleteImpact] = useState<ImpactWarningInfo | null>(null)
-
-  // Fetch pre-flight impact when deleteTarget is selected
-  useEffect(() => {
-    if (!deleteTarget) {
-      setDeleteImpact(null)
-      return
-    }
-
-    let isMounted = true
-    const fetchImpact = async () => {
-      try {
-        const params = new URLSearchParams()
-        if (deleteTarget.courseId) params.set('courseId', String(deleteTarget.courseId))
-        params.set('type', deleteTarget.type)
-
-        const res = await fetch(`/api/admin/clearance-templates/impact?${params.toString()}`)
-        if (res.ok) {
-          const json = await res.json()
-          if (isMounted) {
-            const rawCode = deleteTarget.code || deleteTarget.name
-            const keyword = rawCode ? rawCode.replace(/[^A-Za-z0-9]/g, '').toUpperCase() : 'CONFIRM'
-            setDeleteImpact({
-              enrolledCount: json.enrolledCount ?? deleteTarget.enrolled,
-              signedCount: json.signedCount ?? 0,
-              tasksCount: json.tasksCount ?? 0,
-              confirmationKeyword: json.signedCount > 0 ? keyword : undefined,
-            })
-          }
-        }
-      } catch {
-        if (isMounted) {
-          const estSigned = Math.round(
-            (deleteTarget.enrolled * (deleteTarget.departments?.length || 1) * deleteTarget.completionRate) / 100
-          )
-          setDeleteImpact({
-            enrolledCount: deleteTarget.enrolled,
-            signedCount: estSigned,
-            tasksCount: 0,
-            confirmationKeyword: estSigned > 0 ? (deleteTarget.code || 'CONFIRM') : undefined,
-          })
-        }
-      }
-    }
-
-    fetchImpact()
-    return () => {
-      isMounted = false
-    }
-  }, [deleteTarget])
-
   // ————————————————————————————————————————
   // Hooks & Queries
   // ————————————————————————————————————————
@@ -457,10 +406,10 @@ export default function Templates() {
     try {
       if (deleteTarget.type === 'student' && deleteTarget.courseId) {
         await deleteCourseMutation.mutateAsync(deleteTarget.courseId)
-        success(`Template for "${deleteTarget.name}" deleted successfully.`)
+        success(`Template for "${deleteTarget.name}" archived successfully.`)
       } else if (deleteTarget.type === 'staff' && deleteTarget.deptIds) {
         await deleteStaffMutation.mutateAsync(deleteTarget.deptIds)
-        success('Staff clearance template deleted successfully.')
+        success('Staff clearance template archived successfully.')
       }
       setIsConfirmOpen(false)
       setDeleteTarget(null)
@@ -785,7 +734,7 @@ export default function Templates() {
                                 className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg cursor-pointer"
                               >
                                 <Trash2 className="h-3.5 w-3.5 text-rose-400" />
-                                <span>Delete Template</span>
+                                <span>Archive Template</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -887,7 +836,7 @@ export default function Templates() {
                             className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg cursor-pointer"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-rose-400" />
-                            <span>Delete Template</span>
+                            <span>Archive Template</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -972,13 +921,12 @@ export default function Templates() {
         variant="destructive"
         title={
           deleteTarget?.type === 'staff'
-            ? 'Delete Staff Clearance Template?'
-            : `Delete Template for ${deleteTarget?.code || 'Course'}?`
+            ? 'Archive Staff Clearance Template?'
+            : `Archive Template for ${deleteTarget?.code || 'Course'}?`
         }
-        description="Are you sure you want to delete this clearance template? This action is irreversible and will remove configured signing requirements."
-        confirmLabel="Yes, Delete Template"
+        description="Archive this clearance template? It will be removed from the active workflow. Existing clearance records, submissions, and approvals are preserved."
+        confirmLabel="Yes, Archive Template"
         isLoading={isDeleting}
-        impactInfo={deleteImpact}
       />
     </>
   )

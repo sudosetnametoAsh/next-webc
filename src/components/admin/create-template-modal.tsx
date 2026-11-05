@@ -1,5 +1,6 @@
 'use client'
 
+import AcademicPeriodNotice from './academic-period-notice';
 import { useState, useEffect, useMemo } from 'react'
 import {
   ChevronRight,
@@ -13,7 +14,7 @@ import {
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import ConfirmationModal from '@/components/admin/confirmation-modal'
-import { useFetchStaff } from '@/hooks/admin/fetch-staff'
+import { useFetchDepartmentOfficers } from '@/hooks/admin/department-officers'
 import { useCreateTemplates } from '@/hooks/admin/course-templates'
 import { useCreateStaffTemplates } from '@/hooks/admin/staff-templates'
 import { StaffAssignment } from '@/types/admin'
@@ -122,7 +123,7 @@ export default function CreateTemplateModal({
   // Hooks
   // ————————————————————————————————————————
 
-  const { data: staff = [] } = useFetchStaff()
+  const { data: staff = [] } = useFetchDepartmentOfficers()
   const createStudentTemplates = useCreateTemplates()
   const createStaffTemplates = useCreateStaffTemplates()
 
@@ -342,6 +343,7 @@ export default function CreateTemplateModal({
 
         {/* Modal Body */}
         <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+          <AcademicPeriodNotice />
           {step === 'select' ? (
             <SelectionStep
               mode={mode}

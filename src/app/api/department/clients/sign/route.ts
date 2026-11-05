@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest) {
 
     // Fetch target records and department info using admin client to ensure full visibility
     const { data: fetchedRecords, error: fetchErr } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         user_id,
@@ -77,7 +77,7 @@ export async function PATCH(req: NextRequest) {
           // Supabase caps ordinary reads; inspect every prerequisite in a bulk action.
           for (let offset = 0; ; offset += 500) {
             const { data: page, error: prerequisitesError } = await adminClient
-              .from("clearance_records")
+              .from("current_clearance_records")
               .select(`
               clearance_id,
               user_id,
@@ -152,7 +152,7 @@ export async function PATCH(req: NextRequest) {
       data,
       error,
     }: { data: any[] | null; error: PostgrestError | null } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .update({ status: status, signed_at: signed_at })
       .in("clearance_id", ids)
       .select("clearance_id, status, signed_at");

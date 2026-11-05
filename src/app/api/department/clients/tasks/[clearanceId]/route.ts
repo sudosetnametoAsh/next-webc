@@ -18,7 +18,7 @@ export async function GET(
   const { clearanceId } = await params;
 
   const { data: tasks, error } = await supabase
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .select(
       `
         assigned_task_id,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   // 2. Fetch existing tasks for these clearance records
   const { data: existingTasks, error: fetchError } = await supabase
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .select("clearance_id, task_id, title")
     .in("clearance_id", clearanceIds);
 
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { data: clearanceTasks, error: insertError } = await supabase
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .insert(nonDuplicateTasks).select(`
       assigned_task_id,
       task_id,
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
   if (updatedClearanceIds.length > 0) {
     const { error: updateError } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .update({ status: "Incomplete" })
       .in("clearance_id", updatedClearanceIds);
 
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
     try {
       const adminClient = getSupabaseAdmin();
       const { data: recordsData, error: recErr } = await adminClient
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           user_id,
@@ -237,7 +237,7 @@ export async function PATCH(req: NextRequest) {
   let oldTitle: string | null = null;
   if (title !== undefined) {
     const { data: current } = await supabase
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("title")
       .eq("assigned_task_id", assigned_task_id)
       .maybeSingle();
@@ -251,7 +251,7 @@ export async function PATCH(req: NextRequest) {
   if (dropbox !== undefined) updateFields.dropbox = dropbox;
 
   const { data: updatedTask, error: updateError } = await supabase
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .update(updateFields)
     .eq("assigned_task_id", assigned_task_id)
     .eq("staff_id", user_id)
@@ -312,7 +312,7 @@ export async function DELETE(
 
   // Get task title and associated clearance_records.user_id before deleting
   const { data: existingTask } = await adminClient
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .select(`
       assigned_task_id,
       title,
@@ -331,7 +331,7 @@ export async function DELETE(
   const studentUserId = clearanceRecord?.user_id;
 
   const { error: deleteError } = await supabase
-    .from("clearance_tasks")
+    .from("current_clearance_tasks")
     .delete()
     .eq("assigned_task_id", taskId)
     .eq("staff_id", user_id);
@@ -345,7 +345,7 @@ export async function DELETE(
   const targetClearanceId = existingTask?.clearance_id;
   if (targetClearanceId) {
     const { data: remainingTasks } = await adminClient
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("status")
       .eq("clearance_id", targetClearanceId);
 
@@ -355,7 +355,7 @@ export async function DELETE(
 
     if (!hasUnfulfilled) {
       await adminClient
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({ status: "Pending" })
         .eq("clearance_id", targetClearanceId)
         .eq("status", "Incomplete");

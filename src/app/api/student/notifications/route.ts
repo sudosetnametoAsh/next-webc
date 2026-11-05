@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
             .select("student_id, student_name")
             .in("student_id", Array.from(studentIdsToLookup)),
           supabase
-            .from("enrollments")
+            .from("current_enrollments")
             .select(`
               student_id,
               course_sections (

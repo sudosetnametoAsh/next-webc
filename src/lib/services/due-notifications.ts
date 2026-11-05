@@ -21,7 +21,7 @@ export async function syncStudentDueNotifications(
 
     // 1. Fetch student's clearance records, departments, and clearance tasks
     const { data: records, error: recordErr } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         user_id,

@@ -45,7 +45,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       .where(
         and(
           eq(clearanceTemplates.staffId, staffId),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
         ),
       );
     const row = result[0];
@@ -88,12 +88,12 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       )
       .leftJoin(students, eq(clearanceRecords.userId, students.studentId))
       .leftJoin(courses, eq(clearanceTemplates.courseId, courses.courseId))
-      .leftJoin(enrollments, eq(clearanceRecords.userId, enrollments.studentId))
+      .leftJoin(enrollments, and(eq(clearanceRecords.userId, enrollments.studentId), eq(clearanceRecords.periodId, enrollments.periodId)))
       .leftJoin(courseSections, eq(enrollments.sectionId, courseSections.sectionId))
       .where(
         and(
           eq(clearanceTasks.staffId, staffId),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
           isNotNull(clearanceTasks.uploadedAt),
           sql`${clearanceTasks.status} IN ('Submitted', 'Verified', 'Flagged')`,
         ),
@@ -138,12 +138,12 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       )
       .leftJoin(students, eq(clearanceRecords.userId, students.studentId))
       .leftJoin(courses, eq(clearanceTemplates.courseId, courses.courseId))
-      .leftJoin(enrollments, eq(clearanceRecords.userId, enrollments.studentId))
+      .leftJoin(enrollments, and(eq(clearanceRecords.userId, enrollments.studentId), eq(clearanceRecords.periodId, enrollments.periodId)))
       .leftJoin(courseSections, eq(enrollments.sectionId, courseSections.sectionId))
       .where(
         and(
           eq(clearanceTemplates.staffId, staffId),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
           sql`${clearanceRecords.status} != 'Signed'`,
         ),
       )
@@ -180,7 +180,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       .where(
         and(
           inArray(clearanceRecords.userId, candidateUserIds),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
           sql`${clearanceRecords.status} != 'Signed'`,
         ),
       );
@@ -235,7 +235,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       .where(
         and(
           eq(clearanceTemplates.staffId, staffId),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
         ),
       )
       .groupBy(clearanceTemplates.courseId, courses.courseName);
@@ -304,7 +304,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       .leftJoin(courses, eq(clearanceTemplates.courseId, courses.courseId))
       .leftJoin(students, eq(clearanceRecords.userId, students.studentId))
       .leftJoin(staffs, eq(clearanceRecords.userId, staffs.staffId))
-      .leftJoin(enrollments, eq(clearanceRecords.userId, enrollments.studentId))
+      .leftJoin(enrollments, and(eq(clearanceRecords.userId, enrollments.studentId), eq(clearanceRecords.periodId, enrollments.periodId)))
       .leftJoin(
         courseSections,
         eq(enrollments.sectionId, courseSections.sectionId),
@@ -312,7 +312,7 @@ export class DrizzleDashBoardRepository implements DashboardRepository {
       .where(
         and(
           eq(clearanceTemplates.staffId, staffId),
-          eq(clearanceTemplates.isActive, true),
+          and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`),
         ),
       );
 

@@ -25,7 +25,7 @@ export default function AdminRealtimeListener() {
           pending = false;
           await Promise.all([
             "stats", "pipeline-radar", "departments", "student-templates",
-            "course-templates", "staff-templates", "staff", "courses",
+            "course-templates", "staff-templates", "staff", "courses", "academic-periods", "department-officers",
           ].map((key) => queryClient.invalidateQueries({ queryKey: ["admin", key] })));
         } while (pending && !disposed);
         if (!disposed) router.refresh();
@@ -47,6 +47,9 @@ export default function AdminRealtimeListener() {
     };
 
     const channel = supabase.channel("admin-realtime-events")
+      .on("postgres_changes", { event: "*", schema: "public", table: "academic_periods" }, triggerRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "staff_enrollments" }, triggerRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "enrollments" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_records" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_tasks" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_departments" }, triggerRefresh)

@@ -38,7 +38,7 @@ export default async function DepartmentRoot({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClientEnrollmentGuard userId={session.user_id}>
+      <ClientEnrollmentGuard userId={session.user_id} area="department">
         <DepartmentProvider departmentName={session.department} userId={session.user_id}>
           <DepartmentNavProvider>
             <RealtimeDashboardListener />

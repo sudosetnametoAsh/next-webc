@@ -9,7 +9,7 @@ function loadRoute(path, tables, options = {}) {
   const ranges = [];
   const afterCallbacks = [];
   const client = { from(table) {
-    let rows = tables[table] || [];
+    let rows = tables[table.replace(/^current_/, '')] || [];
     let offset = 0, end = 999, update, selection;
     const query = {
       select(value) { selection = value; return query; },
@@ -26,7 +26,7 @@ function loadRoute(path, tables, options = {}) {
         if (update && options.emptyWrite) return Promise.resolve({data:[],error:null}).then(resolve,reject);
         if (update && options.failWrite) return Promise.resolve({data:null,error:{message:'Write failed'}}).then(resolve,reject);
         if (update) { updates.push({table, rows, update}); rows.forEach(row => Object.assign(row, update)); }
-        const error = (options.failPrerequisites || (options.failLaterPage && offset >= 500) || (options.failSigningPrerequisites && selection?.includes('is_active') && !selection?.includes('staff_id'))) && table === 'clearance_records' && !update && selection?.includes('clearance_templates')
+        const error = (options.failPrerequisites || (options.failLaterPage && offset >= 500) || (options.failSigningPrerequisites && selection?.includes('is_active') && !selection?.includes('staff_id'))) && table === 'current_clearance_records' && !update && selection?.includes('clearance_templates')
           ? {message:'Prerequisite read failed'} : null;
         return (update && options.writeGate ? options.writeGate : Promise.resolve()).then(() => ({ data: error ? null : rows.slice(offset,end+1), error })).then(resolve,reject);
       },

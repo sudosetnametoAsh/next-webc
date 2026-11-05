@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const admin = getSupabaseAdmin();
-    const { data: task, error: readError } = await admin.from("clearance_tasks")
+    const { data: task, error: readError } = await admin.from("current_clearance_tasks")
       .select("assigned_task_id, title, clearance_id, status, comments, clearance_records(user_id)")
       .eq("assigned_task_id", taskId).eq("staff_id", user_id).maybeSingle();
     if (readError) throw readError;
@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const changed = task.status !== status;
-    const { data: saved, error: writeError } = await admin.from("clearance_tasks")
+    const { data: saved, error: writeError } = await admin.from("current_clearance_tasks")
       .update({ status, comments: comment })
       .eq("assigned_task_id", taskId).eq("staff_id", user_id).eq("status", task.status)
       .select("assigned_task_id, status, comments").single();
@@ -37,11 +37,11 @@ export async function PATCH(request: NextRequest) {
     if (studentId) invalidateServerClearanceCache(studentId);
 
     // Read the persisted sibling tasks rather than the browser's possibly stale list.
-    const { data: siblings, error: siblingsError } = await admin.from("clearance_tasks")
+    const { data: siblings, error: siblingsError } = await admin.from("current_clearance_tasks")
       .select("assigned_task_id, status").eq("clearance_id", task.clearance_id);
     if (siblingsError) throw siblingsError;
     const nextStatus = (siblings || []).some((item) => item.status !== "Cleared") ? "Incomplete" : "Pending";
-    const { error: summaryError } = await admin.from("clearance_records")
+    const { error: summaryError } = await admin.from("current_clearance_records")
       .update({ status: nextStatus }).eq("clearance_id", task.clearance_id).neq("status", "Signed");
     if (summaryError) throw summaryError;
     invalidateServerDepartmentCache(user_id);

@@ -9,7 +9,7 @@ export async function GET() {
   try {
     // 1. Get all enrolled students
     const { data: enrolledStudents, error: enrolledStudentsError } = await supabase
-      .from('enrollments')
+      .from('current_enrollments')
       .select('student_id')
     
     if (enrolledStudentsError) throw enrolledStudentsError
@@ -29,7 +29,7 @@ export async function GET() {
       // Query clearance_records directly (they reference user_id which equals student_id)
       (async () => {
         const fetchPage = (offset: number) => supabase
-        .from('clearance_records')
+        .from('current_clearance_records')
         .select(`
           clearance_id,
           user_id,
@@ -69,7 +69,7 @@ export async function GET() {
       })(),
 
       supabase
-        .from('enrollments')
+        .from('current_enrollments')
         .select(`
           student_id,
           course_sections (

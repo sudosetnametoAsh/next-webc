@@ -5,11 +5,12 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const {NextRequest,NextResponse} = require('next/server');
 
-function load({user=null,error=null,refresh=false,enrolled=true,identityError=null}={}) {
+function load({user=null,error=null,refresh=false,enrolled=true,identityError=null,access={is_open:true,client_enrolled:true,officer_enrolled:true},periodError=null}={}) {
   let signedOut=false,calls=0;
   const exports={};
   const source=ts.transpileModule(fs.readFileSync('src/proxy.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
   vm.runInNewContext(source,{exports,Headers,URL,process,require(name){
+    if (name.includes('academic-periods/access')) { const module={}; vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/academic-periods/access.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:module}); return module; }
     if (name.includes('client-enrollment')) {
       const module = {};
       vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/auth/client-enrollment.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: module });
@@ -21,7 +22,7 @@ function load({user=null,error=null,refresh=false,enrolled=true,identityError=nu
       return policy;
     }
     if(name==='next/server')return {NextResponse};
-    if(name==='@supabase/ssr')return {createServerClient:(url,key,{cookies})=>({from:()=>{const query={select(){return query;},eq(){return query;},maybeSingle:async()=>({data:enrolled?{user_id:'client',students:[{student_id:'client'}],staffs:[]}:null,error:identityError})};return query;},auth:{
+    if(name==='@supabase/ssr')return {createServerClient:(url,key,{cookies})=>({rpc:async()=>({data:access,error:periodError}),from:()=>{const query={select(){return query;},eq(){return query;},maybeSingle:async()=>({data:enrolled?{user_id:'client',students:[{student_id:'client'}],staffs:[]}:null,error:identityError})};return query;},auth:{
       getUser:async()=>{
         calls++;
         if(refresh)cookies.setAll([{name:'sb-test-auth-token',value:'refreshed',options:{path:'/'}}]);
@@ -168,4 +169,29 @@ test('Admin+Department retains enrollment exemption', async () => {
   const h = load({ user: roleUser('Admin','Department'), enrolled: false });
   assert.equal((await h.proxy(new NextRequest('http://localhost/department/dashboard'))).status, 200);
   assert.equal(h.signedOut, false);
+});
+
+
+test('preparing term blocks clients but permits selected department officers', async () => {
+  const access={is_open:false,client_enrolled:true,officer_enrolled:true};
+  const client=load({user:roleUser('Client'),access});
+  const page=await client.proxy(new NextRequest('http://localhost/clearance'));
+  assert.equal(page.headers.get('location'),'http://localhost/clearance-unavailable');
+  const api=await client.proxy(new NextRequest('http://localhost/api/student/submissions'));
+  assert.equal(api.status,403); assert.equal((await api.json()).code,'PERIOD_NOT_OPEN');
+  assert.equal(client.signedOut,false);
+  const officer=load({user:roleUser('Department'),access});
+  assert.equal((await officer.proxy(new NextRequest('http://localhost/api/department/clients/sign'))).status,200);
+  assert.equal((await officer.proxy(new NextRequest('http://localhost/api/student/submissions'))).status,403);
+});
+test('retained accounts without period participation cannot use either portal', async () => {
+  const h=load({user:roleUser('Department','Client'),access:{is_open:true,client_enrolled:false,officer_enrolled:false}});
+  for(const path of ['/api/department/clients/sign','/api/student/clearance-data']) {
+    const response=await h.proxy(new NextRequest('http://localhost'+path)); assert.equal(response.status,403); assert.equal((await response.json()).code,'NOT_PARTICIPATING');
+  }
+  assert.equal(h.signedOut,false);
+});
+test('period-access outages fail closed without revoking the session', async()=>{
+ const h=load({user:roleUser('Client'),periodError:{message:'Database unavailable'}});
+ assert.equal((await h.proxy(new NextRequest('http://localhost/api/student/submissions'))).status,503);assert.equal(h.signedOut,false);
 });

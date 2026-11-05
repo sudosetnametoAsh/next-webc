@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { hardDeleteCourseTemplates } from "@/lib/services/template-deletion"
+import { archiveCourseTemplates } from "@/lib/services/template-deletion"
 
-// DELETE: Hard-delete all specified course templates and all associated rows across all tables
+// DELETE: Archive all specified course templates while preserving clearance history
 export async function DELETE(req: NextRequest) {
   try {
     const { courseIds } = await req.json()
@@ -10,10 +10,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Course IDs are required' }, { status: 400 })
     }
 
-    await hardDeleteCourseTemplates(courseIds.map(Number))
+    await archiveCourseTemplates(courseIds.map(Number))
 
     return NextResponse.json(
-      { success: true, message: 'All templates and associated records deleted successfully' },
+      { success: true, message: 'All templates archived successfully; clearance history preserved' },
       { status: 200 }
     )
   } catch (err) {

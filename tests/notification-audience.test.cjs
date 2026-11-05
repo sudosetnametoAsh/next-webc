@@ -99,6 +99,7 @@ test('template POST delegates only saved course IDs and retains direct officer n
     return { insert: async (rows) => { staffNotices.push(...rows); return { error: null }; } };
   } };
   const route = load('src/app/api/admin/course-templates/route.ts', {
+    '@/lib/services/admin-read-client': {},
     '@/lib/services/template-notifications': { notifyTemplatePublication: async (ids) => published.push(Array.from(ids)) },
     '@/lib/db/supabase-server': { createClient: async () => userClient },
     '@/lib/db/supabase-admin': { getSupabaseAdmin: () => adminClient },

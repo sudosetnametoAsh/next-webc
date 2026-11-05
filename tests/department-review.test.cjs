@@ -135,9 +135,9 @@ function notificationHarness() {
   const { QueryClient } = require('@tanstack/react-query');
   const client = new QueryClient();
   const effects = [], timers = new Map(), intervals = new Map();
-  let callback, status, nextId = 1;
+  let callback, periodCallback, status, nextId = 1;
   const channel = {
-    on(_event, filter, fn) { assert.equal(filter.table, 'notifications'); callback = fn; return channel; },
+    on(_event, filter, fn) { if (filter.table === 'academic_periods') periodCallback = fn; else { assert.equal(filter.table, 'notifications'); callback = fn; } return channel; },
     subscribe(fn) { status = fn; return channel; },
   };
   const visibility = load('src/lib/notification-visibility.ts', {});
@@ -165,7 +165,7 @@ function notificationHarness() {
       created_at: '2026-11-04T00:00:00Z', type: 'Warning', is_read: false, category: 'submission',
       metadata: { taskId: 12, studentName: 'Client' } },
   });
-  return { client, queryKey, emit, timers, intervals, status: (value) => status(value), cleanup };
+  return { client, queryKey, emit, periodEvent: (state) => periodCallback({ new: { state } }), timers, intervals, status: (value) => status(value), cleanup };
 }
 
 test('incoming officer alert is available to popups before the notification API finishes', async () => {
@@ -252,4 +252,10 @@ test('department events refresh dashboard, section clients, and staff without lo
   assert.equal(refreshed, 1);
   cleanup();
   assert.equal(cleanupChannel, true);
+});
+
+
+test('ending a term clears a cached notification inbox even before API reconciliation',async()=>{
+ const h=notificationHarness();h.client.setQueryData(h.queryKey,[{id:'old',title:'Old notice'}]);
+ await h.periodEvent('ended');assert.deepEqual(h.client.getQueryData(h.queryKey),[]);h.cleanup();h.client.clear();
 });

@@ -46,7 +46,7 @@ export async function dispatchReadyForSigningNotifications({
   try {
     // 1. Fetch all clearance records for the affected users
     const { data: allUserClearances } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         user_id,
@@ -75,7 +75,7 @@ export async function dispatchReadyForSigningNotifications({
         .select("student_id, student_name")
         .in("student_id", signedUserIds),
       adminClient
-        .from("enrollments")
+        .from("current_enrollments")
         .select(`
           student_id,
           course_sections (

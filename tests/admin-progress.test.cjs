@@ -16,7 +16,7 @@ const json = { NextResponse: { json: (data, init) => Response.json(data, init) }
 function database(tables, options = {}) {
   const reads = [];
   const client = { from(table) {
-    let rows = tables[table] || [], counting = false, offset = 0, end = 999;
+    let rows = tables[table.replace(/^current_/, '')] || [], counting = false, offset = 0, end = 999;
     const query = {
       select(selection, config) { counting = config?.count === 'exact'; reads.push({ table, selection, config }); return query; },
       eq(key, value) { rows = rows.filter((row) => key.includes('.') ? row[key.split('.')[0]]?.[key.split('.')[1]] === value : row[key] === value); return query; },
@@ -63,14 +63,14 @@ for (const staff of [false, true]) test(`${staff ? 'staff' : 'program'} completi
   response = await h.route.GET();
   assert.equal((await response.json()).data[0].completion_rate, 99);
   assert.match(response.headers.get('cache-control'), /no-store/);
-  assert.ok(h.reads.some((read) => read.table === 'clearance_records' && read.config?.head && read.config.count === 'exact'));
+  assert.ok(h.reads.some((read) => read.table === 'current_clearance_records' && read.config?.head && read.config.count === 'exact'));
 });
 for (const staff of [false, true]) test('completion query errors do not masquerade as zero progress ' + staff, async () => {
-  const h = rateHarness(staff, { failTable: 'clearance_records' });
+  const h = rateHarness(staff, { failTable: 'current_clearance_records' });
   assert.equal((await h.route.GET()).status, 500);
 });
 test('program roster failures do not masquerade as an empty course', async () => {
-  const h = rateHarness(false, { failTable: 'enrollments' });
+  const h = rateHarness(false, { failTable: 'current_enrollments' });
   assert.equal((await h.route.GET()).status, 500);
 });
 test('admin fresh stats bypass a still-valid server cache after signing and undo', async () => {

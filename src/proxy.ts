@@ -1,3 +1,4 @@
+import { periodAccessDenial, type PeriodAccess } from "@/lib/academic-periods/access";
 import { ENROLLMENT_NOTICE_URL, requiresClientEnrollment, hasClientProfile } from "@/lib/auth/client-enrollment";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -84,6 +85,16 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  const notificationArea = pathname === "/api/student/notifications";
+  if (user && !roles.includes("Admin") && (clientArea || departmentArea || notificationArea)) {
+    const area = departmentArea || (notificationArea && roles.includes("Department") && request.nextUrl.searchParams.get("role") === "department") ? "department" : "client";
+    const { data: access, error: periodError } = await supabase.rpc("period_access");
+    if (periodError || !access) return withCookies(NextResponse.json({ error: "Unable to verify clearance-period access. Please try again." }, { status: 503 }));
+    const denial = periodAccessDenial(access as PeriodAccess, area);
+    if (denial) return withCookies(pathname.startsWith("/api/")
+      ? NextResponse.json({ error: denial === "PERIOD_NOT_OPEN" ? "Client clearance access is not open." : "You are not participating in the current clearance period.", code: denial }, { status: 403 })
+      : NextResponse.redirect(new URL("/clearance-unavailable", origin)));
+  }
   return response;
 }
 

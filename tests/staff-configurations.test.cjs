@@ -10,12 +10,12 @@ function harness() {
   let current = 'A';
   let fail = false;
   const client = {from(table) {
-    assert.ok(['staff_configurations','clearance_tasks'].includes(table));
+    assert.ok(['staff_configurations','current_clearance_tasks'].includes(table));
     let id, pending;
     const result = () => {
       if (fail) return {data:null,error:{message:'unavailable'}};
       if (pending) rows.set(pending.staff_id,pending);
-      return {data:table === 'clearance_tasks' ? [] : rows.get(id || pending?.staff_id) || null,error:null};
+      return {data:table === 'current_clearance_tasks' ? [] : rows.get(id || pending?.staff_id) || null,error:null};
     };
     const query = {
       select(){return query;},

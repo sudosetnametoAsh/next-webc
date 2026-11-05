@@ -11,7 +11,7 @@ export async function syncAdminNotifications(adminClient = getSupabaseAdmin()) {
   try {
     // ── 1. Clearance Completion Sync (based on templates) ──
     const { data: allClearances } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select("user_id, status");
 
     if (allClearances && allClearances.length > 0) {
@@ -50,7 +50,7 @@ export async function syncAdminNotifications(adminClient = getSupabaseAdmin()) {
           const [{ data: students }, { data: staffs }, { data: enrollments }] = await Promise.all([
             adminClient.from("students").select("student_id, student_name").in("student_id", unnotifiedUserIds),
             adminClient.from("staffs").select("staff_id, staff_name").in("staff_id", unnotifiedUserIds),
-            adminClient.from("enrollments").select("student_id, course_sections(section_code, courses(course_name))").in("student_id", unnotifiedUserIds),
+            adminClient.from("current_enrollments").select("student_id, course_sections(section_code, courses(course_name))").in("student_id", unnotifiedUserIds),
           ]);
 
           const studentMap = new Map((students || []).map((s: any) => [s.student_id, s.student_name]));
@@ -97,7 +97,7 @@ export async function syncAdminNotifications(adminClient = getSupabaseAdmin()) {
     // ── 2. Bottleneck Alerts Sync (departments where clients are stalled > 24 hours) ──
     const cutoff = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const { data: stalledRecords } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         created_at,
@@ -181,7 +181,7 @@ export async function syncAdminNotifications(adminClient = getSupabaseAdmin()) {
 export async function checkAndDispatchAdminCompletion(userId: string, adminClient = getSupabaseAdmin()) {
   try {
     const { data: userRecs } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select("status")
       .eq("user_id", userId);
 
@@ -203,7 +203,7 @@ export async function checkAndDispatchAdminCompletion(userId: string, adminClien
     const [{ data: stu }, { data: stf }, { data: enr }] = await Promise.all([
       adminClient.from("students").select("student_name").eq("student_id", userId).maybeSingle(),
       adminClient.from("staffs").select("staff_name").eq("staff_id", userId).maybeSingle(),
-      adminClient.from("enrollments").select("course_sections(section_code, courses(course_name))").eq("student_id", userId).maybeSingle(),
+      adminClient.from("current_enrollments").select("course_sections(section_code, courses(course_name))").eq("student_id", userId).maybeSingle(),
     ]);
 
     const clientName = stu?.student_name || stf?.staff_name || userId;

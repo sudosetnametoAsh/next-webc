@@ -30,15 +30,17 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
     const response = await this.drizzle.rls((tx) => {
       return tx
         .select({
+          period_id: sql<number>`public.active_academic_period_id()`,
+          academic_year: sql<string>`(SELECT start_year::text || '-' || end_year::text FROM public.academic_periods WHERE is_active)`,
           student_id: students.studentId,
           student_name: students.studentName,
           course_name: courses.courseName,
           section_number: courseSections.sectionNumber,
           year: courseSections.year,
-          semester: courseSections.semester,
+          semester: sql<number>`(SELECT term FROM public.academic_periods WHERE is_active)`,
         })
         .from(students)
-        .leftJoin(enrollments, eq(students.studentId, enrollments.studentId))
+        .leftJoin(enrollments, and(eq(students.studentId, enrollments.studentId), sql`${enrollments.periodId} = public.active_academic_period_id()`))
         .leftJoin(courseSections, eq(enrollments.sectionId, courseSections.sectionId))
         .leftJoin(courses, eq(courseSections.courseId, courses.courseId))
         .where(eq(students.studentId, userId))
@@ -50,6 +52,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
     const staffResp = await this.drizzle.rls((tx) => {
       return tx
         .select({
+          period_id: sql<number>`public.active_academic_period_id()`,
+          academic_year: sql<string>`(SELECT start_year::text || '-' || end_year::text FROM public.academic_periods WHERE is_active)`,
+          semester: sql<number>`(SELECT term FROM public.academic_periods WHERE is_active)`,
           student_id: staffs.staffId,
           student_name: staffs.staffName,
         })
@@ -65,7 +70,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         course_name: "Staff Clearance",
         section_number: null,
         year: null,
-        semester: null,
+        semester: staffResp[0].semester,
+        academic_year: staffResp[0].academic_year,
+        period_id: staffResp[0].period_id,
       };
     }
 
@@ -76,6 +83,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
     const response = await this.drizzle.rls((tx) => {
       const query = tx
         .select({
+          period_id: clearanceRecords.periodId,
+          academic_year: sql<string>`(SELECT start_year::text || '-' || end_year::text FROM public.academic_periods WHERE period_id = ${clearanceRecords.periodId})`,
+          term: sql<number>`(SELECT term FROM public.academic_periods WHERE period_id = ${clearanceRecords.periodId})`,
           clearance_id: clearanceRecords.clearanceId,
           staff_id: clearanceTemplates.staffId,
           staff: staffs.staffName,
@@ -108,9 +118,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         );
 
       if (userId) {
-        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+        query.where(and(eq(clearanceRecords.userId, userId), and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`)));
       } else {
-        query.where(eq(clearanceTemplates.isActive, true));
+        query.where(and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`));
       }
 
       return query.groupBy(
@@ -148,9 +158,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         );
 
       if (userId) {
-        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+        query.where(and(eq(clearanceRecords.userId, userId), and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`)));
       } else {
-        query.where(eq(clearanceTemplates.isActive, true));
+        query.where(and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`));
       }
 
       return query;
@@ -209,9 +219,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         );
 
       if (userId) {
-        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+        query.where(and(eq(clearanceRecords.userId, userId), and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`)));
       } else {
-        query.where(eq(clearanceTemplates.isActive, true));
+        query.where(and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`));
       }
 
       return query;
@@ -249,9 +259,9 @@ export class DrizzleDashBoardRepository implements DashBoardRepository {
         .leftJoin(users, eq(staffs.staffId, users.userId));
 
       if (userId) {
-        query.where(and(eq(clearanceRecords.userId, userId), eq(clearanceTemplates.isActive, true)));
+        query.where(and(eq(clearanceRecords.userId, userId), and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`)));
       } else {
-        query.where(eq(clearanceTemplates.isActive, true));
+        query.where(and(eq(clearanceTemplates.isActive, true), sql`${clearanceRecords.clearanceId} IN (SELECT clearance_id FROM public.current_clearance_records)`));
       }
 
       return query

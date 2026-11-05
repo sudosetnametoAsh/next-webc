@@ -114,6 +114,13 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
     const channelId = `notifs-rt-${userId || "all"}-${role}-${departmentId || "0"}`;
     const channel = supabase
       .channel(channelId)
+      .on("postgres_changes", { event: "*", schema: "public", table: "academic_periods" }, async (payload) => {
+        if ("state" in payload.new && payload.new.state === "ended") {
+          await queryClient.cancelQueries({ queryKey });
+          if (!disposed) queryClient.setQueryData(queryKey, []);
+        }
+        triggerDebouncedInvalidate();
+      })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications" },

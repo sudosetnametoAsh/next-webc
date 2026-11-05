@@ -13,12 +13,13 @@ function load(file, deps = {}, globals = {}) {
 }
 const enrollment = load('src/lib/auth/client-enrollment.ts');
 const roleRouter = load('src/modules/auth/domain/role-router.ts');
+const periodAccess = load('src/lib/academic-periods/access.ts');
 function client(options = {}) {
   const signedOut = [], reads = [];
   const identity = options.identity === undefined ? { user_id: 'client', students: [{ student_id: 'client' }], staffs: [] } : options.identity;
   const query = { select() { return query; }, eq(key, value) { reads.push([key, value]); return query; }, ilike(key, value) { reads.push([key, value]); return query; },
     maybeSingle: async () => ({ data: identity, error: options.error || null }) };
-  const supabase = { from: () => query, auth: { getUser: async () => ({ data: { user: options.anonymous ? null : { id: 'auth-id', user_metadata: { custom_claims: { roles: options.roles || ['Client'] } } } }, error: null }),
+  const supabase = { rpc: async () => ({ data: { is_open:true,client_enrolled:true,officer_enrolled:true }, error:null }), from: () => query, auth: { getUser: async () => ({ data: { user: options.anonymous ? null : { id: 'auth-id', user_metadata: { custom_claims: { roles: options.roles || ['Client'] } } } }, error: null }),
     signOut: async (arg) => signedOut.push(arg), exchangeCodeForSession: async () => ({ error: null }) } };
   return { supabase, reads, signedOut };
 }
@@ -29,7 +30,7 @@ for (const [options, status] of [[{}, 200], [{ identity: null }, 403], [{ identi
   test('enrollment endpoint ' + JSON.stringify(options), async () => {
     const h = client(options);
     const route = load('src/app/api/auth/enrollment/route.ts', {
-      '@/lib/auth/client-enrollment': enrollment, '@/modules/auth/domain/role-router': roleRouter,
+      '@/lib/academic-periods/access': periodAccess, '@/lib/auth/client-enrollment': enrollment, '@/modules/auth/domain/role-router': roleRouter,
       '@/lib/db/supabase-server': { createClient: async () => h.supabase },
       'next/server': { NextResponse: { json: (body, init) => Response.json(body, init) } },
     });

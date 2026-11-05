@@ -8,7 +8,7 @@ export async function GET() {
 
   try {
     const { data: staffs, error: staffError } = await supabase
-      .from('staffs')
+      .from('current_staffs')
       .select('staff_id, staff_name, users(email)')
       .order('staff_name', { ascending: true })
 
@@ -26,7 +26,7 @@ export async function GET() {
     const [clearancesResult, staffTemplatesResult] = await Promise.all([
       (async () => {
         const fetchPage = (offset: number) => supabase
-        .from('clearance_records')
+        .from('current_clearance_records')
         .select(`
           clearance_id,
           user_id,

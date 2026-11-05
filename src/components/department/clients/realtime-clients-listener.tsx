@@ -11,6 +11,7 @@ export default function RealtimeRefreshListener() {
   useEffect(() => {
     const channel = supabase
       .channel("clearance-management-updates")
+      .on("postgres_changes", { event: "*", schema: "public", table: "academic_periods" }, () => router.refresh())
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "clearance_records" },

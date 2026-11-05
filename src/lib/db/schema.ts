@@ -13,9 +13,52 @@ import {
   boolean,
   numeric,
   unique,
+  uniqueIndex,
+  primaryKey,
+  index,
+  date,
 } from "drizzle-orm/pg-core";
 import { anonRole, authenticatedRole } from "drizzle-orm/supabase";
 import { sql } from "drizzle-orm";
+
+export const academicPeriods = pgTable("academic_periods", {
+  periodId: serial("period_id").primaryKey(),
+  state: text("state").notNull().default("preparing"),
+  opensAt: timestamp("opens_at", { withTimezone: true, mode: "string" }),
+  startRequestedAt: timestamp("start_requested_at", { withTimezone: true, mode: "string" }),
+  endedAt: timestamp("ended_at", { withTimezone: true, mode: "string" }),
+  sourcePeriodId: integer("source_period_id"),
+  startYear: integer("start_year").notNull(),
+  endYear: integer("end_year").notNull(),
+  term: integer("term").notNull(),
+  startsOn: date("starts_on"),
+  endsOn: date("ends_on"),
+  isActive: boolean("is_active").notNull().default(false),
+  activatedAt: timestamp("activated_at", { withTimezone: true, mode: "string" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+}, table => [
+  foreignKey({ columns: [table.sourcePeriodId], foreignColumns: [table.periodId], name: "academic_periods_source_period_id_fkey" }).onDelete("restrict"),
+  check("academic_period_state", sql`${table.state} IN ('preparing','open','ended')`),
+  check("period_ended_inactive", sql`${table.state}<>'ended' OR NOT ${table.isActive}`),
+  check("academic_period_start_year", sql`${table.startYear} BETWEEN 2000 AND 9998`),
+  pgPolicy("academic_period_read", { for: "select", to: authenticatedRole, using: sql`true` }),
+  pgPolicy("academic_period_admin", { for: "all", to: authenticatedRole,
+    using: sql`(auth.jwt()->'user_metadata'->'custom_claims'->'roles') ? 'Admin'`,
+    withCheck: sql`(auth.jwt()->'user_metadata'->'custom_claims'->'roles') ? 'Admin'` }),
+  unique("academic_period_unique").on(table.startYear, table.endYear, table.term),
+  uniqueIndex("academic_period_one_active").on(table.isActive).where(sql`${table.isActive}`),
+  check("academic_period_years", sql`${table.endYear} = ${table.startYear} + 1`),
+  check("academic_period_term", sql`${table.term} > 0 AND ${table.term} <= 4`),
+  check("academic_period_dates", sql`(${table.startsOn} IS NULL AND ${table.endsOn} IS NULL) OR (${table.startsOn} IS NOT NULL AND ${table.endsOn} IS NOT NULL AND ${table.endsOn} >= ${table.startsOn})`),
+]).enableRLS();
+
+export const staffEnrollments = pgTable("staff_enrollments", {
+  isActive: boolean("is_active").notNull().default(true),
+  periodId: integer("period_id").notNull().references(() => academicPeriods.periodId, { onDelete: "restrict" }),
+  staffId: varchar("staff_id", { length: 11 }).notNull().references(() => staffs.staffId, { onDelete: "restrict", onUpdate: "cascade" }),
+}, table => [primaryKey({ columns: [table.periodId, table.staffId] }),
+  index("staff_enrollments_staff_period_idx").on(table.staffId, table.periodId),
+  pgPolicy("staff_period_read", { for: "select", to: authenticatedRole, using: sql`public.period_can_manage(period_id) OR staff_id=public.period_user_id()` })]).enableRLS();
 
 export const clearanceTasks = pgTable(
   "clearance_tasks",
@@ -70,6 +113,10 @@ export const clearanceTasks = pgTable(
       "status_check",
       sql`${table.status}::text IN ('Cleared', 'Pending', 'Submitted', 'Rejected', 'Flagged', 'Verified')`,
     ),
+    pgPolicy("tasks_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
+      using: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND public.period_can_read(r.period_id,r.user_id))`,
+      withCheck: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND (public.period_can_manage(r.period_id) OR (public.period_can_read(r.period_id,r.user_id) AND clearance_tasks.status IN ('Submitted','Rejected'))))` }),
+    pgPolicy("tasks_require_identity", { as: "restrictive", for: "all", to: anonRole, using: sql`false`, withCheck: sql`false` }),
     pgPolicy("allow read clearance_tasks", {
       as: "permissive",
       for: "select",
@@ -160,6 +207,7 @@ export const clearanceTemplates = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+    pgPolicy("templates_period_access", { as: "restrictive", for: "select", to: authenticatedRole, using: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())` }),
     pgPolicy("users can view template", {
       as: "permissive",
       for: "select",
@@ -249,8 +297,10 @@ export const clearanceDepartments = pgTable(
 export const enrollments = pgTable(
   "enrollments",
   {
+    isActive: boolean("is_active").notNull().default(true),
     studentId: varchar("student_id", { length: 11 }).notNull(),
     sectionId: integer("section_id").notNull(),
+    periodId: integer("period_id").notNull().default(sql`public.active_academic_period_id()`).references(() => academicPeriods.periodId, { onDelete: "restrict" }),
   },
   (table) => [
     foreignKey({
@@ -273,7 +323,10 @@ export const enrollments = pgTable(
       to: authenticatedRole,
       using: sql`true`,
     }),
-    unique("enrollments_student_section_unique").on(table.studentId, table.sectionId),
+    pgPolicy("enrollment_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
+      using: sql`period_id=public.active_academic_period_id() AND public.period_can_read(period_id,student_id)`, withCheck: sql`period_id=public.active_academic_period_id() AND public.period_can_manage(period_id)` }),
+    unique("enrollments_student_period_unique").on(table.studentId, table.periodId),
+    index("enrollments_period_section").on(table.periodId, table.sectionId),
   ],
 );
 
@@ -338,6 +391,8 @@ export const clearanceRecords = pgTable(
       .defaultNow()
       .notNull(),
     templateId: integer("template_id").notNull(),
+    periodId: integer("period_id").notNull().default(sql`public.active_academic_period_id()`).references(() => academicPeriods.periodId, { onDelete: "restrict" }),
+    documentSnapshot: jsonb("document_snapshot"),
   },
   (table) => [
     foreignKey({
@@ -346,19 +401,24 @@ export const clearanceRecords = pgTable(
       name: "clearance_records_user_id_fkey",
     })
       .onUpdate("cascade")
-      .onDelete("cascade"),
+      .onDelete("restrict"),
     foreignKey({
       columns: [table.templateId],
       foreignColumns: [clearanceTemplates.templateId],
       name: "studentclearances_template_id_fkey",
     })
       .onUpdate("cascade")
-      .onDelete("cascade"),
+      .onDelete("restrict"),
     check(
       "studentclearances_status_check",
       sql`(status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Signed'::character varying)::text, ('Incomplete'::character varying)::text])`,
     ),
-    unique("clearance_records_user_template_unique").on(table.userId, table.templateId),
+    pgPolicy("clearance_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
+      using: sql`period_id=public.active_academic_period_id() AND public.period_can_read(period_id,user_id)`, withCheck: sql`period_id=public.active_academic_period_id() AND public.period_can_manage(period_id)` }),
+    pgPolicy("clearance_manager_update", { as: "restrictive", for: "update", to: authenticatedRole, using: sql`public.period_can_manage(period_id)`, withCheck: sql`public.period_can_manage(period_id)` }),
+    unique("clearance_records_user_template_period_unique").on(table.userId, table.templateId, table.periodId),
+    index("clearance_records_period_user").on(table.periodId, table.userId),
+    index("clearance_records_period_template").on(table.periodId, table.templateId),
     pgPolicy("users view their own clearance", {
       as: "permissive",
       for: "select",
@@ -438,6 +498,9 @@ export const notifications = pgTable(
       .notNull(),
   },
   (table) => [
+    pgPolicy("notifications_period_access", { as: "restrictive", for: "all", to: authenticatedRole,
+      using: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())`,
+      withCheck: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())` }),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.userId],
@@ -510,7 +573,7 @@ export const users = pgTable(
     email: varchar().notNull(),
     authId: uuid("auth_id"),
   },
-  () => [
+  (table) => [
     pgPolicy("users can view own user record", {
       as: "permissive",
       for: "select",

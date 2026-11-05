@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Directly sign or revoke Cashier clearance in clearance_records
     const { data: cashierRecords, error: cashierQueryError } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select("clearance_id, status, clearance_templates!inner(dept_id, clearance_departments!inner(dept_name))")
       .eq("user_id", userId)
       .eq("clearance_templates.clearance_departments.dept_name", "Cashier");
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
       if (targetStatus) {
         const clearanceIds = cashierRecords.map((r: any) => r.clearance_id);
         const { error: updateError } = await adminClient
-          .from("clearance_records")
+          .from("current_clearance_records")
           .update({
             status: targetStatus,
             signed_at: targetStatus === "Signed" ? new Date().toISOString() : null,

@@ -5,9 +5,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/db/supabase-client";
 import { ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
 
-export default function ClientEnrollmentGuard({ children, userId }: {
+export default function ClientEnrollmentGuard({ children, userId, area = "client" }: {
   children: React.ReactNode;
   userId?: string;
+  area?: "client" | "department";
 }) {
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
@@ -35,10 +36,17 @@ export default function ClientEnrollmentGuard({ children, userId }: {
       controller = new AbortController();
       const timeout = setTimeout(() => controller?.abort(), 10000);
       try {
-        const response = await fetch("/api/auth/enrollment", { credentials: "include", cache: "no-store", signal: controller.signal });
+        const response = await fetch(`/api/auth/enrollment?area=${area}`, { credentials: "include", cache: "no-store", signal: controller.signal });
         if (response.status === 403) {
           const body = await response.json();
           if (body.code === "NOT_ENROLLED") await leave(true);
+          else if (["PERIOD_NOT_OPEN", "NOT_PARTICIPATING"].includes(body.code)) {
+            leaving = true;
+            setLoggingOut(true);
+            await queryClient.cancelQueries();
+            queryClient.clear();
+            window.location.replace("/clearance-unavailable");
+          }
         } else if (response.status === 401) await leave(false);
       } catch {
         // A network/database outage must not be mistaken for enrollment removal.
@@ -54,6 +62,9 @@ export default function ClientEnrollmentGuard({ children, userId }: {
     };
     const onVisible = () => { if (document.visibilityState === "visible") trigger(); };
     const channel = supabase.channel(`enrollment-${userId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "academic_periods" }, trigger)
+      .on("postgres_changes", { event: "*", schema: "public", table: "enrollments", filter: `student_id=eq.${userId}` }, trigger)
+      .on("postgres_changes", { event: "*", schema: "public", table: "staff_enrollments", filter: `staff_id=eq.${userId}` }, trigger)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "clearance_records" }, trigger)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "notifications" }, trigger)
       .subscribe(() => trigger());
@@ -82,7 +93,7 @@ export default function ClientEnrollmentGuard({ children, userId }: {
       document.removeEventListener("visibilitychange", onVisible);
       void supabase.removeChannel(channel);
     };
-  }, [supabase, userId, queryClient]);
+  }, [supabase, userId, queryClient, area]);
 
   return loggingOut ? null : <>{children}</>;
 }

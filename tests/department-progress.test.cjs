@@ -9,7 +9,7 @@ const record = (id, owner, tpl, status = 'Pending') => ({ clearance_id: id, user
 function harness(records, options = {}) {
   const queries = [];
   const admin = { from(table) {
-    assert.equal(table, 'clearance_records');
+    assert.equal(table, 'current_clearance_records');
     const filters = [];
     let assignment = false;
     const query = {

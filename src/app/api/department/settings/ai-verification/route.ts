@@ -20,7 +20,7 @@ export async function GET() {
     if (error) throw error;
 
     const { data: tasks, error: tasksError } = await supabase
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("status, ai_audit_report")
       .eq("staff_id", user_id);
     if (tasksError) throw tasksError;

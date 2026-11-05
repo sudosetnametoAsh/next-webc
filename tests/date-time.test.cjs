@@ -34,6 +34,6 @@ test('deadlines and editing preserve the Manila calendar date across host timezo
 test('every schema timestamp explicitly preserves its timezone', () => {
   const source = fs.readFileSync('src/lib/db/schema.ts', 'utf8');
   const definitions = [...source.matchAll(/timestamp\([^)]*\)/g)];
-  assert.equal(definitions.length, 7);
+  assert.ok(definitions.length >= 7);
   for (const [definition] of definitions) assert.match(definition, /withTimezone:\s*true/);
 });

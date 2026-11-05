@@ -1,6 +1,9 @@
 
 export type getClearanceRecordsPromise = {
     clearance_id: number;
+    period_id?: number;
+    academic_year?: string;
+    term?: number;
     department: string;
     status: string;
     staff: string;
@@ -62,6 +65,8 @@ export type getOfficeHoursPromise = {
 
 export type getStudentProfilePromise = {
     student_id: string;
+    period_id?: number;
+    academic_year?: string;
     student_name: string | null;
     course_name: string | null;
     section_number: number | null;

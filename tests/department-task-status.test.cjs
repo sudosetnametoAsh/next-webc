@@ -30,11 +30,11 @@ function harness(options = {}) {
         return { data: { assigned_task_id: task.assigned_task_id, status: task.status, comments: task.comments }, error: null };
       },
       then(resolve, reject) {
-        if (table === 'clearance_tasks') return Promise.resolve({
+        if (table === 'current_clearance_tasks') return Promise.resolve({
           data: [task, ...(options.siblings || []).map((status) => ({ status }))],
           error: options.failSiblings ? { message: 'Failed sibling query' } : null,
         }).then(resolve, reject);
-        if (table === 'clearance_records' && update) {
+        if (table === 'current_clearance_records' && update) {
           if (filters.every(([key, value, equal]) => (clearance[key] === value) === equal)) Object.assign(clearance, update);
         }
         if (deleting) assert.equal(table, 'notifications');

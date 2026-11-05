@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     let query = supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("assigned_task_id, title, comments, clearance_id")
       .eq("staff_id", user_id)
       .eq("status", "Verified");
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     // Update all target tasks to 'Cleared'
     const { error: updateError } = await supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .update({
         status: "Cleared",
       })

@@ -1,5 +1,6 @@
 "use client";
 
+import AcademicPeriodNotice from './academic-period-notice';
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -351,6 +352,7 @@ export default function ClientEnrollmentModal({
             </div>
             <button type="button" aria-label="Close enrollment" onClick={handleModalClose} disabled={isSubmitting} className="absolute top-0 right-0 flex h-7 w-7 items-center justify-center rounded-lg text-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-50"><X className="h-4 w-4" /></button>
           </DialogHeader>
+          <div className="mt-3"><AcademicPeriodNotice /></div>
 
           {/* Tab Selector */}
           <div className="flex items-center gap-2 mt-5 p-1 bg-[#070c18]/60 rounded-xl border border-slate-800/80">

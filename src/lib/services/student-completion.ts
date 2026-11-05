@@ -13,7 +13,7 @@ export async function syncStudentCompletionNotification(
   try {
     // 1. Fetch all active clearance records for this user
     const { data: records, error } = await adminClient
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         user_id,

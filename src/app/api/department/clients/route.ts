@@ -114,7 +114,7 @@ export async function GET(_req: NextRequest) {
 
     // 3. Fetch clearance records for these template(s)
     const { data: records, error: recError } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         user_id,
@@ -157,7 +157,7 @@ export async function GET(_req: NextRequest) {
         .select("student_id, student_name")
         .in("student_id", userIds),
       supabase
-        .from("enrollments")
+        .from("current_enrollments")
         .select(`
           student_id,
           course_sections (
@@ -182,7 +182,7 @@ export async function GET(_req: NextRequest) {
         // Supabase caps each response: an unpaginated read silently omits blockers.
         const pageSize = 500;
         const fetchPage = (offset: number) => getSupabaseAdmin()
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           user_id,
@@ -211,9 +211,11 @@ export async function GET(_req: NextRequest) {
       })(),
     ]);
 
-    if (studentsRes.error) console.error("Error fetching students:", studentsRes.error);
-    if (enrollmentsRes.error) console.error("Error fetching enrollments:", enrollmentsRes.error);
-    if (staffsRes.error) console.error("Error fetching staffs:", staffsRes.error);
+    const profileError = studentsRes.error || enrollmentsRes.error || staffsRes.error;
+    if (profileError) {
+      console.error("Error fetching client profiles:", profileError);
+      return NextResponse.json({ error: "Unable to load client profiles. Please try again." }, { status: 500 });
+    }
     if (allClearancesRes.error) {
       console.error("Error fetching all clearances:", allClearancesRes.error);
       return NextResponse.json(
@@ -351,7 +353,7 @@ export async function GET(_req: NextRequest) {
       // Synchronize database record: if marked Incomplete but all tasks are cleared/completed, revert to Pending
       if (record.status === "Incomplete" && !hasUnfulfilledTasks) {
         supabase
-          .from("clearance_records")
+          .from("current_clearance_records")
           .update({ status: "Pending" })
           .eq("clearance_id", record.clearance_id)
           .then();

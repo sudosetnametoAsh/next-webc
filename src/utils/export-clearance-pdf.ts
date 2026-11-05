@@ -27,7 +27,10 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
   const studentId = studentProfile?.student_id || user?.userId || "";
   const studentName = (studentProfile?.student_name || user?.name || "").toUpperCase();
   const program = studentProfile?.course_name || "";
-  const term = studentProfile?.semester != null ? String(studentProfile.semester) : "";
+  const documentPeriod = records[0];
+  const academicYear = documentPeriod?.academic_year || studentProfile?.academic_year || "";
+  const termNumber = documentPeriod?.term ?? studentProfile?.semester;
+  const term = termNumber != null ? String(termNumber) : "";
   const sortedRecords = [...records].sort((a, b) =>
     (a.tier ?? 1) - (b.tier ?? 1) || a.department.localeCompare(b.department)
   );
@@ -130,7 +133,7 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
     const rightX = margin + leftWidth;
     const rightWidth = contentWidth - leftWidth;
     field("STUDENT ID", studentId, margin, top + 20, leftWidth);
-    field("ACADEMIC YEAR", "", rightX, top + 20, rightWidth);
+    field("ACADEMIC YEAR", academicYear, rightX, top + 20, rightWidth);
     field("STUDENT FULL NAME", studentName, margin, top + 32, leftWidth);
     field("TERM", term, rightX, top + 32, rightWidth);
     field("COURSE / PROGRAM", program, margin, top + 44, contentWidth * 0.4);
@@ -211,7 +214,8 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
     renderCopy(halfHeight + 2, "SCHOOL'S COPY", body, index);
   });
 
-  const filename = `STI_Clearance_Certificate_${studentId || "Student"}.pdf`;
+  const periodSuffix = academicYear ? `_${academicYear}_Term_${term || "Unknown"}` : "";
+  const filename = `STI_Clearance_Certificate_${studentId || "Student"}${periodSuffix}.pdf`;
   doc.save(filename);
   return { success: true, filename };
 }

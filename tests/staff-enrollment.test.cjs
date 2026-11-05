@@ -19,6 +19,7 @@ function harness(options = {}) {
   vm.runInNewContext(source, { exports, console: { error() {}, warn() {} }, require(name) {
     if (name === '@/lib/enrollment') return enrollment;
     if (name === 'next/server') return { NextResponse: { json: (data, init) => Response.json(data, init) } };
+    if (name.includes('academic-periods')) return { requireActiveAcademicPeriod: async () => ({ period_id: 1 }) };
     if (name.includes('supabase-admin')) return { getSupabaseAdmin: () => client };
     return new Proxy({}, { get: () => () => {} });
   } });
@@ -28,8 +29,8 @@ test('staff enrollment without an ID calls the atomic identity function with nor
   const h = harness();
   const result = await h.post([{ name: ' Staff, Test ', email: ' STAFF@Example.edu ' }]);
   assert.equal(result.summary.successCount, 1);
-  assert.deepEqual(JSON.parse(JSON.stringify(h.rpcCalls)), [{ name: 'enroll_staff_identity', params: { p_email: 'staff@example.edu', p_name: 'Staff, Test', p_staff_id: null } }]);
-  assert.equal(h.writes.length, 0, 'staff identity writes belong to the database transaction');
+  assert.deepEqual(JSON.parse(JSON.stringify(h.rpcCalls)), [{ name: 'enroll_staff_for_period', params: { p_email: 'staff@example.edu', p_name: 'Staff, Test', p_staff_id: null, p_period_id: 1 } }]);
+  assert.equal(h.writes.length, 0, 'identity and period participation are persisted together by the database function');
 });
 test('legacy staff IDs remain supported for repeat imports', async () => {
   const h = harness();

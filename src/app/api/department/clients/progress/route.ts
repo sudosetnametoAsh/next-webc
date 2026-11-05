@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // An officer may inspect progress only for clients assigned to one of
     // their active templates. Do not rely on a browser-provided officer ID.
     const { data: assignment, error: assignmentError } = await admin
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select("clearance_id, clearance_templates!inner(staff_id, is_active)")
       .eq("user_id", studentId)
       .eq("clearance_templates.staff_id", user_id)
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Client is not assigned to you." }, { status: 403 });
     }
 
-    const { data: records, error } = await admin.from("clearance_records")
+    const { data: records, error } = await admin.from("current_clearance_records")
       .select(`clearance_id, status, signed_at,
         clearance_templates(tier, is_active,
           departments:clearance_departments(dept_name, icon_name))`)

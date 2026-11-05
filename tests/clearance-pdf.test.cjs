@@ -119,3 +119,10 @@ test('date-signed field carries the final-phase date stamp and received-by text 
     assert.equal(item.fontSize, 9);
   }
 });
+
+test('PDF academic year and term come from the saved clearance period, not current profile values', () => {
+  const h = exportPdf(4, { academic_year: '2027-2028', semester: 2 }, { academic_year: '2026-2027', term: 1, period_id: 1 });
+  assert.equal(h.text.filter(item => item.value === '2026-2027').length, 2);
+  assert.equal(h.text.filter(item => item.value === '2027-2028').length, 0);
+  assert.match(h.savedFilename, /2026-2027_Term_1/);
+});

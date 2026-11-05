@@ -9,13 +9,14 @@ const templates = [1,2,3].map(tier=>({template_id:tier,course_id:1,dept_id:tier,
 const record = (id,tier,status='Pending',signedHours=null,user='student',createdHours=100) => ({clearance_id:id,template_id:tier,user_id:user,status,signed_at:signedHours===null?null:ago(signedHours),created_at:ago(createdHours)});
 async function radar(records,options={}) {
   const tables={courses:[{course_id:1,course_name:'Computer Science'}],clearance_departments:templates.map(t=>({dept_id:t.dept_id,dept_name:`Office ${t.tier}`})),clearance_templates:options.templates||templates,clearance_records:records};
-  const client={from(table){let rows=tables[table],start=0,end=999;const q={select(){return q},eq(k,v){rows=rows.filter(r=>r[k]===v);return q},order(k){rows=[...rows].sort((a,b)=>a[k]>b[k]?1:-1);return q},range(a,b){start=a;end=b;return q},then(resolve,reject){return Promise.resolve({data:options.failPage&&table==='clearance_records'&&start>=500?null:rows.slice(start,end+1),error:options.failPage&&table==='clearance_records'&&start>=500?new Error('page failed'):null}).then(resolve,reject)}};return q}};
+  const client={from(table){let rows=tables[table.replace(/^current_/, '')],start=0,end=999;const q={select(){return q},eq(k,v){rows=rows.filter(r=>r[k]===v);return q},order(k){rows=[...rows].sort((a,b)=>a[k]>b[k]?1:-1);return q},range(a,b){start=a;end=b;return q},then(resolve,reject){return Promise.resolve({data:options.failPage&&table==='current_clearance_records'&&start>=500?null:rows.slice(start,end+1),error:options.failPage&&table==='current_clearance_records'&&start>=500?new Error('page failed'):null}).then(resolve,reject)}};return q}};
   const exports={};
   class FixedDate extends Date {constructor(...args){super(...(args.length?args:[now]))}static now(){return now}}
   const source=ts.transpileModule(fs.readFileSync('src/app/api/admin/pipeline-radar/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
   vm.runInNewContext(source,{exports,Date:FixedDate,URL,console:{error(){}},require(name){
     if(name.includes('clearance-overdue')) { const mod={exports:{}}; const js=ts.transpileModule(fs.readFileSync('src/lib/clearance-overdue.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText; vm.runInNewContext(js,{exports:mod.exports}); return mod.exports; }
     if(name==='next/server')return {NextResponse:{json:(body,init)=>Response.json(body,init)}};
+    if(name.includes('admin-read-client'))return {adminReadClient:async()=>client};
     if(name.includes('supabase-server'))return {createClient:async()=>client};
     if(name.includes('admin-cache'))return {getCachedAdminRadar:async(_,fn)=>fn()};
     if(name.includes('formatters'))return {shrinkCourseName:x=>x,expandCourseAbbreviation:x=>x};

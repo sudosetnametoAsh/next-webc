@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
 import { StaffAssignment } from '@/types/admin'
 import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
 import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
-import { hardDeleteStaffTemplates, hardDeleteTemplatesByIds, removeTasksOnStaffReassignment } from '@/lib/services/template-deletion'
+import { archiveStaffTemplates, archiveTemplatesByIds, removeTasksOnStaffReassignment } from '@/lib/services/template-deletion'
 
 // GET: Fetch staff templates (where course_id is NULL)
 export async function GET() {
@@ -39,7 +39,7 @@ export async function GET() {
     // 2. Fetch all staff to calculate enrollment count
     // (Assuming we want to know how many staff members exist)
     const { count: staffCount, error: staffError } = await supabase
-      .from('staffs')
+      .from('current_staffs')
       .select('*', { count: 'exact', head: true })
 
     if (staffError) throw staffError
@@ -50,7 +50,7 @@ export async function GET() {
 
     if (templateIds.length > 0 && staffCount && staffCount > 0) {
       const { count: signedCount, error: clearanceError } = await supabase
-        .from('clearance_records')
+        .from('current_clearance_records')
         .select('clearance_id', { count: 'exact', head: true })
         .in('template_id', templateIds)
         .eq('status', 'Signed')
@@ -186,13 +186,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Hard-delete unselected staff departments and their associated records
+    // 3. Archive unselected staff departments while preserving history
     const unassignedTemplateIds = (existingTemplates || [])
       .filter((t: any) => !assignedDeptIds.has(t.dept_id))
       .map((t: any) => t.template_id)
 
     if (unassignedTemplateIds.length > 0) {
-      await hardDeleteTemplatesByIds(unassignedTemplateIds)
+      await archiveTemplatesByIds(unassignedTemplateIds)
     }
 
     // 4. Notify assigned staff officers
@@ -233,7 +233,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE: Hard-delete staff clearance templates and all associated rows across all tables
+// DELETE: Archive staff clearance templates while preserving clearance history
 export async function DELETE(req: NextRequest) {
   try {
     const { deptIds } = await req.json()
@@ -242,10 +242,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Department IDs are required' }, { status: 400 })
     }
 
-    await hardDeleteStaffTemplates(deptIds.map(Number))
+    await archiveStaffTemplates(deptIds.map(Number))
 
     return NextResponse.json(
-      { success: true, message: 'Staff templates and all associated records deleted successfully' },
+      { success: true, message: 'Staff templates archived successfully; clearance history preserved' },
       { status: 200 }
     )
   } catch (error) {

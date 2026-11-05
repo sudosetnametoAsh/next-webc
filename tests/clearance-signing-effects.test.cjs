@@ -35,7 +35,7 @@ function harness(options = {}) {
       insert(value) { insert = value; return query; },
       async then(resolve, reject) {
         try {
-          if (table === 'clearance_records') return resolve({ data: current.filter((row) => filters.every((match) => match(row))), error: null });
+          if (table === 'current_clearance_records') return resolve({ data: current.filter((row) => filters.every((match) => match(row))), error: null });
           assert.equal(table, 'notifications');
           if (deleting) {
             for (let i = notices.length - 1; i >= 0; i--) if (filters.every((match) => match(notices[i]))) notices.splice(i, 1);

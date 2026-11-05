@@ -6,7 +6,7 @@ import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
 import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
 import { invalidateServerClearanceCache } from '@/lib/services/clearance-cache'
 import { syncStudentCompletionNotification } from '@/lib/services/student-completion'
-import { hardDeleteCourseTemplates, hardDeleteTemplatesByIds, removeTasksOnStaffReassignment } from '@/lib/services/template-deletion'
+import { archiveCourseTemplates, archiveTemplatesByIds, removeTasksOnStaffReassignment } from '@/lib/services/template-deletion'
 
 
 // --- GET: Fetch Course Templates & Stats ---
@@ -60,7 +60,7 @@ export async function GET() {
         let studentsEnrolled = 0
         if (sectionIds.length > 0) {
             const { count, error: enrollmentError } = await supabase
-            .from('enrollments')
+            .from('current_enrollments')
             .select('*', { count: 'exact', head: true })
             .in('section_id', sectionIds)
             if (enrollmentError) throw enrollmentError
@@ -73,7 +73,7 @@ export async function GET() {
 
         if (templateIds.length > 0 && studentsEnrolled > 0) {
           const { count: signedCount, error: clearanceError } = await supabase
-            .from('clearance_records')
+            .from('current_clearance_records')
             .select('clearance_id', { count: 'exact', head: true })
             .in('template_id', templateIds)
             .eq('status', 'Signed')
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Hard-delete departments that were unassigned for these courses and their associated records/tasks
+    // 3. Archive departments that were unassigned for these courses while preserving history
     const assignedDeptIds = assignments.map((a) => a.dept_id)
     if (assignedDeptIds.length > 0) {
       const { data: unassignedTemplates } = await supabase
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
 
       const unassignedIds = (unassignedTemplates || []).map((t: any) => t.template_id)
       if (unassignedIds.length > 0) {
-        await hardDeleteTemplatesByIds(unassignedIds)
+        await archiveTemplatesByIds(unassignedIds)
       }
     }
 
@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE: Hard-delete course templates and all associated rows across all tables
+// DELETE: Archive course templates while preserving clearance history
 export async function DELETE(req: NextRequest) {
   try {
     const { course_id } = await req.json()
@@ -299,10 +299,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Course ID is required' }, { status: 400 })
     }
 
-    await hardDeleteCourseTemplates([Number(course_id)])
+    await archiveCourseTemplates([Number(course_id)])
 
     return NextResponse.json(
-      { success: true, message: 'Course template and all associated rows deleted successfully' },
+      { success: true, message: 'Course template archived successfully; clearance history preserved' },
       { status: 200 }
     )
   } catch (error) {

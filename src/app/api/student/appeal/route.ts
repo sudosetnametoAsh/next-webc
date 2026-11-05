@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Fetch current task to inspect status, existing AI audit report, title, and clearance_id
     const { data: task, error: fetchError } = await supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("assigned_task_id, status, ai_audit_report, title, clearance_id")
       .eq("assigned_task_id", taskId)
       .single();
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     if (task.clearance_id) {
       const { data: clearanceData } = await supabaseAdmin
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           template_id,
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Update clearance_tasks without changing task.status ("Flagged" remains in DB)
     const { error: updateError } = await supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .update({
         ai_audit_report: updatedReport,
       })

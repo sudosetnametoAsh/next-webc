@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
     // 1. Fetch clearance_records status counts
     const { data: records, error: recordsErr } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select("clearance_id, user_id, status")
       .in("template_id", templateIds)
 
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     let tasksCount = 0
     if (clearanceIds.length > 0) {
       const { count } = await supabase
-        .from("clearance_tasks")
+        .from("current_clearance_tasks")
         .select("*", { count: "exact", head: true })
         .in("clearance_id", clearanceIds)
       tasksCount = count || 0

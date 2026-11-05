@@ -76,7 +76,7 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
     }
 
     setIsDeleteLoading(false)
-    toastSuccess('Deleted all templates successfully!')
+    toastSuccess('Archived all templates successfully!')
   }
 
   return (
@@ -88,13 +88,13 @@ export default function DeleteAllTemplateModal({ open, onOpenChange, toastSucces
           </DialogTitle>
           <h2 className='text-lg font-medium mt-2'>Delete all course templates</h2>
           <p className='text-gray-500 text-sm'>
-            This will permanently delete all clearance templates, clearance records, department sign-offs, and student tasks across all courses.
+            This will archive course templates and remove their requirements from active workflows.
           </p>
         </DialogHeader>
         
         <div className='bg-red-50 border border-red-200 px-4 py-4 rounded-lg mb-4'>
           <p className='text-sm text-red-700'>
-            All student and staff clearance progress, submissions, and sign-offs for these templates will be permanently deleted across all databases. This action cannot be undone.
+            Existing student and staff clearance records, submissions, and approvals will be preserved.
           </p>
         </div>
 

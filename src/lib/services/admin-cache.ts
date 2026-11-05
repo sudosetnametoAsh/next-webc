@@ -31,8 +31,8 @@ async function fetchAdminStatsBundle(): Promise<AdminStatsBundle> {
   const supabase = getSupabaseAdmin();
 
   const [totalStudentsResult, totalStaffResult] = await Promise.all([
-    supabase.from("students").select("student_id", { count: "exact", head: true }),
-    supabase.from("staffs").select("staff_id", { count: "exact", head: true }),
+    supabase.from("current_enrollments").select("student_id", { count: "exact", head: true }),
+    supabase.from("current_staffs").select("staff_id", { count: "exact", head: true }),
   ]);
 
   if (totalStudentsResult.error) {
@@ -54,7 +54,7 @@ async function fetchAdminStatsBundle(): Promise<AdminStatsBundle> {
 
     while (true) {
       const { data, error } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select("user_id, status, clearance_templates!inner(is_active)")
         .eq("clearance_templates.is_active", true)
         .order("clearance_id", { ascending: true })

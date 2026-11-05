@@ -6,7 +6,7 @@ export async function getNotificationCourseScope(client: SupabaseClient, userId?
   const sectionIds = new Set<number>();
   if (!userId) return { courseIds: [], sectionIds: [] };
   for (let offset = 0; ; offset += 500) {
-    const { data, error } = await client.from("enrollments")
+    const { data, error } = await client.from("current_enrollments")
       .select("section_id, course_sections!inner(course_id)")
       .eq("student_id", userId).order("section_id").range(offset, offset + 499);
     if (error) throw error;

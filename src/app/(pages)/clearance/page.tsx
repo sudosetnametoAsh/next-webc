@@ -1,3 +1,4 @@
+import ClearanceHistory from "@/components/clearance/clearance-history";
 import InstitutionalClearanceVerification from "@/components/clearance/institutional-clearance-verification";
 import { getCachedClearanceBundle } from "@/lib/services/clearance-cache";
 import { getSession } from "@/lib/auth/get-session";
@@ -10,6 +11,7 @@ export default async function Clearance() {
     await getCachedClearanceBundle(user_id);
 
   return (
+    <>
     <InstitutionalClearanceVerification
       summary={summary}
       records={records}
@@ -18,5 +20,7 @@ export default async function Clearance() {
       initialTasks={tasks}
       studentId={user_id}
     />
+    <ClearanceHistory />
+    </>
   );
 }

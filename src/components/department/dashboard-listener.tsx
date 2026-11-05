@@ -47,6 +47,7 @@ export default function RealtimeDashboardListener() {
     };
 
     const channel = supabase.channel("department-realtime-dashboard")
+      .on("postgres_changes", { event: "*", schema: "public", table: "academic_periods" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_records" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "clearance_tasks" }, triggerRefresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, triggerRefresh)

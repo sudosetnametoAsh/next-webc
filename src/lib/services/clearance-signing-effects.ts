@@ -51,7 +51,7 @@ const departmentOf = (record: SigningRecord) => {
 async function reconcile(options: Options): Promise<SigningRecord[]> {
   const { adminClient: admin, records, status, isSingleRecordSign } = options;
   // Skip obsolete jobs (e.g. sign was undone before its callback began).
-  let query = admin.from("clearance_records")
+  let query = admin.from("current_clearance_records")
     .select("clearance_id, status").in("clearance_id", records.map((r) => r.clearance_id)).eq("status", status);
   if (status === "Signed") query = query.eq("signed_at", options.signedAt);
   const { data: current, error } = await query;

@@ -11,7 +11,7 @@ export async function GET() {
   const id = user_id;
 
   const { data: studentData, error: studentError } = await supabase
-    .from("clearance_records")
+    .from("current_clearance_records")
     .select(
       `
         clearance_id,

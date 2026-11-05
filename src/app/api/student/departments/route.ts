@@ -7,7 +7,7 @@ export async function GET() {
   const supabase = await createClient();
   const drizzle = await createDrizzleSupabaseClient();
 
-  const { data } = await supabase.from("clearance_records").select(`*`);
+  const { data } = await supabase.from("current_clearance_records").select(`*`);
 
   const result = await drizzle.rls( (tx) =>
     tx.select().from(clearanceRecords)

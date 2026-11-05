@@ -10,7 +10,7 @@ export async function notifyScheduleUpdate(staffId: string) {
       SELECT r.user_id,
         CASE WHEN count(DISTINCT t.dept_id) = 1 THEN min(t.dept_id) ELSE NULL END AS department_id,
         string_agg(DISTINCT d.dept_name, ', ' ORDER BY d.dept_name) AS department_name
-      FROM public.clearance_records r
+      FROM public.current_clearance_records r
       JOIN public.clearance_templates t ON t.template_id = r.template_id
       JOIN public.clearance_departments d ON d.dept_id = t.dept_id
       WHERE t.staff_id = ${staffId} AND t.is_active = true

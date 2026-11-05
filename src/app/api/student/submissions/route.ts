@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Fetch Task Details (title, description, clearanceId, staffId)
     const { data: taskData, error: taskFetchError } = await supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select("assigned_task_id, title, description, clearance_id, staff_id")
       .eq("assigned_task_id", taskId)
       .single();
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Update clearance_tasks in Supabase
     const { error: statusError } = await supabaseAdmin
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .update({
         status: newStatus,
         comments: commentText,

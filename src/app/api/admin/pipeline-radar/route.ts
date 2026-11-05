@@ -1,5 +1,5 @@
-import { clearanceWaitHours } from '@/lib/clearance-overdue'
 import { createClient } from '@/lib/db/supabase-server'
+import { clearanceWaitHours } from '@/lib/clearance-overdue'
 import { NextRequest, NextResponse } from 'next/server'
 import { shrinkCourseName, expandCourseAbbreviation } from '@/utils/formatters'
 import { getCachedAdminRadar } from '@/lib/services/admin-cache'
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
         .eq('is_active', true),
       (async () => {
         const pageSize = 500
-        const fetchPage = (offset: number) => supabase.from('clearance_records')
+        const fetchPage = (offset: number) => supabase.from('current_clearance_records')
           .select('clearance_id, user_id, status, template_id, signed_at, created_at')
           .order('clearance_id').range(offset, offset + pageSize - 1)
         const first = await fetchPage(0)

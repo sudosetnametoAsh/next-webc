@@ -12,7 +12,7 @@ export class SupabaseDepartmentRepository implements DepartmentRepository {
     clearance_id?: number,
   ): Promise<getDepartmentDetailsPromise> {
     let query = this.supabase
-      .from("clearance_tasks")
+      .from("current_clearance_tasks")
       .select(
         "assigned_task_id, clearance_id, title, description, status, assigned_at, dropbox, uploaded_at, comments, due_date, ai_audit_report",
       );

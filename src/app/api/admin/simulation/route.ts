@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         .select(`
           student_id,
           student_name,
-          enrollments (
+          enrollments:current_enrollments(
             course_sections (
               courses (
                 course_id,
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
           course_name,
           course_sections (
             section_id,
-            enrollments (
+            enrollments:current_enrollments(
               student_id
             )
           )
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
 
     // 2. Fetch current client's clearance records with templates & departments
     const { data: recordsData } = await supabase
-      .from("clearance_records")
+      .from("current_clearance_records")
       .select(`
         clearance_id,
         status,
@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { error: updateErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Signed",
           signed_at: new Date().toISOString(),
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { error: revertErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Pending",
           signed_at: null,
@@ -275,7 +275,7 @@ export async function POST(req: NextRequest) {
     // ── Action: Sign ALL clearance records for active client ──
     if (action === "sign_all") {
       const { data: records, error: fetchErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           template_id,
@@ -295,7 +295,7 @@ export async function POST(req: NextRequest) {
       const now = new Date().toISOString();
 
       const { error: updateAllErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Signed",
           signed_at: now,
@@ -338,7 +338,7 @@ export async function POST(req: NextRequest) {
     // ── Action: Revert ALL clearance records for active client ──
     if (action === "revert_all") {
       const { error: revAllErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Pending",
           signed_at: null,
@@ -368,7 +368,7 @@ export async function POST(req: NextRequest) {
 
       // 1. Get all students enrolled in this course
       const { data: enrolledStudents, error: enrollErr } = await supabase
-        .from("enrollments")
+        .from("current_enrollments")
         .select(`
           student_id,
           course_sections!inner(
@@ -395,7 +395,7 @@ export async function POST(req: NextRequest) {
 
       // 2. Fetch pending records for this department among these course students
       const { data: recordsToSign, error: recErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           user_id,
@@ -422,7 +422,7 @@ export async function POST(req: NextRequest) {
 
       // 3. Mark all records as Signed
       const { error: batchUpdateErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Signed",
           signed_at: new Date().toISOString(),
@@ -467,7 +467,7 @@ export async function POST(req: NextRequest) {
       const targetDeptName = deptName || "Cashier";
 
       const { data: enrolledStudents } = await supabase
-        .from("enrollments")
+        .from("current_enrollments")
         .select(`
           student_id,
           course_sections!inner(
@@ -480,7 +480,7 @@ export async function POST(req: NextRequest) {
       const studentIds = Array.from(new Set((enrolledStudents || []).map((e: any) => e.student_id)));
       if (studentIds.length > 0) {
         const { data: recordsToRevert } = await supabase
-          .from("clearance_records")
+          .from("current_clearance_records")
           .select(`
             clearance_id,
             user_id,
@@ -494,7 +494,7 @@ export async function POST(req: NextRequest) {
         if (recordsToRevert && recordsToRevert.length > 0) {
           const ids = recordsToRevert.map((r: any) => r.clearance_id);
           await supabase
-            .from("clearance_records")
+            .from("current_clearance_records")
             .update({
               status: "Pending",
               signed_at: null,
@@ -540,7 +540,7 @@ export async function POST(req: NextRequest) {
 
       // Find matching clearance records
       let query = supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .select(`
           clearance_id,
           user_id,
@@ -574,7 +574,7 @@ export async function POST(req: NextRequest) {
       const clearanceIds = matchedRecords.map((r: any) => r.clearance_id);
 
       const { error: updateErr } = await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({ created_at: targetDate })
         .in("clearance_id", clearanceIds);
 
@@ -607,12 +607,12 @@ export async function POST(req: NextRequest) {
 
       if (clearanceId) {
         await supabase
-          .from("clearance_records")
+          .from("current_clearance_records")
           .update({ created_at: shiftedDate })
           .eq("clearance_id", clearanceId);
       } else {
         await supabase
-          .from("clearance_records")
+          .from("current_clearance_records")
           .update({ created_at: shiftedDate })
           .eq("user_id", targetUserId);
       }
@@ -631,7 +631,7 @@ export async function POST(req: NextRequest) {
     if (action === "reset") {
       // 1. Reset all clearance records to Pending and now()
       await supabase
-        .from("clearance_records")
+        .from("current_clearance_records")
         .update({
           status: "Pending",
           signed_at: null,
