@@ -199,7 +199,10 @@ export async function POST(req: NextRequest) {
     try {
       const adminClient = getSupabaseAdmin();
       const staffNotifs = assignments
-        .filter((a) => a.staff_id)
+        .filter((a) => {
+          const previous = existingMap.get(a.dept_id)
+          return a.staff_id && (!previous || previous.is_active === false || previous.staff_id !== a.staff_id)
+        })
         .map((a) => ({
           user_id: a.staff_id,
           department_id: a.dept_id,

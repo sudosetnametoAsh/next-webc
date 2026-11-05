@@ -131,10 +131,12 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Fetch existing templates for these courses to check for staff reassignments
-    const { data: existingTemplates } = await supabase
+    const { data: existingTemplates, error: existingError } = await supabase
       .from('clearance_templates')
       .select('template_id, course_id, dept_id, staff_id, tier, is_active')
       .in('course_id', courses)
+
+    if (existingError) throw existingError
 
     // 2. Remove clearance tasks given by previous staff if any department officer was reassigned
     if (existingTemplates && existingTemplates.length > 0) {
@@ -204,28 +206,39 @@ export async function POST(req: NextRequest) {
       const notifsToInsert: any[] = [];
 
       // Group assignments by assigned staff_id so each officer receives exactly one scoped notification
-      const staffAssignmentMap = new Map<string, number[]>();
+      const staffAssignmentMap = new Map<string, { deptIds: Set<number>; courseIds: Set<number> }>();
       for (const a of assignments) {
         if (a.staff_id) {
+          const newlyAssignedCourses = courses.filter((courseId: number) => {
+            const previous = existingTemplates?.find((template: any) => template.course_id === courseId && template.dept_id === a.dept_id);
+            return !previous || previous.is_active === false || previous.staff_id !== a.staff_id;
+          });
+          if (newlyAssignedCourses.length === 0) continue;
           if (!staffAssignmentMap.has(a.staff_id)) {
-            staffAssignmentMap.set(a.staff_id, []);
+            staffAssignmentMap.set(a.staff_id, { deptIds: new Set(), courseIds: new Set() });
           }
-          staffAssignmentMap.get(a.staff_id)!.push(a.dept_id);
+          const changed = staffAssignmentMap.get(a.staff_id)!;
+          changed.deptIds.add(a.dept_id);
+          newlyAssignedCourses.forEach((id: number) => changed.courseIds.add(id));
         }
       }
 
-      for (const [staffId, deptIds] of staffAssignmentMap.entries()) {
+      for (const [staffId, changed] of staffAssignmentMap.entries()) {
+        const deptIds = [...changed.deptIds];
+        const changedCourseIds = [...changed.courseIds];
+        const changedCourseNames = (courseRows || []).filter((course: any) => changed.courseIds.has(course.course_id)).map((course: any) => course.course_name).filter(Boolean);
+        const assignedCourseText = changedCourseNames.length ? changedCourseNames.join(', ') : `${changedCourseIds.length} course(s)`;
         notifsToInsert.push({
           user_id: staffId,
           department_id: deptIds[0],
           target_role: 'department',
           category: 'template',
           title: 'New Clearance Templates Assigned',
-          description: `You have been assigned to manage clearance templates for ${courseText}.`,
+          description: `You have been assigned to manage clearance templates for ${assignedCourseText}.`,
           type: 'Info',
           ref_url: '/department/clients',
           is_read: false,
-          metadata: { courseIds: courses, deptIds },
+          metadata: { courseIds: changedCourseIds, deptIds },
         });
       }
 
