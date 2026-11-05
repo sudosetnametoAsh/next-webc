@@ -1012,6 +1012,18 @@ export default function StudentsClient() {
 
   // When submissions status is active, only show courses that have clients with submissions
   const displayedCourses = useMemo(() => {
+    const occupiedSectionIds = new Set(
+      clientsData
+        .filter((client) => client.type === "student" && client.sectionId != null)
+        .map((client) => String(client.sectionId)),
+    );
+    const coursesWithStudents = coursesData.map((course) => ({
+      ...course,
+      course_sections: course.course_sections?.filter((section) =>
+        occupiedSectionIds.has(String(section.section_id)),
+      ),
+    }));
+
     if (selectedStatus === "submissions") {
       const submittedCourseNames = new Set<string>();
       clientsData.forEach((client) => {
@@ -1025,7 +1037,7 @@ export default function StudentsClient() {
         }
       });
 
-      return coursesData.filter((course) => {
+      return coursesWithStudents.filter((course) => {
         const cName = course.course_name.toLowerCase().trim();
         const sName = shrinkCourseName(course.course_name).toLowerCase().trim();
         return (
@@ -1035,7 +1047,7 @@ export default function StudentsClient() {
         );
       });
     }
-    return coursesData;
+    return coursesWithStudents;
   }, [coursesData, clientsData, selectedStatus]);
 
   useEffect(() => {
