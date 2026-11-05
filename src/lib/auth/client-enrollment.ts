@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const ENROLLMENT_NOTICE_URL = "/?notice=not-enrolled";
 export const ENROLLMENT_NOTICE = "You are not enrolled in the system. Please contact the administrator to enroll your account.";
 export const requiresClientEnrollment = (roles: readonly string[]) =>
-  roles.includes("Client") && !roles.includes("Admin") && !roles.includes("Department");
+  (roles.includes("Client") || roles.includes("Department")) && !roles.includes("Admin");
 
 export function hasClientProfile(identity: { students?: unknown; staffs?: unknown } | null) {
   return Boolean(identity && [identity.students, identity.staffs].some((profile) =>

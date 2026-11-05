@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+import { ClientNotEnrolledError, ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
+import ClientEnrollmentGuard from "@/components/auth/client-enrollment-guard";
 import DepartmentHeader from "@/components/department/header";
 import Sidebar from "@/components/department/sidebar";
 import { DepartmentNavProvider } from "@/components/department/department-nav-context";
@@ -20,7 +23,12 @@ export default async function DepartmentRoot({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  let session: Awaited<ReturnType<typeof getSession>>;
+  try { session = await getSession(); }
+  catch (error) {
+    if (error instanceof ClientNotEnrolledError) redirect(ENROLLMENT_NOTICE_URL);
+    throw error;
+  }
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -30,30 +38,32 @@ export default async function DepartmentRoot({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DepartmentProvider departmentName={session.department} userId={session.user_id}>
-        <DepartmentNavProvider>
-          <RealtimeDashboardListener />
-          <div data-portal="department" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
-            <Sidebar
-              department={session.department}
-              user_name={session.user_name}
-              user_id={session.user_id}
-            />
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-              <DepartmentHeader
+      <ClientEnrollmentGuard userId={session.user_id}>
+        <DepartmentProvider departmentName={session.department} userId={session.user_id}>
+          <DepartmentNavProvider>
+            <RealtimeDashboardListener />
+            <div data-portal="department" className="flex h-dvh w-full overflow-hidden bg-portal-canvas text-portal-foreground">
+              <Sidebar
                 department={session.department}
                 user_name={session.user_name}
                 user_id={session.user_id}
               />
-              <main className="min-h-0 min-w-0 flex-1 overflow-y-auto flex flex-col">
-                <div className="max-w-[1920px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-                  {children}
-                </div>
-              </main>
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                <DepartmentHeader
+                  department={session.department}
+                  user_name={session.user_name}
+                  user_id={session.user_id}
+                />
+                <main className="min-h-0 min-w-0 flex-1 overflow-y-auto flex flex-col">
+                  <div className="max-w-[1920px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                    {children}
+                  </div>
+                </main>
+              </div>
             </div>
-          </div>
-        </DepartmentNavProvider>
-      </DepartmentProvider>
+          </DepartmentNavProvider>
+        </DepartmentProvider>
+      </ClientEnrollmentGuard>
     </HydrationBoundary>
   );
 }

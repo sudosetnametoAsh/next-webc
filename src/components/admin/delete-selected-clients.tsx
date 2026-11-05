@@ -70,7 +70,7 @@ export default function DeleteSelectedClients({ clients, onDeleted }: {
           <div className="min-h-0 space-y-3 overflow-y-auto p-5">
             {deletedCount > 0 && <p role="status" className="text-sm text-emerald-300">{deletedCount} clients deleted.</p>}
             <ul className="max-h-48 space-y-2 overflow-y-auto text-sm text-slate-300">{clients.map((client) => <li key={`${client.type}:${client.id}`} className="rounded-lg border border-slate-800 bg-[#070c18] px-3 py-2"><span className="font-medium">{client.name}</span><span className="mt-1 block text-xs text-slate-500">{client.type} · {client.id}</span></li>)}</ul>
-            {failures.length > 0 && <div role="alert" className="space-y-2 text-xs text-rose-300"><p className="font-semibold">Some clients could not be deleted:</p>{failures.map((message, index) => <p key={index}>{message}</p>)}</div>}
+            {failures.length > 0 && <div role="alert" className="space-y-2 text-xs text-rose-300"><p className="font-semibold">Some clients could not be deleted:</p>{failures.map((message, index) => <p key={index} className="whitespace-pre-line break-words">{message}</p>)}</div>}
           </div>
           <div className="flex flex-wrap justify-end gap-3 border-t border-slate-800 bg-[#070c18] px-5 py-4">
             <button type="button" disabled={pending} onClick={() => setOpen(false)} className="rounded-lg px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 disabled:opacity-50">Cancel</button>

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/db/supabase-server'
 import { db } from '@/lib/db'
 import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
-import { students, staffs, users, notifications, clearanceTasks, clearanceRecords, clearanceTemplates } from '@/lib/db/schema'
+import { students, staffs, users, notifications, clearanceTasks, clearanceRecords, clearanceTemplates, courses, clearanceDepartments } from '@/lib/db/schema'
 import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
 import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
 import { invalidateServerClearanceCache } from '@/lib/services/clearance-cache'
@@ -48,13 +48,33 @@ async function mutate(req: NextRequest, deleting: boolean) {
           const { data, error } = await getSupabaseAdmin().auth.admin.getUserById(account.authId)
           if (error && error.code !== 'user_not_found') throw error
           const targetRoles = data?.user?.user_metadata?.custom_claims?.roles
-          if (Array.isArray(targetRoles) && targetRoles.some((role) => ['Admin', 'Department', 'Staff'].includes(role))) {
-            return { error: 'This client also holds an administrator or department role. Remove their protected responsibilities before deleting the identity.', status: 409 }
+          if (Array.isArray(targetRoles) && targetRoles.includes('Admin')) {
+            return { error: 'Administrator accounts cannot be deleted from the client list.', status: 409 }
           }
         }
         {
-          const assigned = await tx.select({ id: clearanceTemplates.templateId }).from(clearanceTemplates).where(eq(clearanceTemplates.staffId, id)).limit(1)
-          if (assigned.length) return { error: 'Reassign this staff member’s clearance templates before deleting them.', status: 409 }
+          const assigned = await tx.select({
+            templateId: clearanceTemplates.templateId,
+            courseId: clearanceTemplates.courseId,
+            courseName: courses.courseName,
+            departmentId: clearanceTemplates.deptId,
+            departmentName: clearanceDepartments.deptName,
+            tier: clearanceTemplates.tier,
+            isActive: clearanceTemplates.isActive,
+          }).from(clearanceTemplates)
+            .leftJoin(courses, eq(courses.courseId, clearanceTemplates.courseId))
+            .leftJoin(clearanceDepartments, eq(clearanceDepartments.deptId, clearanceTemplates.deptId))
+            .where(eq(clearanceTemplates.staffId, id))
+            .orderBy(courses.courseName, clearanceDepartments.deptName, clearanceTemplates.templateId)
+          if (assigned.length) {
+            const templates = assigned.map((template) => {
+              const course = template.courseId === null ? 'Staff clearance' : template.courseName || `Course #${template.courseId}`
+              const department = template.departmentName || `Department #${template.departmentId}`
+              const details = [template.courseId !== null ? `Phase ${template.tier}` : null, template.isActive === false ? 'inactive' : null].filter(Boolean)
+              return `• ${course} — ${department}${details.length ? ` (${details.join(', ')})` : ''}`
+            })
+            return { error: `Reassign this staff member’s clearance templates before deleting them:\n${templates.join('\n')}`, status: 409 }
+          }
         }
         const assignedTasks = await tx.select({ id: clearanceTasks.assignedTaskId }).from(clearanceTasks).where(eq(clearanceTasks.staffId, id)).limit(1)
         if (assignedTasks.length) return { error: 'This client owns assigned tasks. Reassign their department responsibilities before deleting them.', status: 409 }

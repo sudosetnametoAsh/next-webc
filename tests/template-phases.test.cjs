@@ -113,6 +113,7 @@ for (const kind of ['course', 'staff']) test(`${kind} template API rejects dupli
     'next/server': { NextResponse: { json: (body, init) => Response.json(body, init) } },
     '@/lib/services/admin-cache': {}, '@/lib/services/department-cache': {}, '@/lib/services/clearance-cache': {},
     '@/lib/services/student-completion': {}, '@/lib/services/template-deletion': {},
+    '@/lib/services/template-notifications': {},
   });
   const response = await exports.POST({ json: async () => ({ courses: [1], assignments: [
     { dept_id: 1, staff_id: 'same', tier: 1 }, { dept_id: 2, staff_id: 'same', tier: 2 },

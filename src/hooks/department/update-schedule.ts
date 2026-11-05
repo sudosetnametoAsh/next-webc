@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { WeeklySchedule } from "@/modules/staff/application/repository/schedule-repository";
 
@@ -10,6 +11,7 @@ export type UpdateSchedulePayload = {
 
 export function useUpdateSchedule() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (payload: UpdateSchedulePayload) => {
@@ -33,6 +35,9 @@ export function useUpdateSchedule() {
     onSuccess: (_data, payload) => {
       toast.success(payload.action === "early_out" ? "Early out activated" : payload.action === "resume_schedule" ? "Office schedule resumed" : "Office hours saved");
       queryClient.invalidateQueries({ queryKey: ["staff-schedule"] });
+      // The calendar receives server-rendered props, not the staff-schedule query.
+      // Refresh Next's router cache so revisiting/resetting uses the saved hours.
+      router.refresh();
     },
   });
 }

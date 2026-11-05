@@ -1,12 +1,12 @@
 import { getSession } from "@/lib/auth/get-session";
-import { getCachedDepartmentSchedule } from "@/lib/services/department-cache";
+import { fetchDepartmentSchedule } from "@/lib/services/department-cache";
 import DepartmentCalendarClient from "@/components/department/calendar/department-calendar-client";
 
-export const unstable_dynamicStaleTime = 180;
+export const dynamic = "force-dynamic";
 
 export default async function DepartmentCalendarPage() {
   const { user_id, user_name, department } = await getSession();
-  const scheduleData = await getCachedDepartmentSchedule(user_id, department);
+  const scheduleData = await fetchDepartmentSchedule(user_id, department);
 
   return (
     <DepartmentCalendarClient

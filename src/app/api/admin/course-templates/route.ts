@@ -1,3 +1,4 @@
+import { notifyTemplatePublication } from '@/lib/services/template-notifications'
 import { createClient } from '@/lib/db/supabase-server'
 import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
@@ -265,24 +266,13 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Scoped student notifications per course
-      for (const cId of courses) {
-        notifsToInsert.push({
-          course_id: cId,
-          user_id: null,
-          target_role: 'student',
-          category: 'template',
-          title: 'Clearance Templates Published',
-          description: 'New clearance templates and requirements have been configured for your academic program.',
-          type: 'Info',
-          ref_url: '/clearance',
-          is_read: false,
-          metadata: { courseId: cId },
-        });
-      }
+      // Resolve students from enrollment in the courses actually saved above.
+      const publishedCourseIds = [...new Set((data || []).map((template) => Number(template.course_id)))];
+      await notifyTemplatePublication(publishedCourseIds);
 
       if (notifsToInsert.length > 0) {
-        await adminClient.from('notifications').insert(notifsToInsert);
+        const { error: notificationError } = await adminClient.from('notifications').insert(notifsToInsert);
+        if (notificationError) throw notificationError;
       }
     } catch (notifErr) {
       console.error('Failed to insert template assignment notifications:', notifErr);

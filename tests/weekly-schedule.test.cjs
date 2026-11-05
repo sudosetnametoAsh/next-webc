@@ -41,7 +41,7 @@ test('weekly office status observes opening, lunch, resuming and closing boundar
   assert.equal(helpers.officeStatus(monday, null, at('17:00:00')).isOpen, false);
 });
 test('missing and closed days never inherit opening hours', () => {
-  assert.equal(helpers.officeStatus(null, null, at('09:00:00')).schedule, 'Hours not set');
+  assert.equal(helpers.officeStatus(null, null, at('09:00:00')).schedule, 'Pending schedule');
   assert.equal(helpers.officeStatus({}, null, at('09:00:00')).hasSchedule, false);
   assert.equal(helpers.officeStatus({ tue: monday.mon }, null, at('09:00:00')).isOpen, false);
   assert.equal(helpers.officeStatus({ mon: { ...monday.mon, active: false } }, null, at('09:00:00')).isOpen, false);
@@ -76,7 +76,7 @@ test('availability API saves weekly-only payloads and keeps quick early-out acti
     '@/composition/staff/make-set-schedule': { makeSetSchedule: () => ({ execute: async (...args) => writes.push(args) }) },
     '@/lib/auth/get-session': { getSession: async () => ({ user_id: 'officer', user_name: 'Officer' }) },
     '@/lib/db/supabase-server': { createClient: async () => client },
-    '@/lib/db/supabase-admin': { getSupabaseAdmin: () => client },
+    '@/lib/services/schedule-notifications': { notifyScheduleUpdate: async (staffId) => notices.push(staffId) },
     '@/modules/staff/application/error': { NotFoundError: Error },
     '@/lib/services/department-cache': { invalidateServerDepartmentCache: () => invalidations.push('dept') },
     '@/lib/services/clearance-cache': { invalidateServerClearanceCache: () => invalidations.push('client') },
@@ -89,7 +89,7 @@ test('availability API saves weekly-only payloads and keeps quick early-out acti
   assert.equal(response.status, 200);
   assert.equal(writes[0][2].mon.time_in, '08:00');
   assert.equal((await response.json()).data.time_in, undefined);
-  assert.equal(notices.length, 1); assert.equal(notices[0].metadata.weeklySchedule.mon.active, true);
+  assert.deepEqual(notices, ["officer"], "schedule delivery uses the authenticated officer");
   assert.deepEqual(invalidations, ['dept', 'client']);
   assert.equal((await patch({ action: 'early_out', early_out_date: '2026-11-02' })).status, 200);
   assert.equal(updates[0].early_out_date, '2026-11-02');

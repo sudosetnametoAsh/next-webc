@@ -25,7 +25,7 @@ function client(options = {}) {
 for (const [identity, expected] of [[null, false], [{ students: [], staffs: [] }, false], [{ students: [{ student_id: 'a' }] }, true], [{ staffs: { staff_id: 'a' } }, true]]) {
   test('profile detection ' + JSON.stringify(identity), () => assert.equal(enrollment.hasClientProfile(identity), expected));
 }
-for (const [options, status] of [[{}, 200], [{ identity: null }, 403], [{ identity: { students: [], staffs: [] } }, 403], [{ identity: { staffs: [{ staff_id: 'staff' }] } }, 200], [{ anonymous: true }, 401], [{ roles: ['Admin'], identity: null }, 200], [{ roles: ['Department'], identity: null }, 200], [{ error: { message: 'Down' } }, 503]]) {
+for (const [options, status] of [[{}, 200], [{ identity: null }, 403], [{ identity: { students: [], staffs: [] } }, 403], [{ identity: { staffs: [{ staff_id: 'staff' }] } }, 200], [{ anonymous: true }, 401], [{ roles: ['Admin'], identity: null }, 200], [{ roles: ['Department'], identity: null }, 403], [{ roles: ['Department', 'Client'], identity: null }, 403], [{ roles: ['Department'], identity: { staffs: [{ staff_id: 'staff' }] } }, 200], [{ roles: ['Admin', 'Department'], identity: null }, 200], [{ error: { message: 'Down' } }, 503]]) {
   test('enrollment endpoint ' + JSON.stringify(options), async () => {
     const h = client(options);
     const route = load('src/app/api/auth/enrollment/route.ts', {
@@ -39,9 +39,9 @@ for (const [options, status] of [[{}, 200], [{ identity: null }, 403], [{ identi
     assert.equal(h.signedOut.length, 0, 'verification does not mutate the session');
   });
 }
-test('OAuth login signs out unenrolled clients and allows re-enrolled staff', async () => {
+for (const roles of [['Client'], ['Department'], ['Department', 'Client']]) test('OAuth login requires enrollment for ' + roles.join('+'), async () => {
   for (const identity of [null, { staffs: [{ staff_id: 'new-id' }] }]) {
-    const h = client({ identity });
+    const h = client({ identity, roles });
     const { SupabaseAuthRepository } = load('src/modules/auth/infrastructure/supabase-auth-repository.ts', {
       '@/lib/auth/client-enrollment': enrollment, '@/lib/db/supabase-server': { createClient: async () => h.supabase },
       '../application/error': { InvalidAuthTokenError: Error }, '../domain/role-router': roleRouter,
@@ -49,7 +49,7 @@ test('OAuth login signs out unenrolled clients and allows re-enrolled staff', as
     if (!identity) {
       await assert.rejects(new SupabaseAuthRepository().getUserRole(), enrollment.ClientNotEnrolledError);
       assert.equal(h.signedOut.length, 1);
-    } else assert.equal(await new SupabaseAuthRepository().getUserRole(), 'Client');
+    } else assert.equal(await new SupabaseAuthRepository().getUserRole(), roles[0]);
   }
 });
 test('OAuth enrollment lookup failure does not claim the client is unenrolled or sign out', async () => {
@@ -69,12 +69,12 @@ test('OAuth callback redirects unenrolled clients to the notice', async () => {
   });
   assert.equal((await GET(new Request('https://webc.test/api/auth/callback?code=test'))).headers.get('location'), 'https://webc.test/?notice=not-enrolled');
 });
-test('legacy token login cannot create a user when enrollment is missing', async () => {
+for (const roles of [['Client'], ['Department'], ['Department', 'Client']]) test('legacy token login cannot restore removed ' + roles.join('+') + ' enrollment', async () => {
   const h = client({ identity: null }); let signed = false;
   const route = load('src/app/api/session/route.ts', {
     '@/lib/auth/client-enrollment': enrollment, '@/modules/auth/domain/role-router': roleRouter,
     '@/lib/db/supabase-admin': { getSupabaseAdmin: () => h.supabase },
-    jose: { createRemoteJWKSet: () => ({}), jwtVerify: async () => ({ payload: { preferred_username: 'client@example.edu', roles: ['Client'], name: 'Client' } }), SignJWT: class { constructor() { signed = true; } } },
+    jose: { createRemoteJWKSet: () => ({}), jwtVerify: async () => ({ payload: { preferred_username: 'client@example.edu', roles, name: 'Client' } }), SignJWT: class { constructor() { signed = true; } } },
     'next/server': { NextResponse: { json: (body, init) => Response.json(body, init) } },
   });
   const response = await route.POST({ json: async () => ({ accessToken: 'verified-by-test' }) });
@@ -143,4 +143,32 @@ test('enrollment notice remains visible without a cached MSAL redirect loop', ()
   assert.equal(AuthGate({ children: 'notice', enrollmentRequired: true }).children, 'notice');
   for (const effect of effects) effect();
   assert.equal(enabled, false); assert.deepEqual(redirects, []);
+});
+
+test('department layout mounts the existing removal guard and redirects missing enrollment', async () => {
+  const Guard = () => null;
+  const jsx = (type, props) => ({ type, props });
+  let missing = false;
+  const module = load('src/app/(pages)/department/layout.tsx', {
+    'next/navigation': { redirect: (location) => { throw Object.assign(new Error('redirect'), { location }); } },
+    '@/lib/auth/client-enrollment': enrollment,
+    '@/components/auth/client-enrollment-guard': { default: Guard },
+    '@/components/department/header': { default: 'header' },
+    '@/components/department/sidebar': { default: 'sidebar' },
+    '@/components/department/department-nav-context': { DepartmentNavProvider: 'nav' },
+    '@/context/deparment': { DepartmentProvider: 'department' },
+    '@/lib/api/courses': { fetchCourseServer: async () => [] },
+    '@/lib/auth/get-session': { getSession: async () => {
+      if (missing) throw new enrollment.ClientNotEnrolledError();
+      return { user_id: 'officer', user_name: 'Officer', department: 'Clinic' };
+    } },
+    '@/components/department/dashboard-listener': { default: 'realtime' },
+    '@tanstack/react-query': { QueryClient: class { async prefetchQuery() {} }, dehydrate: () => ({}), HydrationBoundary: 'hydration' },
+    'react/jsx-runtime': { jsx, jsxs: jsx },
+  });
+  const page = await module.default({ children: 'private department content' });
+  assert.equal(page.props.children.type, Guard);
+  assert.equal(page.props.children.props.userId, 'officer');
+  missing = true;
+  await assert.rejects(module.default({ children: 'private department content' }), (error) => error.location === '/?notice=not-enrolled');
 });

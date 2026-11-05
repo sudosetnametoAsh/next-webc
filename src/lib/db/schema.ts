@@ -465,6 +465,13 @@ export const notifications = pgTable(
       "type_check",
       sql`${table.type}::text IN ('System', 'Warning', 'Info', 'Success', 'Alert', 'system', 'warning', 'info', 'success', 'alert')`,
     ),
+    pgPolicy("bottleneck notifications are admin only", {
+      as: "restrictive", for: "select", to: [anonRole, authenticatedRole],
+      using: sql`NOT (lower(coalesce(category, '')) = 'bottleneck'
+        OR lower(coalesce(title, '')) LIKE '%bottleneck%'
+        OR lower(coalesce(metadata->>'type', '')) = 'bottleneck')
+        OR coalesce((auth.jwt()->'user_metadata'->'custom_claims'->'roles') ? 'Admin', false)`,
+    }),
     pgPolicy("allow read notifications", {
       as: "permissive",
       for: "select",

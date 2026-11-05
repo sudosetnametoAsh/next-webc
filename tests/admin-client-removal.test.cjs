@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
 function harness(options = {}) {
-  const schema = Object.fromEntries(['users', 'students', 'staffs', 'notifications', 'clearanceRecords', 'clearanceTemplates', 'clearanceTasks'].map((name) => [name, new Proxy({ name }, { get: (t, key) => key === 'name' ? name : { table: name, key } })]));
+  const schema = Object.fromEntries(['users', 'students', 'staffs', 'notifications', 'clearanceRecords', 'clearanceTemplates', 'clearanceTasks', 'courses', 'clearanceDepartments'].map((name) => [name, new Proxy({ name }, { get: (t, key) => key === 'name' ? name : { table: name, key } })]));
   const target = options.type || 'student';
   const rows = {
     users: [{ userId: 'client', authId: options.self ? 'admin-auth' : 'client-auth', email: 'client@example.edu' }, { userId: 'other' }],
@@ -12,14 +12,14 @@ function harness(options = {}) {
     staffs: target === 'staff' || options.shared ? [{ staffId: 'client', staffName: 'Client' }] : [],
     clearanceRecords: [{ userId: 'client' }, { userId: 'other' }],
     notifications: [{ userId: 'client' }, { userId: 'other' }, { userId: null }],
-    clearanceTemplates: options.assigned ? [{ staffId: 'client', templateId: 1 }] : [],
+    clearanceTemplates: options.assignments || (options.assigned ? [{ staffId: 'client', templateId: 1, courseId: 1, courseName: 'Computer Science', departmentId: 1, departmentName: 'Clinic', tier: 1, isActive: true }] : []),
     clearanceTasks: options.tasks ? [{ staffId: 'client', assignedTaskId: 1 }] : [],
   };
   const initial = structuredClone(rows), removed = [], invalidated = [];
   const tx = {
     select() { let table, filter; const query = {
       from(t) { table = t.name; return query; }, where(f) { filter = f; return query; },
-      for() { return query; }, limit() { return query; },
+      for() { return query; }, limit() { return query; }, leftJoin() { return query; }, orderBy() { return query; },
       then(resolve) { resolve(rows[table].filter((r) => r[filter.column.key] === filter.value)); },
     }; return query; },
     delete(table) { return { where: async (filter) => {
@@ -56,7 +56,7 @@ for (const type of ['student', 'staff']) test('deleting ' + type + ' removes its
   assert.deepEqual(h.rows.clearanceRecords, [{ userId: 'other' }]);
   assert.deepEqual(h.invalidated, ['admin', 'department', 'clearance']);
 });
-for (const options of [{ shared: true }, { assigned: true }, { tasks: true }, { self: true }, { targetRoles: ['Admin'] }, { targetRoles: ['Client', 'Department'] }]) test('protects shared identity/responsibilities ' + JSON.stringify(options), async () => {
+for (const options of [{ shared: true }, { assigned: true }, { tasks: true }, { self: true }, { targetRoles: ['Admin'] }, { targetRoles: ['Admin', 'Department', 'Client'] }, { targetRoles: ['Department'], assigned: true }, { targetRoles: ['Department'], tasks: true }]) test('protects shared identity/responsibilities ' + JSON.stringify(options), async () => {
   const h = harness(options); assert.equal((await h.remove()).status, 409);
   assert.deepEqual(h.rows, h.initial); assert.equal(h.removed.length, 0);
 });
@@ -81,4 +81,29 @@ test('editing preserves identity and notifications', async () => {
   const h = harness(); assert.equal((await h.edit()).status, 200);
   assert.equal(h.rows.students[0].studentName, 'Renamed');
   assert.deepEqual(h.rows.users, h.initial.users); assert.deepEqual(h.rows.notifications, h.initial.notifications);
+});
+
+for (const targetRoles of [['Department'], ['Department', 'Client'], ['Staff'], ['Staff', 'Client']]) test('allows unassigned non-admin role deletion ' + JSON.stringify(targetRoles), async () => {
+  const h = harness({ type: 'staff', targetRoles });
+  assert.equal((await h.remove()).status, 200);
+  assert.equal(h.rows.users.some((row) => row.userId === 'client'), false);
+  assert.equal(h.rows.staffs.length, 0);
+});
+
+test('staff deletion warning lists every course/staff template, phase and inactive assignment', async () => {
+  const h = harness({ type: 'staff', targetRoles: ['Department'], assignments: [
+    { staffId: 'client', templateId: 1, courseId: 1, courseName: 'Computer Science', departmentName: 'Clinic', tier: 2, isActive: true },
+    { staffId: 'client', templateId: 2, courseId: 2, courseName: 'Information Technology', departmentName: 'Clinic', tier: 1, isActive: false },
+    { staffId: 'client', templateId: 3, courseId: null, departmentName: 'Library', tier: 1, isActive: true },
+    { staffId: 'other', templateId: 4, courseId: 3, courseName: 'Other course', departmentName: 'Registrar', tier: 1, isActive: true },
+  ] });
+  const response = await h.remove();
+  assert.equal(response.status, 409);
+  const { error } = await response.json();
+  assert.match(error, /Computer Science — Clinic \(Phase 2\)/);
+  assert.match(error, /Information Technology — Clinic \(Phase 1, inactive\)/);
+  assert.match(error, /Staff clearance — Library/);
+  assert.doesNotMatch(error, /Other course/);
+  assert.equal(h.removed.length, 0);
+  assert.deepEqual(h.rows, h.initial);
 });

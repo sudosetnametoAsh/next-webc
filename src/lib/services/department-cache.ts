@@ -38,16 +38,12 @@ interface CacheEntry<T> {
 
 // 3-minute TTL (180,000ms) for dashboard & reports
 const DASHBOARD_TTL_MS = 180 * 1000;
-// 5-minute TTL (300,000ms) for schedule & room configuration
-const SCHEDULE_TTL_MS = 300 * 1000;
 
 const dashboardCache = new Map<string, CacheEntry<DepartmentDashboardBundle>>();
 const reportCache = new Map<string, CacheEntry<DepartmentReportData>>();
-const scheduleCache = new Map<string, CacheEntry<DepartmentScheduleBundle>>();
 
 const pendingDashboardFetches = new Map<string, Promise<DepartmentDashboardBundle>>();
 const pendingReportFetches = new Map<string, Promise<DepartmentReportData>>();
-const pendingScheduleFetches = new Map<string, Promise<DepartmentScheduleBundle>>();
 
 /** Fetch current dashboard data without the page-render cache. */
 export async function fetchDepartmentDashboard(staffUserId: string): Promise<DepartmentDashboardBundle> {
@@ -158,123 +154,93 @@ export async function getCachedDepartmentReport(
   return fetchPromise;
 }
 
-/**
- * Retrieves the cached department schedule and location details.
- */
-export async function getCachedDepartmentSchedule(
+/** Read mutable calendar data directly; route bundles cannot share memory invalidation. */
+export async function fetchDepartmentSchedule(
   staffUserId: string,
   fallbackDeptName?: string
 ): Promise<DepartmentScheduleBundle> {
-  if (!staffUserId) {
-    throw new Error("Staff user ID is required to fetch schedule");
-  }
+  if (!staffUserId) throw new Error("Staff user ID is required to fetch schedule");
+  const supabase = await createClient();
+  const getSchedule = makeGetSchedule();
 
-  const now = Date.now();
-  const cached = scheduleCache.get(staffUserId);
+  let initialSchedule = {
 
-  if (cached && now - cached.timestamp < SCHEDULE_TTL_MS) {
-    return cached.data;
-  }
+    weekly_schedule: null as any,
+    early_out_date: null as string | null,
+  };
 
-  if (pendingScheduleFetches.has(staffUserId)) {
-    return pendingScheduleFetches.get(staffUserId)!;
-  }
+  try {
+    const res = await getSchedule.execute(staffUserId);
+    if (res.weekly_schedule) {
+      initialSchedule = {
 
-  const fetchPromise = (async () => {
-    try {
-      const supabase = await createClient();
-      const getSchedule = makeGetSchedule();
-
-      let initialSchedule = {
-
-        weekly_schedule: null as any,
-        early_out_date: null as string | null,
+        weekly_schedule: res.weekly_schedule || null,
+        early_out_date: res.early_out_date || null,
       };
-
-      try {
-        const res = await getSchedule.execute(staffUserId);
-        if (res.weekly_schedule) {
-          initialSchedule = {
-
-            weekly_schedule: res.weekly_schedule || null,
-            early_out_date: res.early_out_date || null,
-          };
-        }
-      } catch (err) {
-        if (!(err instanceof NotFoundError)) {
-          console.error("Error fetching staff schedule:", err);
-        }
-      }
-
-      let deptName = fallbackDeptName || "Department";
-      let iconName = "Building2";
-      let floor = "Ground Floor";
-      let room = "Office 101";
-
-      const { data: templateData } = await supabase
-        .from("clearance_templates")
-        .select(`
-          dept_id,
-          clearance_departments (
-            dept_id,
-            dept_name,
-            icon_name,
-            floor,
-            room
-          )
-        `)
-        .eq("staff_id", staffUserId)
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-
-      const matchedDept = Array.isArray(templateData?.clearance_departments)
-        ? templateData.clearance_departments[0]
-        : templateData?.clearance_departments;
-
-      if (matchedDept) {
-        deptName = matchedDept.dept_name;
-        iconName = matchedDept.icon_name || "Building2";
-        floor = matchedDept.floor || floor;
-        room = matchedDept.room || room;
-      } else if (fallbackDeptName) {
-        const { data: fallbackDept } = await supabase
-          .from("clearance_departments")
-          .select("dept_id, dept_name, icon_name, floor, room")
-          .ilike("dept_name", fallbackDeptName.trim())
-          .limit(1)
-          .maybeSingle();
-        if (fallbackDept) {
-          deptName = fallbackDept.dept_name;
-          iconName = fallbackDept.icon_name || "Building2";
-          floor = fallbackDept.floor || floor;
-          room = fallbackDept.room || room;
-        }
-      }
-
-      const bundle: DepartmentScheduleBundle = {
-        deptName,
-        iconName,
-        floor,
-        room,
-
-        weeklySchedule: initialSchedule.weekly_schedule,
-        earlyOutDate: initialSchedule.early_out_date,
-      };
-
-      scheduleCache.set(staffUserId, {
-        data: bundle,
-        timestamp: Date.now(),
-      });
-
-      return bundle;
-    } finally {
-      pendingScheduleFetches.delete(staffUserId);
     }
-  })();
+  } catch (err) {
+    if (!(err instanceof NotFoundError)) {
+      throw err;
+    }
+  }
 
-  pendingScheduleFetches.set(staffUserId, fetchPromise);
-  return fetchPromise;
+  let deptName = fallbackDeptName || "Department";
+  let iconName = "Building2";
+  let floor = "Ground Floor";
+  let room = "Office 101";
+
+  const { data: templateData } = await supabase
+    .from("clearance_templates")
+    .select(`
+      dept_id,
+      clearance_departments (
+        dept_id,
+        dept_name,
+        icon_name,
+        floor,
+        room
+      )
+    `)
+    .eq("staff_id", staffUserId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  const matchedDept = Array.isArray(templateData?.clearance_departments)
+    ? templateData.clearance_departments[0]
+    : templateData?.clearance_departments;
+
+  if (matchedDept) {
+    deptName = matchedDept.dept_name;
+    iconName = matchedDept.icon_name || "Building2";
+    floor = matchedDept.floor || floor;
+    room = matchedDept.room || room;
+  } else if (fallbackDeptName) {
+    const { data: fallbackDept } = await supabase
+      .from("clearance_departments")
+      .select("dept_id, dept_name, icon_name, floor, room")
+      .ilike("dept_name", fallbackDeptName.trim())
+      .limit(1)
+      .maybeSingle();
+    if (fallbackDept) {
+      deptName = fallbackDept.dept_name;
+      iconName = fallbackDept.icon_name || "Building2";
+      floor = fallbackDept.floor || floor;
+      room = fallbackDept.room || room;
+    }
+  }
+
+  const bundle: DepartmentScheduleBundle = {
+    deptName,
+    iconName,
+    floor,
+    room,
+
+    weeklySchedule: initialSchedule.weekly_schedule,
+    earlyOutDate: initialSchedule.early_out_date,
+  };
+
+  return bundle;
 }
 
 /**
@@ -283,9 +249,7 @@ export async function getCachedDepartmentSchedule(
 export function invalidateServerDepartmentCache(staffUserId?: string) {
   if (staffUserId) {
     dashboardCache.delete(staffUserId);
-    scheduleCache.delete(staffUserId);
     pendingDashboardFetches.delete(staffUserId);
-    pendingScheduleFetches.delete(staffUserId);
 
     // Evict report keys starting with staffUserId
     for (const key of reportCache.keys()) {
@@ -297,9 +261,7 @@ export function invalidateServerDepartmentCache(staffUserId?: string) {
   } else {
     dashboardCache.clear();
     reportCache.clear();
-    scheduleCache.clear();
     pendingDashboardFetches.clear();
     pendingReportFetches.clear();
-    pendingScheduleFetches.clear();
   }
 }

@@ -1,4 +1,4 @@
-import { ENROLLMENT_NOTICE_URL } from "@/lib/auth/client-enrollment";
+import { ENROLLMENT_NOTICE_URL, requiresClientEnrollment, hasClientProfile } from "@/lib/auth/client-enrollment";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { RoleRouter } from "./modules/auth/domain/role-router";
@@ -67,14 +67,15 @@ export async function proxy(request: NextRequest) {
 
   // Auth accounts outlive enrollment; a stale JWT must not restore removed client access.
   const clientArea = pathname === "/clearance" || pathname.startsWith("/clearance/") || pathname.startsWith("/api/student/");
-  if (user && clientArea && !roles.includes("Admin") && !roles.includes("Department")) {
+  const departmentArea = pathname === "/department" || pathname.startsWith("/department/")
+    || pathname.startsWith("/api/department/") || pathname === "/api/dashboard";
+  if (user && (clientArea || departmentArea) && requiresClientEnrollment(roles)) {
     const { data: identity, error: identityError } = await supabase.from("users")
       .select("user_id, students(student_id), staffs(staff_id)").eq("auth_id", user.id).maybeSingle();
     if (identityError) {
       return withCookies(NextResponse.json({ error: "Unable to verify enrollment. Please try again." }, { status: 503 }));
     }
-    const enrolled = identity && ([identity.students, identity.staffs].some((profile) =>
-      Array.isArray(profile) ? profile.length > 0 : Boolean(profile)));
+    const enrolled = hasClientProfile(identity);
     if (!enrolled) {
       await supabase.auth.signOut({ scope: "local" });
       return withCookies(pathname.startsWith("/api/")

@@ -3,7 +3,7 @@ import { makeGetSchedule } from "@/composition/staff/make-get-schedule";
 import { makeSetSchedule } from "@/composition/staff/make-set-schedule";
 import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
-import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
+import { notifyScheduleUpdate } from "@/lib/services/schedule-notifications";
 import { NotFoundError } from "@/modules/staff/application/error";
 import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
 import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
@@ -159,38 +159,9 @@ export async function PATCH(req: NextRequest) {
       early_out_date !== undefined ? early_out_date : null,
     );
 
-    // Notify students of schedule change using polymorphic notifications table
+    // Notify each assigned client independently, including assignments across templates.
     try {
-      const adminClient = getSupabaseAdmin();
-      const { data: deptInfo } = await adminClient
-        .from("clearance_templates")
-        .select("dept_id, clearance_departments(dept_id, dept_name)")
-        .eq("staff_id", user_id)
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-
-      const dept = Array.isArray(deptInfo?.clearance_departments)
-        ? deptInfo.clearance_departments[0]
-        : deptInfo?.clearance_departments;
-
-      const deptName = dept?.dept_name || "Department";
-
-      await adminClient.from("notifications").insert({
-        target_role: "student",
-        department_id: dept?.dept_id || null,
-        category: "schedule",
-        title: "Department Schedule Updated",
-        description: `${deptName} updated their weekly office hours.`,
-        type: "Info",
-        ref_url: "/clearance/schedules",
-        is_read: false,
-        metadata: {
-          departmentId: dept?.dept_id,
-          departmentName: deptName,
-          weeklySchedule: validatedSchedule,
-        },
-      });
+      await notifyScheduleUpdate(user_id);
     } catch (schedNotifErr) {
       console.error("Failed to notify schedule update:", schedNotifErr);
     }

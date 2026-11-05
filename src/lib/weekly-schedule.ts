@@ -36,8 +36,8 @@ export function officeStatus(schedule?: WeeklySchedule | null, earlyOutDate?: st
   const day = schedule?.[clock.dayKey];
   const hasSchedule = hasWeeklySchedule(schedule);
   const active = Boolean(day?.active && validTime(day.time_in) && validTime(day.time_out));
-  const base = { isOpen: false, hasSchedule, hasHoursToday: active, timeRange: active ? `${formatOfficeTime(day!.time_in)} – ${formatOfficeTime(day!.time_out)}` : hasSchedule ? "Closed" : "Hours not set" };
-  if (!hasSchedule) return { ...base, schedule: "Hours not set" };
+  const base = { isOpen: false, hasSchedule, hasHoursToday: active, timeRange: active ? `${formatOfficeTime(day!.time_in)} – ${formatOfficeTime(day!.time_out)}` : hasSchedule ? "Closed" : "Pending schedule" };
+  if (!hasSchedule) return { ...base, schedule: "Pending schedule" };
   if (earlyOutDate === clock.date) return { ...base, schedule: "Closed early today" };
   if (!active) return { ...base, schedule: "Closed today" };
   const start = minutes(day!.time_in), end = minutes(day!.time_out);

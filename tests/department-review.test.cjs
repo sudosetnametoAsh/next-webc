@@ -147,6 +147,7 @@ function notificationHarness() {
     '@tanstack/react-query': { useQueryClient: () => client, useQuery: () => ({ data: [], isLoading: false }), useMutation: () => ({}) },
     '@/lib/db/supabase-client': { createClient: () => ({ channel: () => channel, removeChannel() {} }) },
     '@/lib/notification-visibility': visibility,
+    '@/lib/services/notification-course-scope': { getNotificationCourseScope: async () => ({ courseIds: [], sectionIds: [] }) },
     '@/lib/notification-row': rows,
   }, {
     window: { addEventListener() {}, removeEventListener() {} },

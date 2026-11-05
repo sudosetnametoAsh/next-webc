@@ -1,4 +1,6 @@
-import { isBottleneckNotification } from "@/lib/notification-visibility";
+import { createClient } from "@/lib/db/supabase-server";
+import { getNotificationCourseScope } from "@/lib/services/notification-course-scope";
+import { isNotificationVisible } from "@/lib/notification-visibility";
 import { getSession } from "@/lib/auth/get-session";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { syncAdminNotifications } from "@/lib/services/admin-notifications";
@@ -6,22 +8,30 @@ import { syncStudentDueNotifications } from "@/lib/services/due-notifications";
 import { syncStudentCompletionNotification } from "@/lib/services/student-completion";
 import { NextRequest, NextResponse } from "next/server";
 
+async function hasAdminNotificationAccess() {
+  const client = await createClient();
+  const { data: { user }, error } = await client.auth.getUser();
+  const roles = user?.user_metadata?.custom_claims?.roles;
+  return !error && Array.isArray(roles) && roles.includes("Admin");
+}
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabaseAdmin();
     const searchParams = req.nextUrl.searchParams;
-    let userId: string | null = searchParams.get("userId");
+    let session;
+    try { session = await getSession(); }
+    catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+    const userId = session.user_id;
     const role = (searchParams.get("role") || "student").toLowerCase();
     let deptId: string | null = searchParams.get("departmentId");
-
-    if (!userId) {
-      try {
-        const session = await getSession();
-        userId = session.user_id;
-      } catch {
-        userId = "02000248919"; // fallback active student
-      }
+    if (!["student", "department", "admin"].includes(role)) {
+      return NextResponse.json({ error: "Invalid notification role" }, { status: 400 });
     }
+    if (role === "admin" && !await hasAdminNotificationAccess()) {
+      return NextResponse.json({ error: "Administrator access required" }, { status: 403 });
+    }
+    const courseScope = role === "admin" ? undefined : await getNotificationCourseScope(supabase, userId);
 
     // Auto-detect department association if not explicitly passed
     if (!deptId && userId) {
@@ -51,7 +61,7 @@ export async function GET(req: NextRequest) {
         .select("*")
         .eq("target_role", "admin")
         .or("category.eq.bottleneck,category.eq.clearance,category.eq.completion,category.eq.template,title.ilike.%bottleneck%,title.ilike.%completed%");
-    } else if (role === "department" || deptId) {
+    } else if (role === "department") {
       // Synchronize client clearance deadlines & completion alerts for the officer
       if (userId) {
         await syncStudentDueNotifications(userId, supabase);
@@ -165,8 +175,8 @@ export async function GET(req: NextRequest) {
 
     const formatted = notifList
       .filter((n: any) => {
+        if (!isNotificationVisible(n, role, courseScope)) return false;
         if (role === "department") {
-          if (isBottleneckNotification(n)) return false;
           const t = (n.title || "").toLowerCase();
           if (t.includes("requirement cleared") || t.includes("clearance signed")) {
             return false;
@@ -237,19 +247,17 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const supabase = getSupabaseAdmin();
+    // Use the signed-in client so the admin-only database read policy also constrains updates.
+    const supabase = await createClient();
     const body = await req.json();
-    const { notifId, all, userId, role, departmentId } = body;
-
-    let targetUserId = userId;
+    const { notifId, all, role, departmentId } = body;
+    let session;
+    try { session = await getSession(); }
+    catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+    const targetUserId = session.user_id;
     let targetDeptId = departmentId;
-    if (!targetUserId && !targetDeptId && role !== "admin") {
-      try {
-        const session = await getSession();
-        targetUserId = session.user_id;
-      } catch {
-        targetUserId = "02000248919";
-      }
+    if (role === "admin" && !await hasAdminNotificationAccess()) {
+      return NextResponse.json({ error: "Administrator access required" }, { status: 403 });
     }
 
     if (!targetDeptId && targetUserId) {

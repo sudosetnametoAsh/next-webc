@@ -1,7 +1,8 @@
+import { getNotificationCourseScope } from "@/lib/services/notification-course-scope";
 import { useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/db/supabase-client";
-import { isBottleneckNotification } from "@/lib/notification-visibility";
+import { isNotificationVisible, isAdminOnlyNotification } from "@/lib/notification-visibility";
 import { notificationFromRow } from "@/lib/notification-row";
 import { ClearanceNotification } from "@/types/clearance";
 
@@ -79,12 +80,13 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
 
       if (error) throw error;
 
-      return (data || []).map(notificationFromRow);
+      const scope = role === "admin" ? undefined : await getNotificationCourseScope(supabase, userId);
+      return (data || []).filter((row) => isNotificationVisible(row, role, scope)).map(notificationFromRow);
     },
     // Apply to API responses, direct-query fallback, and previously cached data.
-    select: (items: ClearanceNotification[]) => role === "department"
-      ? items.filter((notification) => !isBottleneckNotification(notification))
-      : items,
+    select: (items: ClearanceNotification[]) => items.filter((notification) =>
+      role === "admin" || !isAdminOnlyNotification(notification),
+    ),
     enabled: !!userId || !!departmentId || role === "admin",
     staleTime: 1000 * 30, // 30 seconds fresh window
     refetchInterval: false, // Push-based updates via Supabase Realtime; avoid polling flood
@@ -121,11 +123,9 @@ export function useNotifications(userId?: string, options?: UseNotificationsOpti
           const row = payload.new;
           if (payload.eventType === "INSERT" && userId && "user_id" in row && row.user_id === userId) {
             const notification = notificationFromRow(row);
-            const hiddenForDepartment = role === "department" && (
-              isBottleneckNotification(notification) ||
-              /requirement cleared|clearance signed/i.test(notification.title)
-            );
-            if (!hiddenForDepartment) {
+            const hiddenForDepartment = role === "department"
+              && /requirement cleared|clearance signed/i.test(notification.title);
+            if (isNotificationVisible(notification, role) && !hiddenForDepartment) {
               // A response started before this insert must not overwrite it.
               await queryClient.cancelQueries({ queryKey });
               if (disposed) return;

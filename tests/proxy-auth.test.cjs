@@ -142,3 +142,30 @@ test('enrollment lookup failures deny access without signing out', async () => {
   assert.equal((await h.proxy(new NextRequest('http://localhost/clearance'))).status, 503);
   assert.equal(h.signedOut, false);
 });
+
+for (const roles of [['Department'], ['Department','Client']]) {
+  for (const path of ['/department','/department/calendar','/department/clients','/clearance/tasks']) test('removed ' + roles.join('+') + ' redirects from ' + path, async () => {
+    const h = load({ user: roleUser(...roles), enrolled: false });
+    const response = await h.proxy(new NextRequest('http://localhost' + path));
+    assert.equal(response.status, 307);
+    assert.equal(response.headers.get('location'), 'http://localhost/?notice=not-enrolled');
+    assert.equal(h.signedOut, true);
+  });
+  for (const path of ['/api/department/availability','/api/department/clients','/api/dashboard','/api/student/notifications']) test('removed ' + roles.join('+') + ' loses API access ' + path, async () => {
+    const h = load({ user: roleUser(...roles), enrolled: false });
+    const response = await h.proxy(new NextRequest('http://localhost' + path));
+    assert.equal(response.status, 403);
+    assert.equal((await response.json()).code, 'NOT_ENROLLED');
+    assert.equal(h.signedOut, true);
+  });
+}
+test('department enrollment outages do not revoke a valid session', async () => {
+  const h = load({ user: roleUser('Department'), identityError: { message: 'Unavailable' } });
+  assert.equal((await h.proxy(new NextRequest('http://localhost/department/dashboard'))).status, 503);
+  assert.equal(h.signedOut, false);
+});
+test('Admin+Department retains enrollment exemption', async () => {
+  const h = load({ user: roleUser('Admin','Department'), enrolled: false });
+  assert.equal((await h.proxy(new NextRequest('http://localhost/department/dashboard'))).status, 200);
+  assert.equal(h.signedOut, false);
+});

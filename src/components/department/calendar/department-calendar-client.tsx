@@ -206,6 +206,10 @@ export default function DepartmentCalendarClient({
     return Array.from(selectedDayKeys).some((k) => weeklySchedule[k]?.active);
   }, [weeklySchedule, selectedDayKeys]);
 
+  const areAllSelectedDaysActive = Array.from(selectedDayKeys).every(
+    (key) => weeklySchedule[key]?.active
+  );
+
   const updateSelectedDays = (patch: Partial<DayScheduleConfig>) => {
     setWeeklySchedule((prev) => {
       const next = { ...prev };
@@ -502,14 +506,16 @@ export default function DepartmentCalendarClient({
                 {/* Day Active Toggle */}
                 <button
                   type="button"
-                  onClick={() => updateSelectedDays({ active: !isAnySelectedDayActive })}
+                  onClick={() => updateSelectedDays({ active: !areAllSelectedDaysActive })}
+                  aria-label={areAllSelectedDaysActive ? "Deactivate selected days" : "Activate selected days"}
+                  aria-pressed={areAllSelectedDaysActive}
                   className={`text-xs font-medium px-2.5 py-1 rounded-lg border flex items-center transition-colors cursor-pointer ${
                     isAnySelectedDayActive
                       ? "bg-teal-500/10 border-teal-500/30 text-teal-400"
                       : "bg-slate-800/60 border-slate-700 text-slate-400"
                   }`}
                 >
-                  {isAnySelectedDayActive ? "Active" : "Inactive"}
+                  {areAllSelectedDaysActive ? "Active" : isAnySelectedDayActive ? "Mixed · Activate all" : "Inactive"}
                 </button>
               </div>
 
