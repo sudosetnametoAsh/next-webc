@@ -137,8 +137,7 @@ export default function DepartmenList({
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className={`h-full rounded-full transition-ui duration-200 ${allCompleted ? "bg-green-500" : "bg-amber-400"
-                        }`}
+                      className="h-full rounded-full bg-[#f59e0b] transition-ui duration-200"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>

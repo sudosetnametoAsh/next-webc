@@ -153,7 +153,7 @@ export default function Sidebar({ user }: StudentSidebarProps) {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-base font-bold tracking-tight text-white">
-                STI WebC
+                WebC
               </span>
               <span className="text-xs font-medium text-slate-400">
                 Clearance Portal
@@ -279,7 +279,7 @@ export default function Sidebar({ user }: StudentSidebarProps) {
       <div className="border-t border-slate-800/80 p-3">
         <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-slate-800/40">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-slate-200 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-[#ffb900] shadow-sm">
               {avatarInitials}
             </div>
             <div className="min-w-0 flex-1">

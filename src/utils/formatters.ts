@@ -151,16 +151,7 @@ export function shrinkCourseName(name: string): string {
   return `${degreePrefix}${specAcronym}`;
 }
 
-/**
- * Returns consistent progress bar gradient colors matching Admin Dashboard:
- * - >= 70%: Emerald to Teal gradient (High completion)
- * - >= 40% and < 70%: Amber gradient (Medium completion)
- * - > 0% and < 40%: Rose to Amber gradient (Low completion)
- * - 0%: Transparent
- */
-export function getProgressBarColor(rate: number): string {
-  if (rate >= 70) return 'bg-gradient-to-r from-emerald-500 to-teal-400'
-  if (rate >= 40) return 'bg-gradient-to-r from-amber-500 to-amber-400'
-  if (rate > 0) return 'bg-gradient-to-r from-rose-500 to-amber-500'
-  return 'bg-transparent'
+/** Shared fill color for clearance progress bars across all user roles. */
+export function getProgressBarColor(_rate: number): string {
+  return 'bg-[#f59e0b]'
 }

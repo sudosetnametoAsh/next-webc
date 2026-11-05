@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { GraduationCap, Briefcase } from "lucide-react";
 import type { CourseVelocity } from "@/modules/staff/application/repository/dashboard-repository";
-import { getProgressBarColor, shrinkCourseName } from "@/utils/formatters";
+import { shrinkCourseName } from "@/utils/formatters";
 
 interface CourseVelocityCardProps {
   courses: CourseVelocity[];
@@ -133,9 +133,7 @@ export default function CourseVelocityCard({
                 {/* Compact Progress Bar */}
                 <div className="mt-2.5 h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
                   <div
-                    className={`h-full rounded-full w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none ${getProgressBarColor(
-                      c.rate
-                    )}`}
+                    className="h-full rounded-full w-full origin-left bg-[#f59e0b] transition-transform duration-200 ease-out motion-reduce:transition-none"
                     style={{ transform: `scaleX(${(c.rate) / 100})` }}
                   />
                 </div>

@@ -94,7 +94,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
       isActive: pathname.startsWith("/department/clients"),
     },
     {
-      name: "My Calendar",
+      name: "Office Hours",
       icon: Calendar,
       path: "/department/calendar",
       isActive: pathname.startsWith("/department/calendar"),
@@ -118,10 +118,10 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-base font-bold tracking-tight text-white">
-                STI WebC
+                WebC
               </span>
               <span className="text-xs font-medium text-slate-400">
-                Department Staff
+                Clearance Portal
               </span>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
               <div className="flex items-center gap-2 min-w-0">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
                 <span className="text-xs font-semibold tracking-wide truncate">
-                  Department Staff
+                  Clearance Portal
                 </span>
               </div>
               <ChevronDown className="h-3.5 w-3.5 shrink-0 text-amber-400/80 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -247,7 +247,7 @@ export default function Sidebar({ department, user_name, user_id }: SidebarProps
       <div className="border-t border-slate-800/80 p-3">
         <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-slate-800/40">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-amber-400 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-[#ffb900] shadow-sm">
               {avatarInitials}
             </div>
             <div className="min-w-0 flex-1">

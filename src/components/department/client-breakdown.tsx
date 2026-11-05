@@ -73,7 +73,7 @@ export default function StudentsBreakdown() {
   const ProgressBar = ({ rate }: { rate: number }) => (
     <div className="flex items-center justify-end gap-3 w-full">
       <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div className="h-full bg-gray-800 rounded-full" style={{ width: `${rate}%` }}></div>
+        <div className="h-full bg-[#f59e0b] rounded-full" style={{ width: `${rate}%` }}></div>
       </div>
       <span className="text-xs font-medium text-gray-500 w-8 text-right">{rate}%</span>
     </div>
