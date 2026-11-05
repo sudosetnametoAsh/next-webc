@@ -4,6 +4,7 @@ import { APP_TIME_ZONE } from "@/lib/date-time";
 
 
 import { useClientClearanceProgress } from "@/hooks/department/use-client-clearance-progress";
+import type { DepartmentProgress } from "@/types/department-progress";
 import { updateTaskStatus } from "@/lib/api/update-task-status";
 import { rejectSubmission } from "@/lib/api/reject-submission";
 import React, { useEffect, useState, useMemo, useRef } from "react";
@@ -172,6 +173,7 @@ export default function TaskView({
   studentTasks,
   studentName,
   studentId,
+  clientEmail,
   clearanceId,
   clientStatus,
   isLocked = false,
@@ -192,10 +194,15 @@ export default function TaskView({
   nextClientName,
   onNextClient,
   selectedStatus,
+  initialDepartmentProgress,
+  departmentProgressUpdatedAt,
 }: {
   studentTasks: Tasks[];
   studentName: string;
   studentId: string;
+  clientEmail?: string | null;
+  initialDepartmentProgress?: DepartmentProgress[];
+  departmentProgressUpdatedAt?: number;
   clearanceId?: string;
   clientStatus?: "Signed" | "Pending";
   selectedStatus?: ClientStatus;
@@ -230,7 +237,7 @@ export default function TaskView({
   const {
     data: progress = [], isPending: progressLoading, error: progressError,
     refetch: refreshProgress, isFetching: progressFetching,
-  } = useClientClearanceProgress(studentId);
+  } = useClientClearanceProgress(studentId, initialDepartmentProgress, departmentProgressUpdatedAt);
   const [aiAuditReport, setAiAuditReport] = useState<any>(null);
   const [activeInPersonTaskId, setActiveInPersonTaskId] = useState<number | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<Tasks | null>(null);
@@ -820,7 +827,9 @@ export default function TaskView({
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-bold text-white truncate">{studentName}</h2>
-            <p className="text-xs font-mono text-slate-400 mt-0.5 truncate">{studentId}</p>
+            <p className="text-xs font-mono text-slate-400 mt-0.5 truncate" title={viewType === "staff" ? clientEmail || undefined : studentId}>
+              {viewType === "staff" ? clientEmail || "No email available" : studentId}
+            </p>
           </div>
         </div>
       </div>

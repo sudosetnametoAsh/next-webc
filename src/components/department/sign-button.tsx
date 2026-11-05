@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSignClient } from "@/hooks/department/sign-client";
-import { CheckCircle2, RotateCcw, Loader2, AlertTriangle, X } from "lucide-react";
+import { CheckCircle2, PenLine, RotateCcw, Loader2, AlertTriangle, X } from "lucide-react";
 
 type Props = {
   clearanceId: string[];
@@ -62,8 +62,8 @@ export default function SignToggleButton({
   };
 
   const btnStyle = isSigned
-    ? "border border-amber-500/40 bg-amber-600 hover:bg-amber-500 text-white shadow-xs"
-    : "border border-emerald-500/40 bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs";
+    ? "border-slate-700 bg-slate-800/90 text-slate-300 enabled:hover:border-slate-600 enabled:hover:bg-slate-700 enabled:hover:text-white focus-visible:ring-slate-400/60"
+    : "border-slate-700 bg-slate-800/90 text-slate-200 enabled:hover:border-slate-600 enabled:hover:bg-slate-700 enabled:hover:text-white focus-visible:ring-amber-400/60";
 
   return (
     <>
@@ -71,7 +71,8 @@ export default function SignToggleButton({
         type="button"
         onClick={handleToggle}
         disabled={isDisabled}
-        className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-ui cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${btnStyle} ${className}`}
+        aria-busy={isPending}
+        className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-semibold shadow-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070c18] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed motion-reduce:transition-none ${btnStyle} ${className}`}
         title={
           clearanceId.length === 0
             ? "Select clients to sign"
@@ -81,21 +82,13 @@ export default function SignToggleButton({
         }
       >
         {isPending ? (
-          <>
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            <span>Processing...</span>
-          </>
+          <Loader2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0 animate-spin" />
         ) : isSigned ? (
-          <>
-            <RotateCcw className="h-3.5 w-3.5" />
-            <span>Undo Sign {clearanceId.length > 0 && `(${clearanceId.length})`}</span>
-          </>
+          <RotateCcw aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-slate-400" />
         ) : (
-          <>
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            <span>Sign Clearance {clearanceId.length > 0 && `(${clearanceId.length})`}</span>
-          </>
+          <PenLine aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-amber-400/80" />
         )}
+        <span>{isPending ? "Processing..." : isSigned ? "Undo Sign" : "Sign Clearance"}</span>
       </button>
 
       {/* Confirmation Modal when Signing with Pending Tasks */}

@@ -9,7 +9,9 @@ function harness() {
   const rows = new Map([['B', {staff_id:'B',ai_verification_mode:'manual',ai_confidence_threshold:95}]]);
   let current = 'A';
   let fail = false;
+  const queries = [];
   const client = {from(table) {
+    queries.push(table);
     assert.ok(['staff_configurations','current_clearance_tasks'].includes(table));
     let id, pending;
     const result = () => {
@@ -36,7 +38,7 @@ function harness() {
     if(name.includes('supabase-server'))return {createClient:async()=>client};
     throw Error(name);
   }});
-  return {route:exports,rows,setStaff:id=>current=id,setFail:()=>fail=true};
+  return {route:exports,rows,queries,setStaff:id=>current=id,setFail:()=>fail=true};
 }
 const request=(mode='autonomous',threshold=85)=>({json:async()=>({aiVerificationMode:mode,aiConfidenceThreshold:threshold,staffId:'B'})});
 
@@ -137,4 +139,13 @@ test('submission without staff configuration applies defaults',async()=>{
 test('submission stops when staff configuration cannot be read',async()=>{
   const result=await submit(null,{fail:true});
   assert.equal(result.response.status,500);assert.equal(result.saved,undefined);assert.equal(result.aiCalls,0);
+});
+
+test('configuration-only read skips the unused task statistics query', async () => {
+  const h = harness();
+  const response = await h.route.GET({ nextUrl: new URL('http://localhost/api/department/settings/ai-verification?view=configuration') });
+  assert.equal(response.status, 200);
+  assert.deepEqual(h.queries, ['staff_configurations']);
+  assert.equal((await response.json()).configuration.aiVerificationMode, 'two_factor');
+  assert.match(response.headers.get('cache-control'), /no-store/);
 });

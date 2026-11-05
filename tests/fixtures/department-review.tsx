@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import DepartmentHeader from "@/components/department/header";
 import SubmissionModal from "@/components/department/clients/sumission-modal";
 import { rejectSubmission } from "@/lib/api/reject-submission";
+import AiVerificationConfigModal from "@/components/department/dashboard/ai-verification-config-modal";
 import TaskView from "@/components/department/clients/task-view";
 import RealtimeDashboardListener from "@/components/department/dashboard-listener";
 import AdminRealtimeListener from "@/components/admin/admin-realtime-listener";
@@ -19,6 +20,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false 
 function ReviewFixture() {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("Flagged");
+  const showAi = new URLSearchParams(location.search).has("aiconfig");
   const showProgress = new URLSearchParams(location.search).has("progress");
   const showAdmin = new URLSearchParams(location.search).has("adminprogress");
   const showDepartmentClients = new URLSearchParams(location.search).has("deptclients");
@@ -41,9 +43,15 @@ function ReviewFixture() {
     </> : showDepartmentClients ? <>
       <RealtimeDashboardListener />
       <DepartmentClientsClient />
+    </> : showAi ? <>
+      <button onClick={() => setOpen(true)}>Open AI settings</button>
+      <AiVerificationConfigModal isOpen={open} onClose={() => setOpen(false)} />
     </> : showProgress ? <>
       <RealtimeDashboardListener />
-      <TaskView studentTasks={fixtureTasks} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
+      <TaskView initialDepartmentProgress={new URLSearchParams(location.search).has("seeded") ? [
+        { clearance_id: 1, dept_name: "Cashier", tier: 1, status: "Signed" },
+        { clearance_id: 2, dept_name: "Clinic", tier: 2, status: "Pending" },
+      ] : undefined} departmentProgressUpdatedAt={Date.now()} studentTasks={fixtureTasks} studentName="Test Client" studentId="test-client" currentDepartment="Clinic" clearanceId="2" clientStatus="Pending" />
     </> : <>
     <main>
       <output data-testid="saved-status">{status}</output>

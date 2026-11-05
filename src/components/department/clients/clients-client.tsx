@@ -137,7 +137,7 @@ export default function StudentsClient() {
   const queryClient = useQueryClient();
 
   // Queries
-  const { data: clientsData = [], isLoading: isLoadingClients } = useFetchDepartmentClients();
+  const { data: clientsData = [], isLoading: isLoadingClients, dataUpdatedAt: clientsUpdatedAt } = useFetchDepartmentClients();
   const { data: coursesData = [] } = useFetchCourses();
   const { data: preset } = useFetchPreset();
 
@@ -1504,6 +1504,11 @@ export default function StudentsClient() {
         />
       </div>
 
+      <p role="status" aria-live="polite" aria-atomic="true" className="shrink-0 px-1 text-xs text-slate-400">
+        <span className="tabular-nums">{selectedClients.length}</span>{" "}
+        {selectedClients.length === 1 ? "client" : "clients"} selected
+      </p>
+
       {/* ── Clients Table Card (Dark Theme) ── */}
       <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
         {/* Desktop Table */}
@@ -1648,7 +1653,7 @@ export default function StudentsClient() {
                                       title={`Submitted: ${new Date(subTime).toLocaleString("en-US", { timeZone: APP_TIME_ZONE })}`}
                                       className="text-slate-500 font-normal"
                                     >
-                                      {formatTimeElapsed(subTime)}
+                                      Submitted {formatTimeElapsed(subTime)}
                                     </span>
                                   </>
                                 );
@@ -1801,7 +1806,7 @@ export default function StudentsClient() {
                                   title={`Submitted: ${new Date(subTime).toLocaleString("en-US", { timeZone: APP_TIME_ZONE })}`}
                                   className="text-slate-500 font-normal"
                                 >
-                                  {formatTimeElapsed(subTime)}
+                                  Submitted {formatTimeElapsed(subTime)}
                                 </span>
                               </>
                             );
@@ -1878,6 +1883,9 @@ export default function StudentsClient() {
               <TaskView
                 studentTasks={selectedClient.tasks as any}
                 studentId={selectedClient.id}
+                clientEmail={selectedClient.email}
+                initialDepartmentProgress={selectedClient.departmentProgress}
+                departmentProgressUpdatedAt={clientsUpdatedAt}
                 studentName={selectedClient.name}
                 clearanceId={selectedClient.clearanceId}
                 clientStatus={selectedClient.status}

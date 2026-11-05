@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDepartmentContext } from "@/context/deparment";
 import type { DepartmentProgress } from "@/types/department-progress";
 
-export function useClientClearanceProgress(studentId: string) {
+export function useClientClearanceProgress(studentId: string, initialData?: DepartmentProgress[], initialDataUpdatedAt?: number) {
   const { userId } = useDepartmentContext();
   return useQuery<DepartmentProgress[]>({
     queryKey: ["department-client-progress", userId, studentId],
@@ -17,6 +17,8 @@ export function useClientClearanceProgress(studentId: string) {
       return result.data;
     },
     enabled: Boolean(userId && studentId),
+    initialData,
+    initialDataUpdatedAt,
     staleTime: 30000,
     refetchOnWindowFocus: "always",
     refetchOnReconnect: "always",

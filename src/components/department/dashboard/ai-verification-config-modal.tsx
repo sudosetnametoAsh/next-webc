@@ -2,6 +2,9 @@
 
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from '@tanstack/react-query';
+import { useDepartmentContext } from '@/context/deparment';
+import { useAiVerificationSettings, aiVerificationSettingsKey, type VerificationMode } from '@/hooks/department/use-ai-verification-settings';
 import {
   X,
   Sparkles,
@@ -19,47 +22,27 @@ interface AiVerificationConfigModalProps {
   onConfigSaved?: () => void;
 }
 
-export type VerificationMode = "two_factor" | "autonomous" | "manual";
+export type { VerificationMode } from '@/hooks/department/use-ai-verification-settings';
 
 export default function AiVerificationConfigModal({
   isOpen,
   onClose,
   onConfigSaved,
 }: AiVerificationConfigModalProps) {
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { userId } = useDepartmentContext();
+  const { data: configuration, isPending: loading, isFetching, error: loadError, refetch } = useAiVerificationSettings();
   const [saving, setSaving] = useState(false);
-  const [mode, setMode] = useState<VerificationMode>("two_factor");
-  const [threshold, setThreshold] = useState<number>(85);
-
+  const [draftMode, setMode] = useState<VerificationMode | null>(null);
+  const [draftThreshold, setThreshold] = useState<number | null>(null);
+  const mode = draftMode ?? configuration?.aiVerificationMode ?? 'two_factor';
+  const threshold = draftThreshold ?? configuration?.aiConfidenceThreshold ?? 85;
   useEffect(() => {
-    if (!isOpen) return;
-
-    let isMounted = true;
-    async function loadSettings() {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/department/settings/ai-verification");
-        if (!res.ok) throw new Error("Failed to fetch settings");
-        const data = await res.json();
-        if (isMounted && data.configuration) {
-          setMode(data.configuration.aiVerificationMode || "two_factor");
-          setThreshold(data.configuration.aiConfidenceThreshold ?? 85);
-        }
-      } catch (err) {
-        console.error("Error loading AI settings:", err);
-        if (isMounted) toast.error("Could not load AI settings. Close and reopen this dialog to try again.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadSettings();
-    return () => {
-      isMounted = false;
-    };
+    if (!isOpen) { setMode(null); setThreshold(null); }
   }, [isOpen]);
 
   const handleSave = async () => {
+    if (!configuration || saving) return;
     setSaving(true);
     try {
       const res = await fetch("/api/department/settings/ai-verification", {
@@ -76,6 +59,9 @@ export default function AiVerificationConfigModal({
         throw new Error(err.error || "Failed to save configuration");
       }
 
+      const result = await res.json();
+      await queryClient.cancelQueries({ queryKey: aiVerificationSettingsKey(userId) });
+      queryClient.setQueryData(aiVerificationSettingsKey(userId), result.configuration);
       toast.success("AI verification settings saved");
       if (onConfigSaved) onConfigSaved();
       onClose();
@@ -130,6 +116,11 @@ export default function AiVerificationConfigModal({
             <div className="flex flex-col items-center justify-center py-16 text-slate-400">
               <Loader2 className="h-8 w-8 animate-spin text-amber-400 mb-3" />
               <p className="text-xs font-medium">Loading your configuration...</p>
+            </div>
+          ) : !configuration ? (
+            <div role="alert" className="py-12 text-center text-xs text-rose-300">
+              <p>{loadError?.message || 'Could not load AI settings.'}</p>
+              <button type="button" disabled={isFetching} onClick={() => void refetch()} className="mt-3 rounded-lg border border-slate-700 px-4 py-2 text-slate-200 disabled:opacity-50">{isFetching ? 'Retrying…' : 'Retry'}</button>
             </div>
           ) : (
             <>
@@ -325,7 +316,7 @@ export default function AiVerificationConfigModal({
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || loading}
+            disabled={saving || loading || !configuration}
             className="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 focus:ring-2 focus:ring-amber-500/50 focus:outline-none shadow-lg shadow-amber-500/10 cursor-pointer disabled:opacity-50 text-xs sm:text-sm"
           >
             {saving ? (

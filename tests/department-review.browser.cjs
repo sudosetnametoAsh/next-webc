@@ -52,7 +52,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     let failRejection = true, requestBody, notificationDelay = 0;
-    let failProgress = true, progressDelay = 500, clinicStatus = 'Pending';
+    let failProgress = true, progressDelay = 500, clinicStatus = 'Pending', progressRequests = 0;
     let adminSigned = 0;
     const enrollmentRequests = [];
     let enrolledStaff = [];
@@ -120,6 +120,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       return route.fulfill({ json: { data: [], message: 'Clearances signed successfully' } });
     });
     await page.route('**/api/department/clients/progress?*', async (route) => {
+      progressRequests++;
       assert.equal(new URL(route.request().url()).searchParams.get('studentId'), 'test-client');
       if (progressDelay) await new Promise((resolve) => setTimeout(resolve, progressDelay));
       await route.fulfill(failProgress ? { status: 500, json: { error: 'Could not load department status. Please try again.' } } : {
@@ -158,6 +159,37 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       title: 'Other officer private alert', created_at: new Date().toISOString(), is_read: false }));
     assert.equal(await page.getByText('Other officer private alert').count(), 0);
 
+    let settingsRequests = 0;
+    let savedAiMode = 'two_factor';
+    await page.route('**/api/department/settings/ai-verification*', async route => {
+      if (route.request().method() === 'PATCH') savedAiMode = route.request().postDataJSON().aiVerificationMode;
+      else { settingsRequests++; assert.match(route.request().url(), /view=configuration/); }
+      await route.fulfill({ json: { configuration: { staffId: 'test-officer', aiVerificationMode: savedAiMode, aiConfidenceThreshold: 85 } } });
+    });
+    const warmedSettings = page.waitForResponse(response => response.url().includes('/settings/ai-verification?'));
+    await page.goto(`http://127.0.0.1:${server.address().port}/?aiconfig`);
+    await (await warmedSettings).finished();
+    await page.getByRole('button', { name: 'Open AI settings', exact: true }).click();
+    await page.getByRole('heading', { name: 'Verification Mode', exact: true }).count();
+    await page.getByText('Two-Factor Verification (2FV)', { exact: true }).waitFor();
+    assert.equal(await page.getByText('Loading your configuration...', { exact: true }).count(), 0);
+    await page.getByText('Strict Manual Review', { exact: true }).click();
+    await page.getByRole('button', { name: 'Save Configuration', exact: true }).click();
+    await page.getByText('AI Verification Protocol', { exact: true }).waitFor({ state: 'hidden' });
+    await page.getByRole('button', { name: 'Open AI settings', exact: true }).click();
+    assert.equal(await page.getByText('Loading your configuration...', { exact: true }).count(), 0);
+    assert.equal(await page.locator('input[type=range]').count(), 0, 'saved manual mode is reused when reopened');
+    assert.equal(settingsRequests, 1, 'reopening cached settings must not fetch again');
+    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+    console.log('PASS: AI settings preloads before opening; save and reopen reuse cached settings without another load.');
+
+    // Fresh directory data renders immediately even when the API would fail.
+    const requestsBeforeSeeded = progressRequests;
+    await page.goto(`http://127.0.0.1:${server.address().port}/?progress&seeded`);
+    await page.getByText('1 / 2 Cleared', { exact: true }).waitFor();
+    assert.equal(await page.getByText('Loading department status…', { exact: true }).count(), 0);
+    assert.equal(progressRequests, requestsBeforeSeeded, 'opening fresh progress needs no extra request');
+
     // Exercise the real TaskView rather than only its data transformation.
     await page.goto(`http://127.0.0.1:${server.address().port}/?progress`);
     const progressSection = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Department Status', exact: true }) });
@@ -172,14 +204,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.equal(await progressSection.getByText('Clinic', { exact: true }).isVisible(), true);
     progressDelay = 2000;
     const signStarted = Date.now();
-    await page.getByRole('button', { name: 'Sign Clearance (1)', exact: true }).click();
-    await page.getByRole('button', { name: 'Undo Sign (1)', exact: true }).waitFor({ timeout: 1500 });
+    await page.getByRole('button', { name: 'Sign Clearance', exact: true }).click();
+    await page.getByRole('button', { name: 'Undo Sign', exact: true }).waitFor({ timeout: 1500 });
     const signButtonMs = Date.now() - signStarted;
     assert(signButtonMs < progressDelay, 'sign button must reflect confirmation before slow list refresh completes');
     await progressSection.getByText('2 / 2 Cleared', { exact: true }).waitFor();
     const undoStarted = Date.now();
-    await page.getByRole('button', { name: 'Undo Sign (1)', exact: true }).click();
-    await page.getByRole('button', { name: 'Sign Clearance (1)', exact: true }).waitFor({ timeout: 1500 });
+    await page.getByRole('button', { name: 'Undo Sign', exact: true }).click();
+    await page.getByRole('button', { name: 'Sign Clearance', exact: true }).waitFor({ timeout: 1500 });
     const undoButtonMs = Date.now() - undoStarted;
     assert(undoButtonMs < progressDelay, 'undo button must not wait for list refresh');
     await progressSection.getByText('1 / 2 Cleared', { exact: true }).waitFor();
@@ -215,6 +247,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await page.getByRole('button', { name: 'Confirm Reopen', exact: true }).click();
       await page.waitForFunction(() => ![...document.querySelectorAll('button')].some((button) => button.textContent.trim() === 'Confirm Reopen'));
       assert.equal(statusRequests.at(-1).status, 'Pending');
+    }
+    if (process.env.DEPARTMENT_PROGRESS_ONLY === '1') {
+      assert.deepEqual(errors, [], 'no React runtime errors');
+      console.log('PASS: fresh directory progress renders without an extra request; fallback loading, errors and retry work.');
+      console.log(`PASS: sign updated in ${signButtonMs}ms and undo in ${undoButtonMs}ms despite 2000ms progress delay; realtime updates render.`);
+      console.log('PASS: digital and in-person task approval failures, successful clears, and reopening work in production-mode React.');
+      return;
     }
     // Both the report table and an already-open admin overlay must follow updates.
     await page.goto(`http://127.0.0.1:${server.address().port}/?adminprogress`);
@@ -277,17 +316,21 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     });
     for (const preset of ['', '&savedweek']) {
       await page.goto(`http://127.0.0.1:${server.address().port}/?calendar${preset}`);
-      await page.getByRole('button', { name: 'Save Weekly Schedule', exact: true }).click();
+      const saveSchedule = page.getByRole('button', { name: 'Save Weekly Schedule', exact: true });
+      assert.equal(await saveSchedule.isDisabled(), true);
+      const changedDay = await page.evaluate(() => new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila', weekday: 'short' }).format(new Date()).toLowerCase());
+      await page.getByRole('button', { name: /^(Activate|Deactivate) selected days$/ }).click();
+      await saveSchedule.click();
       await page.getByText('Office hours saved', { exact: true }).waitFor();
       const payload = scheduleWrites.at(-1);
       assert.equal(payload.time_in, undefined);
       assert.equal(payload.time_out, undefined);
       assert.equal(Object.keys(payload.weekly_schedule).length, 7);
-      assert.equal(payload.weekly_schedule.mon.active, Boolean(preset));
+      assert.equal(payload.weekly_schedule.mon.active, changedDay === 'mon' ? !Boolean(preset) : Boolean(preset));
       assert.equal(payload.weekly_schedule.mon.time_in, preset ? '09:00' : '08:00');
-      assert.equal(payload.weekly_schedule.tue.active, false, 'missing days do not inherit hours');
+      assert.equal(payload.weekly_schedule.tue.active, changedDay === 'tue', 'only the selected day changes');
     }
-    console.log('PASS: real calendar saves new all-closed and existing weekly schedules without legacy hour fields.');
+    console.log('PASS: real calendar disables unchanged saves and saves edits without legacy hour fields.');
     let enrollmentStatus = 200;
     await page.route('**/api/auth/enrollment', async (route) => route.fulfill({ status: enrollmentStatus, json: { code: enrollmentStatus === 403 ? 'NOT_ENROLLED' : 'ENROLLMENT_CHECK_FAILED', enrolled: enrollmentStatus === 200 } }));
     const verified = page.waitForResponse((response) => response.url().endsWith('/api/auth/enrollment'));

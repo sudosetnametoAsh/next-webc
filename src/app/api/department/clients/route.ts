@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
+import type { DepartmentProgress } from "@/types/department-progress";
 
 export interface DepartmentClientTask {
   assigned_task_id: number;
@@ -29,6 +30,7 @@ export interface DepartmentClientItem {
   isLocked: boolean;
   totalDepartments: number;
   signedDepartments: number;
+  departmentProgress?: DepartmentProgress[];
   courseId?: number;
   courseName?: string;
   courseYear?: number;
@@ -187,10 +189,12 @@ export async function GET(_req: NextRequest) {
           clearance_id,
           user_id,
           status,
+          signed_at,
           clearance_templates (
             tier,
             course_id,
-            is_active
+            is_active,
+            departments:clearance_departments(dept_name, icon_name)
           )
         `)
         .in("user_id", userIds)
@@ -314,6 +318,16 @@ export async function GET(_req: NextRequest) {
 
       // Prerequisite & Department Clearance Progress
       const userClearances = userClearanceMap.get(record.user_id) || [];
+      const departmentProgress: DepartmentProgress[] = userClearances.flatMap((clearance) => {
+        const template = Array.isArray(clearance.clearance_templates)
+          ? clearance.clearance_templates[0] : clearance.clearance_templates;
+        if (!template || template.is_active === false) return [];
+        const department = Array.isArray(template.departments)
+          ? template.departments[0] : template.departments;
+        return [{ clearance_id: clearance.clearance_id, status: clearance.status,
+          signed_at: clearance.signed_at, tier: template.tier ?? 1,
+          dept_name: department?.dept_name || "Unknown Department", icon_name: department?.icon_name }];
+      }).sort((a, b) => a.tier - b.tier || a.dept_name.localeCompare(b.dept_name));
       const totalDepartments = userClearances.length;
       const signedDepartments = userClearances.filter((c) => c.status === "Signed").length;
 
@@ -370,6 +384,7 @@ export async function GET(_req: NextRequest) {
         isLocked,
         totalDepartments,
         signedDepartments,
+        departmentProgress,
         courseId,
         courseName,
         courseYear,

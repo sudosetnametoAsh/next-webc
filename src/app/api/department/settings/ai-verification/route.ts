@@ -8,7 +8,7 @@ const ConfigurationSchema = z.object({
   aiConfidenceThreshold: z.number().int().min(50).max(100),
 });
 
-export async function GET() {
+export async function GET(request?: NextRequest) {
   try {
     const supabase = await createClient();
     const { user_id } = await getSession();
@@ -18,6 +18,15 @@ export async function GET() {
       .eq("staff_id", user_id)
       .maybeSingle();
     if (error) throw error;
+
+    const settings = {
+      staffId: user_id,
+      aiVerificationMode: configuration?.ai_verification_mode ?? "two_factor",
+      aiConfidenceThreshold: configuration?.ai_confidence_threshold ?? 85,
+    };
+    if (request?.nextUrl.searchParams.get('view') === 'configuration') {
+      return NextResponse.json({ configuration: settings }, { headers: { 'Cache-Control': 'private, no-store' } });
+    }
 
     const { data: tasks, error: tasksError } = await supabase
       .from("current_clearance_tasks")

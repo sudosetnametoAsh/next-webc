@@ -179,3 +179,21 @@ test('duplicate requested IDs produce one verified update and one follow-up',asy
   assert.equal((await h.route.PATCH(request([20,'20']))).status,200);
   assert.equal(h.updates[0].rows.length,1);assert.equal(h.afterCallbacks.length,1);
 });
+
+test('directory supplies sorted active department statuses for immediate drawer rendering', async () => {
+  const tables = listingTables(1);
+  tables.clearance_records[0].clearance_templates.departments = { dept_name: 'Clinic', icon_name: 'Heart' };
+  tables.clearance_records[1].clearance_templates.departments = [{ dept_name: 'Cashier', icon_name: 'Wallet' }];
+  tables.clearance_records[1].status = 'Signed';
+  tables.clearance_records[1].signed_at = '2026-11-06T01:00:00Z';
+  tables.clearance_records.push({ ...record(90, 3, 'Signed', false), user_id: 's0', template_id: 3 });
+  const h = loadRoute(getPath, tables);
+  const response = await h.route.GET({});
+  assert.equal(response.status, 200);
+  const { data } = await response.json();
+  assert.equal(data.length, 1);
+  assert.deepEqual(data[0].departmentProgress, [
+    { clearance_id: 2, status: 'Signed', signed_at: '2026-11-06T01:00:00Z', tier: 1, dept_name: 'Cashier', icon_name: 'Wallet' },
+    { clearance_id: 1, status: 'Pending', tier: 2, dept_name: 'Clinic', icon_name: 'Heart' },
+  ]);
+});

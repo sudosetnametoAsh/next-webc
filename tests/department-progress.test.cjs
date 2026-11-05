@@ -91,3 +91,36 @@ test('subsequent requests return changed statuses without a page cache', async (
   row.status = 'Signed';
   assert.equal((await (await h.get()).json()).data[0].status, 'Signed');
 });
+
+test('drawer uses fresh directory progress immediately and refreshes stale data', async () => {
+  const { QueryClient, QueryObserver } = require('@tanstack/react-query');
+  const exports = {};
+  let requests = 0;
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/hooks/department/use-client-clearance-progress.ts', 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, { exports, URLSearchParams, fetch: async () => {
+    requests++;
+    return { ok: true, json: async () => ({ data: [{ clearance_id: 1, dept_name: 'Clinic', tier: 1, status: 'Signed' }] }) };
+  }, require(name) {
+    if (name === '@tanstack/react-query') return { useQuery: options => options };
+    if (name === '@/context/deparment') return { useDepartmentContext: () => ({ userId: 'officer' }) };
+    throw Error(name);
+  } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const progress = [{ clearance_id: 1, dept_name: 'Clinic', tier: 1, status: 'Pending' }];
+  const fresh = new QueryObserver(client, exports.useClientClearanceProgress('client', progress, Date.now()));
+  const stopFresh = fresh.subscribe(() => {});
+  assert.equal(fresh.getCurrentResult().isPending, false);
+  assert.equal(fresh.getCurrentResult().data, progress);
+  assert.equal(requests, 0, 'fresh directory data avoids an extra request on open');
+  stopFresh();
+  const stale = new QueryObserver(client, exports.useClientClearanceProgress('other-client', progress, Date.now() - 60000));
+  const stopStale = stale.subscribe(() => {});
+  assert.equal(stale.getCurrentResult().isPending, false, 'old data stays visible during refresh');
+  await stale.refetch({ cancelRefetch: false });
+  assert.equal(stale.getCurrentResult().data[0].status, 'Signed');
+  assert.equal(requests, 1);
+  assert.notDeepEqual(fresh.options.queryKey, stale.options.queryKey, 'each client has a separate cache');
+  stopStale();
+  client.clear();
+});
