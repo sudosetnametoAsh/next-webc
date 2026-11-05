@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 const viewportPages = new Set([
   '/admin/dashboard',
   '/admin/clients',
+  '/admin/courses',
   '/admin/templates',
   '/admin/departments',
 ])

@@ -149,7 +149,7 @@ export default function ClientDirectoryTable({ clients, totalItems, currentPage,
 
                       {/* CLEARANCE PROGRESS Column - Centered */}
                       <td className="px-6 py-4 text-center">
-                        <div className="w-40 sm:w-44 mx-auto space-y-1.5">
+                        {total > 0 ? <div className="w-40 sm:w-44 mx-auto space-y-1.5">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-400 font-medium">
                               {signed}/{total} depts
@@ -164,17 +164,17 @@ export default function ClientDirectoryTable({ clients, totalItems, currentPage,
                               style={{ width: `${percent}%` }}
                             />
                           </div>
-                        </div>
+                        </div> : <span className="text-slate-500">—</span>}
                       </td>
 
-                      {/* STATUS Column - Centered (Empty if Pending) */}
+                      {/* No template: show a dash instead of a clearance status. */}
                       <td className="px-6 py-4 text-center whitespace-nowrap">
-                        <ClientStatusBadge
+                        {total > 0 ? <ClientStatusBadge
                           status={client.overallStatus}
                           isOverdue={client.isOverdue}
                           overduePhaseLabel={client.overduePhaseLabel}
                           hasAlert={hasAlert}
-                        />
+                        /> : <span className="text-slate-500">—</span>}
                       </td>
 
                       {/* View client */}
@@ -226,12 +226,12 @@ export default function ClientDirectoryTable({ clients, totalItems, currentPage,
                         </p>
                       </div>
                     </div>
-                    <ClientStatusBadge
+                    {total > 0 ? <ClientStatusBadge
                       status={client.overallStatus}
                       isOverdue={client.isOverdue}
                       overduePhaseLabel={client.overduePhaseLabel}
                       hasAlert={hasAlert}
-                    />
+                    /> : <span className="text-slate-500">—</span>}
                   </div>
 
                   <div className="flex items-center justify-between pt-1">
@@ -247,22 +247,22 @@ export default function ClientDirectoryTable({ clients, totalItems, currentPage,
                       </span>
                     )}
 
-                    <div className="flex items-center gap-2">
+                    {total > 0 ? <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-400 font-medium">
                         {signed}/{total} depts
                       </span>
                       <span className="text-xs font-bold text-slate-200">
                         {percent}%
                       </span>
-                    </div>
+                    </div> : <span className="text-slate-500">—</span>}
                   </div>
 
-                  <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                  {total > 0 && <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-ui duration-200 ${getProgressBarColor(percent)}`}
                       style={{ width: `${percent}%` }}
                     />
-                  </div>
+                  </div>}
                 </div>
               )
             })

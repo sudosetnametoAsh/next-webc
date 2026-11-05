@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { Search, ChevronDown, GraduationCap, Briefcase } from "lucide-react";
+import { Search, ChevronDown, GraduationCap, Briefcase, Check } from "lucide-react";
 import { shrinkCourseName } from "@/utils/formatters";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getDepartmentIcon } from "@/lib/department-icons";
 
 export type ClientType = "all" | "students" | "staff";
-export type ClientStatus = "all" | "pending" | "in-progress" | "cleared" | "overdue";
+export type ClientStatus = "all" | "pending" | "in-progress" | "cleared" | "overdue" | "no-template";
 
 export interface SectionItem {
   section_id: number | string;
@@ -245,21 +246,23 @@ export default function ClientFilterToolbar({
 
         {/* Courses Filter (Visible on the right side of the search bar ONLY when Students is selected) */}
         {clientType === "students" && (
-          <div className="relative shrink-0 min-w-[160px] animate-in ease-out fade-in duration-200">
-            <select
-              value={normalizedCourseValue}
-              onChange={(e) => onCourseChange(e.target.value)}
-              className="appearance-none w-full rounded-xl border border-slate-800 bg-[#070c18] pl-3.5 pr-9 py-2.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/40 cursor-pointer transition-colors"
-            >
-              <option value="all">All Courses</option>
-              {courses.map((course) => (
-                <option key={course.course_id} value={course.course_name}>
-                  {shrinkCourseName(course.course_name) || course.course_name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" aria-label="Filter by course" className="relative flex min-w-[140px] shrink-0 select-none items-center justify-between gap-2.5 rounded-xl border border-slate-800 bg-[#070c18] px-3.5 py-2.5 text-xs text-slate-300 transition-colors hover:border-slate-700 hover:text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer animate-in fade-in ease-out duration-200">
+                <span className="flex min-w-0 items-center gap-2 pr-1"><GraduationCap className="h-3.5 w-3.5 shrink-0 text-amber-400" /><span className="truncate font-medium">{normalizedCourseValue === 'all' ? 'All Courses' : shrinkCourseName(normalizedCourseValue) || normalizedCourseValue}</span></span>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-50 max-h-72 w-56 overflow-y-auto rounded-xl border border-slate-800 bg-[#070c18] p-1.5 text-slate-300 shadow-2xl backdrop-blur-md">
+              {[{ course_id: 'all', course_name: 'All Courses', value: 'all' }, ...courses.map(course => ({ ...course, value: course.course_name }))].map(course => {
+                const selected = normalizedCourseValue === course.value;
+                return <DropdownMenuItem key={course.course_id} onClick={() => onCourseChange(course.value)} className={`flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${selected ? 'bg-amber-500/15 font-semibold text-amber-300 focus:bg-amber-500/20 focus:text-amber-200' : 'text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white'}`}>
+                  <span className="flex min-w-0 items-center gap-2 pr-2"><GraduationCap className="h-3.5 w-3.5 shrink-0 text-slate-400" /><span className="truncate" title={course.course_name}>{course.value === 'all' ? course.course_name : shrinkCourseName(course.course_name) || course.course_name}</span></span>
+                  {selected && <Check className="ml-auto h-3.5 w-3.5 shrink-0 text-amber-400" />}
+                </DropdownMenuItem>;
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
 
@@ -272,6 +275,7 @@ export default function ClientFilterToolbar({
           <div className="flex flex-wrap items-center gap-1.5">
             {[
               { key: "all", label: "All" },
+              { key: "no-template", label: "No Template" },
               { key: "pending", label: "Pending" },
               { key: "in-progress", label: "In Progress" },
               { key: "cleared", label: "Cleared" },

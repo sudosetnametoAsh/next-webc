@@ -47,3 +47,12 @@ test('course filter preserves redirected program scope',()=>{
 test('24-hour threshold is inclusive and signed offices are excluded',()=>{
   assert.equal(filter([client(1,[department('Clinic',1,24)]),client(2,[department('Clinic',1,23.99)]),client(3,[department('Clinic',1,100,'Signed')])]).length,1);
 });
+
+test('clients without templates have their own filter and are excluded from in progress', () => {
+  const without = { ...client('none', []), totalDepartments: 0, overallStatus: 'Incomplete' };
+  const active = { ...client('active', [department('Clinic', 1, 1)]), totalDepartments: 1, overallStatus: 'Incomplete' };
+  const rows = [without, active];
+  assert.deepEqual(Array.from(filter(rows, { selectedStatus: 'no-template', departmentFilter: 'all' }), row => row.id), ['none']);
+  assert.deepEqual(Array.from(filter(rows, { selectedStatus: 'in-progress', departmentFilter: 'all' }), row => row.id), ['active']);
+  assert.equal(filter(rows, { selectedStatus: 'all', departmentFilter: 'all' }).length, 2);
+});

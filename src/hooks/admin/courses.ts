@@ -1,3 +1,4 @@
+import type { CourseSectionInput } from '@/lib/course-configuration'
 import { Courses } from '@/types/admin'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -18,6 +19,10 @@ export function useCreateCourse() {
     onSuccess: () => {
       // Invalidate to refetch the list immediately
       queryClient.invalidateQueries({ queryKey: ['admin', 'courses'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'sections'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'student-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+      queryClient.invalidateQueries({ queryKey: ['department-clients'] })
     },
     onError: (error) => {
       console.error("Mutation failed:", error)
@@ -34,6 +39,10 @@ export function useUpdateCourse() {
     mutationFn: updateCourse,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'courses'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'sections'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'student-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+      queryClient.invalidateQueries({ queryKey: ['department-clients'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'course-templates'] })
     },
     onError: (error) => {
@@ -51,6 +60,10 @@ export function useDeleteCourse() {
     mutationFn: deleteCourse,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'courses'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'sections'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'student-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+      queryClient.invalidateQueries({ queryKey: ['department-clients'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'course-templates'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
     },
@@ -73,27 +86,18 @@ async function fetchCourses(): Promise<Courses[]> {
   return json.data
 }
 
-async function createCourse(course_name: string): Promise<void> {
+async function createCourse(input: string | { course_name: string; sections: CourseSectionInput[] }): Promise<void> {
+  const payload = typeof input === 'string' ? { course_name: input } : input
 
   const response = await fetch('/api/admin/courses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ course_name })
+    body: JSON.stringify(payload)
   })
 
-  // 1. Check status first
   if (!response.ok) {
-
-    const errorText = await response.text()
-    console.error("API Error:", errorText) // Log the real error (e.g. Supabase key missing)
-    
-    // Try to parse it as JSON error if possible, otherwise use text
-    try {
-        const errorJson = JSON.parse(errorText)
-        throw new Error(errorJson.error || 'Failed to create course')
-    } catch {
-        throw new Error(errorText || 'Failed to create course')
-    }
+    const result = await response.json()
+    throw new Error(result.error || 'Failed to create course')
   }
 
   const json = await response.json()
@@ -109,9 +113,8 @@ async function updateCourse({ course_id, course_name }: { course_id: number, cou
   })
 
   if (!response.ok) {
-    const errorText = await response.text()
-    console.error("API Error:", errorText)
-    throw new Error('Failed to update course')
+    const result = await response.json()
+    throw new Error(result.error || 'Failed to update course')
   }
 
   const json = await response.json()
@@ -127,9 +130,8 @@ async function deleteCourse(course_id: number): Promise<void> {
   })
 
   if (!response.ok) {
-    const errorText = await response.text()
-    console.error("API Error:", errorText)
-    throw new Error('Failed to delete course')
+    const result = await response.json()
+    throw new Error(result.error || 'Failed to delete course')
   }
 
   const json = await response.json()

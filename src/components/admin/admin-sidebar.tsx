@@ -8,6 +8,7 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
+  BookOpenText,
   FileSpreadsheet,
   Building2,
   BarChart3,
@@ -43,6 +44,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
   useEffect(() => {
     router.prefetch("/admin/dashboard");
     router.prefetch("/admin/clients");
+    router.prefetch("/admin/courses");
     router.prefetch("/admin/templates");
     router.prefetch("/admin/departments");
     router.prefetch("/admin/reports");
@@ -69,6 +71,12 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
       href: "/admin/clients",
       icon: Users,
       isActive: pathname.startsWith("/admin/clients"),
+    },
+    {
+      label: "Courses",
+      href: "/admin/courses",
+      icon: BookOpenText,
+      isActive: pathname.startsWith("/admin/courses"),
     },
     {
       label: "Templates",
@@ -101,10 +109,10 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-base font-bold tracking-tight text-white">
-                STI WebC
+                WebC
               </span>
               <span className="text-xs font-medium text-slate-400">
-                Admin Console
+                Clearance Portal
               </span>
             </div>
           </div>
@@ -194,7 +202,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
       <div className="border-t border-slate-800/80 p-3">
         <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-slate-800/40">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-slate-200 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-800/90 text-xs font-bold text-[#ffb900] shadow-sm">
               {avatarInitials}
             </div>
             <div className="min-w-0 flex-1">

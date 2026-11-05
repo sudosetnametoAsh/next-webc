@@ -83,6 +83,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
     if (
       initialStatus === 'overdue' ||
       initialStatus === 'in-progress' ||
+      initialStatus === 'no-template' ||
       initialStatus === 'pending' ||
       initialStatus === 'cleared' ||
       initialStatus === 'all'
@@ -140,6 +141,7 @@ function AdminClientsContent({ setAdminPage }: Props) {
     if (
       statusParam === 'overdue' ||
       statusParam === 'in-progress' ||
+      statusParam === 'no-template' ||
       statusParam === 'pending' ||
       statusParam === 'cleared' ||
       statusParam === 'all'
@@ -540,8 +542,10 @@ function AdminClientsContent({ setAdminPage }: Props) {
     }
 
     // 2. Status filter
-    if (selectedStatus === 'in-progress') {
-      data = data.filter((c) => c.overallStatus === 'Incomplete')
+    if (selectedStatus === 'no-template') {
+      data = data.filter((c) => c.totalDepartments === 0)
+    } else if (selectedStatus === 'in-progress') {
+      data = data.filter((c) => c.totalDepartments > 0 && c.overallStatus === 'Incomplete')
     } else if (selectedStatus === 'pending') {
       data = data.filter((c) => c.overallStatus === 'Pending')
     } else if (selectedStatus === 'cleared') {
@@ -766,6 +770,11 @@ function AdminClientsContent({ setAdminPage }: Props) {
           setStudentPage(1)
         }}
       />
+
+      <p role="status" aria-live="polite" aria-atomic="true" className="shrink-0 px-1 text-xs text-slate-400">
+        <span className="tabular-nums">{selectedClients.length}</span>{' '}
+        {selectedClients.length === 1 ? 'client' : 'clients'} selected
+      </p>
 
       {selectedClients.length > 0 && <DeleteSelectedClients clients={selectedClients} onDeleted={(keys) => {
         setSelectedKeys((previous) => new Set([...previous].filter((key) => !keys.includes(key))))

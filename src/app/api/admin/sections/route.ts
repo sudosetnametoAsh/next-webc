@@ -1,3 +1,4 @@
+import { adminReadClient } from '@/lib/services/admin-read-client'
 import { createClient } from "@/lib/db/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 import { invalidateServerAdminCache } from "@/lib/services/admin-cache";
@@ -61,12 +62,13 @@ export async function GET(req: NextRequest) {
 
 // POST: Create a new course section
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await adminReadClient()
+  if (!supabase) return NextResponse.json({ error: 'Administrator access required' }, { status: 403 });
 
   try {
     const { course_id, year, semester, section_number } = await req.json();
 
-    if (!course_id || !year || !semester || !section_number) {
+    if (![course_id, year, semester, section_number].every(value => Number.isSafeInteger(Number(value)) && Number(value) > 0) || Number(year) > 10 || Number(semester) > 4 || Number(section_number) > 999) {
       return NextResponse.json(
         { error: "Missing required fields: course_id, year, semester, section_number." },
         { status: 400 }
@@ -137,14 +139,20 @@ export async function POST(req: NextRequest) {
 
 // DELETE: Remove a course section
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await adminReadClient()
+  if (!supabase) return NextResponse.json({ error: 'Administrator access required' }, { status: 403 });
 
   try {
     const { section_id } = await req.json();
 
-    if (!section_id) {
+    if (!Number.isSafeInteger(Number(section_id)) || Number(section_id) <= 0) {
       return NextResponse.json({ error: "Missing section_id." }, { status: 400 });
     }
+
+    const { data: enrollments, error: enrollmentError } = await supabase
+      .from("enrollments").select("student_id").eq("section_id", Number(section_id)).limit(1);
+    if (enrollmentError) return NextResponse.json({ error: "Unable to check enrollment history." }, { status: 500 });
+    if (enrollments?.length) return NextResponse.json({ error: "This section has enrollment history and cannot be removed." }, { status: 409 });
 
     const { error } = await supabase
       .from("course_sections")

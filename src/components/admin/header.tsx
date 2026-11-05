@@ -201,6 +201,8 @@ export default function AdminHeader({ title, user }: HeaderProps) {
       ? "Dashboard"
       : pathname.startsWith("/admin/clients")
       ? "Clients"
+      : pathname.startsWith("/admin/courses")
+      ? "Course Management"
       : pathname.startsWith("/admin/templates")
       ? "Clearance Templates"
       : pathname.startsWith("/admin/departments")
