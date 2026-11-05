@@ -112,7 +112,7 @@ export default function CreateTemplateModal({
       setActiveDeptId(null)
     } else {
       setSelectedCourses([])
-      setSelectedDepartments(isStaff ? departments.map((d) => d.dept_id) : [])
+      setSelectedDepartments([])
       setStaffAssignments([])
       setStep('select')
       setActiveDeptId(null)
