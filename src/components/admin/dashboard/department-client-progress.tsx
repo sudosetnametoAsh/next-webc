@@ -81,7 +81,12 @@ export default function DepartmentClientProgress({
       </div>
 
       {/* ── Compact 5-Department List ── */}
-      <div className="p-4 sm:p-5 space-y-2.5 min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+      <div
+        role="region"
+        aria-label="Department progress; scroll horizontally on mobile to see full rows"
+        tabIndex={0}
+        className="p-4 sm:p-5 space-y-2.5 min-h-0 flex-1 overflow-x-auto overflow-y-auto scrollbar-thin lg:overflow-x-hidden focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-amber-400"
+      >
         {topDepartments.length === 0 ? (
           <div className="text-center py-10">
             <Building2 className="mx-auto h-8 w-8 text-slate-600 mb-2" />
@@ -98,7 +103,7 @@ export default function DepartmentClientProgress({
             return (
               <div
                 key={dept.deptId}
-                className="rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-ui hover:border-slate-700/90 group"
+                className="max-lg:min-w-[30rem] rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-ui hover:border-slate-700/90 group"
               >
                 {/* Upper row: Icon, Dept Name, Location, Numbers */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">

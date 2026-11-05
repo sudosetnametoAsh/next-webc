@@ -12,12 +12,12 @@ export default function AdminDashboardClient({ userName }: { userName: string })
   } = useFetchPipelineRadar('all')
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div className="flex flex-col gap-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
       {/* ── 1. Greeting Banner with Macro Metric Cards ── */}
-      <div className="max-h-[45%] shrink-0 overflow-y-auto"><AdminGreeting userName={userName} /></div>
+      <div className="shrink-0 lg:max-h-[45%] lg:overflow-y-auto"><AdminGreeting userName={userName} /></div>
 
       {/* ── 2. Operational Command Grid ── */}
-      <div className="grid min-h-0 shrink grid-cols-1 grid-rows-[repeat(2,minmax(0,auto))] items-stretch gap-4 overflow-hidden lg:grid-cols-2 lg:grid-rows-[minmax(0,auto)]">
+      <div className="grid shrink-0 grid-cols-1 items-stretch gap-4 lg:min-h-0 lg:flex-1 lg:shrink lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
         {/* Column 1: Department Clearance Progress */}
         <DepartmentClientProgress
           departments={pipelineData?.departmentProgress}

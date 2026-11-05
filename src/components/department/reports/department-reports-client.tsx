@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock,
   TrendingUp,
-  Sparkles,
   Building2,
 } from "lucide-react";
 import { DepartmentReportData } from "@/modules/staff/application/repository/dashboard-repository";
@@ -15,7 +14,6 @@ import { exportDepartmentClearanceReport } from "@/utils/export-clearance-report
 import { getDepartmentIcon } from "@/lib/department-icons";
 import { useToast } from "@/hooks/use-toast";
 import DailyThroughputChart from "./daily-throughput-chart";
-import SubmissionQualityCard from "./submission-quality-card";
 import SectionAuditTable from "./section-audit-table";
 
 interface Props {
@@ -26,7 +24,7 @@ export default function DepartmentReportsClient({ reportData }: Props) {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const { success, error } = useToast();
 
-  const { departmentName, metrics, dailyThroughput, submissionQuality, programs, records } =
+  const { departmentName, metrics, dailyThroughput, programs, records } =
     reportData;
 
   const DeptIcon = getDepartmentIcon(departmentName);
@@ -75,7 +73,7 @@ export default function DepartmentReportsClient({ reportData }: Props) {
                 </span>
               </div>
               <p className="mt-1 text-xs sm:text-sm text-slate-400">
-                Departmental turnaround velocity, document verification accuracy, and section compliance audits
+                Departmental signing activity and section compliance audits
               </p>
             </div>
           </div>
@@ -95,8 +93,8 @@ export default function DepartmentReportsClient({ reportData }: Props) {
           </button>
         </div>
 
-        {/* ── 2. Executive Audit Metric Strip (4 Cards) ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* ── 2. Executive Audit Metric Strip (3 Cards) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card 1: Department Compliance */}
           <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
@@ -167,44 +165,14 @@ export default function DepartmentReportsClient({ reportData }: Props) {
             </div>
           </div>
 
-          {/* Card 4: AI Pre-Screening Pass Rate */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl p-5 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                AI PRE-SCREENING ACCURACY
-              </span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                <Sparkles className="h-4 w-4" />
-              </span>
-            </div>
-            <div className="mt-4">
-              <div className="font-mono text-3xl font-extrabold text-amber-400">
-                {metrics.aiPassRate}%
-              </div>
-              <p className="mt-1 text-xs text-slate-400">
-                <strong className="text-white font-mono">
-                  {submissionQuality.aiVerified}
-                </strong>{" "}
-                passed Factor 1 authenticity inspection
-              </p>
-            </div>
-          </div>
+
         </div>
 
-        {/* ── 3. Velocity & Submission Quality Analytics Grid (2 Columns) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-7">
-            <DailyThroughputChart
-              dailyThroughput={dailyThroughput}
-              clearedToday={metrics.clearedToday}
-              dailyAverage={metrics.dailyAverage}
-            />
-          </div>
-
-          <div className="lg:col-span-5">
-            <SubmissionQualityCard submissionQuality={submissionQuality} />
-          </div>
-        </div>
+        {/* ── 3. Daily Signing Throughput ── */}
+        <DailyThroughputChart
+          dailyThroughput={dailyThroughput}
+          dailyAverage={metrics.dailyAverage}
+        />
 
         {/* ── 4. Granular Section & Program Audit Table ── */}
         <SectionAuditTable

@@ -6,13 +6,11 @@ import { DailyThroughputItem } from "@/modules/staff/application/repository/dash
 
 interface Props {
   dailyThroughput: DailyThroughputItem[];
-  clearedToday: number;
   dailyAverage: number;
 }
 
 export default function DailyThroughputChart({
   dailyThroughput,
-  clearedToday,
   dailyAverage,
 }: Props) {
   const [hoveredDay, setHoveredDay] = useState<DailyThroughputItem | null>(null);
@@ -21,11 +19,6 @@ export default function DailyThroughputChart({
   const step = Math.ceil(maxVal / 4);
   const yAxisMax = Math.max(step * 4, 4);
   const yAxisLabels = [yAxisMax, step * 3, step * 2, step, 0];
-
-  const paceDelta =
-    dailyAverage > 0
-      ? Math.round(((clearedToday - dailyAverage) / dailyAverage) * 100)
-      : 0;
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl">
@@ -135,18 +128,6 @@ export default function DailyThroughputChart({
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">Today vs Pace:</span>
-            <span
-              className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-bold ${
-                paceDelta >= 0
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-              }`}
-            >
-              {paceDelta >= 0 ? `+${paceDelta}%` : `${paceDelta}%`}
-            </span>
-          </div>
         </div>
       </div>
     </div>
