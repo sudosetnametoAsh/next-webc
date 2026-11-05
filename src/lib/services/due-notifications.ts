@@ -156,7 +156,7 @@ export async function syncStudentDueNotifications(
       const title = `Task Due Soon: ${qt.taskTitle}`;
       const description =
         qt.diffMs > 0
-          ? `"${qt.taskTitle}" for ${qt.deptName} is due in ${qt.hoursLeft} hour${qt.hoursLeft === 1 ? "" : "s"} (${formattedDate}). Please review and submit your requirement before the deadline.`
+          ? `"${qt.taskTitle}" for ${qt.deptName} is due in ${qt.hoursLeft} hour${qt.hoursLeft === 1 ? "" : "s"} (${formattedDate}).`
           : `"${qt.taskTitle}" for ${qt.deptName} was due on ${formattedDate} and is now overdue. Please review and complete your requirement.`;
 
       return {

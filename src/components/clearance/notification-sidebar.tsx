@@ -238,7 +238,12 @@ export default function NotificationSidebar({
                     </div>
 
                     <p className="mt-1 text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                      {notif.description}
+                      {notif.title.startsWith("Task Due Soon:")
+                        ? notif.description.replace(
+                            /\s*Please review and submit your requirement before the deadline\.$/,
+                            ""
+                          )
+                        : notif.description}
                     </p>
 
                     <div className="mt-2 flex items-center justify-between">

@@ -11,6 +11,7 @@ test('Manila midnight rejects yesterday despite UTC still being the preceding da
  assert.match(dates.taskDeadlineError(dates.campusEndOfDay('2026-11-02'),old,now),/before today/);
 });
 function route(existing=null){let writes=0;const query={select(){return query;},eq(){return query;},maybeSingle:async()=>({data:{title:'Task',due_date:existing},error:null}),update(){writes++;return query;},single:async()=>({data:{assigned_task_id:1},error:null})};const api=load('src/app/api/department/clients/tasks/[clearanceId]/route.ts',{
+ '@/lib/services/due-notifications':{syncStudentDueNotifications:async()=>{}},
  '@/lib/date-time':dates,'next/server':{after(){},NextResponse:{json:(b,i)=>Response.json(b,i)}},'@/lib/auth/get-session':{getSession:async()=>({user_id:'officer'})},'@/lib/db/supabase-server':{createClient:async()=>({from:()=>query})},'@/lib/db/supabase-admin':{},'@/lib/services/department-cache':{invalidateServerDepartmentCache(){}},'@/lib/services/clearance-cache':{invalidateServerClearanceCache(){}},
  });return{api,get writes(){return writes;}};}
 test('task API rejects new past/invalid deadlines and accepts clearing or preserving an overdue deadline',async()=>{

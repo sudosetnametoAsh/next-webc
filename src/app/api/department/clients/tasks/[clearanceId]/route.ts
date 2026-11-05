@@ -4,6 +4,7 @@ import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
 import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
+import { syncStudentDueNotifications } from "@/lib/services/due-notifications";
 import { after, NextRequest, NextResponse } from "next/server";
 
 type Params = {
@@ -267,7 +268,7 @@ export async function PATCH(req: NextRequest) {
     .update(updateFields)
     .eq("assigned_task_id", assigned_task_id)
     .eq("staff_id", user_id)
-    .select(`assigned_task_id, title, description, due_date, dropbox, status`)
+    .select(`assigned_task_id, clearance_id, title, description, due_date, dropbox, status`)
     .single();
 
   if (updateError) {
@@ -301,6 +302,27 @@ export async function PATCH(req: NextRequest) {
         }
       } catch (notifUpdateErr) {
         console.error("Failed to update notification titles:", notifUpdateErr);
+      }
+    }
+
+    // An edit creates no assignment notification to wake the client's realtime
+    // listener. Generate eligible deadline alerts directly after saving instead
+    // of waiting for the client to fetch notifications for another reason.
+    if (due_date !== undefined && updatedTask.due_date !== existingDueDate) {
+      try {
+        const adminClient = getSupabaseAdmin();
+        const { data: record, error: recordError } = await adminClient
+          .from("current_clearance_records")
+          .select("user_id")
+          .eq("clearance_id", updatedTask.clearance_id)
+          .single();
+
+        if (recordError) throw recordError;
+        if (record?.user_id) {
+          await syncStudentDueNotifications(record.user_id, adminClient);
+        }
+      } catch (notificationError) {
+        console.error("Failed to sync deadline notifications after task edit:", notificationError);
       }
     }
   });
