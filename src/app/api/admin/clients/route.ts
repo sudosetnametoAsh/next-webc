@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, inArray, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { createClient } from '@/lib/db/supabase-server'
 import { db } from '@/lib/db'
 import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
-import { students, staffs, users, clearanceTasks, clearanceRecords, clearanceTemplates, courses, clearanceDepartments, academicPeriods, enrollments, staffEnrollments } from '@/lib/db/schema'
+import { students, staffs, users, clearanceTasks, clearanceRecords, clearanceTemplates, courses, clearanceDepartments, academicPeriods, enrollments, staffEnrollments, notifications } from '@/lib/db/schema'
 import { invalidateServerAdminCache } from '@/lib/services/admin-cache'
 import { invalidateServerDepartmentCache } from '@/lib/services/department-cache'
 import { invalidateServerClearanceCache } from '@/lib/services/clearance-cache'
@@ -86,11 +86,27 @@ async function mutate(req: NextRequest, deleting: boolean) {
         if (assignedTasks.length) return { error: 'This staff member has assigned tasks in the current term. Reassign their department responsibilities before removing their participation.', status: 409 }
         const roster = type === 'student' ? enrollments : staffEnrollments
         const rosterKey = type === 'student' ? enrollments.studentId : staffEnrollments.staffId
-        // Hold requirements against concurrent signing/submissions until access is disabled.
-        await tx.select({ id: clearanceRecords.clearanceId }).from(clearanceRecords)
+        // Lock current-period requirements before deleting their children. Tasks
+        // must be removed first: the history guard reads their parent period.
+        const currentRecords = await tx.select({ id: clearanceRecords.clearanceId }).from(clearanceRecords)
           .where(and(eq(clearanceRecords.userId, id), eq(clearanceRecords.periodId, workingPeriod.periodId))).for('update')
-        await tx.update(roster).set({ isActive: false }).where(and(eq(rosterKey, id), eq(roster.periodId, workingPeriod.periodId)))
-        // Accounts, enrollment rows, submissions, signatures and notifications are retained.
+        const clearanceIds = currentRecords.map(record => record.id)
+        const currentTasks = clearanceIds.length ? await tx.select({ id: clearanceTasks.assignedTaskId }).from(clearanceTasks)
+          .where(inArray(clearanceTasks.clearanceId, clearanceIds)).for('update') : []
+        const notificationScopes = [and(eq(notifications.userId, id), or(
+          eq(sql`${notifications.metadata}->>'periodId'`, String(workingPeriod.periodId)),
+          eq(sql`${notifications.metadata}->>'period_id'`, String(workingPeriod.periodId)),
+        ))]
+        if (clearanceIds.length) notificationScopes.push(inArray(sql`${notifications.metadata}->>'clearanceId'`, clearanceIds.map(String)))
+        if (currentTasks.length) notificationScopes.push(inArray(sql`${notifications.metadata}->>'taskId'`, currentTasks.map(task => String(task.id))))
+        // Unscoped legacy alerts are retained because their period cannot be proven.
+        await tx.delete(notifications).where(or(...notificationScopes))
+        if (clearanceIds.length) {
+          await tx.delete(clearanceTasks).where(inArray(clearanceTasks.clearanceId, clearanceIds))
+          await tx.delete(clearanceRecords).where(and(eq(clearanceRecords.userId, id), eq(clearanceRecords.periodId, workingPeriod.periodId)))
+        }
+        await tx.delete(roster).where(and(eq(rosterKey, id), eq(roster.periodId, workingPeriod.periodId)))
+        // Identity, profiles, templates and all other academic periods are retained.
       } else {
         const { name } = update.parse(body)
         if (type === 'student') await tx.update(students).set({ studentName: name }).where(eq(students.studentId, id))

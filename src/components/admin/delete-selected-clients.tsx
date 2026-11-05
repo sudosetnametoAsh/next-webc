@@ -65,7 +65,7 @@ export default function DeleteSelectedClients({ clients, onDeleted }: {
         <DialogContent showCloseButton={!pending} className="flex max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-800 bg-[#0a101f] p-0 text-slate-100 sm:max-w-lg" onEscapeKeyDown={(event) => { if (pending) event.preventDefault() }}>
           <div className="space-y-2 border-b border-slate-800 p-5 pr-10">
             <DialogTitle className="text-lg font-semibold">Remove selected clients from this term?</DialogTitle>
-            <DialogDescription className="text-xs leading-relaxed text-slate-400">Disable current-term participation for the selected clients. Accounts, enrollment history, submissions and signatures remain saved. Re-enrollment restores access. Staff with active assignments must be reassigned first.</DialogDescription>
+            <DialogDescription className="text-xs leading-relaxed text-slate-400">Permanently delete current-term enrollments, clearance records, task submissions and signatures for the selected clients. Accounts and past-term records remain saved. This cannot be undone. Staff with active assignments must be reassigned first.</DialogDescription>
           </div>
           <div className="min-h-0 space-y-3 overflow-y-auto p-5">
             {deletedCount > 0 && <p role="status" className="text-sm text-emerald-300">{deletedCount} clients removed from the current term.</p>}

@@ -10,33 +10,34 @@ function harness(options = {}) {
     users: [{ userId: 'client', authId: options.self ? 'admin-auth' : 'client-auth', email: 'client@example.edu' }, { userId: 'other' }],
     students: target === 'student' || options.shared ? [{ studentId: 'client', studentName: 'Client' }] : [],
     staffs: target === 'staff' || options.shared ? [{ staffId: 'client', staffName: 'Client' }] : [],
-    clearanceRecords: [{ userId: 'client', periodId: options.historyRecords ? 0 : 1 }, { userId: 'other', periodId: 1 }],
+    clearanceRecords: [{ clearanceId: 1, userId: 'client', periodId: 1 }, ...(options.historyRecords ? [{ clearanceId: 3, userId: 'client', periodId: 0 }] : []), { clearanceId: 2, userId: 'other', periodId: 1 }],
     academicPeriods: options.noWorkingPeriod ? [] : [{ periodId: 1, isActive: true }],
     enrollments: target === 'student' ? [{ studentId: 'client', periodId: 1, isActive: true }, ...(options.historyEnrollment ? [{ studentId:'client',periodId:0,isActive:true }] : [])] : [],
     staffEnrollments: target === 'staff' ? [{ staffId: 'client', periodId: 1, isActive: true }, ...(options.historyEnrollment ? [{ staffId:'client',periodId:0,isActive:true }] : [])] : [],
-    notifications: [{ userId: 'client' }, { userId: 'other' }, { userId: null }],
+    notifications: [{ userId: 'client', metadata: { taskId: 11 } }, { userId: 'client', metadata: { periodId: 0 } }, { userId: 'client', metadata: { periodId: 1 } }, { userId: 'other', metadata: { taskId: 12 } }, { userId: null, metadata: {} }],
     clearanceTemplates: options.assignments || (options.assigned ? [{ staffId: 'client', templateId: 1, courseId: 1, courseName: 'Computer Science', departmentId: 1, departmentName: 'Clinic', tier: 1, isActive: true }] : []),
-    clearanceTasks: options.tasks ? [{ staffId: 'client', assignedTaskId: 1, periodId: options.historicalTasks ? 0 : 1 }] : [],
+    clearanceTasks: [{ staffId: 'officer', assignedTaskId: 11, clearanceId: 1, periodId: 1 }, { staffId: 'officer', assignedTaskId: 12, clearanceId: 2, periodId: 1 }, ...(options.historyRecords ? [{ staffId: 'officer', assignedTaskId: 13, clearanceId: 3, periodId: 0 }] : []), ...(options.tasks ? [{ staffId: 'client', assignedTaskId: 14, clearanceId: 4, periodId: options.historicalTasks ? 0 : 1 }] : [])],
   };
   const initial = structuredClone(rows), removed = [], invalidated = [];
-  const matches = (row,filter) => filter.conditions ? filter.conditions.every(f=>matches(row,f)) : filter.not ? row[filter.column.key] !== filter.value : row[filter.column.key] === filter.value;
+  const field = (row, column) => column.jsonKey ? String(row.metadata?.[column.jsonKey]) : row[column.key];
+  const matches = (row, filter) => filter.conditions ? filter.conditions.every(f => matches(row, f)) : filter.any ? filter.any.some(f => matches(row, f)) : filter.values ? filter.values.includes(field(row, filter.column)) : filter.not ? field(row, filter.column) !== filter.value : field(row, filter.column) === filter.value;
   const tx = {
     async execute() {},
-    select() { let table, filter; const query = {
+    select(selection) { let table, filter; const query = {
       from(t) { table = t.name; return query; }, where(f) { filter = f; return query; },
       for() { return query; }, limit() { return query; }, leftJoin() { return query; }, innerJoin() { return query; }, orderBy() { return query; },
-      then(resolve) { resolve(rows[table].filter((r) => matches(r,filter))); },
+      then(resolve) { resolve(rows[table].filter((r) => matches(r,filter)).map(row => selection && selection.id ? { ...row, id: row[selection.id.key] } : row)); },
     }; return query; },
     delete(table) { return { where: async (filter) => {
       if (options.failDelete === table.name) throw new Error('Database failed');
       removed.push(table.name);
-      rows[table.name] = rows[table.name].filter((r) => r[filter.column.key] !== filter.value);
+      rows[table.name] = rows[table.name].filter((r) => !matches(r, filter));
     } }; },
     update(table) { return { set: (values) => ({ where: async (filter) => { if(options.failUpdate===table.name) throw Error('Database failed'); rows[table.name].filter((r) => matches(r,filter)).forEach((r) => Object.assign(r, values)); } }) }; },
   };
   const deps = {
     'next/server': { NextResponse: { json: (body, init) => Response.json(body, init) } },
-    'drizzle-orm': { eq: (column, value) => ({ column, value }), ne:(column,value)=>({column,value,not:true}), and:(...conditions)=>({conditions}), sql:()=>({}) }, 'zod': require('zod'),
+    'drizzle-orm': { eq: (column, value) => ({ column, value }), ne:(column,value)=>({column,value,not:true}), and:(...conditions)=>({conditions}), or:(...any)=>({any}), inArray:(column,values)=>({column,values}), sql:(strings)=>({jsonKey:strings.join('').match(/->>'([^']+)'/)?.[1]}) }, 'zod': require('zod'),
     '@/lib/db/schema': schema,
     '@/lib/db': { db: { transaction: async (work) => { try { return await work(tx); } catch (error) { Object.assign(rows, structuredClone(initial)); throw error; } } } },
     '@/lib/db/supabase-server': { createClient: async () => ({ auth: { getUser: async () => ({ data: { user: options.anonymous ? null : { id: 'admin-auth', user_metadata: { custom_claims: { roles: options.requestRoles || ['Admin'] } } } } }) } }) },
@@ -57,20 +58,23 @@ function harness(options = {}) {
 for (const type of ['student','staff']) for(const history of [false,true]) test('removes only current '+type+' participation; history='+history,async()=>{
  const h=harness({type,historyEnrollment:history,historyRecords:history});assert.equal((await h.remove()).status,200);
  const roster=type==='student'?'enrollments':'staffEnrollments';
- assert.equal(h.rows[roster].find(r=>r.periodId===1).isActive,false);
+ assert.equal(h.rows[roster].some(r=>r.periodId===1),false);
  if(history)assert.equal(h.rows[roster].find(r=>r.periodId===0).isActive,true);
- for(const table of ['users','students','staffs','clearanceRecords','notifications'])assert.deepEqual(h.rows[table],h.initial[table]);
- assert.equal(h.removed.length,0);assert.deepEqual(h.invalidated,['admin','department','clearance']);
+ for(const table of ['users','students','staffs'])assert.deepEqual(h.rows[table],h.initial[table]);
+ assert.deepEqual(h.rows.clearanceRecords,h.initial.clearanceRecords.filter(r => r.userId !== 'client' || r.periodId !== 1));
+ assert.deepEqual(h.rows.clearanceTasks,h.initial.clearanceTasks.filter(r => r.clearanceId !== 1));
+ assert.deepEqual(h.rows.notifications,h.initial.notifications.filter(n => n.metadata.taskId !== 11 && n.metadata.periodId !== 1));
+ assert.deepEqual(h.removed,['notifications','clearanceTasks','clearanceRecords',roster]);assert.deepEqual(h.invalidated,['admin','department','clearance']);
  assert.equal((await h.remove()).status,200);
 });
 for(const options of [{shared:true},{assigned:true},{tasks:true},{self:true},{targetRoles:['Admin']},{noWorkingPeriod:true}])test('rejects unsafe or unavailable removal '+JSON.stringify(options),async()=>{
  const h=harness(options);assert.equal((await h.remove()).status,409);assert.deepEqual(h.rows,h.initial);
 });
-for(const type of ['student','staff'])test('failed roster update rolls back all data: '+type,async()=>{
- const h=harness({type,failUpdate:type==='student'?'enrollments':'staffEnrollments'});assert.equal((await h.remove()).status,500);assert.deepEqual(h.rows,h.initial);assert.equal(h.invalidated.length,0);
+for(const type of ['student','staff'])test('failed roster deletion rolls back all data: '+type,async()=>{
+ const h=harness({type,failDelete:type==='student'?'enrollments':'staffEnrollments'});assert.equal((await h.remove()).status,500);assert.deepEqual(h.rows,h.initial);assert.equal(h.invalidated.length,0);
 });
 test('past assigned tasks and inactive templates do not block current participation removal',async()=>{
- const h=harness({type:'staff',tasks:true,historicalTasks:true,assignments:[{staffId:'client',isActive:false}]});assert.equal((await h.remove()).status,200);assert.deepEqual(h.rows.clearanceTasks,h.initial.clearanceTasks);
+ const h=harness({type:'staff',tasks:true,historicalTasks:true,assignments:[{staffId:'client',isActive:false}]});assert.equal((await h.remove()).status,200);assert.deepEqual(h.rows.clearanceTasks,h.initial.clearanceTasks.filter(task => task.clearanceId !== 1));
 });
 test('failed role lookup cannot disable participation',async()=>{
  const h=harness({authError:{code:'unexpected_failure'}});assert.equal((await h.remove()).status,500);assert.deepEqual(h.rows,h.initial);

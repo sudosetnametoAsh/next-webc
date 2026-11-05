@@ -29,7 +29,7 @@ export default function ClientActions({ client, onSuccess }: {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Unable to save changes')
-      const message = action === 'delete' ? 'Client removed from the current term. Account and clearance records retained.' : 'Client updated successfully'
+      const message = action === 'delete' ? 'Current-term enrollment and clearance records permanently deleted. Account and past-term records retained.' : 'Client updated successfully'
       setAction(null)
       onSuccess(message, { deleted: action === 'delete', name: name.trim() })
       await Promise.all([
@@ -51,7 +51,7 @@ export default function ClientActions({ client, onSuccess }: {
         <DialogContent className="border-slate-700 bg-slate-950 text-slate-100" showCloseButton={!pending} onEscapeKeyDown={(event) => { if (pending) event.preventDefault(); event.stopPropagation() }}>
           <DialogTitle>{action === 'delete' ? 'Remove from current term' : 'Update client'}</DialogTitle>
           <DialogDescription className="text-slate-400">
-            {action === 'delete' ? `Remove ${client.name} from the current term? Their account, enrollment history, submissions and signatures will remain saved. Current-term access will be disabled until they are enrolled again.` : `Update the name for ${client.type} ${client.id}.`}
+            {action === 'delete' ? `Remove ${client.name} from the current term? Their enrollment, clearance records, task submissions and signatures for this term will be permanently deleted. Their account and past-term records will remain. This cannot be undone.` : `Update the name for ${client.type} ${client.id}.`}
           </DialogDescription>
           <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void submit() }}>
             {action === 'edit' && <div className="space-y-2"><label htmlFor={`client-name-${client.type}-${client.id}`} className="text-sm">Full name</label><input id={`client-name-${client.type}-${client.id}`} autoFocus required maxLength={255} value={name} onChange={(event) => setName(event.target.value)} disabled={pending} className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm" /></div>}
