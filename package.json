@@ -38,6 +38,7 @@
     "cookie": "^1.0.2",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "exceljs": "^4.4.0",
     "geist": "^1.7.0",
     "jose": "^6.1.0",
     "js-cookie": "^3.0.5",

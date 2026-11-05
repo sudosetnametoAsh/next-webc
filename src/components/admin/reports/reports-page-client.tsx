@@ -13,7 +13,8 @@ import {
 import { useFetchStudentTemplates } from '@/hooks/admin/student-templates'
 import { useFetchStaff } from '@/hooks/admin/fetch-staff'
 import { useFetchAdminStats } from '@/hooks/admin/fetch-stats'
-import { useFetchCourseTemplates } from '@/hooks/admin/course-templates'
+import { useAcademicPeriods } from '@/hooks/admin/academic-periods'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useFetchStaffTemplates } from '@/hooks/admin/staff-templates'
 import { useFetchPipelineRadar } from '@/hooks/admin/dashboard'
 import PhasePipelineRadar from '@/components/admin/dashboard/phase-pipeline-radar'
@@ -28,6 +29,10 @@ import { useToast } from '@/hooks/use-toast'
 export default function Reports() {
   const [activeRadarFilter, setActiveRadarFilter] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportYear, setExportYear] = useState('')
+  const { data: periods = [], isLoading: periodsLoading, isError: periodsError, refetch: reloadPeriods } = useAcademicPeriods()
+  const years = [...new Set(periods.map(period => period.start_year))].sort((a, b) => b - a)
 
   const { success, error } = useToast()
 
@@ -35,7 +40,6 @@ export default function Reports() {
   const { data: adminStats } = useFetchAdminStats()
   const { data: studentTemplates = [] } = useFetchStudentTemplates()
   const { data: staffList = [] } = useFetchStaff()
-  const { data: courseTemplates = [] } = useFetchCourseTemplates()
   const {
     data: pipelineData,
     isLoading: isLoadingRadar,
@@ -83,17 +87,18 @@ export default function Reports() {
     return bottleneckDepts[0] ?? null
   }, [pipelineData])
 
-  // Handle CSV Audit Export
-  const handleExport = () => {
+  // Handle Excel Audit Export
+  const handleExport = async () => {
+    if (!exportYear) return
     setIsExporting(true)
     try {
-      const res = exportClearanceReport({
-        students: studentTemplates,
-        staff: staffList,
-        courseTemplates,
-      })
+      const response = await fetch(`/api/admin/reports/export?startYear=${encodeURIComponent(exportYear)}`, { cache: 'no-store' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Unable to load export')
+      const res = await exportClearanceReport({ ...data, academicYear: `${exportYear}-${Number(exportYear) + 1}` })
+      setExportOpen(false)
       if (res.success) {
-        success(`Successfully exported ${res.totalRecords} clearance records to CSV.`, 'Audit Export')
+        success(`Successfully exported ${res.totalRecords} clearance records to Excel.`, 'Audit Export')
       }
     } catch (err: any) {
       error(err.message || 'Failed to export clearance report', 'Export Error')
@@ -104,6 +109,28 @@ export default function Reports() {
 
   return (
     <>
+      <Dialog open={exportOpen} onOpenChange={open => { if (!isExporting) setExportOpen(open) }}>
+        <DialogContent className="border-slate-800 bg-[#0a101f] text-white">
+          <DialogHeader>
+            <DialogTitle>Export clearance audit</DialogTitle>
+            <DialogDescription className="text-slate-400">Which academic year would you like to export? The Excel workbook includes all terms in the selected year, with a worksheet for each program and Staff. Completed At uses Manila time.</DialogDescription>
+          </DialogHeader>
+          <label htmlFor="export-academic-year" className="text-sm font-medium">Academic year</label>
+          <select id="export-academic-year" value={exportYear} onChange={event => setExportYear(event.target.value)} disabled={isExporting || periodsLoading} className="rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm">
+            <option value="">Select an academic year</option>
+            {years.map(year => <option key={year} value={year}>{year}–{year + 1}</option>)}
+          </select>
+          {periodsLoading && <p role="status" className="text-sm text-slate-400">Loading academic years…</p>}
+          {periodsError && <p role="alert" className="text-sm text-rose-400">Unable to load academic years. <button type="button" onClick={() => void reloadPeriods()} className="underline">Retry</button></p>}
+          {!periodsLoading && !periodsError && !years.length && <p className="text-sm text-slate-400">No academic years are available.</p>}
+          <div className="flex justify-end gap-3">
+            <button type="button" onClick={() => setExportOpen(false)} disabled={isExporting} className="rounded-lg border border-slate-700 px-4 py-2 text-sm disabled:opacity-50">Cancel</button>
+            <button type="button" onClick={handleExport} disabled={!exportYear || isExporting || periodsLoading || periodsError} className="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50">
+              {isExporting && <Loader2 className="h-4 w-4 animate-spin" />}{isExporting ? 'Exporting…' : 'Download Excel'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="space-y-6">
         {/* ── 1. Page Header with Audit Export Button ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -118,7 +145,10 @@ export default function Reports() {
 
           <button
             type="button"
-            onClick={handleExport}
+            onClick={() => {
+              setExportYear(String(periods.find(period => period.is_active)?.start_year ?? years[0] ?? ''))
+              setExportOpen(true)
+            }}
             disabled={isExporting}
             className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -127,7 +157,7 @@ export default function Reports() {
             ) : (
               <Download className="h-4 w-4 stroke-[2.5]" />
             )}
-            <span>Export Audit (CSV)</span>
+            <span>Export Audit (Excel)</span>
           </button>
         </div>
 

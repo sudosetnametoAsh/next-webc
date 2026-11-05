@@ -1,11 +1,12 @@
 import { APP_TIME_ZONE } from "@/lib/date-time";
 import { StudentTemplates, Staff, CourseTemplateStats } from '@/types/admin'
-import { expandCourseAbbreviation } from '@/utils/formatters'
+import { expandCourseAbbreviation, shrinkCourseName } from '@/utils/formatters'
 import { formatSectionCode } from '@/components/admin/client-filter-toolbar'
 
 interface ExportClearanceOptions {
-  students: StudentTemplates[]
-  staff: Staff[]
+  students: (StudentTemplates & { academic_year?: string; term?: number; completed_at?: string | null })[]
+  staff: (Staff & { academic_year?: string; term?: number; completed_at?: string | null })[]
+  academicYear?: string
   courseTemplates?: CourseTemplateStats[]
 }
 
@@ -17,125 +18,68 @@ function escapeCsvField(value: string | number | null | undefined): string {
   return `"${escaped}"`
 }
 
-export function exportClearanceReport({
+export async function exportClearanceReport({
   students,
   staff,
-  courseTemplates = [],
-}: ExportClearanceOptions): { success: boolean; filename: string; totalRecords: number } {
+  academicYear,
+}: ExportClearanceOptions): Promise<{ success: boolean; filename: string; totalRecords: number }> {
+  // Load the spreadsheet library only when an admin requests an export.
+  const { Workbook } = await import('exceljs')
+  const workbook = new Workbook()
   const headers = [
-    'Client ID',
-    'Client Name',
-    'Client Type',
-    'Academic Program / Department',
-    'Year & Section',
-    'Overall Status',
-    'Signed Offices',
-    'Total Offices',
-    'Completion Rate (%)',
-    'Pending Clearance Offices',
-    'Exported At',
+    'Client ID', 'Client Name', 'Client Type', 'Academic Year', 'Term',
+    'Academic Program / Department', 'Year & Section', 'Overall Status',
+    'Completion Rate (%)', 'Completed At',
   ]
+  const groups = new Map<string, (string | number)[][]>()
+  const completionDate = (status: string | undefined, value: string | null | undefined) =>
+    status === 'Signed' && value && Number.isFinite(Date.parse(value))
+      ? new Date(value).toLocaleString('en-US', { timeZone: APP_TIME_ZONE })
+      : ''
 
-  const now = new Date().toISOString()
-  const rows: string[][] = []
-
-  // 1. Process Student Records
-  students.forEach((s) => {
-    const courseFull = expandCourseAbbreviation(s.course_name) || s.course_name || 'N/A'
-    const section =
-      s.course_year !== undefined && s.section_number !== undefined
-        ? formatSectionCode({
-            year: s.course_year,
-            semester: s.semester,
-            section_number: s.section_number,
-          })
-        : 'N/A'
-
-    const totalDepts = s.total_departments || (s.departments ? s.departments.length : 6)
-    const signedDepts =
-      s.signed_departments ??
-      (s.departments ? s.departments.filter((d) => d.status === 'Signed').length : 0)
-
-    const rate = totalDepts > 0 ? Math.round((signedDepts / totalDepts) * 100) : 0
-
-    const pendingDepts =
-      s.pending_departments && s.pending_departments.length > 0
-        ? s.pending_departments.map((d) => d.dept_name).join('; ')
-        : s.departments
-        ? s.departments
-            .filter((d) => d.status !== 'Signed')
-            .map((d) => d.dept_name)
-            .join('; ')
-        : 'None'
-
-    const statusDisplay = s.isOverdue
-      ? `Overdue (${s.overduePhaseLabel || 'Phase'})`
-      : s.overallStatus || 'Incomplete'
-
+  for (const student of students) {
+    const program = expandCourseAbbreviation(student.course_name) || student.course_name || 'N/A'
+    const category = shrinkCourseName(program) || 'Other Programs'
+    const rows = groups.get(category) || []
+    const total = student.total_departments ?? student.departments?.length ?? 0
+    const signed = student.signed_departments ?? student.departments?.filter(d => d.status === 'Signed').length ?? 0
     rows.push([
-      String(s.student_id),
-      s.student_name,
-      'Student',
-      courseFull,
-      section,
-      statusDisplay,
-      String(signedDepts),
-      String(totalDepts),
-      `${rate}%`,
-      pendingDepts || 'None',
-      now,
+      String(student.student_id), student.student_name, 'Student', student.academic_year || academicYear || '', student.term ?? '', program,
+      student.course_year !== undefined && student.section_number !== undefined
+        ? formatSectionCode({ year: student.course_year, semester: student.semester, section_number: student.section_number }) : 'N/A',
+      student.overallStatus || 'Incomplete', total > 0 ? Math.round(signed / total * 100) : 0,
+      completionDate(student.overallStatus, student.completed_at),
     ])
-  })
-
-  // 2. Process Staff Records
-  staff.forEach((st) => {
-    const totalDepts = st.total_departments || (st.departments ? st.departments.length : 4)
-    const signedDepts =
-      st.signed_departments ??
-      (st.departments ? st.departments.filter((d) => d.status === 'Signed').length : 0)
-
-    const rate = totalDepts > 0 ? Math.round((signedDepts / totalDepts) * 100) : 0
-
-    const pendingDepts =
-      st.pending_departments && st.pending_departments.length > 0
-        ? st.pending_departments.map((d) => d.dept_name).join('; ')
-        : st.departments
-        ? st.departments
-            .filter((d) => d.status !== 'Signed')
-            .map((d) => d.dept_name)
-            .join('; ')
-        : 'None'
-
-    const staffStatusDisplay = st.isOverdue
-      ? `Overdue (${st.overduePhaseLabel || 'Staff'})`
-      : st.overallStatus || 'Incomplete'
-
-    rows.push([
-      String(st.staff_id),
-      st.staff_name,
-      'Staff',
-      'Staff Clearance Roster',
-      'N/A',
-      staffStatusDisplay,
-      String(signedDepts),
-      String(totalDepts),
-      `${rate}%`,
-      pendingDepts || 'None',
-      now,
-    ])
-  })
-
-  // 3. Assemble CSV Content (UTF-8 BOM for Excel compatibility)
-  const csvLines = [
-    headers.map(escapeCsvField).join(','),
-    ...rows.map((row) => row.map(escapeCsvField).join(',')),
-  ]
-  const csvContent = '\uFEFF' + csvLines.join('\r\n')
-
-  // 4. Trigger Instant Client-side Download
-  const dateStr = new Date().toISOString().slice(0, 10)
-  const filename = `institutional-clearance-audit-${dateStr}.csv`
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    groups.set(category, rows)
+  }
+  // Always provide a Staff tab, including years with no staff enrollments.
+  groups.set('Staff', staff.map(person => {
+    const total = person.total_departments ?? person.departments?.length ?? 0
+    const signed = person.signed_departments ?? person.departments?.filter(d => d.status === 'Signed').length ?? 0
+    return [String(person.staff_id), person.staff_name, 'Staff', person.academic_year || academicYear || '', person.term ?? '',
+      'Staff Clearance Roster', 'N/A', person.overallStatus || 'Incomplete', total > 0 ? Math.round(signed / total * 100) : 0,
+      completionDate(person.overallStatus, person.completed_at)]
+  }))
+  const usedNames = new Set<string>()
+  for (const [category, rows] of groups) {
+    const base = category.replace(/[\\/?*:[\]]/g, ' ').replace(/^'+|'+$/g, '').trim().slice(0, 31) || 'Program'
+    let name = base, suffix = 1
+    while (usedNames.has(name.toLowerCase()) || (category !== 'Staff' && name.toLowerCase() === 'staff')) {
+      const ending = ` (${suffix++})`
+      name = base.slice(0, 31 - ending.length) + ending
+    }
+    usedNames.add(name.toLowerCase())
+    const sheet = workbook.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 1 }] })
+    sheet.columns = headers.map((header, index) => ({ header, width: [20, 32, 14, 20, 10, 48, 20, 20, 23, 28][index] }))
+    sheet.addRows(rows)
+    sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162033' } }
+    sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headers.length } }
+    sheet.getColumn(9).numFmt = '0"%"'
+  }
+  const buffer = await workbook.xlsx.writeBuffer()
+  const filename = `institutional-clearance-audit-${academicYear ? academicYear + '-' : ''}${new Date().toISOString().slice(0, 10)}.xlsx`
+  const blob = new Blob([new Uint8Array(buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.setAttribute('href', url)
@@ -144,12 +88,7 @@ export function exportClearanceReport({
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
-
-  return {
-    success: true,
-    filename,
-    totalRecords: rows.length,
-  }
+  return { success: true, filename, totalRecords: students.length + staff.length }
 }
 
 export interface DepartmentExportRecord {
