@@ -200,7 +200,7 @@ export async function dispatchReadyForSigningNotifications({
 
       for (const cl of clients) {
         if (cl.isStudent) {
-          const key = cl.sectionCode || "General";
+          const key = `${cl.staffId || ""}:${cl.sectionId ?? cl.sectionCode ?? "General"}`;
           if (!studentGroups.has(key)) studentGroups.set(key, []);
           studentGroups.get(key)!.push(cl);
         } else {
@@ -209,7 +209,8 @@ export async function dispatchReadyForSigningNotifications({
       }
 
       // Student notifications
-      for (const [secCode, group] of studentGroups.entries()) {
+      for (const group of studentGroups.values()) {
+        const secCode = group[0].sectionCode || "General";
         if (group.length === 1 && isSingleRecordSign) {
           const item = group[0];
           const notifDesc = `${item.name} (${item.sectionCode || "Student"}) has met all requirements`;
@@ -251,12 +252,13 @@ export async function dispatchReadyForSigningNotifications({
         } else {
           // Batch or multi-student display
           const count = group.length;
-          const notifDesc = `${count}+ Students from ${secCode} has met all requirements`;
+          const notifDesc = `${count} ${count === 1 ? "student" : "students"} from ${secCode} ${count === 1 ? "is" : "are"} now eligible for signing`;
           const first = group[0];
           const effectiveSection = first.pureSecCode || (first.sectionId ? String(first.sectionId) : (first.sectionCode || ""));
           const refUrl = `/department/clients?type=students&course=${encodeURIComponent(first.courseName || "")}&section=${encodeURIComponent(effectiveSection)}`;
 
           readyNotifsToInsert.push({
+            user_id: first.staffId || null,
             department_id: deptId,
             target_role: "department",
             category: "clearance",
@@ -278,23 +280,54 @@ export async function dispatchReadyForSigningNotifications({
         }
       }
 
-      // Staff notifications
-      if (staffList.length === 1 && isSingleRecordSign) {
-        const item = staffList[0];
-        const notifDesc = `${item.name} has met all requirements`;
-        const refUrl = `/department/clients?type=staff&clientId=${encodeURIComponent(item.userId)}`;
+      // Keep each officer's staff-client count scoped to their own assignments.
+      const staffGroups = new Map<string, EligibleClientInfo[]>();
+      for (const item of staffList) {
+        const key = item.staffId || "";
+        if (!staffGroups.has(key)) staffGroups.set(key, []);
+        staffGroups.get(key)!.push(item);
+      }
+      for (const staffList of staffGroups.values()) {
+        // Staff notifications
+        if (staffList.length === 1 && isSingleRecordSign) {
+          const item = staffList[0];
+          const notifDesc = `${item.name} has met all requirements`;
+          const refUrl = `/department/clients?type=staff&clientId=${encodeURIComponent(item.userId)}`;
 
-        const { data: existing } = await adminClient
-          .from("notifications")
-          .select("notif_id")
-          .eq("department_id", deptId)
-          .eq("title", "Ready for Signing")
-          .contains("metadata", { staffId: item.userId })
-          .maybeSingle();
+          const { data: existing } = await adminClient
+            .from("notifications")
+            .select("notif_id")
+            .eq("department_id", deptId)
+            .eq("title", "Ready for Signing")
+            .contains("metadata", { staffId: item.userId })
+            .maybeSingle();
 
-        if (!existing) {
+          if (!existing) {
+            readyNotifsToInsert.push({
+              user_id: item.staffId || null,
+              department_id: deptId,
+              target_role: "department",
+              category: "clearance",
+              title: "Ready for Signing",
+              description: notifDesc,
+              type: "Info",
+              ref_url: refUrl,
+              is_read: false,
+              metadata: {
+                type: "staff",
+                staffId: item.userId,
+                staffName: item.name,
+                isBatch: false,
+              },
+            });
+          }
+        } else if (staffList.length > 0) {
+          const count = staffList.length;
+          const notifDesc = `${count} staff ${count === 1 ? "client is" : "clients are"} now eligible for signing`;
+          const refUrl = `/department/clients?type=staff`;
+
           readyNotifsToInsert.push({
-            user_id: item.staffId || null,
+            user_id: staffList[0].staffId || null,
             department_id: deptId,
             target_role: "department",
             category: "clearance",
@@ -305,32 +338,11 @@ export async function dispatchReadyForSigningNotifications({
             is_read: false,
             metadata: {
               type: "staff",
-              staffId: item.userId,
-              staffName: item.name,
-              isBatch: false,
+              count,
+              isBatch: true,
             },
           });
         }
-      } else if (staffList.length > 0) {
-        const count = staffList.length;
-        const notifDesc = `${count}+ Staff has met all requirements`;
-        const refUrl = `/department/clients?type=staff`;
-
-        readyNotifsToInsert.push({
-          department_id: deptId,
-          target_role: "department",
-          category: "clearance",
-          title: "Ready for Signing",
-          description: notifDesc,
-          type: "Info",
-          ref_url: refUrl,
-          is_read: false,
-          metadata: {
-            type: "staff",
-            count,
-            isBatch: true,
-          },
-        });
       }
     }
 

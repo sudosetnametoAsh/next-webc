@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
       supabase
         .from("staffs")
-        .select("staff_id, staff_name, role")
+        .select("staff_id, staff_name")
         .order("staff_id", { ascending: true }),
 
       supabase
@@ -62,6 +62,10 @@ export async function GET(req: NextRequest) {
         .order("dept_name", { ascending: true }),
     ]);
 
+    for (const result of [studentsRes, staffsRes, coursesRes, departmentsRes]) {
+      if (result.error) throw new Error(result.error.message);
+    }
+
     const formattedStudents = (studentsRes.data || []).map((s: any) => {
       const sec = Array.isArray(s.enrollments) ? s.enrollments[0]?.course_sections : s.enrollments?.course_sections;
       const cObj = Array.isArray(sec?.courses) ? sec.courses[0] : sec?.courses;
@@ -76,7 +80,7 @@ export async function GET(req: NextRequest) {
     const formattedStaff = (staffsRes.data || []).map((st: any) => ({
       student_id: st.staff_id,
       student_name: st.staff_name,
-      course_name: st.role || "Faculty / Staff",
+      course_name: "Faculty / Staff",
       type: "staff" as const,
     }));
 
@@ -112,7 +116,7 @@ export async function GET(req: NextRequest) {
     });
 
     // 2. Fetch current client's clearance records with templates & departments
-    const { data: recordsData } = await supabase
+    const { data: recordsData, error: recordsError } = await supabase
       .from("current_clearance_records")
       .select(`
         clearance_id,
@@ -130,6 +134,8 @@ export async function GET(req: NextRequest) {
         )
       `)
       .eq("user_id", requestedStudentId);
+
+    if (recordsError) throw new Error(recordsError.message);
 
     const records = (recordsData || [])
       .map((r: any) => {
@@ -152,12 +158,14 @@ export async function GET(req: NextRequest) {
       });
 
     // 3. Fetch recent notifications related to this user
-    const { data: notificationsData } = await supabase
+    const { data: notificationsData, error: notificationsError } = await supabase
       .from("notifications")
       .select("*")
       .or(`user_id.eq.${requestedStudentId},description.ilike.%${requestedStudentId}%`)
       .order("created_at", { ascending: false })
       .limit(15);
+
+    if (notificationsError) throw new Error(notificationsError.message);
 
     const activeStudent = allClients.find((s) => s.student_id === requestedStudentId) || {
       student_id: requestedStudentId,
@@ -435,8 +443,11 @@ export async function POST(req: NextRequest) {
 
       // 4. Dispatch batch "Ready for Signing" notifications to subsequent tiers (e.g. Tier 2)
       const signedTiersMap = new Map<string, Set<number>>();
-      for (const uid of affectedUserIds) {
-        signedTiersMap.set(uid, new Set([1]));
+      for (const record of recordsToSign) {
+        const template = Array.isArray(record.clearance_templates)
+          ? record.clearance_templates[0] : record.clearance_templates;
+        if (!signedTiersMap.has(record.user_id)) signedTiersMap.set(record.user_id, new Set());
+        signedTiersMap.get(record.user_id)!.add(template?.tier ?? 1);
       }
 
       await dispatchReadyForSigningNotifications({
