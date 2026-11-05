@@ -321,7 +321,7 @@ export default function DepartmentHeader({ title, department, user_name, user_id
       : pathname.startsWith("/department/clients")
       ? "Clients"
       : pathname.startsWith("/department/calendar")
-      ? "My Calendar"
+      ? "Office Hours"
       : pathname.startsWith("/department/clearance")
       ? "My Clearance"
       : pathname.startsWith("/department/reports")

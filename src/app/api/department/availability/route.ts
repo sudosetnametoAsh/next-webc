@@ -120,7 +120,7 @@ export async function PATCH(req: NextRequest) {
     // 1. Handle quick Early Out or Resume Schedule actions
     if (action === "early_out" || action === "resume_schedule") {
       const targetDate = action === "early_out"
-        ? (early_out_date || campusClock().date)
+        ? campusClock().date
         : null;
 
       const { error: updateError } = await supabase

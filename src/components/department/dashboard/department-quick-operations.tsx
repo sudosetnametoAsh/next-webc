@@ -44,7 +44,7 @@ export default function DepartmentQuickOperations({
       badgeColor: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
     },
     {
-      label: "My Calendar",
+      label: "Office Hours",
       subtitle: "Configure office hours & availability",
       href: "/department/calendar",
       icon: Calendar,

@@ -34,7 +34,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
         const body = JSON.parse(text); writes.push(body);
         res.setHeader('Content-Type', 'application/json');
         if (failWrite) { res.statusCode = 500; return res.end(JSON.stringify({ error: 'Save failed for test' })); }
-        persisted = structuredClone(body.weekly_schedule);
+        if (body.weekly_schedule) persisted = structuredClone(body.weekly_schedule);
         return res.end(JSON.stringify({ success: true, data: { weekly_schedule: persisted } }));
       }
       res.setHeader('Content-Type', 'text/html');
@@ -47,6 +47,34 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.clock.setFixedTime(new Date('2026-11-09T01:00:00Z'));
     await page.goto(`http://127.0.0.1:${server.address().port}/`);
     await page.getByRole('button', { name: /^Mon\s*Active$/ }).waitFor();
+    const save = page.getByRole('button', { name: 'Save Weekly Schedule', exact: true });
+    const early = () => page.getByRole('button', { name: /^(Early Out|Early Out Active)$/ });
+    assert.equal(await save.isDisabled(), true, 'unchanged schedule cannot be saved');
+    await page.getByRole('button', { name: /^Tue\s*Active$/ }).click();
+    await page.getByRole('button', { name: /^Mon\s*Active$/ }).click();
+    assert.equal(await save.isDisabled(), true, 'selection-only changes do not enable Save');
+    assert.equal(await early().isEnabled(), true, 'today need not be selected');
+    await early().click();
+    await page.getByRole('button', { name: 'Confirm Early Out', exact: true }).click();
+    await page.getByRole('button', { name: 'Early Out Active', exact: true }).waitFor();
+    assert.equal(writes[0].action, 'early_out');
+    assert.equal(writes[0].early_out_date, '2026-11-09', 'early out targets today, not selected Tuesday');
+    assert.equal(await save.isDisabled(), true, 'early out does not dirty the weekly schedule');
+    await early().click();
+    await page.getByRole('button', { name: 'Resume Schedule', exact: true }).click();
+    await page.getByRole('button', { name: 'Early Out', exact: true }).waitFor();
+    for (const [time, allowed] of [['07:59', false], ['08:00', true], ['12:30', true], ['16:59', true], ['17:00', false]]) {
+      await page.clock.setFixedTime(new Date(`2026-11-09T${time}:00+08:00`));
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      assert.equal(await early().isEnabled(), allowed, `early out boundary at ${time}`);
+    }
+    await page.clock.setFixedTime(new Date('2026-11-09T09:00:00+08:00'));
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await page.getByRole('button', { name: /^Mon\s*Active$/ }).click();
+    await page.getByRole('button', { name: /^Tue\s*Active$/ }).click();
+    writes.length = 0;
+    await page.evaluate(() => { window.scheduleRefreshes = 0; });
+
     for (const day of ['Tue','Wed','Thu','Fri']) await page.getByRole('button', { name: new RegExp('^' + day + '\\s*(Active|Inactive)$') }).click();
     await page.getByText('Mixed · Activate all', { exact: true }).waitFor();
     await page.getByRole('button', { name: 'Activate selected days', exact: true }).click();
@@ -59,6 +87,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.getByRole('button', { name: 'Save Weekly Schedule', exact: true }).click();
     await page.getByText('Office hours saved', { exact: true }).waitFor();
     assert.equal(writes.length, 1);
+    assert.equal(await save.isDisabled(), true, 'successful save becomes the new baseline');
     for (const day of ['mon','tue','wed','thu','fri']) {
       assert.deepEqual(writes[0].weekly_schedule[day], { active: true, time_in: '09:00', time_out: '18:00' });
     }
@@ -75,6 +104,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.getByText('Save failed for test').first().waitFor();
     assert.equal(await page.evaluate(() => window.scheduleRefreshes || 0), 0);
     assert.equal(persisted.mon.active, true, 'failed save must not change stored hours');
+    assert.equal(await save.isEnabled(), true, 'failed save remains dirty for retry');
     await page.reload();
     await page.getByRole('button', { name: /^Mon\s*Active$/ }).waitFor();
     assert.deepEqual(errors, []);

@@ -99,6 +99,7 @@ test('activating a mixed selection saves all five weekdays instead of deactivati
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX },
   }).outputText, { exports, Date, require(name) {
     if (name === 'react') return { ...React,
+      useEffect() {},
       useMemo: (fn) => fn(),
       useState(initial) { const index = cursor++; if (!(index in state)) state[index] = typeof initial === 'function' ? initial() : initial;
         return [state[index], (value) => { state[index] = typeof value === 'function' ? value(state[index]) : value; }]; },

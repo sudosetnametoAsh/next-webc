@@ -1,7 +1,7 @@
 "use client";
 import { campusClock, officeStatus as getOfficeStatus } from "@/lib/weekly-schedule";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Clock,
   MapPin,
@@ -111,10 +111,20 @@ export default function DepartmentCalendarClient({
     buildDefaultWeeklySchedule(initialWeeklySchedule)
   );
 
-  // Current day key in view
-  const dayIndex = useMemo(() => campusClock().dayIndex, []); // 0 = Sun, 1 = Mon, ..., 6 = Sat
-  const dayMap = useMemo(() => ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], []);
-  const currentDayKey = dayMap[dayIndex];
+  const [savedSchedule, setSavedSchedule] = useState<WeeklySchedule>(() => buildDefaultWeeklySchedule(initialWeeklySchedule));
+  const hasScheduleChanges = DAYS_OF_WEEK.some(({ key }) => {
+    const draft = weeklySchedule[key], saved = savedSchedule[key];
+    return draft.active !== saved.active || draft.time_in.slice(0, 5) !== saved.time_in.slice(0, 5) || draft.time_out.slice(0, 5) !== saved.time_out.slice(0, 5);
+  });
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const refreshClock = () => setNow(new Date());
+    const timer = setInterval(refreshClock, 15000);
+    window.addEventListener('focus', refreshClock);
+    return () => { clearInterval(timer); window.removeEventListener('focus', refreshClock); };
+  }, []);
+  const clock = campusClock(now);
+  const currentDayKey = clock.dayKey;
 
   // Multiple day selection for batch configuration (defaults to today)
   const [selectedDayKeys, setSelectedDayKeys] = useState<Set<string>>(
@@ -145,7 +155,7 @@ export default function DepartmentCalendarClient({
   };
 
   // Early Out state
-  const todayDateStr = useMemo(() => campusClock().date, []);
+  const todayDateStr = clock.date;
   const [earlyOutDate, setEarlyOutDate] = useState<string | null>(initialEarlyOutDate || null);
   const [showEarlyOutDialog, setShowEarlyOutDialog] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
@@ -157,40 +167,19 @@ export default function DepartmentCalendarClient({
 
   const DeptIcon = getDepartmentIcon(iconName, departmentName);
 
-  // Early Out Allowed Check:
-  // Rule: Disabled during non-office hours, daily lunch window not included (accessible during lunch window).
-  // Strictly only functional on the current day (today).
-  const isTodaySelected = selectedDayKeys.has(currentDayKey);
-
-  const isEarlyOutAllowed = useMemo(() => {
-    // Only functional on the current day
-    if (!isTodaySelected) {
-      return false;
-    }
-
-    const todaySched = weeklySchedule[currentDayKey];
-    if (!todaySched || !todaySched.active || !todaySched.time_in || !todaySched.time_out) {
-      return false;
-    }
-
-    const now = new Date();
-    const currentMinutes = campusClock(now).minutes;
-    const [inH, inM] = todaySched.time_in.split(":").map(Number);
-    const [outH, outM] = todaySched.time_out.split(":").map(Number);
-    const inTotal = inH * 60 + (inM || 0);
-    const outTotal = outH * 60 + (outM || 0);
-
-    // Enabled during operating hours (inclusive of lunch break 12:00 - 1:00 PM)
-    return currentMinutes >= inTotal && currentMinutes < outTotal;
-  }, [weeklySchedule, currentDayKey, isTodaySelected]);
+  // Early out always applies to today's saved hours, independent of the editor selection.
+  const todaySchedule = savedSchedule[currentDayKey];
+  const toMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+  const isEarlyOutAllowed = Boolean(todaySchedule?.active &&
+    clock.minutes >= toMinutes(todaySchedule.time_in) && clock.minutes < toMinutes(todaySchedule.time_out));
 
   const officeStatus = useMemo(() => {
-    const status = getOfficeStatus(weeklySchedule, earlyOutDate);
+    const status = getOfficeStatus(weeklySchedule, earlyOutDate, now);
     const isLunch = status.schedule.startsWith("Lunch break");
     return { isOpen: status.isOpen, isEarlyOut: isEarlyOutActive, isLunch,
       label: status.schedule,
       shortBadge: isEarlyOutActive ? "CLOSED EARLY" : isLunch ? "LUNCH BREAK" : status.isOpen ? "OPEN NOW" : "CLOSED" };
-  }, [weeklySchedule, earlyOutDate, isEarlyOutActive]);
+  }, [weeklySchedule, earlyOutDate, isEarlyOutActive, now]);
 
   // Selected Days configuration helpers
   const primarySelectedDayKey =
@@ -264,6 +253,7 @@ export default function DepartmentCalendarClient({
   };
 
   const handleSaveSchedule = () => {
+    if (!hasScheduleChanges || isSaving) return;
     // Validate all active days
     for (const [dayKey, cfg] of Object.entries(weeklySchedule)) {
       if (cfg.active) {
@@ -286,6 +276,7 @@ export default function DepartmentCalendarClient({
         early_out_date: earlyOutDate,
       },
       {
+        onSuccess: () => setSavedSchedule(weeklySchedule),
         onError: (err: any) => {
           setErrorMessage(err.message || "Failed to save office hours.");
         },
@@ -294,12 +285,19 @@ export default function DepartmentCalendarClient({
   };
 
   const handleConfirmEarlyOut = () => {
+    const current = campusClock();
+    const today = savedSchedule[current.dayKey];
+    if (!today?.active || current.minutes < toMinutes(today.time_in) || current.minutes >= toMinutes(today.time_out) || isSaving) {
+      setShowEarlyOutDialog(false);
+      setErrorMessage('Early out is only available during today’s saved working hours.');
+      return;
+    }
     setIsEarlyOutSubmitting(true);
     updateSchedule(
-      { action: "early_out", early_out_date: todayDateStr },
+      { action: "early_out", early_out_date: campusClock().date },
       {
         onSuccess: () => {
-          setEarlyOutDate(todayDateStr);
+          setEarlyOutDate(campusClock().date);
           setShowEarlyOutDialog(false);
           setIsEarlyOutSubmitting(false);
         },
@@ -341,7 +339,7 @@ export default function DepartmentCalendarClient({
 
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
-              My Calendar & Office Hours
+              Office Hours
             </h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs font-medium text-slate-400">
               <span className="flex items-center gap-1.5 text-slate-300">
@@ -363,16 +361,16 @@ export default function DepartmentCalendarClient({
           <button
             type="button"
             onClick={() => {
-              if (!isTodaySelected) return;
+              if (!isEarlyOutAllowed || isSaving) return;
               if (isEarlyOutActive) {
                 setShowResumeDialog(true);
               } else {
                 setShowEarlyOutDialog(true);
               }
             }}
-            disabled={!isTodaySelected || (!isEarlyOutAllowed && !isEarlyOutActive)}
+            disabled={!isEarlyOutAllowed || isSaving}
             className={`text-xs font-medium px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border transition-ui duration-200 active:scale-95 ${
-              !isTodaySelected
+              !isEarlyOutAllowed || isSaving
                 ? "border border-slate-800 bg-[#070c18] text-slate-500 opacity-50 cursor-not-allowed"
                 : isEarlyOutActive
                 ? "bg-amber-500 text-slate-950 border-amber-400 font-semibold shadow-lg shadow-amber-500/20 cursor-pointer"
@@ -381,9 +379,7 @@ export default function DepartmentCalendarClient({
                 : "border border-slate-800 bg-[#070c18] text-slate-500 opacity-60 cursor-not-allowed"
             }`}
             title={
-              !isTodaySelected
-                ? `Early Out is only functional on the current day (${DAYS_OF_WEEK.find((d) => d.key === currentDayKey)?.full}).`
-                : isEarlyOutActive
+              isEarlyOutActive
                 ? "Early out active. Click to resume normal schedule."
                 : isEarlyOutAllowed
                 ? "Clear schedule for remaining hours today (Early Out)."
@@ -642,7 +638,7 @@ export default function DepartmentCalendarClient({
             <button
               type="button"
               onClick={() => {
-                setWeeklySchedule(buildDefaultWeeklySchedule(initialWeeklySchedule));
+                setWeeklySchedule(buildDefaultWeeklySchedule(savedSchedule));
                 setSelectedDayKeys(new Set([currentDayKey]));
                 setErrorMessage(null);
               }}
@@ -655,8 +651,8 @@ export default function DepartmentCalendarClient({
             <button
               type="button"
               onClick={handleSaveSchedule}
-              disabled={isSaving}
-              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-ui cursor-pointer disabled:opacity-50"
+              disabled={isSaving || !hasScheduleChanges}
+              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-ui cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

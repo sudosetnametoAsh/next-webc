@@ -92,7 +92,7 @@ test('availability API saves weekly-only payloads and keeps quick early-out acti
   assert.deepEqual(notices, ["officer"], "schedule delivery uses the authenticated officer");
   assert.deepEqual(invalidations, ['dept', 'client']);
   assert.equal((await patch({ action: 'early_out', early_out_date: '2026-11-02' })).status, 200);
-  assert.equal(updates[0].early_out_date, '2026-11-02');
+  assert.equal(updates[0].early_out_date, helpers.campusClock().date, 'quick early out always targets the current Manila date');
   assert.equal((await patch({ action: 'resume_schedule' })).status, 200);
   assert.equal(updates[1].early_out_date, null);
 });
