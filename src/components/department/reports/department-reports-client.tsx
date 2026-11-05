@@ -1,18 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
-  Download,
-  Loader2,
   CheckCircle2,
   Clock,
   TrendingUp,
-  Building2,
 } from "lucide-react";
 import { DepartmentReportData } from "@/modules/staff/application/repository/dashboard-repository";
-import { exportDepartmentClearanceReport } from "@/utils/export-clearance-report";
 import { getDepartmentIcon } from "@/lib/department-icons";
-import { useToast } from "@/hooks/use-toast";
 import DailyThroughputChart from "./daily-throughput-chart";
 import SectionAuditTable from "./section-audit-table";
 
@@ -21,76 +16,34 @@ interface Props {
 }
 
 export default function DepartmentReportsClient({ reportData }: Props) {
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const { success, error } = useToast();
-
-  const { departmentName, metrics, dailyThroughput, programs, records } =
+  const { departmentName, metrics, dailyThroughput, programs } =
     reportData;
 
   const DeptIcon = getDepartmentIcon(departmentName);
 
-  const handleExport = () => {
-    setIsExporting(true);
-    try {
-      const res = exportDepartmentClearanceReport({
-        departmentName,
-        records,
-      });
-
-      if (res.success) {
-        success(
-          `Successfully exported ${res.totalRecords} clearance records to CSV.`,
-          "Department Audit Export",
-        );
-      }
-    } catch (err: any) {
-      error(
-        err.message || "Failed to export department clearance report",
-        "Export Error",
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   return (
     <>
       <div className="space-y-6 pb-10">
-        {/* ── 1. Page Header with Department Identity & CSV Export ── */}
+        {/* ── 1. Page Header ── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/10">
-              <DeptIcon className="h-6 w-6 stroke-[2]" />
+          <div className="flex min-w-0 items-center gap-2.5 md:gap-3.5">
+            <div className="flex h-9 w-9 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/10">
+              <DeptIcon className="h-4.5 w-4.5 md:h-6 md:w-6 stroke-[2]" />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <h1 className="text-lg md:text-3xl font-extrabold leading-snug text-white tracking-tight">
                   Clearance Reports & Audit
                 </h1>
-                <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
-                  {departmentName}
-                </span>
               </div>
-              <p className="mt-1 text-xs sm:text-sm text-slate-400">
+              <p className="mt-1 text-[11px] leading-relaxed md:text-sm text-slate-400">
                 Departmental signing activity and section compliance audits
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={isExporting}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-ui cursor-pointer self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin text-slate-950" />
-            ) : (
-              <Download className="h-4 w-4 stroke-[2.5]" />
-            )}
-            <span>Export Audit (CSV)</span>
-          </button>
+
         </div>
 
         {/* ── 2. Executive Audit Metric Strip (3 Cards) ── */}

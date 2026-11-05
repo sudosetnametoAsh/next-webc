@@ -520,7 +520,7 @@ export default function RequirementModal({
   const renderStatusBadge = () => {
     if (isLoadingDept) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-800/80 px-2.5 py-1 text-xs font-bold text-slate-400 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-800/80 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-slate-400 whitespace-nowrap shrink-0">
           <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400 shrink-0" />
           <span className="shrink-0">Loading</span>
         </span>
@@ -528,7 +528,7 @@ export default function RequirementModal({
     }
     if (isCleared) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-emerald-300 whitespace-nowrap shrink-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
           <span className="shrink-0">Cleared</span>
         </span>
@@ -536,7 +536,7 @@ export default function RequirementModal({
     }
     if (isVerified) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-emerald-300 whitespace-nowrap shrink-0">
           <Sparkles className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
           <span className="shrink-0">AI Verified</span>
         </span>
@@ -544,7 +544,7 @@ export default function RequirementModal({
     }
     if (isReturned) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-1 text-xs font-bold text-rose-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-rose-300 whitespace-nowrap shrink-0">
           <XCircle className="h-3.5 w-3.5 text-rose-400 shrink-0" />
           <span className="shrink-0">Rejected</span>
         </span>
@@ -552,7 +552,7 @@ export default function RequirementModal({
     }
     if (hasAppeal) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-amber-300 whitespace-nowrap shrink-0">
           <Clock className="h-3.5 w-3.5 text-amber-400 shrink-0" />
           <span className="shrink-0">For Review</span>
         </span>
@@ -560,7 +560,7 @@ export default function RequirementModal({
     }
     if (isFlagged) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/40 bg-blue-500/15 px-2.5 py-1 text-xs font-bold text-blue-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/40 bg-blue-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-blue-300 whitespace-nowrap shrink-0">
           <AlertTriangle className="h-3.5 w-3.5 text-blue-400 shrink-0" />
           <span className="shrink-0">Flagged</span>
         </span>
@@ -568,7 +568,7 @@ export default function RequirementModal({
     }
     if (isForReview) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-amber-300 whitespace-nowrap shrink-0">
           <Clock className="h-3.5 w-3.5 text-amber-400 shrink-0" />
           <span className="shrink-0">
             {currentStatus === "Submitted" ? "Submitted" : "For Review"}
@@ -578,14 +578,14 @@ export default function RequirementModal({
     }
     if (task?.isInPerson || currentStatus === "In Person") {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-800/80 px-2.5 py-1 text-xs font-bold text-slate-300 whitespace-nowrap shrink-0">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-800/80 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-slate-300 whitespace-nowrap shrink-0">
           <UserCheck className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           <span className="shrink-0">In Person</span>
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/70 bg-slate-800/80 px-2.5 py-1 text-xs font-bold text-slate-300 whitespace-nowrap shrink-0">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/70 bg-slate-800/80 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-bold text-slate-300 whitespace-nowrap shrink-0">
         <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
         <span className="shrink-0">Pending</span>
       </span>
@@ -693,17 +693,17 @@ export default function RequirementModal({
           className="relative w-full rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl shadow-black/70 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] lg:max-h-[92dvh]"
         >
           {/* Header Section */}
-          <div className="bg-[#070c18] border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap sm:flex-nowrap justify-between items-start gap-4">
-            <div className="flex gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 mt-0.5">
+          <div className="bg-[#070c18] border-b border-slate-800 px-3 sm:px-6 py-3 sm:py-5 flex flex-nowrap justify-between items-start gap-2 sm:gap-4">
+            <div className="flex flex-1 gap-2 sm:gap-3 min-w-0">
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 mt-0.5">
                 {task?.isInPerson && isPending ? (
-                  <UserCheck size={20} />
+                  <UserCheck className="h-4 w-4 sm:h-5 sm:w-5" />
                 ) : (
-                  <FileBox size={20} />
+                  <FileBox className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
               </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-bold text-white tracking-tight truncate">
+              <div className="min-w-0 flex-1">
+                <h2 title={task?.title || "Clearance Requirement"} className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
                   {isLoadingDept
                     ? "Loading..."
                     : task?.title || "Clearance Requirement"}
@@ -734,7 +734,7 @@ export default function RequirementModal({
           </div>
 
           {/* Scrollable Content Section */}
-          <div className="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
+          <div className="p-3 sm:p-6 overflow-y-auto space-y-3 sm:space-y-5 flex-1 custom-scrollbar">
             {isLoadingDept ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-amber-400 mb-3" />
@@ -751,15 +751,15 @@ export default function RequirementModal({
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                         Requirement Description
                       </label>
-                      <div className="w-full p-3.5 border border-slate-800/80 rounded-xl text-xs bg-[#070c18] text-slate-200 leading-relaxed whitespace-pre-wrap">
+                      <div className="w-full p-2.5 sm:p-3.5 border border-slate-800/80 rounded-xl text-xs bg-[#070c18] text-slate-200 leading-relaxed whitespace-pre-wrap">
                         {task.description}
                       </div>
                     </div>
                   )}
 
                   {/* Meta Details: Deadline (Left) & Assigned Date (Right) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                    <div className="flex items-center gap-2.5 rounded-xl border border-slate-800/80 bg-[#070c18] p-3">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-2.5 text-[11px] sm:text-xs">
+                    <div className="flex items-center gap-2.5 rounded-xl border border-slate-800/80 bg-[#070c18] p-2 sm:p-3">
                       <Calendar
                         size={16}
                         className={
@@ -773,7 +773,7 @@ export default function RequirementModal({
                           Deadline
                         </p>
                         <p
-                          className={`text-xs font-semibold mt-0.5 truncate ${
+                          className={`text-[11px] sm:text-xs font-semibold mt-0.5 break-words ${
                             isUrgent ? "text-rose-400" : "text-slate-200"
                           }`}
                         >
@@ -788,13 +788,13 @@ export default function RequirementModal({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 rounded-xl border border-slate-800/80 bg-[#070c18] p-3">
+                    <div className="flex items-center gap-2.5 rounded-xl border border-slate-800/80 bg-[#070c18] p-2 sm:p-3">
                       <Clock size={16} className="text-slate-400 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                           Assigned Date
                         </p>
-                        <p className="text-xs font-semibold text-slate-200 mt-0.5 truncate">
+                        <p className="text-[11px] sm:text-xs font-semibold text-slate-200 mt-0.5 break-words">
                           {formatDate(task.assigned_at)}
                         </p>
                       </div>
@@ -805,18 +805,18 @@ export default function RequirementModal({
                 {/* 2. AI Vision Assessment Card (if available) */}
                 {localAiReport && (
                   localAiReport.processingFailed ? (
-                    <div className="bg-[#10172A] border border-amber-500/30 rounded-xl p-5">
+                    <div className="bg-[#10172A] border border-amber-500/30 rounded-xl p-3 sm:p-5">
                       <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm tracking-wide mb-2">
                         <Clock className="w-[18px] h-[18px]" />
                         <h3>Manual Staff Verification Queued</h3>
                       </div>
-                      <p className="text-slate-300 text-sm leading-relaxed">
+                      <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                         {localAiReport.summary ||
                           "Automated AI document analysis could not be completed. Please wait for an officer to review your submission manually."}
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-[#10172A] border border-blue-900/40 rounded-xl p-5">
+                    <div className="bg-[#10172A] border border-blue-900/40 rounded-xl p-3 sm:p-5">
                       <div className="flex flex-wrap gap-3 items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Sparkles className="text-blue-400 w-[18px] h-[18px]" />
@@ -832,7 +832,7 @@ export default function RequirementModal({
                       </div>
 
                       {localAiReport.summary && (
-                        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                        <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
                           {localAiReport.summary}
                         </p>
                       )}
@@ -913,9 +913,9 @@ export default function RequirementModal({
                   )
                 ) : task.isInPerson ? (
                   /* In-Person Guidance (When not cleared and not rejected) */
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 sm:p-4.5 flex items-start gap-3.5 text-amber-200">
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 sm:p-4.5 flex items-start gap-2.5 sm:gap-3.5 text-amber-200">
                     <User className="text-amber-400 w-5 h-5 shrink-0 mt-0.5" />
-                    <p className="text-sm leading-relaxed">
+                    <p className="text-xs sm:text-sm leading-relaxed">
                       In-person clearance: Please visit the{" "}
                       <span className="font-bold text-amber-300">{deptName}</span> office
                       during their staffed hours.
@@ -994,7 +994,7 @@ export default function RequirementModal({
                           </div>
                         )}
 
-                        <label className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-800 hover:border-amber-500/50 bg-[#070c18] hover:bg-slate-800/30 p-6 sm:p-7 text-center transition-ui cursor-pointer">
+                        <label className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-800 hover:border-amber-500/50 bg-[#070c18] hover:bg-slate-800/30 p-4 sm:p-7 text-center transition-ui cursor-pointer">
                           <input
                             type="file"
                             className="hidden"
@@ -1004,7 +1004,7 @@ export default function RequirementModal({
                           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 mb-3 shadow-sm group-hover:scale-105 transition-transform">
                             <Upload className="h-5 w-5" />
                           </div>
-                          <p className="text-sm text-gray-200">
+                          <p className="text-xs sm:text-sm text-gray-200">
                             Drag &amp; drop or{" "}
                             <span className="text-amber-400 font-semibold underline underline-offset-2 hover:text-amber-300">
                               browse files
@@ -1071,7 +1071,7 @@ export default function RequirementModal({
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                         Feedback
                       </label>
-                      <div className="w-full p-3.5 border border-slate-800/80 rounded-xl text-xs bg-[#070c18] text-slate-200 leading-relaxed whitespace-pre-wrap">
+                      <div className="w-full p-2.5 sm:p-3.5 border border-slate-800/80 rounded-xl text-xs bg-[#070c18] text-slate-200 leading-relaxed whitespace-pre-wrap">
                         {task.comments}
                       </div>
                     </div>
@@ -1079,9 +1079,9 @@ export default function RequirementModal({
 
                 {/* 5. Appeal Notice & Action for Flagged Requirements (placed at the bottom below Feedback and Submitted Documents) */}
                 {isFlagged && !hasAppeal && !isReturned && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 sm:p-4.5 flex items-start gap-3.5 text-blue-200">
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 sm:p-4.5 flex items-start gap-2.5 sm:gap-3.5 text-blue-200">
                     <HelpCircle className="text-blue-400 w-5 h-5 shrink-0 mt-0.5" />
-                    <p className="text-sm leading-relaxed text-blue-200/90">
+                    <p className="text-xs sm:text-sm leading-relaxed text-blue-200/90">
                       <span className="font-bold text-blue-300">
                         Appeal Document Authenticity?
                       </span>{" "}
@@ -1103,9 +1103,9 @@ export default function RequirementModal({
 
                 {/* 5. Cleared Notice (placed at the bottom of the modal below the feedback element and submitted document) */}
                 {isCleared && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 sm:p-4.5 flex items-start gap-3.5 text-emerald-200">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 sm:p-4.5 flex items-start gap-2.5 sm:gap-3.5 text-emerald-200">
                     <CheckCircle2 className="text-emerald-400 w-5 h-5 shrink-0 mt-0.5" />
-                    <p className="text-sm leading-relaxed min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm leading-relaxed min-w-0 flex-1">
                       <span className="font-bold text-emerald-300">Requirement Cleared:</span>{" "}
                       This clearance requirement has been approved and cleared by the{" "}
                       <span className="font-bold text-emerald-300">{deptName}</span> officer. No further action is required.

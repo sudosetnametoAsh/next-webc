@@ -139,27 +139,27 @@ export default function AddTask({
 
         <DialogContent className="flex max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-800 bg-[#0a101f] p-0 text-slate-100 shadow-2xl sm:max-w-xl [&>button]:text-slate-400">
           {/* Deep Blue Header */}
-          <DialogHeader className="shrink-0 border-b border-slate-800 px-5 py-5 pr-12 text-left sm:px-6">
-            <DialogTitle className="flex items-center gap-3 text-lg font-semibold tracking-tight">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300"><Plus className="h-5 w-5" /></span>
+          <DialogHeader className="shrink-0 border-b border-slate-800 px-3.5 py-3 pr-10 text-left sm:px-6 sm:py-5 sm:pr-12">
+            <DialogTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-semibold tracking-tight">
+              <span className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300"><Plus className="h-4 w-4 sm:h-5 sm:w-5" /></span>
               Assign New Task
             </DialogTitle>
-            <DialogDescription className="text-xs leading-relaxed text-slate-400">Create a requirement and choose how clients complete it.</DialogDescription>
+            <DialogDescription className="text-[11px] sm:text-xs leading-relaxed text-slate-400">Create a requirement and choose how clients complete it.</DialogDescription>
           </DialogHeader>
 
-          <div className="flex min-h-0 flex-col gap-5 overflow-y-auto p-5 sm:p-6">
+          <div className="flex min-h-0 flex-col gap-3 overflow-y-auto p-3.5 sm:gap-5 sm:p-6">
             {/* Student Target Indicator Card */}
-            <div className="flex items-center gap-3 rounded-xl border border-slate-800 bg-[#070c18] p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm font-semibold text-slate-400">
+            <div className="flex items-center gap-2 sm:gap-3 rounded-xl border border-slate-800 bg-[#070c18] p-2.5 sm:p-3">
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm font-semibold text-slate-400">
                 <Users className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-200">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-200">
                   {clearanceId.length > 0
                     ? `${clearanceId.length} ${clearanceId.length === 1 ? "client" : "clients"} selected`
                     : "No clients selected"}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-[11px] sm:text-xs text-slate-500">
                   {clearanceId.length > 1
                     ? "Assign to all selected clients"
                     : "Assign to the selected client"}
@@ -168,14 +168,14 @@ export default function AddTask({
             </div>
 
             {/* Task Title (Mapped to existing 'description' state) */}
-            <div className="space-y-2">
-              <Label htmlFor="new-task-title" className="text-sm font-medium text-slate-300">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="new-task-title" className="text-xs sm:text-sm font-medium text-slate-300">
                 Task Title <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="new-task-title"
                 aria-invalid={isTitleDuplicate}
-                className={`h-10 bg-[#070c18] text-slate-100 placeholder:text-slate-600 ${isTitleDuplicate ? "border-rose-500 focus-visible:ring-rose-500" : "border-slate-700 focus-visible:ring-amber-400/40"}`}
+                className={`h-9 sm:h-10 text-xs sm:text-base md:text-sm bg-[#070c18] text-slate-100 placeholder:text-slate-600 ${isTitleDuplicate ? "border-rose-500 focus-visible:ring-rose-500" : "border-slate-700 focus-visible:ring-amber-400/40"}`}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Submit Library Clearance Form"
@@ -188,13 +188,13 @@ export default function AddTask({
             </div>
 
             {/* Task Description */}
-            <div className="space-y-2">
-              <Label htmlFor="new-task-description" className="text-sm font-medium text-slate-300">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="new-task-description" className="text-xs sm:text-sm font-medium text-slate-300">
                 Instructions <span className="text-rose-400">*</span>
               </Label>
               <Textarea
                 id="new-task-description"
-                className="min-h-28 resize-y border-slate-700 bg-[#070c18] text-slate-100 placeholder:text-slate-600 focus-visible:ring-amber-400/40"
+                className="min-h-20 sm:min-h-28 text-xs sm:text-base md:text-sm resize-y border-slate-700 bg-[#070c18] text-slate-100 placeholder:text-slate-600 focus-visible:ring-amber-400/40"
                 placeholder="Provide details about this task..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -202,11 +202,11 @@ export default function AddTask({
             </div>
 
             {/* Due Date (Optional) */}
-            <div className="space-y-2 rounded-xl border border-slate-800 bg-[#070c18] p-4">
+            <div className="space-y-1.5 sm:space-y-2 rounded-xl border border-slate-800 bg-[#070c18] p-2.5 sm:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-amber-300" />
-                  <Label htmlFor="task-due-date" className="text-sm font-medium text-slate-200">
+                  <Label htmlFor="task-due-date" className="text-xs sm:text-sm font-medium text-slate-200">
                     Due Date <span className="text-xs font-normal text-slate-500">(Optional)</span>
                   </Label>
                 </div>
@@ -226,9 +226,9 @@ export default function AddTask({
                 min={campusDateInput(new Date())}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
+                className="h-8 sm:h-9 text-xs sm:text-base md:text-sm border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 {dueDate
                   ? `Clients must complete this requirement by ${new Date(dueDate + "T00:00:00+08:00").toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" })}.`
                   : "Leave blank to allow completion until the end of the clearance season."}
@@ -236,17 +236,17 @@ export default function AddTask({
             </div>
 
             {/* Dropbox Toggle Panel */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#070c18] p-4 transition-colors hover:border-slate-700">
-              <div className="flex items-start gap-3">
-                <Upload className="mt-0.5 h-5 w-5 text-amber-300" />
+            <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#070c18] p-2.5 sm:p-4 transition-colors hover:border-slate-700">
+              <div className="flex min-w-0 items-start gap-2 sm:gap-3">
+                <Upload className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-amber-300" />
                 <div className="space-y-1">
                   <Label
                     htmlFor="dropbox-switch"
-                    className="cursor-pointer text-sm font-medium text-slate-200"
+                    className="cursor-pointer text-xs sm:text-sm font-medium text-slate-200"
                   >
                     File submission
                   </Label>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-[11px] sm:text-xs text-slate-500">
                     Allow clients to upload supporting files
                   </p>
                 </div>
@@ -261,11 +261,11 @@ export default function AddTask({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-slate-800 bg-[#070c18] px-5 py-4 sm:px-6">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-slate-800 bg-[#070c18] px-3.5 py-2.5 sm:px-6 sm:py-4">
             <DialogClose asChild>
               <Button
                 variant="ghost"
-                className="rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                className="h-8 sm:h-9 rounded-lg text-[11px] sm:text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
 
               >
                 Cancel
@@ -275,7 +275,7 @@ export default function AddTask({
               <Button
                 onClick={addTask}
                 disabled={clearanceId.length === 0 || isTitleDuplicate || !title.trim() || !description.trim()}
-                className="gap-2 rounded-lg bg-amber-400 px-5 text-xs font-semibold text-slate-950 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-8 sm:h-9 gap-1.5 sm:gap-2 rounded-lg bg-amber-400 px-3 sm:px-5 text-[11px] sm:text-xs font-semibold text-slate-950 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign Task

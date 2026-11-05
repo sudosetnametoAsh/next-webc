@@ -79,30 +79,31 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
   );
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl">
+    <div className="w-full min-w-0 overflow-x-auto rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl md:overflow-x-visible">
+    <div className="flex min-w-[720px] flex-col overflow-hidden md:min-w-0">
       {/* ── Card Header ── */}
-      <div className="border-b border-slate-800 bg-[#070c18] p-5 sm:p-6">
+      <div className="border-b border-slate-800 bg-[#070c18] p-3 md:p-6">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
+          <span className="flex h-6 w-6 md:h-7 md:w-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
             <Users className="h-4 w-4" />
           </span>
-          <h3 className="text-base font-bold tracking-tight text-white">
+          <h3 className="text-sm md:text-base font-bold tracking-tight text-white">
             Academic Program & Section Clearance Audit
           </h3>
         </div>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-[11px] md:text-xs text-slate-400">
           Granular completion breakdown across enrolled degree courses and staff rosters in {departmentName}
         </p>
       </div>
 
       {/* ── Filter Controls Row ── */}
-      <div className="flex flex-col gap-3 border-b border-slate-800/80 bg-slate-950/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-row items-center justify-between gap-3 border-b border-slate-800/80 bg-slate-950/40 p-3 md:p-4">
         {/* Program Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => setSelectedProgram("all")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
+            className={`rounded-lg px-2 py-1 text-[10px] md:px-3 md:py-1.5 md:text-xs font-semibold transition-ui cursor-pointer ${
               selectedProgram === "all"
                 ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
                 : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
@@ -120,7 +121,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                 key={p.programCode}
                 type="button"
                 onClick={() => setSelectedProgram(p.programCode)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-ui cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10px] md:px-3 md:py-1.5 md:text-xs font-semibold transition-ui cursor-pointer ${
                   isSelected
                     ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
                     : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
@@ -141,7 +142,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
         </div>
 
         {/* Real-time Section Search */}
-        <div className="relative min-w-[220px]">
+        <div className="relative shrink-0 w-[220px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
@@ -170,9 +171,9 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                 {/* ── Program Header Row (Clickable) ── */}
                 <div
                   onClick={() => toggleExpand(p.programCode)}
-                  className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between hover:bg-slate-900/40 cursor-pointer transition-colors"
+                  className="flex flex-row items-center justify-between gap-3 px-3 py-2.5 md:px-5 md:py-4 hover:bg-slate-900/40 cursor-pointer transition-colors"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2 md:gap-3 min-w-0">
                     <button
                       type="button"
                       aria-label="Toggle Section Details"
@@ -186,7 +187,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                     </button>
 
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
+                      className={`flex h-7 w-7 md:h-8 md:w-8 shrink-0 items-center justify-center rounded-lg border ${
                         isStaff
                           ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                           : "border-amber-500/30 bg-amber-500/10 text-amber-400"
@@ -201,10 +202,13 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-white truncate">
+                        <span className="font-bold text-xs md:text-sm text-white truncate" title={p.programName}>
+                          <span className="md:hidden">{p.programCode}</span>
+                          <span className="hidden md:inline">
                           {p.programName}
+                          </span>
                         </span>
-                        <span className="rounded-md border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-300">
+                        <span className="hidden md:inline rounded-md border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-300">
                           {p.programCode}
                         </span>
                       </div>
@@ -216,8 +220,8 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                   </div>
 
                   {/* Program Macro Numbers & Progress */}
-                  <div className="flex items-center gap-6 sm:justify-end">
-                    <div className="hidden sm:flex items-center gap-4 text-xs font-mono">
+                  <div className="flex items-center gap-3 md:gap-6 justify-end shrink-0">
+                    <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs font-mono">
                       <div>
                         <span className="text-slate-500">Cleared: </span>
                         <span className="text-emerald-400 font-bold">
@@ -254,7 +258,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
 
                 {/* ── Expanded Section Table ── */}
                 {isExpanded && (
-                  <div className="border-t border-slate-800/80 bg-slate-950/60 px-5 sm:px-14 py-3">
+                  <div className="border-t border-slate-800/80 bg-slate-950/60 px-3 md:px-14 py-2 md:py-3">
                     {sectionsToRender.length === 0 ? (
                       <div className="py-4 text-center text-xs text-slate-500 italic">
                         No sections match your filter.
@@ -265,16 +269,16 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
                           return (
                             <div
                               key={s.label}
-                              className="flex flex-col gap-2 rounded-xl border border-slate-800/60 bg-[#0a101f]/70 p-3 sm:flex-row sm:items-center sm:justify-between hover:border-slate-700/80 transition-colors"
+                              className="flex flex-row items-center justify-between gap-2 rounded-xl border border-slate-800/60 bg-[#0a101f]/70 p-2 md:p-3 hover:border-slate-700/80 transition-colors"
                             >
                               <div className="flex items-center gap-2.5">
                                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                                <span className="text-xs font-medium text-slate-200">
+                                <span className="text-[11px] md:text-xs font-medium text-slate-200">
                                   {s.label}
                                 </span>
                               </div>
 
-                              <div className="flex items-center gap-5 sm:justify-end">
+                              <div className="flex flex-nowrap items-center gap-3 md:gap-5 justify-end shrink-0">
                                 <div className="flex items-center gap-3 font-mono text-[11px]">
                                   <span className="text-slate-400">
                                     Total:{" "}
@@ -322,6 +326,7 @@ export default function SectionAuditTable({ programs, departmentName }: Props) {
           })
         )}
       </div>
+    </div>
     </div>
   );
 }

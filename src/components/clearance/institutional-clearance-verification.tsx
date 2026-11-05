@@ -90,7 +90,18 @@ export default function InstitutionalClearanceVerification({
   const [todayStr, setTodayStr] = useState("Fri, Oct 16");
   const [officeHoursPage, setOfficeHoursPage] = useState(0);
   const [pipelinePage, setPipelinePage] = useState(0);
-  const DEPARTMENTS_PER_PAGE = 6;
+  const [departmentsPerPage, setDepartmentsPerPage] = useState(3);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const update = () => {
+      setDepartmentsPerPage(desktop.matches ? 6 : 3);
+      setPipelinePage(0);
+    };
+    update();
+    desktop.addEventListener("change", update);
+    return () => desktop.removeEventListener("change", update);
+  }, []);
+  const DEPARTMENTS_PER_PAGE = departmentsPerPage;
   const OFFICE_HOURS_PER_PAGE = 6;
 
   const allTasks = useMemo<getDepartmentDetailsPromise>(() => {
@@ -428,45 +439,29 @@ export default function InstitutionalClearanceVerification({
       {/* ── 4-Component Balanced Grid (Even Square / 2x2 Layout) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full items-stretch">
         {/* ── LEFT COLUMN: Verification + How To Comply ── */}
-        <div className="lg:col-span-8 flex flex-col gap-5">
+        <div className="min-w-0 lg:col-span-8 flex flex-col gap-5">
           {/* 1. Institutional Clearance Verification */}
           <section className="w-full lg:flex-1 rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-6 md:p-7 shadow-2xl backdrop-blur-sm space-y-6">
             {/* ── 1. Top Header Row ── */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
+            <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-0 md:gap-x-4">
                 {/* Amber Graduation Cap Icon */}
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner">
-                  <GraduationCap className="h-6 w-6" />
+                <div className="col-[1/2] row-[1/2] md:row-[1/3] flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner md:h-12 md:w-12">
+                  <GraduationCap className="h-5 w-5 md:h-6 md:w-6" />
                 </div>
 
-                <div className="flex flex-col">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h1 className="text-xl font-bold tracking-tight text-white md:text-2xl">
+                    <h1 className="col-[2/4] row-[1/2] md:col-[2/3] min-w-0 text-base font-bold leading-snug tracking-tight text-white sm:text-lg md:text-2xl">
                       Campus Clearance Overview
                     </h1>
-                    {/* <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
-                      {studentProfile?.year
-                        ? `Year ${studentProfile.year} · Sem ${
-                            studentProfile.semester || 1
-                          }`
-                        : "AY 2024–2025"}
-                    </span> */}
-                  </div>
-                  <p className="mt-1 text-xs text-slate-400 md:text-sm">
-                    {studentProfile?.course_name
-                      ? `${studentProfile.course_name}${
-                          studentProfile.section_number
-                            ? ` · ${studentProfile.year}/${studentProfile.semester}-${studentProfile.section_number}`
-                            : ""
-                        }`
-                      : "Official university graduation & semester endorsement pipeline"}
+                  <p className="col-[2/3] row-[2/3] min-w-0 text-[11px] leading-relaxed text-slate-400 sm:text-xs md:mt-1 md:text-sm">
+                    {[
+                      studentProfile?.semester != null ? `Term ${studentProfile.semester}` : null,
+                      studentProfile?.academic_year ? `AY ${studentProfile.academic_year}` : null,
+                    ].filter(Boolean).join(" · ") || "No current academic period"}
                   </p>
-                </div>
-              </div>
 
               {/* Dynamic Status Pill */}
               <div
-                className={`flex items-center gap-2 self-start rounded-full border px-3.5 py-1.5 text-xs font-semibold sm:self-center ${
+                className={`col-[3/4] row-[2/3] md:row-[1/3] flex items-center justify-self-end gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold sm:gap-1.5 sm:px-2.5 sm:text-[11px] md:gap-2 md:px-3.5 md:py-1.5 md:text-xs ${
                   isFullyCleared
                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                     : "border-amber-500/30 bg-amber-500/10 text-amber-400"
@@ -478,26 +473,26 @@ export default function InstitutionalClearanceVerification({
                   <Clock className="h-3.5 w-3.5" />
                 )}
                 <span>
-                  {clearedCount} of {totalCount} Offices Cleared
+                  {clearedCount} of {totalCount}<span className="hidden sm:inline"> Offices</span> Cleared
                 </span>
               </div>
             </div>
 
             {/* ── 2. Middle Row: Progress & Next Step Callout ── */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-2">
               {/* Clearance Progress Card */}
-              <div className="flex flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/90 p-5 shadow-sm">
+              <div className="flex min-w-0 flex-col justify-between rounded-xl border border-slate-800/80 bg-[#070c18]/90 p-4 md:p-5 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                     Clearance Progress
                   </span>
-                  <span className="text-3xl font-extrabold tracking-tight text-white">
+                  <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
                     {percentage}%
                   </span>
                 </div>
 
                 {/* Dual-Tone Track & Amber Bar */}
-                <div className="my-3.5 h-2.5 w-full overflow-hidden rounded-full bg-slate-800/90">
+                <div className="my-3 h-2 md:my-3.5 md:h-2.5 w-full overflow-hidden rounded-full bg-slate-800/90">
                   <div
                     className="h-full rounded-full bg-[#F59E0B] w-full origin-left transition-transform duration-200 ease-out motion-reduce:transition-none shadow-sm shadow-amber-500/30"
                     style={{ transform: `scaleX(${(percentage) / 100})` }}
@@ -517,11 +512,11 @@ export default function InstitutionalClearanceVerification({
               </div>
 
               {/* Next Step Alert Card */}
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-500/30 dark:border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 to-transparent dark:from-amber-950/30 dark:via-amber-950/15 p-5 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500 dark:text-amber-400" />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-white">
+              <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 dark:border-amber-600/35 bg-gradient-to-r from-portal-accent-soft via-portal-accent-soft/60 to-transparent dark:from-amber-950/30 dark:via-amber-950/15 p-4 md:p-5 md:gap-4 md:flex-nowrap shadow-sm">
+                <div className="flex min-w-0 flex-1 items-start gap-2 md:gap-3">
+                  <AlertCircle className="mt-0.5 h-4 w-4 md:h-5 md:w-5 shrink-0 text-amber-500 dark:text-amber-400" />
+                  <div className="flex min-w-0 flex-col break-words">
+                    <span className="text-[13px] md:text-sm font-bold text-white">
                       {isFullyCleared
                         ? "Clearance Complete"
                         : `Phase ${activePhaseTier} Active: ${
@@ -538,7 +533,7 @@ export default function InstitutionalClearanceVerification({
                   <button
                     type="button"
                     onClick={() => handleDepartmentClick(nextStepRecord)}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3.5 py-1.5 text-xs font-bold text-amber-300 shadow-sm transition-colors hover:bg-amber-500/30 cursor-pointer"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3 py-1 text-[11px] md:px-3.5 md:py-1.5 md:text-xs font-bold text-amber-300 shadow-sm transition-colors hover:bg-amber-500/30 cursor-pointer"
                   >
                     Phase {activePhaseTier} →
                   </button>
@@ -548,7 +543,7 @@ export default function InstitutionalClearanceVerification({
 
             {/* ── 3. Bottom Row: Sequential Sign-Off Pipeline ── */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
                   Sequential Sign-Off Pipeline
                 </span>
@@ -557,7 +552,7 @@ export default function InstitutionalClearanceVerification({
                 </span>
               </div>
 
-              {/* Six departments per page: three rows on mobile, two on desktop. */}
+              {/* Mobile shows three departments in one column; desktop shows six in three columns. */}
               {sortedRecords.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-dashed border-slate-800 bg-[#070c18]/60">
                   <AlertCircle className="h-8 w-8 text-amber-400 mb-2.5" />
@@ -570,7 +565,7 @@ export default function InstitutionalClearanceVerification({
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 grid-rows-3 md:grid-cols-3 md:grid-rows-2 gap-3">
+                <div className="grid min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
                   {pagedRecords.map((record, idx) => {
                     const itemTier =
                       record.tier ??
@@ -726,7 +721,7 @@ export default function InstitutionalClearanceVerification({
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto py-2">
                     {Array.from({ length: totalPipelinePages }, (_, idx) => (
                       <button
                         key={idx}
@@ -734,7 +729,7 @@ export default function InstitutionalClearanceVerification({
                         onClick={() => setPipelinePage(idx)}
                         aria-label={`Go to department page ${idx + 1}`}
                         aria-current={currentPipelinePage === idx ? "page" : undefined}
-                        className={`h-1 rounded-full transition-ui duration-200 cursor-pointer ${
+                        className={`h-1 shrink-0 rounded-full transition-ui duration-200 cursor-pointer ${
                           currentPipelinePage === idx
                             ? "w-6 bg-amber-400"
                             : "w-3 bg-slate-700 hover:bg-slate-500"
@@ -916,9 +911,6 @@ export default function InstitutionalClearanceVerification({
                     Staff Lunch Break
                   </h3>
                 </div>
-                <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 font-mono">
-                  12:00 PM – 1:00 PM
-                </span>
               </div>
 
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3.5 mt-1">

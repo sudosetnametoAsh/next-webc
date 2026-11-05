@@ -87,7 +87,7 @@ function ClientStatusBadge({
 }) {
   if (status === "cleared") {
     return (
-      <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border border-emerald-500/40 bg-emerald-950/30 text-emerald-400 whitespace-nowrap shadow-xs">
+      <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-[11px] font-bold tracking-wide md:tracking-wider uppercase border border-emerald-500/40 bg-emerald-950/30 text-emerald-400 whitespace-nowrap shadow-xs">
         CLEARED
       </span>
     );
@@ -95,7 +95,7 @@ function ClientStatusBadge({
 
   if (isLocked) {
     return (
-      <span className="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border border-slate-700/70 bg-slate-800/60 text-slate-300 whitespace-nowrap shadow-xs">
+      <span className="inline-flex items-center justify-center gap-1 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-[11px] font-bold tracking-wide md:tracking-wider uppercase border border-slate-700/70 bg-slate-800/60 text-slate-300 whitespace-nowrap shadow-xs">
         {/* <Lock className="w-3 h-3 text-slate-400" /> */}
         AWAITING PREREQ
       </span>
@@ -104,14 +104,14 @@ function ClientStatusBadge({
 
   if (status === "incomplete") {
     return (
-      <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border border-blue-500/40 bg-blue-950/30 text-blue-400 whitespace-nowrap shadow-xs">
+      <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-[11px] font-bold tracking-wide md:tracking-wider uppercase border border-blue-500/40 bg-blue-950/30 text-blue-400 whitespace-nowrap shadow-xs">
         INCOMPLETE {taskCount && taskCount > 0 ? `(${taskCount})` : ""}
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border border-slate-700/70 bg-slate-800/60 text-slate-300 whitespace-nowrap shadow-xs">
+    <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-[11px] font-bold tracking-wide md:tracking-wider uppercase border border-slate-700/70 bg-slate-800/60 text-slate-300 whitespace-nowrap shadow-xs">
       PENDING
     </span>
   );
@@ -1120,14 +1120,20 @@ export default function StudentsClient() {
     }
   }, [currentPage]);
 
-  // Lock main layout scroll on clients page to keep layout fixed and non-scrollable
+  // Mobile scrolls the page; larger screens scroll the client list internally.
   useEffect(() => {
     const mainEl = document.querySelector("main");
     if (mainEl) {
       const originalOverflow = mainEl.style.overflowY;
+      const desktop = window.matchMedia("(min-width: 768px)");
+      const updateScrollMode = () => {
+        mainEl.style.overflowY = desktop.matches ? "hidden" : "visible";
+      };
       mainEl.scrollTop = 0;
-      mainEl.style.overflowY = "hidden";
+      updateScrollMode();
+      desktop.addEventListener("change", updateScrollMode);
       return () => {
+        desktop.removeEventListener("change", updateScrollMode);
         mainEl.style.overflowY = originalOverflow;
       };
     }
@@ -1385,20 +1391,20 @@ export default function StudentsClient() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-112px)] max-h-[calc(100vh-112px)] overflow-hidden gap-4">
+    <div className="flex flex-col min-w-0 md:h-[calc(100dvh-112px)] md:max-h-[calc(100dvh-112px)] md:overflow-hidden gap-2.5 md:gap-4">
       {/* ── Top Header & Actions ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 md:gap-4 shrink-0">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-1">
+          <h1 className="text-lg md:text-3xl font-extrabold leading-snug tracking-tight text-white mb-1">
             Clients
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-[11px] leading-relaxed md:text-sm text-slate-400">
             Review and sign off on clearance requirements for students and staff
           </p>
         </div>
 
         {/* ── Batch Action Operations ── */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-1.5 md:gap-2.5">
           <SignToggleButton
             clearanceId={signableClearanceIds}
             currentStatus={effectiveStatus}
@@ -1410,7 +1416,7 @@ export default function StudentsClient() {
           />
 
           {preset && (
-            <div className="flex items-center rounded-xl border border-slate-800 bg-[#0a101f] p-1 shadow-sm gap-1">
+            <div className="flex items-center rounded-lg md:rounded-xl border border-slate-800 bg-[#0a101f] p-0.5 md:p-1 shadow-sm gap-0.5 md:gap-1">
               <AddTask
                 preset={preset}
                 clearanceId={clearanceId}
@@ -1421,7 +1427,7 @@ export default function StudentsClient() {
                 setTitle={setTitle}
                 sectionId={activeSectionId}
                 existingTasks={selectedClientsTasks}
-                buttonClassName="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
+                buttonClassName="flex items-center gap-1 md:gap-1.5 rounded-lg px-2 py-0.5 text-[10px] md:px-2.5 md:py-1 md:text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
               />
               <div className="mx-0.5 h-3.5 w-px bg-slate-800" />
               <AddPreset
@@ -1432,12 +1438,12 @@ export default function StudentsClient() {
                 description={description}
                 sectionId={activeSectionId}
                 existingTasks={selectedClientsTasks}
-                buttonClassName="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
+                buttonClassName="flex items-center gap-1 md:gap-1.5 rounded-lg px-2 py-0.5 text-[10px] md:px-2.5 md:py-1 md:text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
               />
               <div className="mx-0.5 h-3.5 w-px bg-slate-800" />
               <ManagePresetButton
                 preset={preset}
-                buttonClassName="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
+                buttonClassName="flex items-center gap-1 md:gap-1.5 rounded-lg px-2 py-0.5 text-[10px] md:px-2.5 md:py-1 md:text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
               />
             </div>
           )}
@@ -1522,7 +1528,7 @@ export default function StudentsClient() {
       </p>
 
       {/* ── Clients Table Card (Dark Theme) ── */}
-      <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
+      <div className="shrink-0 md:shrink md:flex-1 flex flex-col md:min-h-0 rounded-2xl border border-slate-800 bg-[#0a101f] shadow-2xl overflow-hidden">
         {/* Desktop Table */}
         <div className="hidden md:flex md:flex-col flex-1 min-h-0 overflow-hidden">
           <div ref={tableScrollRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
@@ -1654,7 +1660,7 @@ export default function StudentsClient() {
                               </span>
                             </div>
                             <div className="font-mono text-xs text-slate-500 truncate flex items-center gap-1.5">
-                              <span>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
+                              <span className={client.type === "staff" ? "max-w-[50%] truncate" : undefined} title={client.type === "staff" ? client.email || undefined : undefined}>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
                               {selectedStatus === "submissions" && (() => {
                                 const subTime = getLatestSubmissionTime(client);
                                 if (!subTime) return null;
@@ -1727,7 +1733,7 @@ export default function StudentsClient() {
         </div>
 
         {/* Mobile View */}
-        <div ref={mobileScrollRef} className="md:hidden flex-1 min-h-0 overflow-y-auto divide-y divide-slate-800/60">
+        <div ref={mobileScrollRef} className="md:hidden divide-y divide-slate-800/60">
           {paginated.length === 0 ? (
             <div className="px-6 py-16 text-center text-sm text-slate-400">
               No clients match your selected filters.
@@ -1752,7 +1758,7 @@ export default function StudentsClient() {
               return (
                 <Fragment key={`${client.type}-${client.id}`}>
                   {showNewSubmissionsHeader && (
-                    <div key="mobile-header-new-submissions" className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/25 flex items-center justify-between">
+                    <div key="mobile-header-new-submissions" className="px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/25 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
                         <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
@@ -1764,7 +1770,7 @@ export default function StudentsClient() {
                   )}
 
                   {showRegularDivider && (
-                    <div key="mobile-header-all-clients" className="px-4 py-2 bg-[#070c18] border-y border-slate-800 flex items-center justify-between">
+                    <div key="mobile-header-all-clients" className="px-3 py-1.5 bg-[#070c18] border-y border-slate-800 flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                         {selectedStatus === "submissions"
                           ? "All Submissions"
@@ -1778,7 +1784,7 @@ export default function StudentsClient() {
 
                   <div
                     onClick={() => setSelectedClient(client)}
-                    className={`px-4 py-4 space-y-3 transition-colors cursor-pointer ${
+                    className={`px-3 py-2.5 space-y-1.5 transition-colors cursor-pointer ${
                       isElevated
                         ? "bg-amber-500/[0.03] hover:bg-amber-500/[0.07]"
                         : isEligibleYellow
@@ -1787,7 +1793,7 @@ export default function StudentsClient() {
                     }`}
                   >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex flex-1 items-center gap-2 min-w-0">
                       <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                         <Checkbox
                           aria-label={`Select ${client.name}`}
@@ -1799,15 +1805,15 @@ export default function StudentsClient() {
                           className="relative after:absolute after:-inset-3.5 after:content-[''] cursor-pointer border-slate-700 bg-slate-900/80 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 data-[state=checked]:text-slate-950"
                         />
                       </div>
-                      <div className="w-9 h-9 rounded-full bg-slate-800/90 border border-slate-700/60 flex items-center justify-center text-xs font-bold text-slate-200 shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-slate-800/90 border border-slate-700/60 flex items-center justify-center text-xs font-bold text-slate-200 shrink-0">
                         {getClientInitials(client.name)}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-100 truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold text-slate-100 truncate">
                           {client.name}
                         </p>
-                        <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5">
-                          <span>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
+                        <div className="text-[10px] text-slate-500 font-mono flex flex-wrap items-center gap-1 min-w-0 break-all">
+                          <span className={client.type === "staff" ? "max-w-[50%] truncate" : undefined} title={client.type === "staff" ? client.email || undefined : undefined}>{client.type === "staff" ? client.email || "No email available" : client.id}</span>
                           {selectedStatus === "submissions" && (() => {
                             const subTime = getLatestSubmissionTime(client);
                             if (!subTime) return null;
@@ -1826,7 +1832,7 @@ export default function StudentsClient() {
                         </div>
                       </div>
                     </div>
-                    <div className="relative inline-flex items-center justify-center">
+                    <div className="relative inline-flex shrink-0 items-center justify-center">
                       <ClientStatusBadge
                         status={client.departmentStatus}
                         isLocked={client.isLocked}
@@ -1845,20 +1851,6 @@ export default function StudentsClient() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    {client.type === "student" ? (
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border border-blue-500/30 bg-blue-950/40 text-blue-400">
-                        <GraduationCap className="w-3 h-3" />
-                        {shrinkCourseName(client.courseName || "") || "STUDENT"}
-                        {client.sectionCode && ` · ${client.sectionCode}`}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border border-emerald-500/30 bg-emerald-950/40 text-emerald-400">
-                        <Briefcase className="w-3 h-3 text-emerald-400" />
-                        STAFF
-                      </span>
-                    )}
-                  </div>
                 </div>
               </Fragment>
             );
@@ -1868,6 +1860,7 @@ export default function StudentsClient() {
 
         {/* Pagination Footer */}
         <TablePaginationFooter
+          compactMobile
           currentPage={currentPage}
           pageSize={PAGE_SIZE}
           totalItems={filteredClients.length}

@@ -72,7 +72,7 @@ export default function SignToggleButton({
         onClick={handleToggle}
         disabled={isDisabled}
         aria-busy={isPending}
-        className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-semibold shadow-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070c18] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed motion-reduce:transition-none ${btnStyle} ${className}`}
+        className={`inline-flex items-center justify-center gap-1 md:gap-1.5 whitespace-nowrap rounded-lg md:rounded-xl border px-2.5 py-1.5 text-[10px] md:px-3 md:py-2 md:text-xs font-semibold shadow-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070c18] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed motion-reduce:transition-none ${btnStyle} ${className}`}
         title={
           clearanceId.length === 0
             ? "Select clients to sign"

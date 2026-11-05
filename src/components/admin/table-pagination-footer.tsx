@@ -11,6 +11,7 @@ export interface TablePaginationFooterProps {
   onPageChange: (page: number) => void
   className?: string
   showJumpToPage?: boolean
+  compactMobile?: boolean
 }
 
 export default function TablePaginationFooter({
@@ -21,6 +22,7 @@ export default function TablePaginationFooter({
   onPageChange,
   className = '',
   showJumpToPage = true,
+  compactMobile = false,
 }: TablePaginationFooterProps) {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const validPage = Math.min(Math.max(1, currentPage), totalPages)
@@ -40,7 +42,7 @@ export default function TablePaginationFooter({
 
   return (
     <div
-      className={`flex shrink-0 flex-col sm:flex-row items-center justify-between border-t border-slate-800 bg-[#070c18] px-5 py-3.5 font-mono text-xs text-slate-400 gap-3 ${className}`}
+      className={`flex shrink-0 flex-col sm:flex-row items-center justify-between border-t border-slate-800 bg-[#070c18] font-mono text-slate-400 ${compactMobile ? 'px-3 py-2 text-[10px] gap-1.5 md:px-5 md:py-3.5 md:text-xs md:gap-3 max-md:[&_button]:text-[10px] max-md:[&_button]:px-2 max-md:[&_input]:text-[10px] max-md:[&_input]:w-10 max-md:[&_input]:h-6' : 'px-5 py-3.5 text-xs gap-3'} ${className}`}
     >
       <span>
         Showing <strong className="text-white">{start}</strong> to{' '}
@@ -49,7 +51,7 @@ export default function TablePaginationFooter({
       </span>
 
       {/* Pagination Controls */}
-      <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 self-center sm:self-auto">
+      <div className={`flex flex-wrap items-center justify-center sm:justify-end ${compactMobile ? 'gap-1 md:gap-2' : 'gap-2'} self-center sm:self-auto`}>
         <button
           type="button"
           onClick={() => onPageChange(validPage - 1)}
@@ -61,7 +63,7 @@ export default function TablePaginationFooter({
           <span className="hidden sm:inline">Prev</span>
         </button>
 
-        <span className="px-2 py-1 text-xs text-slate-400">
+        <span className={`${compactMobile ? 'px-1 py-0.5 text-[10px] md:px-2 md:py-1 md:text-xs' : 'px-2 py-1 text-xs'} text-slate-400`}>
           Page <strong className="text-white">{validPage}</strong> of{' '}
           <strong className="text-white">{totalPages}</strong>
         </span>

@@ -216,26 +216,26 @@ export default function RecentSubmissionsCard({
 
   return (
     <>
-      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex flex-col h-[540px]">
+      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] shadow-xl overflow-hidden flex flex-col h-[360px] md:h-[540px]">
         {/* ── Card Header (Matching Admin DepartmentClientProgress) ── */}
-        <div className="px-6 py-4 border-b border-slate-800 bg-[#070c18] flex items-center justify-between gap-4 shrink-0">
+        <div className="px-3 py-3 md:px-6 md:py-4 border-b border-slate-800 bg-[#070c18] flex items-center justify-between gap-2 md:gap-4 shrink-0">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
                 <FileText className="h-4 w-4" />
               </span>
-              <h3 className="text-base font-bold text-white tracking-tight">
+              <h3 className="text-sm md:text-base font-bold text-white tracking-tight">
                 Recent Submissions
               </h3>
             </div>
-            <p className="mt-0.5 text-xs text-slate-400 truncate">
+            <p className="mt-0.5 text-[11px] md:text-xs text-slate-400 truncate">
               Review submitted documents and track recent client submissions.
             </p>
           </div>
         </div>
 
         {/* ── Compact 5-Coupled Clients List (Matching Admin DepartmentClientProgress) ── */}
-        <div className="p-4 sm:p-5 space-y-2.5 flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-track]:bg-transparent">
+        <div className="p-3 md:p-5 space-y-2 md:space-y-2.5 flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-track]:bg-transparent">
           {topClients.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <Inbox className="mx-auto h-8 w-8 text-slate-600 mb-2" />
@@ -270,34 +270,34 @@ export default function RecentSubmissionsCard({
                       handleOpenReview(client.documents[0]);
                     }
                   }}
-                  className={`rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-3 transition-ui cursor-pointer group ${
+                  className={`rounded-xl border border-slate-800/80 bg-[#070c18]/80 p-2.5 md:p-3 transition-ui cursor-pointer group ${
                     hasMultiple
                       ? "hover:border-slate-700/90 hover:bg-slate-800/20"
                       : "hover:border-amber-500/40 hover:bg-[#0c1427]/90"
                   }`}
                 >
                   {/* Client Summary Row */}
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2 md:gap-3">
+                    <div className="flex items-center gap-2 md:gap-2.5 min-w-0 flex-1">
                       {/* Avatar */}
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/60 text-xs font-bold text-amber-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/10 transition-colors">
+                      <span className="flex h-7 w-7 md:h-8 md:w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700/80 bg-slate-800/60 text-xs font-bold text-amber-400 group-hover:border-amber-500/40 group-hover:bg-amber-500/10 transition-colors">
                         {initials}
                       </span>
 
                       {/* Client Meta */}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">
+                        <div className="flex flex-wrap md:flex-nowrap items-center gap-1 md:gap-2">
+                          <h4 className="text-[11px] md:text-sm font-bold text-white truncate max-w-full md:max-w-[200px]">
                             {client.studentName}
                           </h4>
-                          <span className="rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[11px] font-mono font-medium text-slate-300 shrink-0">
+                          <span className="rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[10px] md:text-[11px] font-mono font-medium text-slate-300 shrink-0">
                             {shrinkCourseName(client.course)} {client.section ? `· ${client.section}` : ""}
                           </span>
                         </div>
 
                         {/* Subtext: Latest Requirement Preview & Timestamp */}
-                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-400">
-                          <span className="text-slate-300 font-medium truncate max-w-[160px] sm:max-w-[220px]">
+                        <div className="flex flex-wrap md:flex-nowrap items-center gap-1 md:gap-1.5 mt-0.5 text-[10px] md:text-xs text-slate-400">
+                          <span className="text-slate-300 font-medium truncate max-w-full md:max-w-[220px]">
                             {hasMultiple
                               ? `${client.documents[0].taskTitle} + ${client.documents.length - 1} more`
                               : client.documents[0].taskTitle || "Clearance Requirement"}
@@ -310,12 +310,12 @@ export default function RecentSubmissionsCard({
                     </div>
 
                     {/* Right Side: Status Badge aligned to middle */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1 md:gap-2 shrink-0">
                       {/* Status Overview & Multi-Doc Badges */}
                       {hasMultiple ? (
                         client.verifiedCount === client.totalDocuments ? (
                             <span
-                              className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[11px] font-mono font-bold text-emerald-300 shrink-0"
+                              className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] md:text-[11px] font-mono font-bold text-emerald-300 shrink-0"
                               title={`${client.verifiedCount} AI Verified`}
                             >
                               <Sparkles className="h-2.5 w-2.5 text-emerald-400" />
@@ -323,7 +323,7 @@ export default function RecentSubmissionsCard({
                             </span>
                           ) : client.flaggedCount === client.totalDocuments ? (
                             <span
-                              className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[11px] font-mono font-bold text-rose-300 shrink-0"
+                              className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[10px] md:text-[11px] font-mono font-bold text-rose-300 shrink-0"
                               title={`${client.flaggedCount} Flagged`}
                             >
                               <AlertCircle className="h-2.5 w-2.5 text-rose-400" />
@@ -331,14 +331,14 @@ export default function RecentSubmissionsCard({
                             </span>
                           ) : client.needsReviewCount === client.totalDocuments ? (
                             <span
-                              className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[11px] font-mono font-medium text-slate-300 shrink-0"
+                              className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[10px] md:text-[11px] font-mono font-medium text-slate-300 shrink-0"
                               title={`${client.needsReviewCount} Needs Review`}
                             >
                               <Clock className="h-2.5 w-2.5 text-slate-400" />
                               <span>{client.needsReviewCount}</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-800/80 px-2 py-0.5 text-[11px] font-mono shrink-0">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-800/80 px-2 py-0.5 text-[10px] md:text-[11px] font-mono shrink-0">
                               {client.flaggedCount > 0 && (
                                 <span
                                   className="inline-flex items-center gap-1 font-bold text-rose-300"
@@ -369,15 +369,15 @@ export default function RecentSubmissionsCard({
                             </span>
                           )
                       ) : client.flaggedCount > 0 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2.5 py-0.5 text-xs font-bold text-rose-300 shrink-0">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[10px] md:px-2.5 md:text-xs font-bold text-rose-300 shrink-0">
                           <AlertCircle className="h-3 w-3 text-rose-400" /> Flagged
                         </span>
                       ) : client.verifiedCount === 1 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-300 shrink-0">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] md:px-2.5 md:text-xs font-bold text-emerald-300 shrink-0">
                           <Sparkles className="h-3 w-3 text-emerald-400" /> AI Verified
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-0.5 text-xs font-medium text-slate-300 shrink-0">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[10px] md:px-2.5 md:text-xs font-medium text-slate-300 shrink-0">
                           <Clock className="h-3 w-3 text-slate-400" /> Needs Review
                         </span>
                       )}
@@ -397,7 +397,7 @@ export default function RecentSubmissionsCard({
                   {hasMultiple && isExpanded && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1.5 animate-in ease-out fade-in duration-200"
+                      className="mt-2 pt-2 md:mt-3 md:pt-2.5 border-t border-slate-800/80 space-y-1.5 animate-in ease-out fade-in duration-200"
                     >
                       <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">
                         Requirements ({client.documents.length})
@@ -411,10 +411,10 @@ export default function RecentSubmissionsCard({
                           <div
                             key={doc.assignedTaskId}
                             onClick={() => handleOpenReview(doc)}
-                            className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-[#060a14]/80 border border-slate-800/80 hover:border-amber-500/40 hover:bg-slate-800/50 transition-ui cursor-pointer group/doc"
+                            className="flex items-center justify-between gap-2 md:gap-2 md:gap-3 p-2 md:p-2.5 rounded-lg bg-[#060a14]/80 border border-slate-800/80 hover:border-amber-500/40 hover:bg-slate-800/50 transition-ui cursor-pointer group/doc"
                           >
                             <div className="min-w-0 flex-1">
-                              <div className="text-xs font-semibold text-white group-hover/doc:text-amber-300 transition-colors truncate max-w-[200px] sm:max-w-[300px]">
+                              <div className="text-xs font-semibold text-white group-hover/doc:text-amber-300 transition-colors truncate max-w-full md:max-w-[300px]">
                                 {doc.taskTitle || "Clearance Requirement"}
                               </div>
                               <div className="text-[11px] text-slate-500 font-mono mt-0.5">
@@ -425,15 +425,15 @@ export default function RecentSubmissionsCard({
                             {/* Right Side: Status Badge aligned to middle */}
                             <div className="flex items-center shrink-0">
                               {isDocVerified ? (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-300">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] md:text-[11px] font-bold text-emerald-300">
                                   <Sparkles className="h-2.5 w-2.5 text-emerald-400" /> AI Verified
                                 </span>
                               ) : isDocFlagged ? (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[11px] font-bold text-rose-300">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-[10px] md:text-[11px] font-bold text-rose-300">
                                   <AlertCircle className="h-2.5 w-2.5 text-rose-400" /> Flagged
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium text-slate-300">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/80 px-2 py-0.5 text-[10px] md:text-[11px] font-medium text-slate-300">
                                   <Clock className="h-2.5 w-2.5 text-slate-400" /> Needs Review
                                 </span>
                               )}

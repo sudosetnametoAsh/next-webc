@@ -250,8 +250,8 @@ export default function OfficeHours({
     }
 
     const pillClass = isToday
-      ? "rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 font-semibold px-2 py-1 text-xs text-center shadow-sm w-full block truncate"
-      : "rounded-md border border-slate-800/80 bg-slate-900/60 text-slate-300 font-medium px-2 py-1 text-xs text-center w-full block truncate";
+      ? "rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 font-semibold px-1.5 py-0.5 text-[10px] md:px-2 md:py-1 md:text-xs text-center shadow-sm w-full block truncate"
+      : "rounded-md border border-slate-800/80 bg-slate-900/60 text-slate-300 font-medium px-1.5 py-0.5 text-[10px] md:px-2 md:py-1 md:text-xs text-center w-full block truncate";
 
     return (
       <div className="flex flex-col gap-1 items-center justify-center w-full max-w-[135px] mx-auto">
@@ -268,29 +268,29 @@ export default function OfficeHours({
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full min-w-0 space-y-4 md:space-y-6">
       {/* ── Top Header Row (Title, Description, Status Badges & Controls) ── */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-2.5 md:gap-4">
+        <div className="flex flex-col gap-2.5 md:gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold tracking-tight text-white md:text-2xl">
+            <h1 className="text-base font-bold leading-snug tracking-tight text-white sm:text-lg md:text-2xl">
               Weekly office hours
             </h1>
-            <p className="mt-1 text-[13px] text-slate-400 md:text-sm">
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-400 md:text-sm">
               Staffed hours and weekly availability for participating clearance departments.
             </p>
           </div>
 
           {/* Right Badges */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2.5">
             {/* Timestamp Badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/80 px-3 py-1.5 text-[13px] text-slate-300 font-medium shadow-sm">
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/80 px-2.5 py-1 text-[10px] md:px-3 md:py-1.5 md:text-[13px] text-slate-300 font-medium shadow-sm">
               <Calendar className="h-3.5 w-3.5 text-amber-400" />
               <span>{todayFullDateStr || "Campus Schedule"}</span>
             </div>
 
             {/* Offices Open Badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/80 px-3 py-1.5 text-[13px] text-slate-300 font-medium shadow-sm">
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-900/80 px-2.5 py-1 text-[10px] md:px-3 md:py-1.5 md:text-[13px] text-slate-300 font-medium shadow-sm">
               <span
                 className={`h-2 w-2 rounded-full ${
                   openCount > 0
@@ -305,9 +305,9 @@ export default function OfficeHours({
           </div>
         </div>
 
-        {/* Legend Aligned to the Right */}
-        <div className="flex items-center justify-end pt-1">
-          <div className="flex flex-wrap items-center gap-4 text-[13px] text-slate-400">
+        {/* Center the legend on mobile; align right on larger screens. */}
+        <div className="flex items-center justify-center md:justify-end pt-1">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 text-[10px] md:gap-4 md:text-[13px] text-slate-400">
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full border-2 border-amber-400 bg-transparent" />
               <span className="text-slate-300">Today</span>
@@ -325,19 +325,19 @@ export default function OfficeHours({
       </div>
 
       {/* ── Main Weekly Schedule Table ── */}
-      <div className="w-full rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 shadow-2xl backdrop-blur-sm overflow-hidden">
+      <div className="w-full rounded-xl md:rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 shadow-2xl backdrop-blur-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px] border-collapse text-left">
+          <table className="w-full min-w-[720px] md:min-w-[860px] border-collapse text-left">
             {/* Table Header */}
             <thead className="border-b border-slate-800/80 bg-[#070c18]/80 text-xs font-bold uppercase tracking-wider text-slate-400">
               <tr>
-                <th className="py-4 px-6 text-left w-[31%]">DEPARTMENT</th>
+                <th className="py-3 px-3 md:py-4 md:px-6 text-left w-[31%]">DEPARTMENT</th>
                 {DAYS_HEADER.map(({ key, label }) => {
                   const isToday = key === todayDayKey;
                   return (
                     <th
                       key={key}
-                      className={`py-4 px-2 text-center w-[11.5%] ${
+                      className={`py-3 px-2 md:py-4 text-center w-[11.5%] ${
                         isToday ? "bg-amber-500/[0.04]" : ""
                       }`}
                     >
@@ -367,31 +367,31 @@ export default function OfficeHours({
                       className="hover:bg-slate-800/20 transition-colors"
                     >
                       {/* Department Info */}
-                      <td className="py-4 px-6 align-middle">
-                        <div className="flex items-start gap-3.5">
+                      <td className="py-3 px-3 md:py-4 md:px-6 align-middle">
+                        <div className="flex items-start gap-2 md:gap-3.5">
                           <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-colors ${
+                            className={`flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-colors ${
                               dept.isOpenNow
                                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                                 : "border-slate-800/90 bg-[#070c18] text-amber-400"
                             }`}
                           >
-                            <DeptIcon className="h-5 w-5" />
+                            <DeptIcon className="h-4 w-4 md:h-5 md:w-5" />
                           </div>
                           <div className="flex flex-col min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-[15px] font-bold text-white truncate">
+                              <span className="text-[13px] md:text-[15px] font-bold text-white truncate">
                                 {dept.name}
                               </span>
                             </div>
                             <span
-                              className="text-[13px] text-slate-400 truncate mt-0.5"
+                              className="text-[11px] md:text-[13px] text-slate-400 truncate mt-0.5"
                               title={`${dept.staff} · ${dept.location}`}
                             >
                               {dept.staff} · {dept.location}
                             </span>
                             <span
-                              className={`text-xs mt-1 flex items-center gap-1.5 ${
+                              className={`text-[10px] md:text-xs mt-0.5 md:mt-1 flex items-center gap-1.5 ${
                                 dept.isOpenNow
                                   ? "text-emerald-400 font-semibold"
                                   : "text-slate-400"
@@ -414,7 +414,7 @@ export default function OfficeHours({
                         return (
                           <td
                             key={key}
-                            className={`py-4 px-2 text-center align-middle ${
+                            className={`py-3 px-2 md:py-4 text-center align-middle ${
                               isToday ? "bg-amber-500/[0.04]" : ""
                             }`}
                           >
@@ -441,14 +441,14 @@ export default function OfficeHours({
       </div>
 
       {/* ── Bottom Callout Card: "Today at a glance" ── */}
-      <div className="rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-5 md:p-6 shadow-2xl backdrop-blur-sm">
+      <div className="rounded-xl md:rounded-2xl border border-slate-800/80 bg-[#0a101f]/80 p-3 md:p-6 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <Info className="h-4 w-4 text-amber-400 shrink-0" />
-          <h3 className="text-[15px] font-bold tracking-tight text-white">
+          <h3 className="text-[13px] md:text-[15px] font-bold tracking-tight text-white">
             Today at a glance
           </h3>
         </div>
-        <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
+        <p className="mt-1.5 md:mt-2 text-[11px] md:text-[13px] leading-relaxed text-slate-300">
           {openCount > 0
             ? `${openCount} of ${processedDepartments.length} clearance offices are currently open for walk-in verification and physical sign-offs today.`
             : processedDepartments.some((d) => d.hasHoursToday)

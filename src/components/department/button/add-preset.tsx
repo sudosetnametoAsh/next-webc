@@ -191,37 +191,37 @@ export default function AddPreset({
         </DialogTrigger>
 
         <DialogContent className="flex max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-800 bg-[#0a101f] p-0 text-slate-100 shadow-2xl sm:max-w-xl [&>button]:text-slate-400">
-          <DialogHeader className="shrink-0 border-b border-slate-800 px-5 py-5 pr-12 text-left sm:px-6">
-            <DialogTitle className="flex items-center gap-3 text-lg font-semibold tracking-tight">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300"><Clipboard className="h-5 w-5" /></span>
+          <DialogHeader className="shrink-0 border-b border-slate-800 px-3.5 py-3 pr-10 text-left sm:px-6 sm:py-5 sm:pr-12">
+            <DialogTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-semibold tracking-tight">
+              <span className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10 text-amber-300"><Clipboard className="h-4 w-4 sm:h-5 sm:w-5" /></span>
               Assign Preset Tasks
             </DialogTitle>
-            <DialogDescription className="text-xs leading-relaxed text-slate-400">Choose saved requirements and customize their deadlines.</DialogDescription>
+            <DialogDescription className="text-[11px] sm:text-xs leading-relaxed text-slate-400">Choose saved requirements and customize their deadlines.</DialogDescription>
           </DialogHeader>
 
-          <div className="flex min-h-0 flex-col gap-5 overflow-y-auto p-5 sm:p-6">
-            <div className="flex items-center gap-3 rounded-xl border border-slate-800 bg-[#070c18] p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm font-semibold text-slate-400">
+          <div className="flex min-h-0 flex-col gap-3 sm:gap-5 overflow-y-auto p-3.5 sm:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 rounded-xl border border-slate-800 bg-[#070c18] p-2.5 sm:p-3">
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm font-semibold text-slate-400">
                 <Users className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-200">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-200">
                   {clearanceId.length > 0
                     ? `${clearanceId.length} ${clearanceId.length === 1 ? "client" : "clients"} selected`
                     : "No clients selected"}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-[11px] sm:text-xs text-slate-500">
                   {clearanceId.length > 1 ? "Assign to all selected clients" : "Assign to the selected client"}
                 </p>
               </div>
             </div>
 
             {/* Batch Due Date (Optional) */}
-            <div className="space-y-2 rounded-xl border border-slate-800 bg-[#070c18] p-4">
+            <div className="space-y-1.5 sm:space-y-2 rounded-xl border border-slate-800 bg-[#070c18] p-2.5 sm:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-amber-300" />
-                  <Label htmlFor="preset-batch-due-date" className="text-sm font-medium text-slate-200">
+                  <Label htmlFor="preset-batch-due-date" className="text-xs sm:text-sm font-medium text-slate-200">
                     Batch Due Date <span className="text-xs font-normal text-slate-500">(Optional)</span>
                   </Label>
                 </div>
@@ -241,17 +241,17 @@ export default function AddPreset({
                 min={campusDateInput(new Date())}
                 value={batchDueDate}
                 onChange={(e) => setBatchDueDate(e.target.value)}
-                className="border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
+                className="h-8 sm:h-9 text-xs sm:text-base md:text-sm border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 {batchDueDate
                   ? `Selected presets will be due by ${new Date(batchDueDate + "T00:00:00+08:00").toLocaleDateString("en-US", { timeZone: APP_TIME_ZONE, month: "short", day: "numeric", year: "numeric" })}.`
                   : "Leave blank to allow completion until the end of the clearance season."}
               </p>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3"><h4 className="text-sm font-medium text-slate-300">Available presets</h4><span className="rounded-md border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-xs tabular-nums text-amber-300">{validSelectedCount} selected</span></div>
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between gap-3"><h4 className="text-xs sm:text-sm font-medium text-slate-300">Available presets</h4><span className="rounded-md border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] sm:text-xs tabular-nums text-amber-300">{validSelectedCount} selected</span></div>
 
               {allPresetsAssigned && (
                 <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-300">
@@ -261,7 +261,7 @@ export default function AddPreset({
               )}
 
               {/* Added min-h-40 so the empty state has room to breathe */}
-              <div className="flex min-h-40 max-h-60 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-800 bg-[#070c18] p-2">
+              <div className="flex min-h-32 sm:min-h-40 max-h-52 sm:max-h-60 flex-col gap-2 overflow-y-auto pr-2 rounded-xl border border-slate-800 bg-[#070c18] p-2">
 
                 {/* 3. Added the Conditional Fallback Rendering here */}
                 {preset?.data?.length > 0 ? (
@@ -273,7 +273,7 @@ export default function AddPreset({
                     return (
                       <div
                         key={item.task_id}
-                        className={`flex flex-col gap-3 rounded-lg border p-3 transition-ui ${
+                        className={`flex flex-col gap-2 sm:gap-3 rounded-lg border p-2 sm:p-3 transition-ui ${
                           isAssigned
                             ? "border-slate-800 bg-slate-900/50 opacity-75"
                             : isSelected
@@ -281,7 +281,7 @@ export default function AddPreset({
                             : "border-slate-800 bg-[#0a101f] hover:border-slate-600"
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2 sm:gap-3">
                           <Checkbox
                             id={`preset-${item.task_id}`}
                             checked={isAssigned || isSelected}
@@ -299,7 +299,7 @@ export default function AddPreset({
                           >
                             {/* 4. Display the Title and Description beautifully */}
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className={`break-words text-sm font-semibold ${isAssigned ? "text-slate-500" : "text-slate-100"}`}>
+                              <div className={`break-words text-xs sm:text-sm font-semibold ${isAssigned ? "text-slate-500" : "text-slate-100"}`}>
                                 {item.title}
                               </div>
                               {isAssigned && (
@@ -309,7 +309,7 @@ export default function AddPreset({
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                            <div className="text-[11px] sm:text-xs text-slate-500 line-clamp-2 leading-relaxed">
                               {item.description}
                             </div>
                           </label>
@@ -380,16 +380,16 @@ export default function AddPreset({
                   // Fallback Empty State
                   <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 text-slate-400">
                     <Clipboard className="h-8 w-8 opacity-20" />
-                    <p className="text-sm font-medium text-slate-300">No presets configured yet</p><p className="max-w-64 text-center text-xs text-slate-500">Create reusable requirements in Settings &amp; Presets to assign them here.</p>
+                    <p className="text-xs sm:text-sm font-medium text-slate-300">No presets configured yet</p><p className="max-w-64 text-center text-xs text-slate-500">Create reusable requirements in Settings &amp; Presets to assign them here.</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-slate-800 bg-[#070c18] px-5 py-4 sm:px-6">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-slate-800 bg-[#070c18] px-3.5 py-2.5 sm:px-6 sm:py-4">
             <DialogClose asChild>
-              <Button variant="ghost" className="rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+              <Button variant="ghost" className="h-8 sm:h-9 rounded-lg text-[11px] sm:text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
                 Cancel
               </Button>
             </DialogClose>
@@ -397,7 +397,7 @@ export default function AddPreset({
               <Button
                 onClick={addTask}
                 disabled={clearanceId.length === 0 || allPresetsAssigned || validSelectedCount === 0}
-                className="gap-2 rounded-lg bg-amber-400 px-5 text-xs font-semibold text-slate-950 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-8 sm:h-9 gap-1.5 sm:gap-2 rounded-lg bg-amber-400 px-3 sm:px-5 text-[11px] sm:text-xs font-semibold text-slate-950 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CheckCircle className="h-4 w-4" />
                 Assign {validSelectedCount || ""} {validSelectedCount === 1 ? "preset" : "presets"}

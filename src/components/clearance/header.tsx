@@ -363,7 +363,7 @@ export default function Header({ title, user }: HeaderProps) {
           >
             <Bell className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-[#060a14] ">
+              <span style={{ color: "#fff" }} className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}

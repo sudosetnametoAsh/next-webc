@@ -4,12 +4,10 @@ import { campusClock, officeStatus as getOfficeStatus } from "@/lib/weekly-sched
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Clock,
-  MapPin,
   CheckCircle2,
   AlertCircle,
   Save,
   RotateCcw,
-  Building2,
   Calendar,
   CalendarDays,
   Coffee,
@@ -328,30 +326,19 @@ export default function DepartmentCalendarClient({
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full min-w-0 space-y-4 md:space-y-6">
       {/* ── 1. Department Identity & Office Overview Header ── */}
-      <header className="bg-[#101726] border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/20">
+      <header className="bg-[#101726] border border-slate-800/80 rounded-2xl p-3 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-4 shadow-xl shadow-black/20">
         {/* Main Title & User Info */}
-        <div className="flex items-start md:items-center gap-3.5">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 shrink-0 mt-0.5 md:mt-0">
-            <DeptIcon className="w-6 h-6" />
+        <div className="flex items-start md:items-center gap-2.5 md:gap-3.5">
+          <div className="p-2 md:p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 shrink-0 mt-0.5 md:mt-0">
+            <DeptIcon className="w-5 h-5 md:w-6 md:h-6" />
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
+            <h1 className="text-lg md:text-2xl font-bold text-white tracking-tight leading-snug">
               Office Hours
             </h1>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs font-medium text-slate-400">
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <Building2 className="w-3.5 h-3.5 text-amber-400/90" />
-                {userName} · <span className="text-slate-400">Signatory Officer</span>
-              </span>
-              <span className="hidden sm:inline text-slate-600">•</span>
-              <span className="flex items-center gap-1.5 text-slate-400">
-                <MapPin className="w-3.5 h-3.5 text-amber-400/90" />
-                {floor} · {room}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -369,7 +356,7 @@ export default function DepartmentCalendarClient({
               }
             }}
             disabled={!isEarlyOutAllowed || isSaving}
-            className={`text-xs font-medium px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border transition-ui duration-200 active:scale-95 ${
+            className={`text-[10px] md:text-xs font-medium px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-full flex items-center gap-1.5 border transition-ui duration-200 active:scale-95 ${
               !isEarlyOutAllowed || isSaving
                 ? "border border-slate-800 bg-[#070c18] text-slate-500 opacity-50 cursor-not-allowed"
                 : isEarlyOutActive
@@ -412,11 +399,11 @@ export default function DepartmentCalendarClient({
       )}
 
       {/* ── 2. Two-Column Operational Configuration Layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
         {/* Left Column: Schedule Configuration */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-5">
+        <div className="lg:col-span-7 xl:col-span-8 min-w-0 space-y-3 md:space-y-5">
           {/* MAIN DYNAMIC WEEKLY SCHEDULE CARD */}
-          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-5 md:p-6 shadow-xl shadow-black/20 space-y-6">
+          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-3 md:p-6 shadow-xl shadow-black/20 space-y-4 md:space-y-6">
             {/* Card Header */}
             <div className="flex items-center justify-between pb-1 border-b border-slate-800/60">
               <div className="flex items-center gap-3">
@@ -424,10 +411,10 @@ export default function DepartmentCalendarClient({
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-white tracking-tight">
+                  <h2 className="text-sm md:text-base font-semibold text-white tracking-tight">
                     Dynamic Weekly Schedule
                   </h2>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-[11px] md:text-xs text-slate-400 leading-relaxed">
                     Customize operating hours differently for each day of the week
                   </p>
                 </div>
@@ -449,8 +436,8 @@ export default function DepartmentCalendarClient({
                 </button>
               </div>
 
-              <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-                {DAYS_OF_WEEK.map((day) => {
+              <div className="grid grid-cols-8 md:grid-cols-7 gap-1.5 sm:gap-2">
+                {DAYS_OF_WEEK.map((day, index) => {
                   const cfg = weeklySchedule[day.key] || { active: false, time_in: "08:00", time_out: "17:00" };
                   const isSelected = selectedDayKeys.has(day.key);
 
@@ -459,7 +446,7 @@ export default function DepartmentCalendarClient({
                       key={day.key}
                       type="button"
                       onClick={() => toggleDaySelection(day.key)}
-                      className={`relative flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border transition-ui duration-150 cursor-pointer ${
+                      className={`relative col-span-2 md:col-span-1 ${index === 4 ? "col-start-2 md:col-start-auto" : ""} flex flex-col items-center justify-center py-2 md:py-2.5 px-1 rounded-xl border transition-ui duration-150 cursor-pointer ${
                         isSelected
                           ? "bg-amber-500/10 border-amber-500 text-white shadow-md shadow-amber-500/10"
                           : "bg-slate-900/60 hover:bg-slate-800/80 border-slate-800/80 text-slate-400 hover:text-slate-200"
@@ -490,7 +477,7 @@ export default function DepartmentCalendarClient({
             </div>
 
             {/* CURRENT DAY SHIFT CONFIGURATION PANEL */}
-            <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 md:p-5 space-y-5">
+            <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 md:p-5 space-y-3 md:space-y-5">
               <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
                 <div className="flex items-center gap-2">
                   <CalendarCheck className="w-4 h-4 text-amber-400" />
@@ -523,7 +510,7 @@ export default function DepartmentCalendarClient({
                       Quick Shift Presets
                     </p>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2.5">
                       {PRESET_SHIFTS.map((preset) => {
                         const isPresetActive =
                           Array.from(selectedDayKeys).every(
@@ -538,16 +525,16 @@ export default function DepartmentCalendarClient({
                             key={preset.label}
                             type="button"
                             onClick={() => applyPresetToSelectedDays(preset.in, preset.out)}
-                            className={`p-3 rounded-xl border text-left transition-ui duration-150 cursor-pointer ${
+                            className={`p-2 md:p-3 rounded-xl border text-left transition-ui duration-150 cursor-pointer ${
                               isPresetActive
                                 ? "bg-amber-500/10 border-amber-500 text-white shadow-sm shadow-amber-500/20"
                                 : "bg-slate-900/80 hover:bg-slate-800/80 border-slate-800/80 text-slate-300"
                             }`}
                           >
-                            <div className={`text-xs font-semibold ${isPresetActive ? "text-amber-400" : "text-slate-200"}`}>
+                            <div className={`text-[10px] md:text-xs font-semibold ${isPresetActive ? "text-amber-400" : "text-slate-200"}`}>
                               {preset.label}
                             </div>
-                            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                            <div className="text-[9px] md:text-[11px] text-slate-400 font-mono mt-0.5">
                               {preset.desc}
                             </div>
                           </button>
@@ -557,24 +544,21 @@ export default function DepartmentCalendarClient({
                   </div>
 
                   {/* Opening and Closing Time Selectors */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4 pt-1">
                     {/* Opening Time Box */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                           <Clock className="w-3 h-3 text-amber-400" />
-                          Opening Time (Time In)
+                          <span>Opening Time<span className="block md:inline"> <span>(Time In)</span></span></span>
                         </label>
-                        <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                          {formatTimeString(primaryDayConfig.time_in)}
-                        </span>
                       </div>
 
                       <input
                         type="time"
                         value={primaryDayConfig.time_in}
                         onChange={(e) => updateSelectedDays({ time_in: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3.5 text-sm font-mono tracking-widest font-semibold text-slate-200 focus:outline-none focus:border-amber-500"
+                        className="w-full min-w-0 bg-slate-900 border border-slate-800 rounded-xl py-2 px-2 text-xs md:py-2.5 md:px-3.5 md:text-sm font-mono tracking-normal md:tracking-widest font-semibold text-slate-200 focus:outline-none focus:border-amber-500"
                       />
                     </div>
 
@@ -583,18 +567,15 @@ export default function DepartmentCalendarClient({
                       <div className="flex items-center justify-between">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                           <Clock className="w-3 h-3 text-amber-400" />
-                          Closing Time (Time Out)
+                          <span>Closing Time<span className="block md:inline"> <span>(Time Out)</span></span></span>
                         </label>
-                        <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                          {formatTimeString(primaryDayConfig.time_out)}
-                        </span>
                       </div>
 
                       <input
                         type="time"
                         value={primaryDayConfig.time_out}
                         onChange={(e) => updateSelectedDays({ time_out: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3.5 text-sm font-mono tracking-widest font-semibold text-slate-200 focus:outline-none focus:border-amber-500"
+                        className="w-full min-w-0 bg-slate-900 border border-slate-800 rounded-xl py-2 px-2 text-xs md:py-2.5 md:px-3.5 md:text-sm font-mono tracking-normal md:tracking-widest font-semibold text-slate-200 focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -612,14 +593,17 @@ export default function DepartmentCalendarClient({
             </div>
 
             {/* CAMPUS DAILY LUNCH WINDOW INFO CARD */}
-            <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4 flex items-start gap-3.5">
+            <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-3 md:p-4 flex items-start gap-2.5 md:gap-3.5">
               <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-400 shrink-0 mt-0.5">
                 <Coffee className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-xs font-semibold text-white">Campus Daily Lunch Window</h4>
                 <p className="text-xs text-slate-400 leading-relaxed mt-0.5">
+                  <span className="md:hidden">In-person signing pauses daily from 12:00 PM to 1:00 PM; online submissions stay open.</span>
+                  <span className="hidden md:inline">
                   Offices observe a 12:00 PM – 1:00 PM break window daily. In-person clearance signing pauses during this period, while online submission queues remain open. Early out remains accessible during lunch break.
+                  </span>
                 </p>
               </div>
             </div>
@@ -642,7 +626,7 @@ export default function DepartmentCalendarClient({
                 setSelectedDayKeys(new Set([currentDayKey]));
                 setErrorMessage(null);
               }}
-              className="text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2 transition-ui cursor-pointer"
+              className="text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 transition-ui cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Defaults</span>
@@ -652,7 +636,7 @@ export default function DepartmentCalendarClient({
               type="button"
               onClick={handleSaveSchedule}
               disabled={isSaving || !hasScheduleChanges}
-              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-ui cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 px-3 py-2 md:px-5 md:py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-ui cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
@@ -670,9 +654,9 @@ export default function DepartmentCalendarClient({
         </div>
 
         {/* Right Column: Visual Weekly Timeline & Student Portal Preview */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-5">
+        <div className="lg:col-span-5 xl:col-span-4 min-w-0 space-y-3 md:space-y-5">
           {/* 1. Visual Weekly Schedule Grid */}
-          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/20 space-y-4">
+          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-3 md:p-5 shadow-xl shadow-black/20 space-y-3 md:space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800/60">
               <div className="flex items-center gap-2.5">
                 <Calendar className="w-4 h-4 text-amber-400" />
@@ -743,7 +727,7 @@ export default function DepartmentCalendarClient({
           </div>
 
           {/* 2. Live Student Portal Preview */}
-          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-5 shadow-xl shadow-black/20 space-y-4">
+          <div className="bg-[#101726] border border-slate-800/80 rounded-2xl p-3 md:p-5 shadow-xl shadow-black/20 space-y-3 md:space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-800/60">
               <Eye className="w-4 h-4 text-amber-400" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -752,10 +736,10 @@ export default function DepartmentCalendarClient({
             </div>
 
             {/* Single Sleek Card Matching Screenshot */}
-            <div className="rounded-xl border border-slate-800/80 bg-[#070c18] p-3.5 sm:p-4 shadow-sm">
+            <div className="rounded-xl border border-slate-800/80 bg-[#070c18] p-2.5 md:p-4 shadow-sm">
               <div className="flex items-center gap-3.5">
                 <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+                  className={`flex h-9 w-9 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
                     officeStatus.isOpen
                       ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
                       : officeStatus.isLunch
@@ -767,7 +751,7 @@ export default function DepartmentCalendarClient({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-bold text-white truncate">
+                  <h4 className="text-xs md:text-sm font-bold text-white truncate">
                     {departmentName}
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5 truncate">

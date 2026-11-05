@@ -916,27 +916,10 @@ export default function TasksPage({
   }, [statusOptions, selectedStatus]);
 
   // 4. Dynamic academic subtitle
-  const programSubtitle = useMemo(() => {
-    if (!studentProfile?.course_name) {
-      return "Everything the offices asked you to comply with — submit documents online where allowed, or visit in person.";
-    }
-    const parts: string[] = [studentProfile.course_name];
-    if (studentProfile.year) {
-      parts.push(`Year ${studentProfile.year}`);
-    }
-    if (studentProfile.semester) {
-      const semOrdinal =
-        studentProfile.semester === 1
-          ? "1st"
-          : studentProfile.semester === 2
-          ? "2nd"
-          : `${studentProfile.semester}th`;
-      parts.push(`${semOrdinal} Sem`);
-    }
-    return `Everything required for ${parts.join(
-      " · "
-    )} — submit documents online where allowed, or visit in person.`;
-  }, [studentProfile]);
+  const academicSubtitle = [
+    studentProfile?.semester != null ? `Term ${studentProfile.semester}` : null,
+    studentProfile?.academic_year ? `AY ${studentProfile.academic_year}` : null,
+  ].filter(Boolean).join(" · ") || "No current academic period";
 
   // 5. Filter tasks based on search, department, and status, and elevate New Tasks to top
   const filteredTasks = useMemo(() => {
@@ -1391,27 +1374,29 @@ export default function TasksPage({
     <div className="w-full space-y-6">
       {/* ── Top Header Text ── */}
       <div className="flex flex-col">
-        <h1 className="text-xl font-bold tracking-tight text-white md:text-2xl">
+        <h1 className="text-base font-bold leading-snug tracking-tight text-white sm:text-lg md:text-2xl">
           Your requirements, all in one place
         </h1>
-        <p className="mt-1 text-xs text-slate-400 md:text-sm">
-          {programSubtitle}
+        <p className="mt-1 text-[11px] leading-relaxed text-slate-400 sm:text-xs md:text-sm">
+          {academicSubtitle === "No current academic period"
+            ? "View your clearance requirements and submit documents once an academic period is active."
+            : `Complete your clearance requirements for ${academicSubtitle} by submitting documents online or visiting the assigned offices.`}
         </p>
       </div>
 
       {/* ── Search & Filter Controls ── */}
-      <div className="rounded-2xl border border-slate-800 bg-[#0a101f] p-4 shadow-2xl backdrop-blur-sm space-y-3">
+      <div className="rounded-xl md:rounded-2xl border border-slate-800 bg-[#0a101f] p-3 md:p-4 shadow-2xl backdrop-blur-sm space-y-2 md:space-y-3">
         {/* Top Row: Search Input + Department Dropdown */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Search className="pointer-events-none absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search requirements, offices, or staff..."
-              className="w-full rounded-xl border border-slate-800 bg-[#070c18] pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/40 transition-colors"
+              className="w-full rounded-lg md:rounded-xl border border-slate-800 bg-[#070c18] pl-9 pr-3 py-2 text-[11px] md:pl-10 md:pr-4 md:py-2.5 md:text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/40 transition-colors"
             />
           </div>
 
@@ -1420,7 +1405,7 @@ export default function TasksPage({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex items-center justify-between gap-2.5 shrink-0 rounded-xl border border-slate-800 bg-[#070c18] px-3.5 py-2.5 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer select-none min-w-[170px] sm:min-w-[190px] focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                className="flex min-w-0 max-w-full self-start items-center justify-between gap-2 shrink-0 rounded-lg border border-slate-800 bg-[#070c18] px-3 py-2 text-[11px] text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer select-none md:min-w-[190px] md:self-auto md:gap-2.5 md:rounded-xl md:px-3.5 md:py-2.5 md:text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50"
               >
                 <div className="flex items-center gap-2 min-w-0 pr-1">
                   <Building2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
@@ -1435,7 +1420,7 @@ export default function TasksPage({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-56 max-h-72 overflow-y-auto rounded-xl border border-slate-800 bg-[#070c18] p-1.5 shadow-2xl text-slate-300 backdrop-blur-md z-50 custom-scrollbar"
+              className="w-56 max-w-[calc(100vw-2rem)] max-h-72 overflow-y-auto rounded-xl border border-slate-800 bg-[#070c18] p-1.5 shadow-2xl text-slate-300 backdrop-blur-md z-50 custom-scrollbar"
             >
               <DropdownMenuItem
                 onClick={() => {
@@ -1488,7 +1473,7 @@ export default function TasksPage({
         </div>
 
         {/* Bottom Row: Status Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+        <div className="flex flex-wrap items-center gap-1 md:gap-1.5 md:pt-1">
           {statusOptions.map((st) => {
             const isActive = selectedStatus === st.key;
             return (
@@ -1498,7 +1483,7 @@ export default function TasksPage({
                 onClick={() => {
                   setSelectedStatus(st.key);
                 }}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-ui cursor-pointer ${
+                className={`rounded-full px-2.5 py-0.5 text-[10px] md:px-3 md:py-1 md:text-xs font-semibold transition-ui cursor-pointer ${
                   isActive
                     ? "border border-amber-500/50 bg-amber-500/20 text-amber-300 shadow-sm"
                     : "border border-slate-800/80 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700"
@@ -1548,10 +1533,10 @@ export default function TasksPage({
 
                 {/* ── Returned Documents Header ── */}
                 {showReturnedHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 shadow-sm animate-in ease-out fade-in duration-200">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-300">
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg md:px-4 md:py-2.5 md:rounded-xl border border-rose-500/30 bg-rose-500/10 shadow-sm animate-in ease-out fade-in duration-200">
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <span className="flex h-1.5 w-1.5 shrink-0 md:h-2 md:w-2 rounded-full bg-rose-400 animate-pulse" />
+                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-wide md:tracking-wider text-rose-300">
                         Returned Documents ({elevatedReturnedTaskIds.size})
                       </span>
                     </div>
@@ -1560,11 +1545,11 @@ export default function TasksPage({
 
                 {/* ── Flagged Documents Header (Early AI Flag) ── */}
                 {showFlaggedHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 shadow-sm animate-in ease-out fade-in duration-200">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3 h-3 text-blue-400" />
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg md:px-4 md:py-2.5 md:rounded-xl border border-blue-500/30 bg-blue-500/10 shadow-sm animate-in ease-out fade-in duration-200">
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <span className="flex h-1.5 w-1.5 shrink-0 md:h-2 md:w-2 rounded-full bg-blue-400 animate-pulse" />
+                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-wide md:tracking-wider text-blue-300 flex items-center gap-1.5">
+                        <AlertTriangle className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 text-blue-400" />
                         Flagged Documents ({elevatedFlaggedTaskIds.size})
                       </span>
                     </div>
@@ -1577,10 +1562,10 @@ export default function TasksPage({
 
                 {/* ── New Tasks Header ── */}
                 {showNewTasksHeader && (
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 shadow-sm animate-in ease-out fade-in duration-200">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg md:px-4 md:py-2.5 md:rounded-xl border border-amber-500/30 bg-amber-500/10 shadow-sm animate-in ease-out fade-in duration-200">
+                    <div className="flex items-center gap-1.5 md:gap-2">
+                      <span className="flex h-1.5 w-1.5 shrink-0 md:h-2 md:w-2 rounded-full bg-amber-400 animate-pulse" />
+                      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-wide md:tracking-wider text-amber-300">
                         New Tasks ({elevatedNewTaskIds.size})
                       </span>
                     </div>
@@ -1609,7 +1594,7 @@ export default function TasksPage({
                 <div
                   key={t.id}
                   onClick={() => handleTaskClick(t)}
-                  className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border p-4 sm:px-5 shadow-sm backdrop-blur-sm transition-ui hover:bg-[#0c1427]/90 cursor-pointer ${
+                  className={`group grid grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:flex-row sm:items-center justify-between gap-x-2.5 gap-y-1.5 sm:gap-4 rounded-xl sm:rounded-2xl border p-3 sm:p-4 sm:px-5 shadow-sm backdrop-blur-sm transition-ui hover:bg-[#0c1427]/90 cursor-pointer ${
                     isReturnedElevated
                       ? "border-rose-500/40 bg-[#0a101f]/95 ring-1 ring-rose-500/20 hover:border-rose-500/60"
                       : isFlaggedElevated
@@ -1620,9 +1605,9 @@ export default function TasksPage({
                   }`}
                 >
                   {/* Left: Department Icon + Info */}
-                  <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                  <div className="contents sm:flex sm:items-center sm:gap-3.5 min-w-0">
                     <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border shadow-inner transition-colors relative ${
+                      className={`col-[1/2] row-[1/3] self-start sm:self-auto flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg sm:rounded-xl border shadow-inner transition-colors relative ${
                         isReturnedElevated
                           ? "border-rose-500/40 bg-rose-500/15 text-rose-400"
                           : isFlaggedElevated
@@ -1640,7 +1625,7 @@ export default function TasksPage({
                           : "border-slate-800 bg-[#070c18] text-slate-400"
                       }`}
                     >
-                      <DeptIcon className="h-5 w-5" />
+                      <DeptIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       {isReturnedElevated ? (
                         <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
@@ -1659,17 +1644,15 @@ export default function TasksPage({
                       ) : null}
                     </div>
 
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate">
+                    <div className="contents sm:flex sm:flex-col min-w-0">
+                      <div className="col-[2/3] row-[1/2] flex min-w-0 items-center gap-2">
+                        <span className="text-[13px] sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate">
                           {t.title}
                         </span>
                       </div>
 
-                    <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400 mt-1">
+                    <div className="col-[2/3] row-[2/3] flex min-w-0 flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-slate-400 sm:mt-1">
                       <span>{t.department}</span>
-                      <span className="text-slate-600">—</span>
-                      <span>{t.staff}</span>
                       {/* Once in For review or Submitted: remove due date, just display elapsed time */}
                       {t.status === "Submitted" || t.status === "For review" ? (
                         <>
@@ -1711,9 +1694,9 @@ export default function TasksPage({
                 </div>
 
                 {/* Right: Status Pill & Chevron */}
-                <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
+                <div className="col-[3/4] row-[1/3] flex items-center self-center justify-self-end gap-2 sm:gap-3 shrink-0">
                   <div
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-xs font-semibold ${
                       t.status === "Cleared"
                         ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                         : t.status === "Returned"
@@ -1751,7 +1734,7 @@ export default function TasksPage({
                     </span>
                   </div>
 
-                  <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-ui" />
+                  <ChevronRight className="hidden sm:block h-4 w-4 text-slate-600 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-ui" />
                 </div>
               </div>
             </Fragment>
