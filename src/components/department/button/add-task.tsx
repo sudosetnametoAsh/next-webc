@@ -1,6 +1,6 @@
 "use client";
 
-import { APP_TIME_ZONE, campusEndOfDay } from "@/lib/date-time";
+import { APP_TIME_ZONE, campusEndOfDay, campusDateInput, taskDeadlineError } from "@/lib/date-time";
 
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,9 @@ export default function AddTask({
     }
 
     const targetTaskIds = taskId && taskId.length > 0 ? taskId : [null];
+
+    const dateError = taskDeadlineError(dueDate ? campusEndOfDay(dueDate) : null);
+    if (dateError) { toast.error(dateError); return; }
 
     const payload = clearanceId.flatMap((student) =>
       targetTaskIds.map((tId) => {
@@ -220,7 +223,7 @@ export default function AddTask({
               <Input
                 id="task-due-date"
                 type="date"
-                min={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`}
+                min={campusDateInput(new Date())}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 className="border-slate-700 bg-[#0a101f] text-slate-200 [color-scheme:dark] focus-visible:ring-amber-400/40"

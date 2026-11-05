@@ -1,3 +1,4 @@
+import { taskDeadlineError } from "@/lib/date-time";
 import { getSession } from "@/lib/auth/get-session";
 import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
@@ -51,6 +52,9 @@ export async function POST(req: NextRequest) {
   if (tasksToProcess.length === 0) {
     return NextResponse.json({ error: "No tasks provided" }, { status: 400 });
   }
+
+  const dateError = tasksToProcess.map(task => taskDeadlineError(task.due_date)).find(Boolean);
+  if (dateError) return NextResponse.json({ error: dateError }, { status: 400 });
 
   // 1. Identify target clearance_ids
   const clearanceIds = [
@@ -235,17 +239,22 @@ export async function PATCH(req: NextRequest) {
 
   // Get previous task details to update notifications if title changes
   let oldTitle: string | null = null;
-  if (title !== undefined) {
+  let existingDueDate: string | null = null;
+  if (title !== undefined || due_date !== undefined) {
     const { data: current, error: readError } = await supabase
       .from("current_clearance_tasks")
-      .select("title")
+      .select("title,due_date")
       .eq("assigned_task_id", assigned_task_id)
       .eq("staff_id", user_id)
       .maybeSingle();
     if (readError) return NextResponse.json({ error: readError.message }, { status: 500 });
     if (!current) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    existingDueDate = current.due_date || null;
     oldTitle = current?.title || null;
   }
+
+  const dateError = taskDeadlineError(due_date, existingDueDate);
+  if (dateError) return NextResponse.json({ error: dateError }, { status: 400 });
 
   const updateFields: Record<string, any> = {};
   if (title !== undefined) updateFields.title = title;

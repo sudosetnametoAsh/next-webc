@@ -2,7 +2,7 @@
 
 import { isOnlineSubmission } from "@/lib/task-submission-mode";
 
-import { APP_TIME_ZONE, campusEndOfDay, campusDateInput } from "@/lib/date-time";
+import { APP_TIME_ZONE, campusEndOfDay, campusDateInput, taskDeadlineError } from "@/lib/date-time";
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
 import {
@@ -73,7 +73,11 @@ export default function EditTaskModal({
 
     setIsSubmitting(true);
     try {
-      const formattedDueDate = dueDate ? campusEndOfDay(dueDate) : null;
+      const formattedDueDate = dueDate && task.due_date && dueDate === campusDateInput(task.due_date)
+        ? task.due_date
+        : dueDate ? campusEndOfDay(dueDate) : null;
+      const dateError = taskDeadlineError(formattedDueDate, task.due_date);
+      if (dateError) { toast.error(dateError); return; }
 
       // Determine dropbox value:
       // If toggled online, set to "pending" (or keep existing submission url if already online)
@@ -141,7 +145,7 @@ export default function EditTaskModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form noValidate onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Title Field */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
@@ -237,7 +241,7 @@ export default function EditTaskModal({
             </div>
             <input
               type="date"
-              min={new Date().toISOString().split("T")[0]}
+              min={campusDateInput(new Date())}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               disabled={isSubmitting}

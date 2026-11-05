@@ -15,3 +15,11 @@ export function campusDateInput(value: string | Date): string {
 export function campusEndOfDay(date: string): string {
   return new Date(`${date}T23:59:59+08:00`).toISOString();
 }
+
+/** Validate the campus calendar day, allowing an existing deadline to remain unchanged. */
+export function taskDeadlineError(value: unknown, existing?: string | null, now: Date = new Date()): string | null {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) return 'Enter a valid due date.';
+  if (existing && Date.parse(existing) === Date.parse(value)) return null;
+  return campusDateInput(value) < campusDateInput(now) ? 'Due date cannot be before today (Manila time).' : null;
+}
