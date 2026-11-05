@@ -92,7 +92,7 @@ export default function TierBucketOrganizer({ assignments, onAssignmentsChange, 
                         <span className="min-w-0 flex-1 break-words text-xs font-semibold text-white">{assignment.dept_name}</span>
                       </div>
                       <div className="flex items-center justify-between gap-1">
-                        <button type="button" onClick={() => onSelectDepartmentForStaff(assignment.dept_id)} className="flex min-w-0 items-center gap-1 text-left text-[11px] text-amber-300 hover:text-amber-200"><User className="h-3 w-3 shrink-0" /><span className="truncate">{assignment.staff_name || 'Assign staff officer'}</span></button>
+                        <button type="button" onClick={() => onSelectDepartmentForStaff(assignment.dept_id)} className={`flex min-w-0 items-center gap-1 text-left text-[11px] ${assignment.staff_id ? 'text-emerald-300 hover:text-emerald-200' : 'text-slate-400 hover:text-slate-200'}`}><User className="h-3 w-3 shrink-0" /><span className="truncate">{assignment.staff_name || 'Assign staff officer'}</span></button>
                         <div className="flex shrink-0 items-center">
                           <button type="button" aria-label={`Move ${assignment.dept_name} to previous phase`} disabled={phase === 1} onClick={() => move(assignment.dept_id, phase - 1)} className="rounded p-1 text-slate-400 hover:bg-slate-800 disabled:opacity-20"><ArrowUp className="h-3.5 w-3.5" /></button>
                           <button type="button" aria-label={`Move ${assignment.dept_name} to next phase`} disabled={phase === phaseCount} onClick={() => move(assignment.dept_id, phase + 1)} className="rounded p-1 text-slate-400 hover:bg-slate-800 disabled:opacity-20"><ArrowDown className="h-3.5 w-3.5" /></button>
