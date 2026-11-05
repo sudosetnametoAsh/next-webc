@@ -457,6 +457,7 @@ export default function TaskView({
     due_date: string | null;
     dropbox: string;
   }) => {
+    const previous = tasks.find(task => task.assigned_task_id === updated.assigned_task_id);
     setTasks((prev) =>
       prev.map((t) =>
         t.assigned_task_id === updated.assigned_task_id
@@ -480,19 +481,13 @@ export default function TaskView({
           body: JSON.stringify(updated),
         }
       );
-      if (!res.ok) {
-        const { error } = await supabase
-          .from("clearance_tasks")
-          .update({
-            title: updated.title,
-            description: updated.description,
-            due_date: updated.due_date,
-            dropbox: updated.dropbox,
-          })
-          .eq("assigned_task_id", updated.assigned_task_id);
-        if (error) throw error;
-      }
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Unable to update task");
+      if (result.data) setTasks(current => current.map(task => task.assigned_task_id === updated.assigned_task_id ? { ...task, ...result.data } : task));
+      void queryClient.invalidateQueries({ queryKey: ["department-clients"] });
+      void queryClient.invalidateQueries({ queryKey: ["clients"] });
     } catch (err) {
+      if (previous) setTasks(current => current.map(task => task.assigned_task_id === updated.assigned_task_id ? { ...task, title: previous.title, description: previous.description, due_date: previous.due_date, dropbox: previous.dropbox } : task));
       console.error("Failed to edit task:", err);
       throw err;
     }

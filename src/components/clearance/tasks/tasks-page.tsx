@@ -1,5 +1,8 @@
 "use client";
 
+import { isOnlineSubmission } from "@/lib/task-submission-mode";
+import { useLiveTaskState } from "@/hooks/clearance/use-live-task-state";
+
 import { APP_TIME_ZONE } from "@/lib/date-time";
 
 
@@ -196,13 +199,7 @@ export default function TasksPage({
     },
   });
 
-  const [tasksList, setTasksList] = useState<getDepartmentDetailsPromise>(
-    liveTasks || propTask || []
-  );
-
-  useEffect(() => {
-    setTasksList(liveTasks);
-  }, [liveTasks]);
+  const [tasksList, setTasksList] = useLiveTaskState(liveTasks);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("All");
@@ -692,19 +689,7 @@ export default function TasksPage({
         t.status?.toLowerCase() === "rejected" ||
         t.status?.toLowerCase() === "returned";
 
-      const isDropboxRequired = Boolean(
-        hasUploadedFile ||
-          (t.dropbox &&
-            typeof t.dropbox === "string" &&
-            t.dropbox.trim() !== "" &&
-            t.dropbox.toLowerCase() !== "null" &&
-            t.dropbox.toLowerCase() !== "undefined") ||
-          isRejected ||
-          t.status === "Submitted" ||
-          t.status === "Verified" ||
-          t.status === "Flagged" ||
-          (t.ai_audit_report !== null && t.ai_audit_report !== undefined)
-      );
+      const isDropboxRequired = isOnlineSubmission(t.dropbox);
 
       const isInPerson = !isDropboxRequired;
 
@@ -1295,7 +1280,7 @@ export default function TasksPage({
         : activeTaskItem.rawStatus === "Flagged" && !activeTaskItem.hasAppeal
         ? "Flagged"
         : activeTaskItem.status,
-      isInPerson: isReturned ? false : Boolean(activeTaskItem.isInPerson),
+      isInPerson: Boolean(activeTaskItem.isInPerson),
       due_date: activeTaskItem.rawDueDate,
       assigned_at: activeTaskItem.assignedAt,
       comments: isSubmittedStatus || isAiComment ? null : activeTaskItem.comments,

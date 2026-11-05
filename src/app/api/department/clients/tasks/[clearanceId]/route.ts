@@ -3,7 +3,7 @@ import { createClient } from "@/lib/db/supabase-server";
 import { getSupabaseAdmin } from "@/lib/db/supabase-admin";
 import { invalidateServerDepartmentCache } from "@/lib/services/department-cache";
 import { invalidateServerClearanceCache } from "@/lib/services/clearance-cache";
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 
 type Params = {
   clearanceId: string;
@@ -236,11 +236,14 @@ export async function PATCH(req: NextRequest) {
   // Get previous task details to update notifications if title changes
   let oldTitle: string | null = null;
   if (title !== undefined) {
-    const { data: current } = await supabase
+    const { data: current, error: readError } = await supabase
       .from("current_clearance_tasks")
       .select("title")
       .eq("assigned_task_id", assigned_task_id)
+      .eq("staff_id", user_id)
       .maybeSingle();
+    if (readError) return NextResponse.json({ error: readError.message }, { status: 500 });
+    if (!current) return NextResponse.json({ error: "Task not found" }, { status: 404 });
     oldTitle = current?.title || null;
   }
 
@@ -263,32 +266,35 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // If task title changed, synchronize notifications mentioning this task
-  if (title && oldTitle && title !== oldTitle) {
-    try {
-      const adminClient = getSupabaseAdmin();
-      const { data: matchedNotifs } = await adminClient
-        .from("notifications")
-        .select("notif_id, description, metadata")
-        .ilike("description", `%"${oldTitle}"%`);
-
-      if (matchedNotifs && matchedNotifs.length > 0) {
-        for (const n of matchedNotifs) {
-          const updatedDesc = n.description.replace(`"${oldTitle}"`, `"${title}"`);
-          const updatedMeta = { ...(n.metadata || {}), taskTitle: title };
-          await adminClient
-            .from("notifications")
-            .update({ description: updatedDesc, metadata: updatedMeta })
-            .eq("notif_id", n.notif_id);
-        }
-      }
-    } catch (notifUpdateErr) {
-      console.error("Failed to update notification titles:", notifUpdateErr);
-    }
-  }
-
+  // Publish fresh client data immediately after the task write commits.
   invalidateServerDepartmentCache(user_id);
   invalidateServerClearanceCache();
+
+  after(async () => {
+    // If task title changed, synchronize notifications mentioning this task
+    if (title && oldTitle && title !== oldTitle) {
+      try {
+        const adminClient = getSupabaseAdmin();
+        const { data: matchedNotifs } = await adminClient
+          .from("notifications")
+          .select("notif_id, description, metadata")
+          .ilike("description", `%"${oldTitle}"%`);
+
+        if (matchedNotifs && matchedNotifs.length > 0) {
+          for (const n of matchedNotifs) {
+            const updatedDesc = n.description.replace(`"${oldTitle}"`, `"${title}"`);
+            const updatedMeta = { ...(n.metadata || {}), taskTitle: title };
+            await adminClient
+              .from("notifications")
+              .update({ description: updatedDesc, metadata: updatedMeta })
+              .eq("notif_id", n.notif_id);
+          }
+        }
+      } catch (notifUpdateErr) {
+        console.error("Failed to update notification titles:", notifUpdateErr);
+      }
+    }
+  });
 
   return NextResponse.json({ data: updatedTask }, { status: 200 });
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { isOnlineSubmission } from "@/lib/task-submission-mode";
+
 import { APP_TIME_ZONE, campusEndOfDay, campusDateInput } from "@/lib/date-time";
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";
@@ -53,11 +55,7 @@ export default function EditTaskModal({
     if (task) {
       setTitle(task.title || "");
       setDescription(task.description || "");
-      const isOnline = Boolean(
-        task.dropbox &&
-          task.dropbox.trim() !== "" &&
-          task.dropbox.toLowerCase() !== "null"
-      );
+      const isOnline = isOnlineSubmission(task.dropbox);
       setHasDropbox(isOnline);
       setDueDate(task.due_date ? campusDateInput(task.due_date) : "");
       setTitleError("");
@@ -75,19 +73,13 @@ export default function EditTaskModal({
 
     setIsSubmitting(true);
     try {
-      const formattedDueDate = dueDate
-        ? campusEndOfDay(dueDate)
-        : null;
+      const formattedDueDate = dueDate ? campusEndOfDay(dueDate) : null;
 
       // Determine dropbox value:
       // If toggled online, set to "pending" (or keep existing submission url if already online)
       let dropboxValue = "NULL";
       if (hasDropbox) {
-        if (
-          task.dropbox &&
-          task.dropbox.trim() !== "" &&
-          task.dropbox.toLowerCase() !== "null"
-        ) {
+        if (isOnlineSubmission(task.dropbox)) {
           dropboxValue = task.dropbox;
         } else {
           dropboxValue = "pending";

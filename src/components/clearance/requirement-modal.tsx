@@ -1,5 +1,7 @@
 "use client";
 
+import { useLiveTaskState } from "@/hooks/clearance/use-live-task-state";
+
 import { APP_TIME_ZONE } from "@/lib/date-time";
 
 
@@ -216,7 +218,7 @@ export default function RequirementModal({
   const [isUploading, setIsUploading] = useState(false);
   const [isAppealing, setIsAppealing] = useState(false);
   const [localFiles, setLocalFiles] = useState<ModalFileItem[]>(task?.files || []);
-  const [localStatus, setLocalStatus] = useState<string>(task?.status || "");
+  const [localStatus, setLocalStatus] = useLiveTaskState<string>(task?.status || "");
   const [localAiReport, setLocalAiReport] = useState<any>(null);
   const [prevTaskId, setPrevTaskId] = useState<number | null>(task?.id ?? null);
   const [prevIsOpen, setPrevIsOpen] = useState<boolean>(isOpen);
@@ -245,9 +247,6 @@ export default function RequirementModal({
   // Update local server data if task data changes for the same task without wiping selectedFile
   useEffect(() => {
     if (task && isOpen) {
-      if (task.status && task.status !== localStatus) {
-        setLocalStatus(task.status);
-      }
       if (task.files) {
         setLocalFiles(task.files);
       }
@@ -912,7 +911,7 @@ export default function RequirementModal({
                       </div>
                     </div>
                   )
-                ) : (task.isInPerson && !isReturned) ? (
+                ) : task.isInPerson ? (
                   /* In-Person Guidance (When not cleared and not rejected) */
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 sm:p-4.5 flex items-start gap-3.5 text-amber-200">
                     <User className="text-amber-400 w-5 h-5 shrink-0 mt-0.5" />

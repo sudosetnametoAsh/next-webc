@@ -1,5 +1,8 @@
 "use client";
 
+import { isOnlineSubmission } from "@/lib/task-submission-mode";
+import { useLiveTaskState } from "@/hooks/clearance/use-live-task-state";
+
 import { APP_TIME_ZONE } from "@/lib/date-time";
 
 import { officeStatus, campusClock, hasWeeklySchedule, formatOfficeTime } from "@/lib/weekly-schedule";
@@ -236,16 +239,13 @@ export default function DepartmentOverlay({
     comments?: string | null
   ) => void;
 }) {
-  const [tasks, setTasks] = useState(departmentTasks || []);
+  const [tasks, setTasks] = useLiveTaskState(departmentTasks);
   const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
   const [autoOpenTaskMode, setAutoOpenTaskMode] = useState<
     "first" | "last" | null
   >(null);
   const [isNavigatingDept, setIsNavigatingDept] = useState(false);
 
-  useEffect(() => {
-    setTasks(departmentTasks || []);
-  }, [departmentTasks]);
 
   const deptName = selectedRecord?.department || "Department";
   const DeptIcon =
@@ -325,17 +325,7 @@ export default function DepartmentOverlay({
         t.status?.toLowerCase() === "rejected" ||
         t.status?.toLowerCase() === "returned";
 
-      const isDropboxRequired = Boolean(
-        (t.dropbox &&
-          t.dropbox.trim() !== "" &&
-          t.dropbox.toLowerCase() !== "null" &&
-          t.dropbox.toLowerCase() !== "undefined") ||
-          isRejected ||
-          t.status === "Submitted" ||
-          t.status === "Verified" ||
-          t.status === "Flagged" ||
-          (t.ai_audit_report !== null && t.ai_audit_report !== undefined)
-      );
+      const isDropboxRequired = isOnlineSubmission(t.dropbox);
 
       const files = parseDropboxFiles(t.dropbox, t.uploaded_at);
 
@@ -386,7 +376,7 @@ export default function DepartmentOverlay({
         title: t.title,
         description: t.description || "Institutional clearance requirement.",
         status: isRejected ? "Rejected" : taskStatusLabel,
-        isInPerson: isRejected ? false : !isDropboxRequired,
+        isInPerson: !isDropboxRequired,
         due_date: t.due_date,
         assigned_at: t.assigned_at,
         uploaded_at: t.uploaded_at || appealTime,
