@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/db/supabase-server'
+import { adminReadClient } from '@/lib/services/admin-read-client'
 import { clearanceWaitHours } from '@/lib/clearance-overdue'
 import { NextRequest, NextResponse } from 'next/server'
 import { shrinkCourseName, expandCourseAbbreviation } from '@/utils/formatters'
@@ -159,9 +159,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const requestedFilter = searchParams.get('filter') || 'all'
 
+  const supabase = await adminReadClient()
+  if (!supabase) return NextResponse.json({ error: 'Administrator access required' }, { status: 403 })
   try {
     const payload = await getCachedAdminRadar(requestedFilter, async () => {
-      const supabase = await createClient()
 
       // 1. Fetch courses, departments, templates, and clearance records in parallel
       const [coursesRes, deptsRes, templatesRes, recordsRes] = await Promise.all([

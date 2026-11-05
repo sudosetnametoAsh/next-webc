@@ -17,6 +17,7 @@ async function fixture() {
   await db.exec(fs.readFileSync('supabase/migrations/20261106000000_unified_staff_enrollments.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/migrations/20261106000001_carryover_directory_details.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/migrations/20261106000002_remove_current_participation.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/20261106000003_cache_rls_statement_checks.sql','utf8'));
   return db;
 }
 const config = overrides => ({ start_year:2026,end_year:2027,term:2,source_period_id:1,student_ids:['student'],staff_ids:['officer'],carry_templates:true,opens_at:null,...overrides });
@@ -198,4 +199,18 @@ test('staff re-enrollment reactivates the same membership without resetting sign
  await db.query("SELECT enroll_staff_for_period('officer@school.test','Officer','officer',1)");
  const [{n}]=(await db.query("SELECT count(*)::int n FROM staff_enrollments WHERE staff_id='officer' AND period_id=1 AND is_active")).rows;assert.equal(n,1);
  assert.equal((await db.query("SELECT status FROM clearance_records WHERE user_id='officer' AND period_id=1")).rows[0].status,'Signed');
+});
+
+test('statement-scoped permissions recompute for each identity and never leak other clients work', async t => {
+ const db=await fixture();t.after(()=>db.close());
+ await db.exec("INSERT INTO users(user_id,auth_id,email) VALUES('other','33333333-3333-3333-3333-333333333333','other@school.test'); INSERT INTO students(student_id,student_name) VALUES('other','Other Student'); INSERT INTO enrollments(student_id,section_id,period_id) VALUES('other',1,1);");
+ for(const [uid,id] of [['11111111-1111-1111-1111-111111111111','student'],['33333333-3333-3333-3333-333333333333','other']]){
+  await access(db,uid,['Client']);await db.exec('SET ROLE authenticated');
+  const rows=(await db.query('SELECT DISTINCT user_id FROM current_clearance_records')).rows;
+  assert.deepEqual(rows.map(r=>r.user_id),[id]);await db.exec('RESET ROLE');
+ }
+ await db.exec("UPDATE enrollments SET is_active=false WHERE student_id='other' AND period_id=1");
+ await access(db,'33333333-3333-3333-3333-333333333333',['Client']);await db.exec('SET ROLE authenticated');
+ assert.equal((await db.query('SELECT count(*)::int n FROM current_clearance_records')).rows[0].n,0);
+ await db.exec('RESET ROLE');
 });

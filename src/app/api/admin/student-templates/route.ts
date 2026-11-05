@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/db/supabase-server'
+import { adminReadClient } from '@/lib/services/admin-read-client'
 import { NextResponse } from 'next/server'
 import { computeClientOverdueStatus } from '@/lib/clearance-logic'
 
 // GET: Fetch student templates & statuses
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = await adminReadClient()
+  if (!supabase) return NextResponse.json({ error: 'Administrator access required' }, { status: 403 })
 
   try {
     // 1. Get all enrolled students

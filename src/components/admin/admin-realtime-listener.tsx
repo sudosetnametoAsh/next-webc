@@ -16,6 +16,7 @@ export default function AdminRealtimeListener() {
     let fallback: ReturnType<typeof setInterval> | undefined;
     let refreshing = false;
     let pending = false;
+    let connectedBefore = false;
 
     const refresh = async () => {
       if (disposed || refreshing) return;
@@ -26,7 +27,7 @@ export default function AdminRealtimeListener() {
           await Promise.all([
             "stats", "pipeline-radar", "departments", "student-templates",
             "course-templates", "staff-templates", "staff", "courses", "academic-periods", "department-officers",
-          ].map((key) => queryClient.invalidateQueries({ queryKey: ["admin", key] })));
+          ].map((key) => queryClient.invalidateQueries({ queryKey: ["admin", key] }, { cancelRefetch: false })));
         } while (pending && !disposed);
         if (!disposed) router.refresh();
       } finally {
@@ -40,7 +41,7 @@ export default function AdminRealtimeListener() {
       timer = setTimeout(() => {
         timer = undefined;
         void refresh();
-      }, 200);
+      }, 1000);
     };
     const onVisible = () => {
       if (document.visibilityState === "visible") triggerRefresh();
@@ -59,7 +60,8 @@ export default function AdminRealtimeListener() {
         if (status === "SUBSCRIBED") {
           if (fallback) clearInterval(fallback);
           fallback = undefined;
-          triggerRefresh();
+          if (connectedBefore) triggerRefresh();
+          connectedBefore = true;
         } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
           console.warn("Admin realtime disconnected:", status, error);
           triggerRefresh();

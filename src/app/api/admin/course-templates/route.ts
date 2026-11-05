@@ -1,3 +1,4 @@
+import { adminReadClient } from '@/lib/services/admin-read-client'
 import { notifyTemplatePublication } from '@/lib/services/template-notifications'
 import { createClient } from '@/lib/db/supabase-server'
 import { getSupabaseAdmin } from '@/lib/db/supabase-admin'
@@ -12,7 +13,8 @@ import { archiveCourseTemplates, archiveTemplatesByIds, removeTasksOnStaffReassi
 // --- GET: Fetch Course Templates & Stats ---
 export async function GET() {
 
-  const supabase = await createClient()
+  const supabase = await adminReadClient()
+  if (!supabase) return NextResponse.json({ error: 'Administrator access required' }, { status: 403 })
 
   try {
     // 1. Get all courses
@@ -40,6 +42,11 @@ export async function GET() {
       (d.clearance_templates || []).some((t: any) => t.is_active !== false)
     )
 
+    // Aggregate roster and signature counts once instead of three queries per course.
+    const { data: counts, error: countsError } = await supabase.rpc('admin_course_template_counts')
+    if (countsError) throw countsError
+    const byCourse = new Map<number, { students_enrolled: number; signed_count: number }>((counts || []).map((row: any) => [row.course_id, row]))
+
     // 2. Calculate stats
     const courseTemplates = await Promise.all(
       courses.map(async (course: any) => {
@@ -47,38 +54,11 @@ export async function GET() {
           (t: any) => t.is_active !== false
         )
 
-        // A. Get Sections
-        const { data: sections, error: sectionsError } = await supabase
-           .from('course_sections')
-           .select('section_id')
-           .eq('course_id', course.course_id)
-        
-        if (sectionsError) throw sectionsError
-        const sectionIds = sections?.map(s => s.section_id) || []
-
-        // B. Get Enrollment Count
-        let studentsEnrolled = 0
-        if (sectionIds.length > 0) {
-            const { count, error: enrollmentError } = await supabase
-            .from('current_enrollments')
-            .select('*', { count: 'exact', head: true })
-            .in('section_id', sectionIds)
-            if (enrollmentError) throw enrollmentError
-            studentsEnrolled = count || 0
-        }
-
-        // C. Completion Rate Logic (Aggregate Department Sign-off Progress for active templates)
+        const studentsEnrolled = Number(byCourse.get(course.course_id)?.students_enrolled || 0)
         const templateIds = activeTemplates.map((t: any) => t.template_id)
         let completionRate = 0
-
         if (templateIds.length > 0 && studentsEnrolled > 0) {
-          const { count: signedCount, error: clearanceError } = await supabase
-            .from('current_clearance_records')
-            .select('clearance_id', { count: 'exact', head: true })
-            .in('template_id', templateIds)
-            .eq('status', 'Signed')
-          if (clearanceError) throw clearanceError
-          
+          const signedCount = Number(byCourse.get(course.course_id)?.signed_count || 0)
           if (signedCount != null) {
             const totalPossibleSignatures = studentsEnrolled * templateIds.length
             const signedSignatures = signedCount

@@ -4,7 +4,7 @@ Academic year and term belong to a saved clearance period, not the student's yea
 
 ## Deployment
 
-Apply `supabase/migrations/20261105000000_academic_periods.sql`, `supabase/migrations/20261105000002_period_lifecycle.sql`, `supabase/migrations/20261105000003_safe_term_notification_cleanup.sql`, then `supabase/migrations/20261106000000_unified_staff_enrollments.sql`, then `supabase/migrations/20261106000001_carryover_directory_details.sql`, then `supabase/migrations/20261106000002_remove_current_participation.sql` through the project's database migration workflow before deploying the application changes. The migration is transactional and initializes **2026–2027, Term 1**, as confirmed by the administrator. The lifecycle migration keeps the existing active period open and preserves its current roster. New periods have an optional client opening date and time.
+Apply `supabase/migrations/20261105000000_academic_periods.sql`, `supabase/migrations/20261105000002_period_lifecycle.sql`, `supabase/migrations/20261105000003_safe_term_notification_cleanup.sql`, then `supabase/migrations/20261106000000_unified_staff_enrollments.sql`, then `supabase/migrations/20261106000001_carryover_directory_details.sql`, then `supabase/migrations/20261106000002_remove_current_participation.sql`, then `supabase/migrations/20261106000003_cache_rls_statement_checks.sql` through the project's database migration workflow before deploying the application changes. The migration is transactional and initializes **2026–2027, Term 1**, as confirmed by the administrator. The lifecycle migration keeps the existing active period open and preserves its current roster. New periods have an optional client opening date and time.
 
 The migration refuses to discard duplicate legacy enrollments. Check these before rollout:
 
@@ -67,8 +67,20 @@ npm run build
 
 Database tests apply the actual migration to isolated in-memory PostgreSQL (PGlite); they never use `.env` credentials or the production database.
 
+## Admin read performance
+
+Student-template, course-template and pipeline queries verify the caller with `auth.getUser()` and require an Admin role array before using server-only service credentials. Reads continue to use `current_*` views to exclude historical records. Client/department APIs retain RLS and participation checks. Program counts are aggregated by one service-only SQL function instead of section/enrollment/signature queries for each course. Realtime changes are batched for one second, preserve in-flight requests, and avoid refetching all data on the initial subscription. Term saves refresh admin queries in the background after the mutation succeeds.
+
+The carryover-directory RPC returns source-period course/section metadata and department statuses in one request, so selection and exclusion review work after the previous term has ended. Filtered selections remain selected across pages and filter changes. Student IDs and staff emails follow the main Clients table display. The directory update changes only the RPC definition, not roster or clearance data.
+
 ## Removing current participation
 
 The Clients action is **Remove from current term**, individually or in bulk. It sets only the current enrollment's `is_active` to false; account/profile rows, enrollment history, tasks, signatures and notifications are retained, including clients with existing work. Active template assignments and current-term task responsibilities must be reassigned before an officer can be removed. Previous-term assignments do not prevent removal.
 
 Operational views, access RPCs and carryover candidates exclude inactive enrollment rows. Database work guards reject new requirements or changed task/signature statuses for inactive clients, including requests already in flight. Auth sessions remain valid, but route/RLS participation checks deny access; the client guard reconciles via realtime and a 15-second visible-page fallback. Re-enrollment sets the current membership active again and preserves existing work rather than resetting approvals.
+
+## Client and department query performance
+
+The RLS optimization adds a non-unique partial `users.auth_id` index and uses scalar subqueries for request-constant identity, participation and manager checks. PostgreSQL evaluates these as statement InitPlans rather than invoking the same functions for every row and nested relation. Results are not cached across requests: removal, term changes, client ownership and Department-role checks continue to take effect immediately in subsequent statements.
+
+Department section/staff nested reads use `current_enrollments`, `current_staffs` and `current_clearance_records` relationships to exclude inactive/historical participation. An officer with no staff-clearance template receives an empty result without a warning; actual template/profile query failures return errors rather than masquerading as an empty roster.

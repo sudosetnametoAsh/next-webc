@@ -14,8 +14,8 @@ export async function GET(_req: NextRequest) {
     .eq("staff_id", user_id)
     .eq("is_active", true);
 
-  if (templateError || !templates || templates.length === 0) {
-    console.warn("No staff clearance templates found for staff:", user_id);
+  if (templateError) return NextResponse.json({ error: templateError.message }, { status: 500 });
+  if (!templates || templates.length === 0) {
     return NextResponse.json({ data: [] }, { status: 200 });
   }
 
@@ -24,13 +24,13 @@ export async function GET(_req: NextRequest) {
   // 2. Fetch staff members (from staffs table) who have clearance records for these templates
   // Note: clearance_records.user_id references users.user_id, which staffs.staff_id also references.
   const { data: staffsData, error: queryError } = await supabase
-    .from("staffs")
+    .from("current_staffs")
     .select(
       `
       staff_id,
       staff_name,
       users!inner(
-        clearance_records!inner(
+        clearance_records:current_clearance_records!inner(
           clearance_id,
           status,
           clearance_tasks(description, assigned_task_id, dropbox, status, assigned_at, title)

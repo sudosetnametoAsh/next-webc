@@ -32,10 +32,10 @@ export async function GET(
     .from("course_sections")
     .select("course_id")
     .eq("section_id", section_id)
-    .single();
+    .maybeSingle();
 
-  if (sectionError || !courseSection) {
-    console.error("Section not found:", sectionError);
+  if (sectionError) return NextResponse.json({ error: sectionError.message }, { status: 500 });
+  if (!courseSection) {
     return NextResponse.json({ data: [] }, { status: 200 });
   }
 
@@ -53,8 +53,8 @@ export async function GET(
 
   const { data: templates, error: templateError } = await tmplQuery;
 
-  if (templateError || !templates || templates.length === 0) {
-    console.warn("No template found for staff:", user_id, "on course:", courseSection.course_id);
+  if (templateError) return NextResponse.json({ error: templateError.message }, { status: 500 });
+  if (!templates || templates.length === 0) {
     return NextResponse.json({ data: [] }, { status: 200 });
   }
 
@@ -67,9 +67,9 @@ export async function GET(
       `
       student_id,
       student_name,
-      enrollments!inner(),
+      enrollments:current_enrollments!inner(),
       users!inner(
-        clearance_records!inner(
+        clearance_records:current_clearance_records!inner(
           clearance_id,
           status,
           clearance_tasks(description, assigned_task_id, dropbox, status, assigned_at, title)

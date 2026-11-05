@@ -58,7 +58,7 @@ export const staffEnrollments = pgTable("staff_enrollments", {
   staffId: varchar("staff_id", { length: 11 }).notNull().references(() => staffs.staffId, { onDelete: "restrict", onUpdate: "cascade" }),
 }, table => [primaryKey({ columns: [table.periodId, table.staffId] }),
   index("staff_enrollments_staff_period_idx").on(table.staffId, table.periodId),
-  pgPolicy("staff_period_read", { for: "select", to: authenticatedRole, using: sql`public.period_can_manage(period_id) OR staff_id=public.period_user_id()` })]).enableRLS();
+  pgPolicy("staff_period_read", { for: "select", to: authenticatedRole, using: sql`(period_id=(SELECT public.active_academic_period_id()) AND (SELECT public.period_can_manage(public.active_academic_period_id()))) OR staff_id=(SELECT public.period_user_id())` })]).enableRLS();
 
 export const clearanceTasks = pgTable(
   "clearance_tasks",
@@ -114,8 +114,8 @@ export const clearanceTasks = pgTable(
       sql`${table.status}::text IN ('Cleared', 'Pending', 'Submitted', 'Rejected', 'Flagged', 'Verified')`,
     ),
     pgPolicy("tasks_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
-      using: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND public.period_can_read(r.period_id,r.user_id))`,
-      withCheck: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND (public.period_can_manage(r.period_id) OR (public.period_can_read(r.period_id,r.user_id) AND clearance_tasks.status IN ('Submitted','Rejected'))))` }),
+      using: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND r.period_id=(SELECT public.active_academic_period_id()) AND ((SELECT public.period_can_manage(public.active_academic_period_id())) OR (r.user_id=(SELECT public.period_user_id()) AND (SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id())))))`,
+      withCheck: sql`EXISTS(SELECT 1 FROM public.clearance_records r WHERE r.clearance_id=clearance_tasks.clearance_id AND r.period_id=(SELECT public.active_academic_period_id()) AND ((SELECT public.period_can_manage(public.active_academic_period_id())) OR (r.user_id=(SELECT public.period_user_id()) AND (SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id())) AND clearance_tasks.status IN ('Submitted','Rejected'))))` }),
     pgPolicy("tasks_require_identity", { as: "restrictive", for: "all", to: anonRole, using: sql`false`, withCheck: sql`false` }),
     pgPolicy("allow read clearance_tasks", {
       as: "permissive",
@@ -207,7 +207,7 @@ export const clearanceTemplates = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
-    pgPolicy("templates_period_access", { as: "restrictive", for: "select", to: authenticatedRole, using: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())` }),
+    pgPolicy("templates_period_access", { as: "restrictive", for: "select", to: authenticatedRole, using: sql`(SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id()))` }),
     pgPolicy("users can view template", {
       as: "permissive",
       for: "select",
@@ -324,7 +324,7 @@ export const enrollments = pgTable(
       using: sql`true`,
     }),
     pgPolicy("enrollment_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
-      using: sql`period_id=public.active_academic_period_id() AND public.period_can_read(period_id,student_id)`, withCheck: sql`period_id=public.active_academic_period_id() AND public.period_can_manage(period_id)` }),
+      using: sql`period_id=(SELECT public.active_academic_period_id()) AND ((SELECT public.period_can_manage(public.active_academic_period_id())) OR (student_id=(SELECT public.period_user_id()) AND (SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id()))))`, withCheck: sql`period_id=(SELECT public.active_academic_period_id()) AND (SELECT public.period_can_manage(public.active_academic_period_id()))` }),
     unique("enrollments_student_period_unique").on(table.studentId, table.periodId),
     index("enrollments_period_section").on(table.periodId, table.sectionId),
   ],
@@ -414,8 +414,8 @@ export const clearanceRecords = pgTable(
       sql`(status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Signed'::character varying)::text, ('Incomplete'::character varying)::text])`,
     ),
     pgPolicy("clearance_current_period", { as: "restrictive", for: "all", to: authenticatedRole,
-      using: sql`period_id=public.active_academic_period_id() AND public.period_can_read(period_id,user_id)`, withCheck: sql`period_id=public.active_academic_period_id() AND public.period_can_manage(period_id)` }),
-    pgPolicy("clearance_manager_update", { as: "restrictive", for: "update", to: authenticatedRole, using: sql`public.period_can_manage(period_id)`, withCheck: sql`public.period_can_manage(period_id)` }),
+      using: sql`period_id=(SELECT public.active_academic_period_id()) AND ((SELECT public.period_can_manage(public.active_academic_period_id())) OR (user_id=(SELECT public.period_user_id()) AND (SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id()))))`, withCheck: sql`period_id=(SELECT public.active_academic_period_id()) AND (SELECT public.period_can_manage(public.active_academic_period_id()))` }),
+    pgPolicy("clearance_manager_update", { as: "restrictive", for: "update", to: authenticatedRole, using: sql`(SELECT public.period_can_manage(public.active_academic_period_id()))`, withCheck: sql`(SELECT public.period_can_manage(public.active_academic_period_id()))` }),
     unique("clearance_records_user_template_period_unique").on(table.userId, table.templateId, table.periodId),
     index("clearance_records_period_user").on(table.periodId, table.userId),
     index("clearance_records_period_template").on(table.periodId, table.templateId),
@@ -499,8 +499,8 @@ export const notifications = pgTable(
   },
   (table) => [
     pgPolicy("notifications_period_access", { as: "restrictive", for: "all", to: authenticatedRole,
-      using: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())`,
-      withCheck: sql`public.period_can_read(public.active_academic_period_id(),public.period_user_id())` }),
+      using: sql`(SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id()))`,
+      withCheck: sql`(SELECT public.period_can_read(public.active_academic_period_id(),public.period_user_id()))` }),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.userId],
@@ -574,6 +574,7 @@ export const users = pgTable(
     authId: uuid("auth_id"),
   },
   (table) => [
+    index("users_auth_id_idx").on(table.authId).where(sql`${table.authId} IS NOT NULL`),
     pgPolicy("users can view own user record", {
       as: "permissive",
       for: "select",

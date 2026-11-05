@@ -15,7 +15,7 @@ function load(path, dependencies, globals = {}) {
 const json = { NextResponse: { json: (data, init) => Response.json(data, init) } };
 function database(tables, options = {}) {
   const reads = [];
-  const client = { from(table) {
+  const client = { async rpc() { if(options.failTable) return {error:{message:'Database unavailable'}};return {data:(tables.courses||[]).map(c=>{const sections=(tables.course_sections||[]).filter(s=>s.course_id===c.course_id).map(s=>s.section_id);const templates=(c.clearance_templates||[]).filter(t=>t.is_active).map(t=>t.template_id);return {course_id:c.course_id,students_enrolled:(tables.enrollments||[]).filter(e=>sections.includes(e.section_id)).length,signed_count:(tables.clearance_records||[]).filter(r=>templates.includes(r.template_id)&&r.status==='Signed').length};})};}, from(table) {
     let rows = tables[table.replace(/^current_/, '')] || [], counting = false, offset = 0, end = 999;
     const query = {
       select(selection, config) { counting = config?.count === 'exact'; reads.push({ table, selection, config }); return query; },
@@ -45,7 +45,7 @@ function rateHarness(staff = false, options = {}) {
   };
   const db = database(tables, options);
   const route = load(`src/app/api/admin/${staff ? 'staff' : 'course'}-templates/route.ts`, {
-    'next/server': json, '@/lib/db/supabase-server': { createClient: async () => db.client },
+    'next/server': json, '@/lib/db/supabase-server': { createClient: async () => db.client }, '@/lib/services/admin-read-client': { adminReadClient: async () => db.client },
   });
   return { ...db, tables, route };
 }
@@ -63,7 +63,7 @@ for (const staff of [false, true]) test(`${staff ? 'staff' : 'program'} completi
   response = await h.route.GET();
   assert.equal((await response.json()).data[0].completion_rate, 99);
   assert.match(response.headers.get('cache-control'), /no-store/);
-  assert.ok(h.reads.some((read) => read.table === 'current_clearance_records' && read.config?.head && read.config.count === 'exact'));
+  if(staff) assert.ok(h.reads.some((read) => read.table === 'current_clearance_records' && read.config?.head && read.config.count === 'exact'));
 });
 for (const staff of [false, true]) test('completion query errors do not masquerade as zero progress ' + staff, async () => {
   const h = rateHarness(staff, { failTable: 'current_clearance_records' });
@@ -122,7 +122,8 @@ test('admin listener catches up on subscribe/reconnect and refreshes completion 
     setInterval: (fn) => { intervals.set(1, fn); return 1; }, clearInterval: (id) => intervals.delete(id),
   });
   component.default(); const cleanup = effects[0]();
-  status('SUBSCRIBED'); assert.equal(timers.size, 1);
+  status('SUBSCRIBED'); assert.equal(timers.size, 0);
+  event(); assert.equal(timers.size, 1);
   timers.get(1)(); timers.clear(); event(); release(); await new Promise(setImmediate);
   for (const key of ['stats', 'pipeline-radar', 'student-templates', 'course-templates', 'staff-templates', 'staff']) {
     assert.equal(invalidated.filter((value) => value === 'admin/' + key).length, 2, key);
