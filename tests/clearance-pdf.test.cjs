@@ -126,3 +126,22 @@ test('PDF academic year and term come from the saved clearance period, not curre
   assert.equal(h.text.filter(item => item.value === '2027-2028').length, 0);
   assert.match(h.savedFilename, /2026-2027_Term_1/);
 });
+
+test('staff clearance uses one identity row and omits student and enrollment fields', () => {
+  const h = exportPdf(4, { course_name: 'Staff Clearance', academic_year: '2027-2028', semester: 2 });
+  assert.equal(h.pdf.getNumberOfPages(), 1);
+  for (const value of ['STAFF FULL NAME', 'SIGNATURE', 'DATE SIGNED', 'ALEXANDRA REYES SANTOS']) {
+    assert.equal(h.text.filter(item => item.value === value).length, 2, value);
+  }
+  for (const value of ['STUDENT ID', 'STUDENT FULL NAME', 'STUDENT SIGNATURE', 'ACADEMIC YEAR', 'TERM', 'COURSE / PROGRAM', '2024-000123', '2027-2028', 'Staff Clearance']) {
+    assert.ok(!h.text.some(item => item.value === value), value);
+  }
+  assert.equal(h.text.filter(item => item.value === "STAFF'S COPY").length, 1);
+  assert.equal(h.text.filter(item => item.value === "SCHOOL'S COPY").length, 1);
+  for (const top of [3, 150.5]) {
+    const labels = ['STAFF FULL NAME', 'SIGNATURE', 'DATE SIGNED'].map(value =>
+      h.text.find(item => item.value === value && Math.abs(item.y - (top + 23.5)) < 0.01));
+    assert.ok(labels.every(Boolean), 'all staff fields share one row');
+    assert.ok(h.text.some(item => item.value === 'NOV 05 2026' && Math.abs(item.y - (top + 30.5)) < 0.01));
+  }
+});

@@ -27,6 +27,8 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
   const studentId = studentProfile?.student_id || user?.userId || "";
   const studentName = (studentProfile?.student_name || user?.name || "").toUpperCase();
   const program = studentProfile?.course_name || "";
+  const isStaff = program === "Staff Clearance";
+  const tableStart = isStaff ? 36 : 60;
   const documentPeriod = records[0];
   const academicYear = documentPeriod?.academic_year || studentProfile?.academic_year || "";
   const termNumber = documentPeriod?.term ?? studentProfile?.semester;
@@ -85,7 +87,7 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
   let usedHeight = 0;
   for (const row of rows) {
     const rowHeight = Math.max(row.department.length, 1) * (8 * 1.15 * 25.4 / 72) + 4;
-    if (sheet.length > 0 && usedHeight + rowHeight > tableBottom - 68) {
+    if (sheet.length > 0 && usedHeight + rowHeight > tableBottom - (tableStart + 8)) {
       sheets.push(sheet);
       sheet = [];
       usedHeight = 0;
@@ -132,19 +134,26 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
     const leftWidth = contentWidth * 0.65;
     const rightX = margin + leftWidth;
     const rightWidth = contentWidth - leftWidth;
-    field("STUDENT ID", studentId, margin, top + 20, leftWidth);
-    field("ACADEMIC YEAR", academicYear, rightX, top + 20, rightWidth);
-    field("STUDENT FULL NAME", studentName, margin, top + 32, leftWidth);
-    field("TERM", term, rightX, top + 32, rightWidth);
-    field("COURSE / PROGRAM", program, margin, top + 44, contentWidth * 0.4);
-    field("STUDENT SIGNATURE", "", margin + contentWidth * 0.4, top + 44, contentWidth * 0.3);
-    field("DATE SIGNED", "", margin + contentWidth * 0.7, top + 44, contentWidth * 0.3);
+    if (isStaff) {
+      field("STAFF FULL NAME", studentName, margin, top + 20, contentWidth * 0.5);
+      field("SIGNATURE", "", margin + contentWidth * 0.5, top + 20, contentWidth * 0.25);
+      field("DATE SIGNED", "", margin + contentWidth * 0.75, top + 20, contentWidth * 0.25);
+    } else {
+      field("STUDENT ID", studentId, margin, top + 20, leftWidth);
+      field("ACADEMIC YEAR", academicYear, rightX, top + 20, rightWidth);
+      field("STUDENT FULL NAME", studentName, margin, top + 32, leftWidth);
+      field("TERM", term, rightX, top + 32, rightWidth);
+      field("COURSE / PROGRAM", program, margin, top + 44, contentWidth * 0.4);
+      field("STUDENT SIGNATURE", "", margin + contentWidth * 0.4, top + 44, contentWidth * 0.3);
+      field("DATE SIGNED", "", margin + contentWidth * 0.7, top + 44, contentWidth * 0.3);
+    }
     if (lastSigningOfficer) {
-      stamp(lastSigningOfficer, margin + contentWidth * 0.7 + (contentWidth * 0.3 - 29) / 2, top + 49);
+      const dateX = isStaff ? 0.75 : 0.7;
+      stamp(lastSigningOfficer, margin + contentWidth * dateX + (contentWidth * (1 - dateX) - 29) / 2, top + (isStaff ? 25 : 49));
     }
 
     autoTable(doc, {
-      startY: top + 60,
+      startY: top + tableStart,
       margin: { left: margin, right: margin },
       tableWidth: contentWidth,
       theme: "grid",
@@ -205,7 +214,7 @@ export function exportClearancePDF({ studentProfile, user, records }: ExportClea
 
   sheets.forEach((body, index) => {
     if (index > 0) doc.addPage();
-    renderCopy(3, "STUDENT'S COPY", body, index);
+    renderCopy(3, isStaff ? "STAFF'S COPY" : "STUDENT'S COPY", body, index);
     doc.setDrawColor(140);
     doc.setLineWidth(0.2);
     doc.setLineDashPattern([2, 2], 0);
